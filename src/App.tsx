@@ -6,7 +6,7 @@ export function App() {
   
 
   return (
-    <ThemeProvider defaultTheme="system" storageKey="uma-ui-theme">
+    <ThemeProvider defaultTheme="light" storageKey="uma-ui-theme">
      <AppRoutes />
     </ThemeProvider>
   )
