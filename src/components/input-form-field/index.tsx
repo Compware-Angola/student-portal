@@ -1,12 +1,20 @@
-import {type FieldValues } from 'react-hook-form'
+import { type FieldValues } from 'react-hook-form'
 
 import { Input } from '../ui/input'
 
-import {type InputFormFieldProps } from './type'
+import { type InputFormFieldProps } from './type'
 
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form'
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from '@/components/ui/form'
 
-export function InputFormField<T extends FieldValues>(props: InputFormFieldProps<T>) {
+export function InputFormField<T extends FieldValues>(
+  props: InputFormFieldProps<T>,
+) {
   const { control, name, placeholder, label, type, disabled } = props
 
   return (
@@ -17,7 +25,13 @@ export function InputFormField<T extends FieldValues>(props: InputFormFieldProps
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <Input {...field} disabled={disabled} placeholder={placeholder} type={type} />
+            <Input
+              autoComplete={type === 'password' ? 'current-password' : 'off'}
+              {...field}
+              disabled={disabled}
+              placeholder={placeholder}
+              type={type}
+            />
           </FormControl>
           <FormMessage />
         </FormItem>

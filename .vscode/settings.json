@@ -1,0 +1,20 @@
+{
+  "editor.formatOnSave": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+
+  "tailwindCSS.experimental.classRegex": [
+    ["([\"'`][^\"'`]*.*?[\"'`])", "[\"'`]([^\"'`]*).*?[\"'`]"]
+  ],
+  "cSpell.words": [
+    "heroui",
+    "Hoverable",
+    "inzoteq",
+    "Inzoteq",
+    "Pressable",
+    "supabase",
+    "turbopack",
+    "usehooks"
+  ]
+}

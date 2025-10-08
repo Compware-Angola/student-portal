@@ -1,4 +1,4 @@
-import { AppSidebar } from "./components/app-sidebar"
+import { AppSidebar } from './components/app-sidebar'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -6,14 +6,14 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Separator } from "@/components/ui/separator"
+} from '@/components/ui/breadcrumb'
+import { Separator } from '@/components/ui/separator'
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
-import { Outlet } from "react-router-dom"
+} from '@/components/ui/sidebar'
+import { Outlet } from 'react-router-dom'
 
 export default function Layout() {
   return (
@@ -43,7 +43,7 @@ export default function Layout() {
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-         <Outlet/>
+          <Outlet />
         </div>
       </SidebarInset>
     </SidebarProvider>

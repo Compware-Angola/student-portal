@@ -1,127 +1,126 @@
-"use client"
+'use client'
 
-import * as React from "react"
+import * as React from 'react'
 import {
   BookOpen,
   Bot,
   GalleryVerticalEnd,
   Settings2,
   SquareTerminal,
-} from "lucide-react"
+} from 'lucide-react'
 
-import { NavMain } from "@/components/layout/components/nav-main"
-import { NavUser } from "@/components/layout/components/nav-user"
-import { TeamSwitcher } from "@/components/layout/components/team-switcher"
+import { NavMain } from '@/components/layout/components/nav-main'
+import { NavUser } from '@/components/layout/components/nav-user'
+import { TeamSwitcher } from '@/components/layout/components/team-switcher'
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-} from "@/components/ui/sidebar"
+} from '@/components/ui/sidebar'
 
 // This is sample data.
 const data = {
   user: {
-    name: "Maria Maiamba Pascoal",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
+    name: 'Maria Maiamba Pascoal',
+    email: 'm@example.com',
+    avatar: '/avatars/shadcn.jpg',
   },
   teams: [
     {
-      name: "Metthodost University",
+      name: 'Metthodost University',
       logo: GalleryVerticalEnd,
-      plan: "Portal dos Estudantes",
-    }
+      plan: 'Portal dos Estudantes',
+    },
   ],
   navMain: [
     {
-      title: "Dashboard",
-      url: "#",
+      title: 'Dashboard',
+      url: '#',
       icon: SquareTerminal,
       isActive: true,
       items: [
         {
-          title: "History",
-          url: "#",
+          title: 'History',
+          url: '#',
         },
         {
-          title: "Starred",
-          url: "#",
+          title: 'Starred',
+          url: '#',
         },
         {
-          title: "Settings",
-          url: "#",
+          title: 'Settings',
+          url: '#',
         },
       ],
     },
     {
-      title: "Finanças",
-      url: "#",
+      title: 'Finanças',
+      url: '#',
       icon: Bot,
       items: [
         {
-          title: "Genesis",
-          url: "#",
+          title: 'Genesis',
+          url: '#',
         },
         {
-          title: "Explorer",
-          url: "#",
+          title: 'Explorer',
+          url: '#',
         },
         {
-          title: "Quantum",
-          url: "#",
+          title: 'Quantum',
+          url: '#',
         },
       ],
     },
     {
-      title: "Matrícula",
-      url: "#",
+      title: 'Matrícula',
+      url: '#',
       icon: BookOpen,
       items: [
         {
-          title: "Introduction",
-          url: "#",
+          title: 'Introduction',
+          url: '#',
         },
         {
-          title: "Get Started",
-          url: "#",
+          title: 'Get Started',
+          url: '#',
         },
         {
-          title: "Tutorials",
-          url: "#",
+          title: 'Tutorials',
+          url: '#',
         },
         {
-          title: "Changelog",
-          url: "#",
+          title: 'Changelog',
+          url: '#',
         },
       ],
     },
     {
-      title: "Pagamento Antecipado",
-      url: "#",
+      title: 'Pagamento Antecipado',
+      url: '#',
       icon: Settings2,
       items: [
         {
-          title: "General",
-          url: "#",
+          title: 'General',
+          url: '#',
         },
         {
-          title: "Team",
-          url: "#",
+          title: 'Team',
+          url: '#',
         },
         {
-          title: "Billing",
-          url: "#",
+          title: 'Billing',
+          url: '#',
         },
         {
-          title: "Limits",
-          url: "#",
+          title: 'Limits',
+          url: '#',
         },
       ],
     },
   ],
-
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {

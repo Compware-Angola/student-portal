@@ -7,4 +7,5 @@ export type InputFormFieldProps<T extends FieldValues> = {
   label?: string
   type?: string
   disabled?: boolean
+  autoComplete?: string
 }

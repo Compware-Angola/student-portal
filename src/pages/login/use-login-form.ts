@@ -1,34 +1,44 @@
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
-
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { authenticate } from '@/services/auth.service'
+import { toast } from 'sonner'
+import { useNavigate } from 'react-router-dom'
 export const FormSchema = z.object({
   username: z.string().min(1, {
-    message: "Nome de usuário é obrigatório",
+    message: 'Nome de usuário é obrigatório',
   }),
   password: z.string().min(1, {
-    message: "Senha é obrigatória",
+    message: 'Senha é obrigatória',
   }),
 })
 
 export type LoginFormData = z.infer<typeof FormSchema>
 
 export function useLoginForm() {
-  // 1️⃣ Configura o formulário
+  const navigate = useNavigate()
+
   const form = useForm<LoginFormData>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      username: "",
-      password: "",
+      username: '',
+      password: '',
     },
   })
 
-  // 2️⃣ Define o comportamento ao submeter
-  function onSubmit(data: LoginFormData) {
-    console.log("Dados de login:", data)
-    // Aqui pode chamar API de autenticação, redirecionar, etc.
+  async function onSubmit(data: LoginFormData) {
+    try {
+      const response = await authenticate(data)
+      const token = response.token
+      localStorage.setItem('token', token)
+      toast.success('Autenticado com sucesso!')
+      navigate('/')
+    } catch (error) {
+      toast.error(
+        'Credenciais inválidas. Verifique suas credenciais e tente novamente.',
+      )
+    }
   }
 
-  // 3️⃣ Retorna o que o componente precisa
   return { form, onSubmit }
 }
