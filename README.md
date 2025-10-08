@@ -310,7 +310,7 @@ src/
 | Tipo de elemento        | Padrão        | Exemplo                     |
 | ----------------------- | ------------- | --------------------------- |
 | **Pastas**              | `kebab-case`  | `user-profile/`             |
-| **Arquivos**            | `camelCase`   | `userService.ts`            |
+| **Arquivos**            | `kebab-cas`   | `user-service.ts`            |
 | **Variáveis**           | `camelCase`   | `userList`, `dashboardData` |
 | **Componentes/Classes** | `PascalCase`  | `UserCard`, `DashboardPage` |
 | **Constantes**          | `UPPER_SNAKE` | `DEFAULT_THEME`             |
