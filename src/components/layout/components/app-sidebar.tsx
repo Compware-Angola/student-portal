@@ -2,22 +2,16 @@
 
 import * as React from "react"
 import {
-  AudioWaveform,
   BookOpen,
   Bot,
-  Command,
-  Frame,
   GalleryVerticalEnd,
-  Map,
-  PieChart,
   Settings2,
   SquareTerminal,
 } from "lucide-react"
 
-import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
-import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
+import { NavMain } from "@/components/layout/components/nav-main"
+import { NavUser } from "@/components/layout/components/nav-user"
+import { TeamSwitcher } from "@/components/layout/components/team-switcher"
 import {
   Sidebar,
   SidebarContent,
@@ -29,30 +23,20 @@ import {
 // This is sample data.
 const data = {
   user: {
-    name: "shadcn",
+    name: "Maria Maiamba Pascoal",
     email: "m@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
   teams: [
     {
-      name: "Acme Inc",
+      name: "Metthodost University",
       logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
+      plan: "Portal dos Estudantes",
+    }
   ],
   navMain: [
     {
-      title: "Playground",
+      title: "Dashboard",
       url: "#",
       icon: SquareTerminal,
       isActive: true,
@@ -72,7 +56,7 @@ const data = {
       ],
     },
     {
-      title: "Models",
+      title: "Finanças",
       url: "#",
       icon: Bot,
       items: [
@@ -91,7 +75,7 @@ const data = {
       ],
     },
     {
-      title: "Documentation",
+      title: "Matrícula",
       url: "#",
       icon: BookOpen,
       items: [
@@ -114,7 +98,7 @@ const data = {
       ],
     },
     {
-      title: "Settings",
+      title: "Pagamento Antecipado",
       url: "#",
       icon: Settings2,
       items: [
@@ -137,23 +121,7 @@ const data = {
       ],
     },
   ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
+
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -164,7 +132,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
