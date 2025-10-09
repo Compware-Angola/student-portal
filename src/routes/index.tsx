@@ -1,15 +1,17 @@
-import { BrowserRouter, Routes } from "react-router";
-import { AuthRoutes } from "./auth";
-import { MainRoutes } from "./main";
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { AuthRoutes } from './auth'
+import { MainRoutes } from './main'
+import { FallbackRoute } from './fallback'
 
-export  function AppRoutes() {
+export function AppRoutes() {
   return (
-        <BrowserRouter>
-            <Routes>
-             {AuthRoutes()}
-             {MainRoutes()}
-            </Routes>
+    <BrowserRouter>
+      <Routes>
+        {AuthRoutes()}
+        {MainRoutes()}
 
-        </BrowserRouter>
-  );
+        <Route path="*" element={<FallbackRoute />} />
+      </Routes>
+    </BrowserRouter>
+  )
 }

@@ -16,24 +16,13 @@ export default defineConfig([
       tseslint.configs.recommended,
       reactHooks.configs['recommended-latest'],
       reactRefresh.configs.vite,
-      prettier, 
+      prettier,
     ],
     plugins: {
-      prettier: prettierPlugin, 
+      prettier: prettierPlugin,
     },
     rules: {
-      ...prettierPlugin.configs.recommended.rules, 
-      'prettier/prettier': [
-        'error',
-        {
-          semi: false,
-          singleQuote: true,
-          trailingComma: 'all',
-          printWidth: 100,
-          tabWidth: 2,
-          endOfLine: 'auto',
-        },
-      ],
+      ...prettierPlugin.configs.recommended.rules,
     },
     languageOptions: {
       ecmaVersion: 2020,
