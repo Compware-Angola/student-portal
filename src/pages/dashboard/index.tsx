@@ -9,10 +9,10 @@ import {
   Info,
   Plus,
   ShieldAlertIcon,
-} from "lucide-react";
-import { StatisticCard } from "./components/statistic-card";
-import { DashAction } from "./components/dash-action";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+} from 'lucide-react'
+import { StatisticCard } from './components/statistic-card'
+import { DashAction } from './components/dash-action'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Item,
   ItemActions,
@@ -20,7 +20,7 @@ import {
   ItemDescription,
   ItemMedia,
   ItemTitle,
-} from "@/components/ui/item";
+} from '@/components/ui/item'
 
 export function Dashboard() {
   return (
@@ -150,5 +150,5 @@ export function Dashboard() {
         </div>
       </div>
     </>
-  );
+  )
 }

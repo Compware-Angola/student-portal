@@ -4,21 +4,21 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import type { ReactNode } from "react";
-type Variant = "red" | "blue" | "yellow" | "green";
+} from '@/components/ui/card'
+import type { ReactNode } from 'react'
+type Variant = 'red' | 'blue' | 'yellow' | 'green'
 interface IStatisticCardProps {
-  icon: ReactNode;
-  value: string;
-  text: string;
-  variant: Variant;
+  icon: ReactNode
+  value: string
+  text: string
+  variant: Variant
 }
 const VARIANT_COLORS: Record<Variant, string> = {
-  red: "bg-[#FF6C84]",
-  blue: "bg-[#70B2FF]",
-  yellow: "bg-[#FFC97C]",
-  green: "bg-[#54DFC3]",
-};
+  red: 'bg-[#FF6C84]',
+  blue: 'bg-[#70B2FF]',
+  yellow: 'bg-[#FFC97C]',
+  green: 'bg-[#54DFC3]',
+}
 export function StatisticCard({
   icon,
   text,
@@ -41,5 +41,5 @@ export function StatisticCard({
         </CardFooter>
       </Card>
     </>
-  );
+  )
 }

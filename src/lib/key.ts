@@ -1,11 +1,21 @@
 import ky from 'ky'
 
-const API_URL = 'http://192.168.30.45:3000/api'
+const API_URL = import.meta.env.VITE_API_URL
 
-type ApiErrorResponse = {
+export type ApiErrorResponse = {
   message?: string
   error?: string
-  [key: string]: any
+}
+
+export class ApiError extends Error {
+  status: number
+  data?: ApiErrorResponse
+
+  constructor(message: string, status: number, data?: ApiErrorResponse) {
+    super(message)
+    this.status = status
+    this.data = data
+  }
 }
 
 export const api = ky.create({
@@ -13,22 +23,27 @@ export const api = ky.create({
   credentials: 'include',
   hooks: {
     afterResponse: [
-      async (_request, _options, response) => {
+      async (request, _options, response) => {
         if (!response.ok) {
+          if (
+            response.status === 401 &&
+            !request.url.includes('/api/v1/auth')
+          ) {
+            localStorage.removeItem('token')
+          }
           try {
             const errorData = (await response.json()) as ApiErrorResponse
-
-            const error = new Error(
+            const message =
               errorData?.message ||
-                errorData?.error ||
-                `Erro ${response.status}`,
-            ) as Error & { data?: ApiErrorResponse; status?: number }
+              errorData?.error ||
+              `Erro ${response.status}`
 
-            error.data = errorData
-            error.status = response.status
-            throw error
-          } catch (e) {
-            throw new Error(`Erro ${response.status}: ${response.statusText}`)
+            throw new ApiError(message, response.status, errorData)
+          } catch {
+            throw new ApiError(
+              `Erro ${response.status}: ${response.statusText}`,
+              response.status,
+            )
           }
         }
       },
