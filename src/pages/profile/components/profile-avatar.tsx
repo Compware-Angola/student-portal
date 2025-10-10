@@ -16,7 +16,9 @@ export function ProfileAvatar({ name, status }: Props) {
           {initial}
         </AvatarFallback>
       </Avatar>
-      <Badge className="absolute bottom-0 ">{status}</Badge>
+      <Badge className="absolute bottom-0 bg-emerald-500 hover:bg-emerald-400 ">
+        {status}
+      </Badge>
     </div>
   )
 }

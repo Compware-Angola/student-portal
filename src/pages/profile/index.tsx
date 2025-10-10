@@ -19,7 +19,7 @@ export function Profile() {
   })
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-screen">
       <div className="max-w-6xl mx-auto space-y-5">
         <Card>
           <CardContent className="">

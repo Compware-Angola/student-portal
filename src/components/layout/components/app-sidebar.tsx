@@ -43,7 +43,7 @@ const data = {
     },
     {
       title: 'Finanças',
-      url: '#',
+      url: '/financa',
       icon: Bot,
     },
     {
