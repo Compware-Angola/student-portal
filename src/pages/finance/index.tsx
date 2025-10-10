@@ -162,7 +162,7 @@ export function Finance() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold  mb-2">Financeiro Escolar</h1>
+            <h1 className="text-3xl font-bold  mb-2">Finanças</h1>
             <p className="">Acompanhe suas mensalidades e pagamentos</p>
           </div>
           {/*<div className="flex gap-3">
