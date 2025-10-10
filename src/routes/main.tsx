@@ -4,6 +4,7 @@ import { Route } from 'react-router-dom'
 import { RequireAuth } from './require-auth'
 import { Enrollment } from '@/pages/enrollment'
 import { ConfirmEnrollment } from '@/pages/enrollment/confirm-enrollment'
+import { Profile } from '@/pages/profile'
 
 export function MainRoutes() {
   return (
@@ -16,8 +17,9 @@ export function MainRoutes() {
       }
     >
       <Route index element={<Dashboard />} />
-      <Route path='/matricula' element={<Enrollment />} />
-      <Route path='/confirmar-matricula' element={<ConfirmEnrollment />} />
+      <Route path="/matricula" element={<Enrollment />} />
+      <Route path="/confirmar-matricula" element={<ConfirmEnrollment />} />
+      <Route path="/perfil" element={<Profile />} />
     </Route>
   )
 }

@@ -51,7 +51,11 @@ export function logout(): Promise<void> {
 //   return api.get('v1/auth/profile').json<Profile>()
 // }
 
-export async function getEnrollments(studentId: string): Promise<EnrollmentResponse> {
-  const response = await api.get(`v1/enrrolments?search=${studentId}`).json<EnrollmentResponse>()
+export async function getEnrollments(
+  studentId: string,
+): Promise<EnrollmentResponse> {
+  const response = await api
+    .get(`v1/enrrolments?search=${studentId}`)
+    .json<EnrollmentResponse>()
   return response
 }

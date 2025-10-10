@@ -40,23 +40,25 @@ const data = {
       url: '/',
       icon: SquareTerminal,
       isActive: true,
-
     },
     {
       title: 'Finanças',
       url: '#',
       icon: Bot,
-
     },
     {
       title: 'Matrícula',
       url: '/matricula',
       icon: BookOpen,
-
     },
     {
       title: 'Pagamento Antecipado',
       url: '#',
+      icon: Settings2,
+    },
+    {
+      title: 'Perfil',
+      url: '/perfil',
       icon: Settings2,
     },
   ],

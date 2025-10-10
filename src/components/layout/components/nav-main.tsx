@@ -30,8 +30,8 @@ export function NavMain({
       url: string
     }[]
   }[]
-  }) {
-  const navigate = useNavigate();
+}) {
+  const navigate = useNavigate()
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
@@ -43,7 +43,7 @@ export function NavMain({
             defaultOpen={item.isActive}
             className="group/collapsible"
           >
-            <SidebarMenuItem onClick={()=> navigate(item.url)}>
+            <SidebarMenuItem onClick={() => navigate(item.url)}>
               <CollapsibleTrigger asChild>
                 <SidebarMenuButton tooltip={item.title}>
                   {item.icon && <item.icon />}
