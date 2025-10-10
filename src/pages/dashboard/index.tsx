@@ -1,8 +1,10 @@
 import {
+  AlertCircle,
   BadgeCheck,
   BookOpen,
   Calendar,
   CircleDollarSign,
+  Clock,
   CreditCard,
   GraduationCap,
   HeartHandshake,
@@ -22,134 +24,156 @@ import {
   ItemTitle,
 } from '@/components/ui/item'
 import { useNavigate } from 'react-router-dom'
+import { Progress } from '@/components/ui/progress'
 
 export function Dashboard() {
   const navigate = useNavigate()
+  const studentData = {
+    name: 'João Silva',
+    course: 'Engenharia Informática',
+    semester: '5º Semestre',
+    averageGrade: 15.7,
+    attendance: 92,
+    nextClass: {
+      subject: 'Programação Web',
+      time: '14:00',
+      room: 'Lab 3',
+    },
+    pendingTasks: 3,
+  }
   return (
     <>
-      <div className="grid auto-rows-min gap-2 md:grid-cols-4">
-        <StatisticCard
-          value="3.75"
-          text="GPA Actual"
-          variant="green"
-          icon={<GraduationCap />}
-        />
-        <StatisticCard
-          value="45"
-          text="Créditos Concluidos"
-          variant="yellow"
-          icon={<BookOpen />}
-        />
-        <StatisticCard
-          value="AOA125.500"
-          text="Divida Pendente"
-          variant="blue"
-          icon={<Info />}
-        />
-        <StatisticCard
-          value="6º"
-          text="Semestre Actual"
-          variant="red"
-          icon={<Calendar />}
-        />
-      </div>
-
-      <div className="mt-4">
-        <h4 className="scroll-m-20 text-base font-medium tracking-tight mb-2">
-          Ações Rápidas
-        </h4>
-        <div className="grid auto-rows-min gap-2 md:grid-cols-4">
-          <DashAction
-            onClick={() => navigate('/financa')}
-            icon={<CreditCard className="w-12 text-[#5097FF] font-medium" />}
-            title="Ver Finanças"
-            content="Consulte suas dividas e histórico de pagamentos"
-          />
-          <DashAction
-            onClick={() => navigate('/matricula')}
-            icon={<Plus className="w-12 text-[#4eca83] font-medium" />}
-            title="Nova Matricula"
-            content="Matricule-se em novas disciplinas"
-          />
-          <DashAction
-            onClick={() => navigate('/pagamento-antecipado')}
-            icon={<CircleDollarSign className="w-12 text-[#f25c49]" />}
-            title="Pagamento Antecipado"
-            content="Pague antecipadamente e ganhe desconto"
-          />
-          <DashAction
-            onClick={() => alert('Em desenvolvimento')}
-            icon={<HeartHandshake className="w-12 text-[#F44769]" />}
-            title="Renegociar Divida"
-            content="Negocie suas pendências"
-          />
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Bem-vindo, {studentData.name}
+          </h1>
+          <p className="text-muted-foreground">
+            {studentData.course} - {studentData.semester}
+          </p>
         </div>
-      </div>
-      <div className="mt-4">
-        <div className="grid gap-2 md:grid-cols-2 ">
-          <Card className="shadow-none rounded-md">
-            <CardHeader>
-              <CardTitle className="text-base font-medium">
-                Atividades Recentes
-              </CardTitle>
+
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Média Geral</CardTitle>
+              <BookOpen className="h-4 w-4 text-primary" />
             </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="flex w-full max-w-lg flex-col gap-6">
-                <Item>
-                  <ItemMedia variant="icon">
-                    <BadgeCheck />
-                  </ItemMedia>
-                  <ItemContent>
-                    <ItemTitle>Mátricula em Cálculo II confirmada</ItemTitle>
-                    <ItemDescription>Há 1 dia</ItemDescription>
-                  </ItemContent>
-                  <ItemActions></ItemActions>
-                </Item>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {studentData.averageGrade}
               </div>
-              <div className="flex w-full max-w-lg flex-col gap-6">
-                <Item>
-                  <ItemMedia variant="icon">
-                    <ShieldAlertIcon />
-                  </ItemMedia>
-                  <ItemContent>
-                    <ItemTitle>Pagamento de AOA 45.000 Vencido</ItemTitle>
-                    <ItemDescription>Há 1 dia</ItemDescription>
-                  </ItemContent>
-                  <ItemActions></ItemActions>
-                </Item>
+              <p className="text-xs text-muted-foreground">Em 20 valores</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Frequência</CardTitle>
+              <Calendar className="h-4 w-4 text-success" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {studentData.attendance}%
+              </div>
+              <Progress value={studentData.attendance} className="mt-2" />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Próxima Aula
+              </CardTitle>
+              <Clock className="h-4 w-4 text-info" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {studentData.nextClass.time}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {studentData.nextClass.subject}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Tarefas Pendentes
+              </CardTitle>
+              <AlertCircle className="h-4 w-4 text-warning" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {studentData.pendingTasks}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Para entregar esta semana
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Avisos Recentes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3 rounded-lg border p-3">
+                  <AlertCircle className="mt-0.5 h-5 w-5 text-warning" />
+                  <div>
+                    <p className="text-sm font-medium">Prazo de Matrícula</p>
+                    <p className="text-xs text-muted-foreground">
+                      A renovação de matrícula termina em 5 dias
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 rounded-lg border p-3">
+                  <AlertCircle className="mt-0.5 h-5 w-5 text-info" />
+                  <div>
+                    <p className="text-sm font-medium">
+                      Novo Material Disponível
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Slides da aula de Bases de Dados foram publicados
+                    </p>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
-          <Card className="shadow-none rounded-md">
+
+          <Card>
             <CardHeader>
-              <CardTitle className="text-base font-medium">
-                Eventos Recentes
-              </CardTitle>
+              <CardTitle>Horário de Hoje</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="flex w-full max-w-lg flex-col gap-6">
-                <Item>
-                  <ItemMedia variant="icon">
-                    <Calendar />
-                  </ItemMedia>
-                  <ItemContent>
-                    <ItemTitle>Prova de Física </ItemTitle>
-                    <ItemDescription>15 de Setembro</ItemDescription>
-                  </ItemContent>
-                  <ItemActions></ItemActions>
-                </Item>
-              </div>
-              <div className="flex w-full max-w-lg flex-col gap-6">
-                <Item>
-                  <ItemMedia variant="icon">
-                    <Calendar />
-                  </ItemMedia>
-                  <ItemContent>
-                    <ItemTitle>Inicio das Matrículas</ItemTitle>
-                    <ItemDescription>29 de Setembro</ItemDescription>
-                  </ItemContent>
-                  <ItemActions></ItemActions>
-                </Item>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between rounded-lg border p-3">
+                  <div>
+                    <p className="font-medium">Programação Web</p>
+                    <p className="text-sm text-muted-foreground">
+                      14:00 - 16:00
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                    Lab 3
+                  </span>
+                </div>
+                <div className="flex items-center justify-between rounded-lg border p-3">
+                  <div>
+                    <p className="font-medium">Sistemas Operativos</p>
+                    <p className="text-sm text-muted-foreground">
+                      16:00 - 18:00
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-secondary/10 px-3 py-1 text-xs font-medium text-secondary">
+                    Sala 205
+                  </span>
+                </div>
               </div>
             </CardContent>
           </Card>

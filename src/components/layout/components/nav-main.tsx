@@ -14,7 +14,8 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from '@/components/ui/sidebar'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation, matchPath } from 'react-router-dom'
+import clsx from 'clsx'
 
 export function NavMain({
   items,
@@ -27,10 +28,12 @@ export function NavMain({
     items?: {
       title: string
       url: string
+      isActive?: boolean
     }[]
   }[]
 }) {
   const navigate = useNavigate()
+  const location = useLocation()
 
   return (
     <SidebarGroup>
@@ -38,35 +41,57 @@ export function NavMain({
       <SidebarMenu>
         {items.map((item) => {
           const hasSubItems = item.items && item.items.length > 0
+          const isActive = !!matchPath(
+            { path: item.url, end: item.url === '/' },
+            location.pathname,
+          )
 
-          // Caso o item tenha submenus
+          // ✅ ITEM COM SUBMENU
           if (hasSubItems) {
             return (
               <Collapsible
                 key={item.title}
                 asChild
-                defaultOpen={item.isActive}
+                defaultOpen={isActive}
                 className="group/collapsible"
               >
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
-                    <SidebarMenuButton tooltip={item.title}>
+                    <SidebarMenuButton
+                      tooltip={item.title}
+                      className={clsx(
+                        'transition-colors',
+                        isActive &&
+                          'bg-primary text-primary-foreground hover:bg-primary/90',
+                      )}
+                    >
                       {item.icon && <item.icon />}
                       <span>{item.title}</span>
                       <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
+
                   <CollapsibleContent>
                     <SidebarMenuSub>
-                      {item.items?.map((subItem) => (
-                        <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton asChild>
-                            <a href={subItem.url}>
-                              <span>{subItem.title}</span>
-                            </a>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
+                      {item.items?.map((subItem) => {
+                        const subActive =
+                          subItem.isActive || location.pathname === subItem.url
+                        return (
+                          <SidebarMenuSubItem key={subItem.title}>
+                            <SidebarMenuSubButton
+                              asChild
+                              className={clsx(
+                                subActive &&
+                                  'bg-primary text-primary-foreground hover:bg-primary/90',
+                              )}
+                            >
+                              <a href={subItem.url}>
+                                <span>{subItem.title}</span>
+                              </a>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        )
+                      })}
                     </SidebarMenuSub>
                   </CollapsibleContent>
                 </SidebarMenuItem>
@@ -74,13 +99,17 @@ export function NavMain({
             )
           }
 
-          // Caso o item NÃO tenha submenus
+          // ✅ ITEM SEM SUBMENU
           return (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
-                className="cursor-pointer"
                 tooltip={item.title}
                 onClick={() => navigate(item.url)}
+                className={clsx(
+                  'transition-colors',
+                  isActive &&
+                    'bg-primary text-primary-foreground hover:bg-primary/90',
+                )}
               >
                 {item.icon && <item.icon />}
                 <span>{item.title}</span>

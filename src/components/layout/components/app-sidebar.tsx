@@ -2,12 +2,9 @@
 
 import * as React from 'react'
 import {
-
   CreditCard,
-  GalleryVerticalEnd,
   GraduationCap,
   LayoutDashboard,
- 
   User,
   Wallet,
 } from 'lucide-react'
@@ -30,13 +27,7 @@ const data = {
     email: 'canhanga96@gmail.cpm',
     avatar: '/avatars/shadcn.jpg',
   },
-  teams: [
-    {
-      name: 'Metthodost University',
-      logo: GalleryVerticalEnd,
-      plan: 'Portal dos Estudantes',
-    },
-  ],
+
   navMain: [
     {
       title: 'Dashboard',
@@ -52,17 +43,17 @@ const data = {
     {
       title: 'Matrícula',
       url: '/matricula',
-      icon: GraduationCap,
+      icon: GraduationCap, // 🎓 representa educação e matrícula
     },
     {
       title: 'Pagamento Antecipado',
       url: '/pagamento-antecipado',
-      icon: CreditCard,
+      icon: CreditCard, // 💳 pagamento direto, fácil associação
     },
     {
       title: 'Perfil',
       url: '/perfil',
-      icon: User,
+      icon: User, // 👤 clássico para perfil do usuário
     },
   ],
 }
@@ -71,7 +62,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <TeamSwitcher />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />

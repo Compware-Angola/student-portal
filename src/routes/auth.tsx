@@ -1,5 +1,5 @@
 import { useAuth } from '@/hooks/use-auth'
-import { LoginPage } from '@/pages/login'
+import { Login } from '@/pages/login'
 import { Route, Navigate } from 'react-router-dom'
 
 export function AuthRoutes() {
@@ -11,7 +11,7 @@ export function AuthRoutes() {
 
       <Route
         path="login"
-        element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />}
+        element={isAuthenticated ? <Navigate to="/" replace /> : <Login />}
       />
     </Route>
   )
