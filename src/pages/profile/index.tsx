@@ -20,7 +20,7 @@ export function Profile() {
 
   return (
     <div className="min-h-screen">
-      <div className="max-w-6xl mx-auto space-y-5">
+      <div className="space-y-6">
         <Card>
           <CardContent className="">
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
@@ -40,7 +40,7 @@ export function Profile() {
             <TabsTrigger value="contact">Contacto</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="personal">
+          <TabsContent value="personal" className="mt-6">
             <InfoTab
               title="Informações Pessoais"
               description="Gerencie suas informações pessoais"
@@ -56,7 +56,7 @@ export function Profile() {
             </InfoTab>
           </TabsContent>
 
-          <TabsContent value="academic">
+          <TabsContent value="academic" className="mt-6">
             <InfoTab
               title="Dados Académicos"
               description="Informações sobre seu curso e matrícula"
@@ -70,7 +70,7 @@ export function Profile() {
             </InfoTab>
           </TabsContent>
 
-          <TabsContent value="contact">
+          <TabsContent value="contact" className="mt-6">
             <InfoTab
               title="Informações de Contacto"
               description="Gerencie suas formas de contacto"

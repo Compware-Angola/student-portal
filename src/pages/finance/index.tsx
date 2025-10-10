@@ -1,16 +1,8 @@
 import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import {
-  Wallet,
-  CheckCircle2,
-  Clock,
-  Download,
-  CreditCard,
-  BookOpen,
-} from 'lucide-react'
+import { Wallet, CheckCircle2, Clock, BookOpen } from 'lucide-react'
 import { StatCard } from './componets/stat-card'
 import { TuitionItem } from './componets/tuition-item'
 import { FeeItem } from './componets/fee-item'
