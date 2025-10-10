@@ -4,9 +4,14 @@ import * as React from 'react'
 import {
   BookOpen,
   Bot,
+  CreditCard,
   GalleryVerticalEnd,
+  GraduationCap,
+  LayoutDashboard,
   Settings2,
   SquareTerminal,
+  User,
+  Wallet,
 } from 'lucide-react'
 
 import { NavMain } from '@/components/layout/components/nav-main'
@@ -23,8 +28,8 @@ import {
 // This is sample data.
 const data = {
   user: {
-    name: 'Maria Maiamba Pascoal',
-    email: 'm@example.com',
+    name: 'Domingos Canhnaga',
+    email: 'canhanga96@gmail.cpm',
     avatar: '/avatars/shadcn.jpg',
   },
   teams: [
@@ -38,26 +43,28 @@ const data = {
     {
       title: 'Dashboard',
       url: '/',
-      icon: SquareTerminal,
+      icon: LayoutDashboard,
       isActive: true,
-
     },
     {
       title: 'Finanças',
-      url: '#',
-      icon: Bot,
-
+      url: '/financa',
+      icon: Wallet,
     },
     {
       title: 'Matrícula',
       url: '/matricula',
-      icon: BookOpen,
-
+      icon: GraduationCap,
     },
     {
       title: 'Pagamento Antecipado',
-      url: '#',
-      icon: Settings2,
+      url: '/pagamento-antecipado',
+      icon: CreditCard,
+    },
+    {
+      title: 'Perfil',
+      url: '/perfil',
+      icon: User,
     },
   ],
 }
