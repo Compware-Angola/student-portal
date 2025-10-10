@@ -1,5 +1,6 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { handleGeneratePDF } from '@/utils/generate-ticket'
 import {
   AlertCircle,
   Calendar,
@@ -44,7 +45,26 @@ export const TuitionItem = ({
 
   const config = statusConfig[status]
   const StatusIcon = config.icon
-
+  const generatePdfTicket = () => {
+    const boleto = {
+      cedente: 'UMA',
+      entity: '11248',
+      reference: '100158781',
+      value: '12.125,00',
+      code: '20211242',
+      vencimento: '08/04/2020',
+      dataDocumento: '05/04/2020',
+      dataProcessamento: '08/04/2020',
+      discount: '100,00',
+      shift: 'EIN9_M1',
+      course: 'Curso de Engenharia Informática',
+      payer: 'Nzinga Enoque António',
+      codigoBarras: '04691796800000010000001234329000002651234567890',
+      instruction:
+        'Quando a data de vencimento de um talão expirar, um novo talão será automaticamente gerado.\nPedimos que verifique regularmente suas datas de vencimento para garantir que os pagamentos sejam efetuados dentro do prazo e evitar atrasos.',
+    }
+    handleGeneratePDF(boleto)
+  }
   return (
     <div className="flex items-center gap-4 p-3 rounded-lg bg-accent  border border-transparent hover:border-emerald-500/50 transition-all">
       <div className="flex-shrink-0 items ">
@@ -75,7 +95,11 @@ export const TuitionItem = ({
           </Button>
         )}
         {status === 'pending' && (
-          <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700">
+          <Button
+            onClick={() => generatePdfTicket()}
+            size="sm"
+            className="bg-emerald-600 hover:bg-emerald-700"
+          >
             <CreditCard className="w-4 h-4 mr-1" />
             Pagar
           </Button>
