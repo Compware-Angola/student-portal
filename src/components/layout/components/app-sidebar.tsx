@@ -2,14 +2,12 @@
 
 import * as React from 'react'
 import {
-  BookOpen,
-  Bot,
+
   CreditCard,
   GalleryVerticalEnd,
   GraduationCap,
   LayoutDashboard,
-  Settings2,
-  SquareTerminal,
+ 
   User,
   Wallet,
 } from 'lucide-react'

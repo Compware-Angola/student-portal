@@ -23,7 +23,7 @@ export const TuitionItem = ({
   amount,
   dueDate,
   status,
-  reference,
+
 }: Props) => {
   const statusConfig = {
     paid: {
