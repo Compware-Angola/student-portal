@@ -21,8 +21,10 @@ import {
   ItemMedia,
   ItemTitle,
 } from '@/components/ui/item'
+import { useNavigate } from 'react-router-dom'
 
 export function Dashboard() {
+  const navigate = useNavigate()
   return (
     <>
       <div className="grid auto-rows-min gap-2 md:grid-cols-4">
@@ -58,21 +60,25 @@ export function Dashboard() {
         </h4>
         <div className="grid auto-rows-min gap-2 md:grid-cols-4">
           <DashAction
+            onClick={() => navigate('/financa')}
             icon={<CreditCard className="w-12 text-[#5097FF] font-medium" />}
             title="Ver Finanças"
             content="Consulte suas dividas e histórico de pagamentos"
           />
           <DashAction
+            onClick={() => navigate('/matricula')}
             icon={<Plus className="w-12 text-[#4eca83] font-medium" />}
             title="Nova Matricula"
             content="Matricule-se em novas disciplinas"
           />
           <DashAction
+            onClick={() => navigate('/pagamento-antecipado')}
             icon={<CircleDollarSign className="w-12 text-[#f25c49]" />}
             title="Pagamento Antecipado"
             content="Pague antecipadamente e ganhe desconto"
           />
           <DashAction
+            onClick={() => alert('Em desenvolvimento')}
             icon={<HeartHandshake className="w-12 text-[#F44769]" />}
             title="Renegociar Divida"
             content="Negocie suas pendências"

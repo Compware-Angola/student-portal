@@ -6,7 +6,7 @@ import { ReactQueryProvider } from './providers/react-query.provider'
 
 export function App() {
   return (
-    <ThemeProvider defaultTheme="system" storageKey="uma-ui-theme">
+    <ThemeProvider defaultTheme="dark" storageKey="uma-ui-theme">
       <ReactQueryProvider>
         <AppRoutes />
         <Toaster richColors closeButton />
