@@ -4,13 +4,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { authenticate } from '@/services/auth.service'
 import { toast } from 'sonner'
 import { useNavigate } from 'react-router-dom'
+import { ApiError } from '@/lib/key'
 export const FormSchema = z.object({
-  username: z.string().min(1, {
-    message: 'Nome de usuário é obrigatório',
-  }),
-  password: z.string().min(1, {
-    message: 'Senha é obrigatória',
-  }),
+  username: z.string().min(1, { message: 'Nome de usuário é obrigatório' }),
+  password: z.string().min(1, { message: 'Senha é obrigatória' }),
 })
 
 export type LoginFormData = z.infer<typeof FormSchema>
@@ -29,14 +26,27 @@ export function useLoginForm() {
   async function onSubmit(data: LoginFormData) {
     try {
       const response = await authenticate(data)
-      const token = response.token
-      localStorage.setItem('token', token)
+      localStorage.setItem('token', response.token)
       toast.success('Autenticado com sucesso!')
       navigate('/')
     } catch (error) {
-      toast.error(
-        'Credenciais inválidas. Verifique suas credenciais e tente novamente.',
-      )
+      if (error instanceof ApiError) {
+        switch (error.status) {
+          case 400:
+            toast.error('Dados inválidos, verifique os campos.')
+            break
+          case 401:
+            toast.error('Credenciais inválidas, tente novamente.')
+            break
+          case 500:
+            toast.error('Erro no servidor. Tente mais tarde.')
+            break
+          default:
+            toast.error('Erro desconhecido contacte suporte.')
+        }
+        return
+      }
+      toast.error('Erro desconhecido contacte suporte.')
     }
   }
 

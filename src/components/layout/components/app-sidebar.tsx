@@ -4,9 +4,14 @@ import * as React from 'react'
 import {
   BookOpen,
   Bot,
+  CreditCard,
   GalleryVerticalEnd,
+  GraduationCap,
+  LayoutDashboard,
   Settings2,
   SquareTerminal,
+  User,
+  Wallet,
 } from 'lucide-react'
 
 import { NavMain } from '@/components/layout/components/nav-main'
@@ -23,8 +28,8 @@ import {
 // This is sample data.
 const data = {
   user: {
-    name: 'Maria Maiamba Pascoal',
-    email: 'm@example.com',
+    name: 'Domingos Canhnaga',
+    email: 'canhanga96@gmail.cpm',
     avatar: '/avatars/shadcn.jpg',
   },
   teams: [
@@ -37,88 +42,29 @@ const data = {
   navMain: [
     {
       title: 'Dashboard',
-      url: '#',
-      icon: SquareTerminal,
+      url: '/',
+      icon: LayoutDashboard,
       isActive: true,
-      items: [
-        {
-          title: 'History',
-          url: '#',
-        },
-        {
-          title: 'Starred',
-          url: '#',
-        },
-        {
-          title: 'Settings',
-          url: '#',
-        },
-      ],
     },
     {
       title: 'Finanças',
-      url: '#',
-      icon: Bot,
-      items: [
-        {
-          title: 'Genesis',
-          url: '#',
-        },
-        {
-          title: 'Explorer',
-          url: '#',
-        },
-        {
-          title: 'Quantum',
-          url: '#',
-        },
-      ],
+      url: '/financa',
+      icon: Wallet,
     },
     {
       title: 'Matrícula',
-      url: '#',
-      icon: BookOpen,
-      items: [
-        {
-          title: 'Introduction',
-          url: '#',
-        },
-        {
-          title: 'Get Started',
-          url: '#',
-        },
-        {
-          title: 'Tutorials',
-          url: '#',
-        },
-        {
-          title: 'Changelog',
-          url: '#',
-        },
-      ],
+      url: '/matricula',
+      icon: GraduationCap,
     },
     {
       title: 'Pagamento Antecipado',
-      url: '#',
-      icon: Settings2,
-      items: [
-        {
-          title: 'General',
-          url: '#',
-        },
-        {
-          title: 'Team',
-          url: '#',
-        },
-        {
-          title: 'Billing',
-          url: '#',
-        },
-        {
-          title: 'Limits',
-          url: '#',
-        },
-      ],
+      url: '/pagamento-antecipado',
+      icon: CreditCard,
+    },
+    {
+      title: 'Perfil',
+      url: '/perfil',
+      icon: User,
     },
   ],
 }
