@@ -7,7 +7,7 @@ import { InfoTab } from './components/info-tab'
 
 import { InputWithLabel } from './components/input-with-label'
 
-export default function Profile() {
+export function Profile() {
   const [profileData] = useState({
     nomeCompleto: 'Domingos Canhanga',
     email: 'domingos.canhanga@email.com',

@@ -23,8 +23,8 @@ import {
 // This is sample data.
 const data = {
   user: {
-    name: 'Maria Maiamba Pascoal',
-    email: 'm@example.com',
+    name: 'Domingos Canhnaga',
+    email: 'canhanga96@gmail.cpm',
     avatar: '/avatars/shadcn.jpg',
   },
   teams: [
@@ -53,7 +53,7 @@ const data = {
     },
     {
       title: 'Pagamento Antecipado',
-      url: '#',
+      url: '/pagamento-antecipado',
       icon: Settings2,
     },
     {
