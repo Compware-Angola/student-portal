@@ -2,6 +2,8 @@ import { AlertCircle, BookOpen, Calendar, Clock } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { HeaderWelcome } from './components/header-welcome'
+import { PaymentAlert } from '@/components/payment-alert'
+import { RenegociateAlert } from '@/components/renegociate-alert'
 
 export function Dashboard() {
   const studentData = {
@@ -17,6 +19,8 @@ export function Dashboard() {
     },
     pendingTasks: 3,
   }
+
+  return <PaymentAlert/>
 
   return (
     <>
