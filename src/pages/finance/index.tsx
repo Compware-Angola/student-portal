@@ -1,90 +1,33 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-
-import { CheckCircle, AlertCircle, CreditCard, Download } from 'lucide-react'
-
-import { Button } from '@/components/ui/button'
-import { handleGeneratePDF } from '@/utils/generate-ticket'
+import { useQuery } from '@tanstack/react-query'
+import { getFinancial } from '@/services/financial.service'
+import { PaymentItem } from './componets/payment-item'
+import { Pagination } from '@/components/pagination'
+import { useState } from 'react'
 
 export function Finance() {
-  const payments = [
-    {
-      id: 1,
-      month: 'Janeiro 2025',
-      amount: '45.000,00 Kz',
-      dueDate: '2025-01-10',
-      status: 'paid',
-    },
-    {
-      id: 2,
-      month: 'Fevereiro 2025',
-      amount: '45.000,00 Kz',
-      dueDate: '2025-02-10',
-      status: 'paid',
-    },
-    {
-      id: 3,
-      month: 'Março 2025',
-      amount: '45.000,00 Kz',
-      dueDate: '2025-03-10',
-      status: 'pending',
-    },
-    {
-      id: 4,
-      month: 'Abril 2025',
-      amount: '45.000,00 Kz',
-      dueDate: '2025-04-10',
-      status: 'upcoming',
-    },
-  ]
+  const [currentPage, setCurrentPage] = useState(0)
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ['financial',currentPage],
+    queryFn: () =>
+      getFinancial({
+        enrollmentCode: '123456',
+        page: currentPage,
+        size: 10,
+      }),
 
-  const generatePdfTicket = () => {
-    const boleto = {
-      cedente: 'UMA',
-      entity: '11248',
-      reference: '100158781',
-      value: '12.125,00',
-      code: '20211242',
-      vencimento: '08/04/2020',
-      dataDocumento: '05/04/2020',
-      dataProcessamento: '08/04/2020',
-      discount: '100,00',
-      shift: 'EIN9_M1',
-      course: 'Curso de Engenharia Informática',
-      payer: 'Nzinga Enoque António',
-      codigoBarras: '04691796800000010000001234329000002651234567890',
-      instruction:
-        'Quando a data de vencimento de um talão expirar, um novo talão será automaticamente gerado.\nPedimos que verifique regularmente suas datas de vencimento para garantir que os pagamentos sejam efetuados dentro do prazo e evitar atrasos.',
-    }
-    handleGeneratePDF(boleto)
+  })
+
+  if (isError) {
+    console.error('Erro ao buscar matrículas:', error)
+  }
+  if (isLoading) {
+    return <p>Carregando Finanças...</p>
   }
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'paid':
-        return (
-          <Badge className="bg-success/10 text-success hover:bg-success/20">
-            <CheckCircle className="mr-1 h-3 w-3" />
-            Pago
-          </Badge>
-        )
-      case 'pending':
-        return (
-          <Badge className="bg-warning/10 text-warning hover:bg-warning/20">
-            <AlertCircle className="mr-1 h-3 w-3" />
-            Pendente
-          </Badge>
-        )
-      case 'upcoming':
-        return (
-          <Badge variant="outline">
-            <CreditCard className="mr-1 h-3 w-3" />A vencer
-          </Badge>
-        )
-      default:
-        return null
-    }
-  }
+  const payments = data?.content
+  const totalPages = data?.totalPages ?? 0
+  const existMorePages = data?.last ?? false
 
   return (
     <div className="space-y-6">
@@ -133,39 +76,22 @@ export function Finance() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {payments.map((payment) => (
-              <div
-                key={payment.id}
-                className="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted/50"
-              >
-                <div className="space-y-1">
-                  <p className="font-medium">{payment.month}</p>
-                  <p className="text-sm text-muted-foreground">
-                    Vencimento:{' '}
-                    {new Date(payment.dueDate).toLocaleDateString('pt-AO')}
-                  </p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <p className="font-bold">{payment.amount}</p>
-                    {getStatusBadge(payment.status)}
-                  </div>
-                  {payment.status === 'paid' && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => generatePdfTicket()}
-                    >
-                      <Download className="mr-2 h-4 w-4" />
-                      Recibo
-                    </Button>
-                  )}
-                  {payment.status === 'pending' && (
-                    <Button size="sm">Pagar Agora</Button>
-                  )}
-                </div>
-              </div>
-            ))}
+            {payments && payments.length > 0 ? (
+              <>
+                {payments.map((payment) => (
+                  <PaymentItem data={payment} />
+                ))}
+              </>
+            ) : (
+              <p>Nenhum Dado Encontrado</p>
+            )}
+          </div>
+          <div className="mt-10">
+            <Pagination
+              last={existMorePages}
+              totalPages={totalPages}
+              onPageChange={(newPage) => setCurrentPage(newPage)}
+            />
           </div>
         </CardContent>
       </Card>
