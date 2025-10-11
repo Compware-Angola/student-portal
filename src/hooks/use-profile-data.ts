@@ -26,7 +26,7 @@ function formatDateOfBirth(timestamp: number | undefined): string {
 }
 
 export function useProfileData() {
-  const { data, isLoading, error } = useQuery<ProfileResponse>({
+  const { data, isLoading, error, isError } = useQuery<ProfileResponse>({
     queryKey: ['profile'],
     queryFn: getProfile,
     staleTime: 1000 * 60 * 5,
@@ -70,5 +70,6 @@ export function useProfileData() {
     profileData,
     isLoading,
     error,
+    isError
   }
 }
