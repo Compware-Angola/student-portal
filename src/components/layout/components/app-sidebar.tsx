@@ -5,29 +5,24 @@ import {
   CreditCard,
   GraduationCap,
   LayoutDashboard,
+  LogOut,
   User,
   Wallet,
 } from 'lucide-react'
 
 import { NavMain } from '@/components/layout/components/nav-main'
-import { NavUser } from '@/components/layout/components/nav-user'
 import { TeamSwitcher } from '@/components/layout/components/team-switcher'
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
+  SidebarMenuButton,
   SidebarRail,
 } from '@/components/ui/sidebar'
+import { logout } from '@/services/auth.service'
 
-// This is sample data.
 const data = {
-  user: {
-    name: 'Domingos Canhnaga',
-    email: 'canhanga96@gmail.cpm',
-    avatar: '/avatars/shadcn.jpg',
-  },
-
   navMain: [
     {
       title: 'Dashboard',
@@ -68,7 +63,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <SidebarMenuButton
+          onClick={logout}
+          aria-label="Terminar Sessão"
+          tooltip="Terminar Sessão"
+          className="hover:bg-destructive bg-destructive"
+        >
+          <LogOut />
+          <span>Terminar Sessão</span>
+        </SidebarMenuButton>
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

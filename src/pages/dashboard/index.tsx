@@ -1,33 +1,9 @@
-import {
-  AlertCircle,
-  BadgeCheck,
-  BookOpen,
-  Calendar,
-  CircleDollarSign,
-  Clock,
-  CreditCard,
-  GraduationCap,
-  HeartHandshake,
-  Info,
-  Plus,
-  ShieldAlertIcon,
-} from 'lucide-react'
-import { StatisticCard } from './components/statistic-card'
-import { DashAction } from './components/dash-action'
+import { AlertCircle, BookOpen, Calendar, Clock } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemMedia,
-  ItemTitle,
-} from '@/components/ui/item'
-import { useNavigate } from 'react-router-dom'
 import { Progress } from '@/components/ui/progress'
+import { HeaderWelcome } from './components/header-welcome'
 
 export function Dashboard() {
-  const navigate = useNavigate()
   const studentData = {
     name: 'João Silva',
     course: 'Engenharia Informática',
@@ -41,16 +17,12 @@ export function Dashboard() {
     },
     pendingTasks: 3,
   }
+
   return (
     <>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Bem-vindo, {studentData.name}
-          </h1>
-          <p className="text-muted-foreground">
-            {studentData.course} - {studentData.semester}
-          </p>
+          <HeaderWelcome />
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">

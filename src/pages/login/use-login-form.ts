@@ -4,7 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { authenticate } from '@/services/auth.service'
 import { toast } from 'sonner'
 import { useNavigate } from 'react-router-dom'
-import { ApiError } from '@/lib/key'
+import { ApiError } from '@/error'
+
 export const FormSchema = z.object({
   username: z.string().min(1, { message: 'Nome de usuário é obrigatório' }),
   password: z.string().min(1, { message: 'Senha é obrigatória' }),

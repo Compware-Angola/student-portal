@@ -1,23 +1,41 @@
+import { Skeleton } from '@/components/ui/skeleton'
+import { useProfileData } from '@/hooks/use-profile-data'
+import { ProfileCardSkeleton } from './components/profile-card-skeleton'
+import { InformationCard } from './components/information-card'
+import { ProfileAvatar } from './components/profile-avatar'
+import { InfoCardSkeleton } from './components/info-card-skeleton'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { User, Mail, Phone, MapPin, Calendar, FileText } from 'lucide-react'
+import { FileText } from 'lucide-react'
 
 export function Profile() {
-  const studentInfo = {
-    name: 'João Silva',
-    studentId: '20240123',
-    email: 'joao.silva@uma.ao',
-    phone: '+244 923 456 789',
-    address: 'Luanda, Angola',
-    birthDate: '15/03/2002',
-    course: 'Engenharia Informática',
-    semester: '5º Semestre',
-    enrollmentDate: '2022-02-01',
+  const { profileData, isLoading } = useProfileData()
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <Skeleton className="h-9 w-32 mb-2" />
+          <Skeleton className="h-5 w-64" />
+        </div>
+        <div className="grid gap-6 lg:grid-cols-3">
+          <ProfileCardSkeleton />
+          <InfoCardSkeleton />
+        </div>
+      </div>
+    )
   }
+
+  const {
+    firstName,
+    lastName,
+    email,
+    phone,
+    fullName,
+    address,
+    dateOfBirth,
+    curriculumYear,
+  } = profileData
 
   return (
     <div className="space-y-6">
@@ -29,127 +47,18 @@ export function Profile() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle>Foto do Perfil</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-center">
-              <Avatar className="h-32 w-32">
-                <AvatarFallback className="text-3xl">JS</AvatarFallback>
-              </Avatar>
-            </div>
-            <div className="space-y-2 text-center">
-              <h3 className="font-semibold">{studentInfo.name}</h3>
-              <p className="text-sm text-muted-foreground">
-                Nº {studentInfo.studentId}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {studentInfo.course}
-              </p>
-            </div>
-            <Button className="w-full" variant="outline">
-              Alterar Foto
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Informações Pessoais</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="personal" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="personal">Dados Pessoais</TabsTrigger>
-                <TabsTrigger value="academic">Dados Acadêmicos</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="personal" className="space-y-4 pt-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Nome Completo</Label>
-                    <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-muted-foreground" />
-                      <Input id="name" value={studentInfo.name} />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="email"
-                        type="email"
-                        value={studentInfo.email}
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Telefone</Label>
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
-                      <Input id="phone" value={studentInfo.phone} />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="birth">Data de Nascimento</Label>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <Input id="birth" value={studentInfo.birthDate} />
-                    </div>
-                  </div>
-                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="address">Endereço</Label>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
-                      <Input id="address" value={studentInfo.address} />
-                    </div>
-                  </div>
-                </div>
-                <Button className="w-full">Salvar Alterações</Button>
-              </TabsContent>
-
-              <TabsContent value="academic" className="space-y-4 pt-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="student-id">Número de Estudante</Label>
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="student-id"
-                        value={studentInfo.studentId}
-                        disabled
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="course">Curso</Label>
-                    <Input id="course" value={studentInfo.course} disabled />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="semester">Semestre Atual</Label>
-                    <Input
-                      id="semester"
-                      value={studentInfo.semester}
-                      disabled
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="enrollment">Data de Matrícula</Label>
-                    <Input
-                      id="enrollment"
-                      value={new Date(
-                        studentInfo.enrollmentDate,
-                      ).toLocaleDateString('pt-AO')}
-                      disabled
-                    />
-                  </div>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+        <ProfileAvatar
+          firstName={firstName}
+          lastName={lastName}
+          curriculumYear={curriculumYear}
+        />
+        <InformationCard
+          name={fullName}
+          email={email}
+          phone={phone}
+          dateOfBirth={dateOfBirth}
+          address={address}
+        />
       </div>
 
       <Card>

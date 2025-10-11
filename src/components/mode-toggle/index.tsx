@@ -10,7 +10,12 @@ export function ModeToggle() {
   }
 
   return (
-    <Button variant="outline" size="icon" onClick={toggleTheme}>
+    <Button
+      variant="outline"
+      className="dark:hover:bg-muted dark:hover:text-muted-foreground"
+      size="icon"
+      onClick={toggleTheme}
+    >
       {/* Ícone muda conforme o tema atual */}
       {theme === 'dark' ? (
         <Sun className="h-[1.2rem] w-[1.2rem]" />

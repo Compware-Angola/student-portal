@@ -1,27 +1,20 @@
+import { ApiError, type ApiErrorResponse } from '@/error'
 import ky from 'ky'
 
 const API_URL = import.meta.env.VITE_API_URL
-
-export type ApiErrorResponse = {
-  message?: string
-  error?: string
-}
-
-export class ApiError extends Error {
-  status: number
-  data?: ApiErrorResponse
-
-  constructor(message: string, status: number, data?: ApiErrorResponse) {
-    super(message)
-    this.status = status
-    this.data = data
-  }
-}
 
 export const api = ky.create({
   prefixUrl: API_URL,
   credentials: 'include',
   hooks: {
+    beforeRequest: [
+      (request) => {
+        const token = localStorage.getItem('token')
+        if (token) {
+          request.headers.set('Authorization', `Bearer ${token}`)
+        }
+      },
+    ],
     afterResponse: [
       async (request, _options, response) => {
         if (!response.ok) {
