@@ -4,6 +4,7 @@ import * as React from 'react'
 import {
   CreditCard,
   GraduationCap,
+  HandCoins,
   LayoutDashboard,
   LogOut,
   User,
@@ -24,32 +25,17 @@ import { logout } from '@/services/auth.service'
 
 const data = {
   navMain: [
-    {
-      title: 'Dashboard',
-      url: '/',
-      icon: LayoutDashboard,
-      isActive: true,
-    },
-    {
-      title: 'Finanças',
-      url: '/financa',
-      icon: Wallet,
-    },
-    {
-      title: 'Matrícula',
-      url: '/matricula',
-      icon: GraduationCap, // 🎓 representa educação e matrícula
-    },
+    { title: 'Dashboard', url: '/', icon: LayoutDashboard },
+    { title: 'Finanças', url: '/financa', icon: CreditCard },
+    { title: 'Matrícula', url: '/matricula', icon: GraduationCap },
+
     {
       title: 'Pagamento Antecipado',
       url: '/pagamento-antecipado',
-      icon: CreditCard, // 💳 pagamento direto, fácil associação
+      icon: Wallet,
     },
-    {
-      title: 'Perfil',
-      url: '/perfil',
-      icon: User, // 👤 clássico para perfil do usuário
-    },
+    { title: 'Renegociação', url: '/renegociacao', icon: HandCoins },
+    { title: 'Perfil', url: '/perfil', icon: User },
   ],
 }
 

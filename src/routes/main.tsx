@@ -7,6 +7,7 @@ import { ConfirmEnrollment } from '@/pages/enrollment/confirm-enrollment'
 import { Profile } from '@/pages/profile'
 import { AdvancePayment } from '@/pages/advance-payment/inde'
 import { Finance } from '@/pages/finance'
+import { Renegociation } from '@/pages/renegotiation'
 
 export function MainRoutes() {
   return (
@@ -24,6 +25,7 @@ export function MainRoutes() {
       <Route path="/perfil" element={<Profile />} />
       <Route path="/pagamento-antecipado" element={<AdvancePayment />} />
       <Route path="/financa" element={<Finance />} />
+      <Route path="/renegociacao" element={<Renegociation />} />
     </Route>
   )
 }

@@ -6,8 +6,11 @@ import { PaymentAlert } from '@/components/payment-alert'
 import { RenegociateAlert } from '@/components/renegociate-alert'
 import { useProfileData } from '@/hooks/use-profile-data'
 
+import { DashboardSkeleton } from './components/dashboard-skeleton'
+import { toast } from 'sonner'
+
 export function Dashboard() {
-  const { profileData } = useProfileData()
+  const { profileData, isLoading, isError, error } = useProfileData()
   const studentData = {
     name: 'João Silva',
     course: 'Engenharia Informática',
@@ -21,8 +24,14 @@ export function Dashboard() {
     },
     pendingTasks: 3,
   }
+  if (isLoading || isError) {
+    if (error) {
+      toast.error(error.message)
+    }
+    return <DashboardSkeleton />
+  }
 
-  if (profileData.enrollment?.enrollmentStatus !== 'ACTIVE_REGULAR')
+  if (profileData.enrollment?.enrollmentStatus === 'ACTIVE_REGULAR')
     return <PaymentAlert />
 
   return (
