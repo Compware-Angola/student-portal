@@ -60,3 +60,12 @@ export async function getFinancial(data: IGetFinancialProps) {
     )
     .json<IFinancialResponse>()
 }
+
+export async function generateReference(enrollmentCode: string, data: any) {
+  return await api
+    .post(`v1/financial/generate-reference/${enrollmentCode}`, {
+      json: data,
+      timeout: 180000,
+    })
+    .json<any>()
+}

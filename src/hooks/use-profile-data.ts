@@ -36,6 +36,8 @@ export function useProfileData() {
   const profileData = useMemo(() => {
     if (!data) {
       return {
+        courseId:'',
+        refId:'',
         firstName: '',
         lastName: '',
         fullName: 'N/A',
@@ -47,7 +49,9 @@ export function useProfileData() {
         dateOfBirth: 'N/A',
       }
     }
-
+    console.log("profile",data)
+    const refId = data.student.refId;
+    const courseId = data.applicationRecord?.academicApplication?.courseAppliedId;
     const fullName = data.applicationRecord?.personalInfo?.fullName || 'N/A'
     const { firstName, lastName } = extractFirstAndLastName(fullName)
     const curriculumYearRaw = data.student?.curriculumYear || 'N/A'
@@ -55,6 +59,8 @@ export function useProfileData() {
       data.applicationRecord?.personalInfo?.dateOfBirth
 
     return {
+      courseId,
+      refId,
       firstName,
       lastName,
       fullName,

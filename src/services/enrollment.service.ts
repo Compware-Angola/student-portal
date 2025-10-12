@@ -51,3 +51,7 @@ export async function getEnrollmentsWithFilters(filters?: EnrollmentFilters) {
     })
     .json<EnrollmentPaginated>()
 }
+
+export async function addEnrollment(data: any) {
+  return await api.post('v1/enrollments',{json:data}).json<any>()
+}
