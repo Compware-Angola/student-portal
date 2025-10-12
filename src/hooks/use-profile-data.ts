@@ -29,7 +29,8 @@ export function useProfileData() {
   const { data, isLoading, error, isError } = useQuery<ProfileResponse>({
     queryKey: ['profile'],
     queryFn: getProfile,
-    staleTime: 1000 * 60 * 5,
+    staleTime: Infinity,
+    retry: 0,
   })
 
   const profileData = useMemo(() => {
@@ -70,6 +71,6 @@ export function useProfileData() {
     profileData,
     isLoading,
     error,
-    isError
+    isError,
   }
 }

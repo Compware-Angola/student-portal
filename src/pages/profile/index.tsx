@@ -7,11 +7,15 @@ import { InfoCardSkeleton } from './components/info-card-skeleton'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { FileText } from 'lucide-react'
+import { toast } from 'sonner'
 
 export function Profile() {
-  const { profileData, isLoading } = useProfileData()
+  const { profileData, isLoading, isError, error } = useProfileData()
 
-  if (isLoading) {
+  if (isLoading || isError) {
+    if (error) {
+      toast.error(error.message)
+    }
     return (
       <div className="space-y-6">
         <div>
