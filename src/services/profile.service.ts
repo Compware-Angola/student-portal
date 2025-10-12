@@ -11,6 +11,8 @@ export type Student = {
 
 export type ApplicationRecord = {
   id: string
+  refId: number
+  academicApplication:AcademicApplication
   personalInfo: {
     fullName: string
     dateOfBirth: number
@@ -24,6 +26,9 @@ export type ApplicationRecord = {
     balance: number
     previousBalance: number
   }
+}
+export type AcademicApplication = {
+  courseAppliedId: string
 }
 
 export type ProfileResponse = {
