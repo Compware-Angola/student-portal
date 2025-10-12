@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { HeaderWelcome } from './components/header-welcome'
 import { PaymentAlert } from '@/components/payment-alert'
-import { RenegociateAlert } from '@/components/renegociate-alert'
 import { useProfileData } from '@/hooks/use-profile-data'
 
 import { DashboardSkeleton } from './components/dashboard-skeleton'

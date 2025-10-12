@@ -47,6 +47,7 @@ export function useProfileData() {
   const profileData = useMemo(() => {
     if (!data) {
       return {
+        timetoReconfirm:false,
         courseId: '',
         refId: '',
         firstName: '',
@@ -60,7 +61,7 @@ export function useProfileData() {
         dateOfBirth: 'N/A',
       }
     }
-
+    const timetoReconfirm = data.timetoReconfirm;
     const refId = data.student.refId
     const courseId =
       data.applicationRecord?.academicApplication?.courseAppliedId
@@ -71,6 +72,7 @@ export function useProfileData() {
       data.applicationRecord?.personalInfo?.dateOfBirth
 
     return {
+      timetoReconfirm,
       enrollment,
       courseId,
       refId,

@@ -34,6 +34,7 @@ export type AcademicApplication = {
 export type ProfileResponse = {
   student: Student
   applicationRecord: ApplicationRecord
+  timetoReconfirm: boolean
 }
 
 export async function getProfile(): Promise<ProfileResponse> {

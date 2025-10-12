@@ -56,6 +56,10 @@ export async function addEnrollment(data: any) {
   return await api.post('v1/enrollments', { json: data }).json<any>()
 }
 
+export async function addReconfirmEnrollment(data: any) {
+  return await api.post('v1/students/curriculum', { json: data }).json<any>()
+}
+
 export async function getEnrollmentByStudentNumber(studentNumber: string) {
   return await api
     .get<Enrollment>(`v1/enrollments/student-number/${studentNumber}`)
