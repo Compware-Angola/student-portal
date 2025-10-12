@@ -4,8 +4,10 @@ import { Progress } from '@/components/ui/progress'
 import { HeaderWelcome } from './components/header-welcome'
 import { PaymentAlert } from '@/components/payment-alert'
 import { RenegociateAlert } from '@/components/renegociate-alert'
+import { useProfileData } from '@/hooks/use-profile-data'
 
 export function Dashboard() {
+  const { profileData } = useProfileData()
   const studentData = {
     name: 'João Silva',
     course: 'Engenharia Informática',
@@ -20,7 +22,8 @@ export function Dashboard() {
     pendingTasks: 3,
   }
 
-  return <PaymentAlert/>
+  if (profileData.enrollment?.enrollmentStatus !== 'ACTIVE_REGULAR')
+    return <PaymentAlert />
 
   return (
     <>

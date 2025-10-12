@@ -5,27 +5,32 @@ import { LibraryBig } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { getEnrollmentsWithFilters } from '@/services/enrollment.service'
 import { useProfileData } from '@/hooks/use-profile-data'
-import { ItemMedia,Item,ItemContent, ItemTitle, ItemDescription, ItemActions } from '@/components/ui/item'
-import { type Enrollment} from "@/services/enrollment.service"
+import {
+  ItemMedia,
+  Item,
+  ItemContent,
+  ItemTitle,
+  ItemDescription,
+  ItemActions,
+} from '@/components/ui/item'
+import { type Enrollment } from '@/services/enrollment.service'
 import { useNavigate } from 'react-router-dom'
 export function Enrollment() {
-  const { profileData } = useProfileData();
-  const navigate = useNavigate();
+  const { profileData } = useProfileData()
+  const navigate = useNavigate()
   const studentAdmissionId = profileData.refId
-  console.log("####",studentAdmissionId)
+  console.log('####', studentAdmissionId)
   const { data } = useQuery({
-    queryKey: ['enrollment-ref',studentAdmissionId],
+    queryKey: ['enrollment-ref', studentAdmissionId],
     queryFn: () =>
       getEnrollmentsWithFilters({
-        studentAdmissionId
+        studentAdmissionId,
       }),
-
-  });
-  const enrollment = data?.content;
-   const isNewStudent = (enrollment: Enrollment[] | undefined) => {
-    if (enrollment && enrollment.length == 0) return true;
+  })
+  const enrollment = data?.content
+  const isNewStudent = (enrollment: Enrollment[] | undefined) => {
+    if (enrollment && enrollment.length == 0) return true
     return false
-
   }
 
   const currentSubjects = [
@@ -115,29 +120,26 @@ export function Enrollment() {
         <CardContent>
           <div className="space-y-4">
             {isNewStudent(enrollment) && (
-               <div
-                    className="flex w-full flex-col gap-6 mt-2"
-                  >
-                    <Item variant="outline">
-                      <ItemMedia variant="icon">
-                        <LibraryBig />
-                      </ItemMedia>
-                      <ItemContent>
-                        <ItemTitle>
-                          Matrícula 2020 -{' '}
-                          SEMESTRE I
-                        </ItemTitle>
-                        <ItemDescription>
-                          Direito
-                        </ItemDescription>
-                      </ItemContent>
-                      <ItemActions>
-                        <Button size="sm" variant="outline" onClick={()=> navigate("/confirmar-matricula") }>
-                          Matricular
-                        </Button>
-                      </ItemActions>
-                    </Item>
-                  </div>
+              <div className="flex w-full flex-col gap-6 mt-2">
+                <Item variant="outline">
+                  <ItemMedia variant="icon">
+                    <LibraryBig />
+                  </ItemMedia>
+                  <ItemContent>
+                    <ItemTitle>Matrícula 2020 - SEMESTRE I</ItemTitle>
+                    <ItemDescription>Direito</ItemDescription>
+                  </ItemContent>
+                  <ItemActions>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => navigate('/confirmar-matricula')}
+                    >
+                      Matricular
+                    </Button>
+                  </ItemActions>
+                </Item>
+              </div>
             )}
           </div>
         </CardContent>

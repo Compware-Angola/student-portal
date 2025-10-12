@@ -1,3 +1,4 @@
+import { getEnrollmentByStudentNumber } from '@/services/enrollment.service'
 import { getProfile, type ProfileResponse } from '@/services/profile.service'
 import { extractFirstAndLastName } from '@/utils/extract-first-and-last-name'
 import { useQuery } from '@tanstack/react-query'
@@ -32,12 +33,22 @@ export function useProfileData() {
     staleTime: Infinity,
     retry: 0,
   })
+  const { data: enrollment } = useQuery({
+    queryKey: ['enrollmentByStudentNumber'],
+    queryFn: () => {
+      if (!data?.student.refId) return Promise.resolve(null)
+      return getEnrollmentByStudentNumber(data?.student.refId)
+    },
+    enabled: !!data?.student.refId,
+    staleTime: Infinity,
+    retry: 0,
+  })
 
   const profileData = useMemo(() => {
     if (!data) {
       return {
-        courseId:'',
-        refId:'',
+        courseId: '',
+        refId: '',
         firstName: '',
         lastName: '',
         fullName: 'N/A',
@@ -49,9 +60,10 @@ export function useProfileData() {
         dateOfBirth: 'N/A',
       }
     }
-    console.log("profile",data)
-    const refId = data.student.refId;
-    const courseId = data.applicationRecord?.academicApplication?.courseAppliedId;
+
+    const refId = data.student.refId
+    const courseId =
+      data.applicationRecord?.academicApplication?.courseAppliedId
     const fullName = data.applicationRecord?.personalInfo?.fullName || 'N/A'
     const { firstName, lastName } = extractFirstAndLastName(fullName)
     const curriculumYearRaw = data.student?.curriculumYear || 'N/A'
@@ -59,6 +71,7 @@ export function useProfileData() {
       data.applicationRecord?.personalInfo?.dateOfBirth
 
     return {
+      enrollment,
       courseId,
       refId,
       firstName,
@@ -71,7 +84,7 @@ export function useProfileData() {
       address: data.applicationRecord?.contact?.address || 'N/A',
       dateOfBirth: formatDateOfBirth(dateOfBirthTimestamp),
     }
-  }, [data])
+  }, [data, enrollment])
 
   return {
     profileData,
@@ -80,3 +93,7 @@ export function useProfileData() {
     isError,
   }
 }
+// toda matricula diferente de ativo activo regeular e inregular
+// // fluxo de confirmacao :
+// - verficar o ano academico em curso,
+// - verfificar a grade curricular

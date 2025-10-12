@@ -27,7 +27,7 @@ export type Enrollment = {
   enrollmentDate: string
   updatedAt: string
   courseName: string
-  disciplines: Discipline[]
+  disciplines: Discipline[] | null
 }
 
 export type Discipline = {
@@ -53,5 +53,11 @@ export async function getEnrollmentsWithFilters(filters?: EnrollmentFilters) {
 }
 
 export async function addEnrollment(data: any) {
-  return await api.post('v1/enrollments',{json:data}).json<any>()
+  return await api.post('v1/enrollments', { json: data }).json<any>()
+}
+
+export async function getEnrollmentByStudentNumber(studentNumber: string) {
+  return await api
+    .get<Enrollment>(`v1/enrollments/student-number/${studentNumber}`)
+    .json<Enrollment>()
 }
