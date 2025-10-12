@@ -4,18 +4,22 @@ import { getFinancial } from '@/services/financial.service'
 import { PaymentItem } from './componets/payment-item'
 import { Pagination } from '@/components/pagination'
 import { useState } from 'react'
+import { useProfileData } from '@/hooks/use-profile-data'
 
 export function Finance() {
   const [currentPage, setCurrentPage] = useState(0)
+  const { profileData } = useProfileData()
+  const enrollmentCode = profileData.enrollment?.enrollmentCode
+
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['financial',currentPage],
+    queryKey: ['financial', currentPage, enrollmentCode],
+    enabled: !!enrollmentCode,
     queryFn: () =>
       getFinancial({
-        enrollmentCode: '123456',
+        enrollmentCode: enrollmentCode!,
         page: currentPage,
-        size: 10,
+        size: 100,
       }),
-
   })
 
   if (isError) {
@@ -44,8 +48,8 @@ export function Finance() {
             <CardTitle className="text-sm font-medium">Total Pago</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">90.000,00 Kz</div>
-            <p className="text-xs text-muted-foreground">2 meses pagos</p>
+            <div className="text-2xl font-bold">0Kz</div>
+            <p className="text-xs text-muted-foreground">-</p>
           </CardContent>
         </Card>
 
@@ -54,8 +58,8 @@ export function Finance() {
             <CardTitle className="text-sm font-medium">Pendente</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-warning">45.000,00 Kz</div>
-            <p className="text-xs text-muted-foreground">Vence em 5 dias</p>
+            <div className="text-2xl font-bold text-warning">0 Kz</div>
+            <p className="text-xs text-muted-foreground">-</p>
           </CardContent>
         </Card>
 
@@ -64,7 +68,7 @@ export function Finance() {
             <CardTitle className="text-sm font-medium">Total do Ano</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">540.000,00 Kz</div>
+            <div className="text-2xl font-bold">0Kz</div>
             <p className="text-xs text-muted-foreground">12 mensalidades</p>
           </CardContent>
         </Card>

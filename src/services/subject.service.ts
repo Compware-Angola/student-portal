@@ -47,6 +47,10 @@ export type SubjectResponse = {
   empty: boolean
 }
 
-export async function getSubject(): Promise<SubjectResponse> {
-  return await api.get('v1/subjects').json<SubjectResponse>()
+export async function getSubject(courseId?: string): Promise<SubjectResponse> {
+  return await api.get(`v1/subjects?courseId=${courseId}`).json<SubjectResponse>()
+}
+
+export async function getCurriculum(refId?: string): Promise<any> {
+  return await api.get(`v1/students/${refId}/curriculum`).json<any>()
 }

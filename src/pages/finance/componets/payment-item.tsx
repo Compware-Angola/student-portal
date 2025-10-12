@@ -1,6 +1,6 @@
 import { formatCurrency } from '@/utils'
 import { Badge } from '@/components/ui/badge'
-import { CheckCircle, AlertCircle, CreditCard } from 'lucide-react'
+import { CheckCircle, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { handleGeneratePDF } from '@/utils/generate-ticket'
 import type { IFinancial } from '@/services/financial.service'
@@ -32,7 +32,9 @@ export function PaymentItem({ data }: IPaymentItemProps) {
     const reference = data.reference
     const documentDate = new Date().toLocaleDateString('pt-AO')
     const value = formatCurrency(data.amountDue ?? 0)
-    const documentProcessing = new Date(data.invoiceDate).toLocaleDateString('pt-AO')
+    const documentProcessing = new Date(data.invoiceDate).toLocaleDateString(
+      'pt-AO',
+    )
     const fullName = profileData?.fullName
     const ticket = {
       cedente: 'UMA',
@@ -44,8 +46,8 @@ export function PaymentItem({ data }: IPaymentItemProps) {
       dataDocumento: documentDate,
       dataProcessamento: documentProcessing,
       discount: '0',
-      shift: 'EIN9_M1',
-      course: 'Curso de Engenharia Informática',
+      shift: '-',
+      course: '-',
       payer: fullName,
       instruction:
         'Quando a data de vencimento de um talão expirar, um novo talão será automaticamente gerado.\nPedimos que verifique regularmente suas datas de vencimento para garantir que os pagamentos sejam efetuados dentro do prazo e evitar atrasos.',
@@ -53,27 +55,20 @@ export function PaymentItem({ data }: IPaymentItemProps) {
     handleGeneratePDF(ticket)
   }
 
-  const getStatusBadge = (status?: string) => {
+  const getStatusBadge = (status: number) => {
     switch (status) {
-      case 'paid':
+      case 1:
         return (
           <Badge className="bg-success/10 text-success hover:bg-success/20">
             <CheckCircle className="mr-1 h-3 w-3" />
             Pago
           </Badge>
         )
-      case 'pending':
+      case 0:
         return (
           <Badge className="bg-warning/10 text-warning hover:bg-warning/20">
             <AlertCircle className="mr-1 h-3 w-3" />
             Pendente
-          </Badge>
-        )
-      case 'upcoming':
-        return (
-          <Badge variant="outline">
-            <CreditCard className="mr-1 h-3 w-3" />
-            A vencer
           </Badge>
         )
       default:
@@ -115,11 +110,13 @@ export function PaymentItem({ data }: IPaymentItemProps) {
       <div className="flex items-center gap-4">
         <div className="text-right">
           <p className="font-bold">{amount}</p>
-          {getStatusBadge('pending')}
+          {getStatusBadge(data.status)}
         </div>
-        <Button size="sm" onClick={generatePdfTicket}>
-          Pagar Agora
-        </Button>
+        {data.status == 0 && (
+          <Button size="sm" onClick={generatePdfTicket}>
+            Pagar Agora
+          </Button>
+        )}
       </div>
     </div>
   )

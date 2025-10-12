@@ -15,11 +15,13 @@ import {
 } from '@/components/ui/item'
 import { type Enrollment } from '@/services/enrollment.service'
 import { useNavigate } from 'react-router-dom'
+import { isNewStudent, isVerifiedToEnrollment } from '@/utils'
+import { getCurriculum } from '@/services/subject.service'
 export function Enrollment() {
   const { profileData } = useProfileData()
   const navigate = useNavigate()
   const studentAdmissionId = profileData.refId
-  console.log('####', studentAdmissionId)
+  const isTimeToConfirm = profileData.timetoReconfirm
   const { data } = useQuery({
     queryKey: ['enrollment-ref', studentAdmissionId],
     queryFn: () =>
@@ -27,12 +29,14 @@ export function Enrollment() {
         studentAdmissionId,
       }),
   })
+  const { data: curriculumData } = useQuery({
+    enabled: !!studentAdmissionId,
+    queryKey: ['curriculum-ref', studentAdmissionId],
+    queryFn: () =>
+      getCurriculum(studentAdmissionId),
+  })
   const enrollment = data?.content
-  const isNewStudent = (enrollment: Enrollment[] | undefined) => {
-    if (enrollment && enrollment.length == 0) return true
-    return false
-  }
-
+  const academicYear = curriculumData?.academicYear;
   const currentSubjects = [
     {
       id: 1,
@@ -74,7 +78,7 @@ export function Enrollment() {
             Gerencie suas disciplinas e renovação de matrícula
           </p>
         </div>
-        <Button size="lg">Renovar Matrícula</Button>
+        {/* <Button size="lg">Renovar Matrícula</Button> */}
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
@@ -126,8 +130,8 @@ export function Enrollment() {
                     <LibraryBig />
                   </ItemMedia>
                   <ItemContent>
-                    <ItemTitle>Matrícula 2020 - SEMESTRE I</ItemTitle>
-                    <ItemDescription>Direito</ItemDescription>
+                    <ItemTitle>Matrícula 2025 - SEMESTRE I</ItemTitle>
+                    <ItemDescription>-</ItemDescription>
                   </ItemContent>
                   <ItemActions>
                     <Button
@@ -136,6 +140,28 @@ export function Enrollment() {
                       onClick={() => navigate('/confirmar-matricula')}
                     >
                       Matricular
+                    </Button>
+                  </ItemActions>
+                </Item>
+              </div>
+            )}
+            {isVerifiedToEnrollment(enrollment,isTimeToConfirm,academicYear) && (
+              <div className="flex w-full flex-col gap-6 mt-2">
+                <Item variant="outline">
+                  <ItemMedia variant="icon">
+                    <LibraryBig />
+                  </ItemMedia>
+                  <ItemContent>
+                    <ItemTitle>Matrícula 2025 - SEMESTRE I</ItemTitle>
+                    <ItemDescription>-</ItemDescription>
+                  </ItemContent>
+                  <ItemActions>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => navigate('/reconfirmar-matricula')}
+                    >
+                      Reconfirmar
                     </Button>
                   </ItemActions>
                 </Item>
