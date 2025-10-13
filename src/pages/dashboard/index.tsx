@@ -10,34 +10,30 @@ import { toast } from 'sonner'
 
 export function Dashboard() {
   const { profileData, isLoading, isError, error } = useProfileData()
-  const studentData = {
-    name: 'João Silva',
-    course: 'Engenharia Informática',
-    semester: '5º Semestre',
-    averageGrade: 15.7,
-    attendance: 92,
-    nextClass: {
-      subject: 'Programação Web',
-      time: '14:00',
-      room: 'Lab 3',
-    },
-    pendingTasks: 3,
-  }
-  if (isLoading || isError) {
+
+  if (isLoading || isError || !profileData) {
     if (error) {
       toast.error(error.message)
     }
     return <DashboardSkeleton />
   }
 
-  if (profileData.enrollment?.enrollmentStatus === 'ACTIVE_REGULAR')
+  if (
+    profileData.enrollment?.enrollmentStatus !== 'ACTIVE_REGULAR' &&
+    profileData.enrollment?.enrollmentStatus !== undefined
+  )
     return <PaymentAlert />
 
   return (
     <>
       <div className="space-y-6">
         <div>
-          <HeaderWelcome />
+          <HeaderWelcome
+            curriculumYear={profileData.curriculumYear}
+            firstName={profileData.firstName}
+            lastName={profileData.lastName}
+            gender={profileData.gender}
+          />
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -47,10 +43,8 @@ export function Dashboard() {
               <BookOpen className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
-                {studentData.averageGrade}
-              </div>
-              <p className="text-xs text-muted-foreground">Em 20 valores</p>
+              <div className="text-2xl font-bold">0</div>
+              <p className="text-xs text-muted-foreground">0</p>
             </CardContent>
           </Card>
 
@@ -60,10 +54,8 @@ export function Dashboard() {
               <Calendar className="h-4 w-4 text-success" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
-                {studentData.attendance}%
-              </div>
-              <Progress value={studentData.attendance} className="mt-2" />
+              <div className="text-2xl font-bold">0%</div>
+              <Progress value={0} className="mt-2" />
             </CardContent>
           </Card>
 
@@ -75,12 +67,8 @@ export function Dashboard() {
               <Clock className="h-4 w-4 text-info" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
-                {studentData.nextClass.time}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {studentData.nextClass.subject}
-              </p>
+              <div className="text-2xl font-bold">N/A</div>
+              <p className="text-xs text-muted-foreground">N/A</p>
             </CardContent>
           </Card>
 
@@ -92,9 +80,7 @@ export function Dashboard() {
               <AlertCircle className="h-4 w-4 text-warning" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
-                {studentData.pendingTasks}
-              </div>
+              <div className="text-2xl font-bold">0</div>
               <p className="text-xs text-muted-foreground">
                 Para entregar esta semana
               </p>
@@ -107,7 +93,7 @@ export function Dashboard() {
             <CardHeader>
               <CardTitle>Avisos Recentes</CardTitle>
             </CardHeader>
-            <CardContent>
+            {/*<CardContent>
               <div className="space-y-4">
                 <div className="flex items-start gap-3 rounded-lg border p-3">
                   <AlertCircle className="mt-0.5 h-5 w-5 text-warning" />
@@ -130,14 +116,14 @@ export function Dashboard() {
                   </div>
                 </div>
               </div>
-            </CardContent>
+            </CardContent>*/}
           </Card>
 
           <Card>
             <CardHeader>
               <CardTitle>Horário de Hoje</CardTitle>
             </CardHeader>
-            <CardContent>
+            {/*<CardContent>
               <div className="space-y-3">
                 <div className="flex items-center justify-between rounded-lg border p-3">
                   <div>
@@ -162,7 +148,7 @@ export function Dashboard() {
                   </span>
                 </div>
               </div>
-            </CardContent>
+            </CardContent>*/}
           </Card>
         </div>
       </div>

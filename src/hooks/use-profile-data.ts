@@ -1,5 +1,5 @@
-import { getEnrollmentByStudentNumber } from '@/services/enrollment.service'
-import { getProfile, type ProfileResponse } from '@/services/profile.service'
+import { getProfile } from '@/services/profile.service'
+import type { StudentProfile } from '@/types/profile'
 import { extractFirstAndLastName } from '@/utils/extract-first-and-last-name'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
@@ -27,53 +27,32 @@ function formatDateOfBirth(timestamp: number | undefined): string {
 }
 
 export function useProfileData() {
-  const { data, isLoading, error, isError } = useQuery<ProfileResponse>({
+  const { data, isLoading, error, isError } = useQuery<StudentProfile>({
     queryKey: ['profile'],
     queryFn: getProfile,
-    staleTime: Infinity,
-    retry: 0,
-  })
-  const { data: enrollment } = useQuery({
-    queryKey: ['enrollmentByStudentNumber'],
-    queryFn: () => {
-      if (!data?.student.refId) return Promise.resolve(null)
-      return getEnrollmentByStudentNumber(data?.student.refId)
-    },
-    enabled: !!data?.student.refId,
     staleTime: Infinity,
     retry: 0,
   })
 
   const profileData = useMemo(() => {
     if (!data) {
-      return {
-        timetoReconfirm:false,
-        courseId: '',
-        refId: '',
-        firstName: '',
-        lastName: '',
-        fullName: 'N/A',
-        gender: 'N/A',
-        curriculumYear: 'N/A',
-        email: 'N/A',
-        phone: '',
-        address: '',
-        dateOfBirth: 'N/A',
-      }
+      return null
     }
-    const timetoReconfirm = data.timetoReconfirm;
+    const enrollment = data.enrollment
+    const timetoReconfirm = data.timetoReconfirm
     const refId = data.student.refId
     const courseId =
       data.applicationRecord?.academicApplication?.courseAppliedId
-    const fullName = data.applicationRecord?.personalInfo?.fullName || 'N/A'
+    const fullName =
+      data.applicationRecord?.personalInfo?.fullName || data.student.username
     const { firstName, lastName } = extractFirstAndLastName(fullName)
     const curriculumYearRaw = data.student?.curriculumYear || 'N/A'
     const dateOfBirthTimestamp =
       data.applicationRecord?.personalInfo?.dateOfBirth
 
     return {
-      timetoReconfirm,
       enrollment,
+      timetoReconfirm,
       courseId,
       refId,
       firstName,
@@ -84,9 +63,12 @@ export function useProfileData() {
       email: data.student?.email ?? 'N/A',
       phone: data.applicationRecord?.contact?.phoneNumbers?.[0] || 'N/A',
       address: data.applicationRecord?.contact?.address || 'N/A',
-      dateOfBirth: formatDateOfBirth(dateOfBirthTimestamp),
+      dateOfBirth:
+        typeof dateOfBirthTimestamp === 'number'
+          ? formatDateOfBirth(dateOfBirthTimestamp)
+          : 'unknown',
     }
-  }, [data, enrollment])
+  }, [data])
 
   return {
     profileData,
@@ -95,7 +77,3 @@ export function useProfileData() {
     isError,
   }
 }
-// toda matricula diferente de ativo activo regeular e inregular
-// // fluxo de confirmacao :
-// - verficar o ano academico em curso,
-// - verfificar a grade curricular

@@ -1,20 +1,20 @@
-import { Skeleton } from '@/components/ui/skeleton'
-import { useProfileData } from '@/hooks/use-profile-data'
+type HeaderWelcomeProps = {
+  gender: string
+  firstName: string
+  lastName: string
+  curriculumYear: string
+}
 
-export function HeaderWelcome() {
-  const { profileData, isLoading } = useProfileData()
-
-  if (isLoading) {
-    return <Skeleton className="w-60 h-4" />
-  }
+export function HeaderWelcome(props: HeaderWelcomeProps) {
+  const { gender, firstName, lastName, curriculumYear } = props
 
   return (
     <div>
       <h1 className="text-3xl font-bold tracking-tight">
-        {profileData.gender === 'Feminino' ? 'Bem-vinda' : 'Bem-vindo'},{' '}
-        <span>{`${profileData.firstName} ${profileData.lastName}`}</span>
+        {gender === 'Feminino' ? 'Bem-vinda' : 'Bem-vindo'},{' '}
+        <span>{`${firstName} ${lastName}`}</span>
       </h1>
-      <p className="text-muted-foreground">{profileData.curriculumYear}</p>
+      <p className="text-muted-foreground">{curriculumYear}</p>
     </div>
   )
 }
