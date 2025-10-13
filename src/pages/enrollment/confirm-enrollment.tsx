@@ -9,8 +9,8 @@ import { useProfileData } from '@/hooks/use-profile-data'
 import { toast } from 'sonner'
 import { addEnrollment } from '@/services/enrollment.service'
 import { generateReference } from '@/services/financial.service'
-import { addDays, format } from 'date-fns';
-import { useNavigate } from "react-router-dom"
+import { addDays, format } from 'date-fns'
+import { useNavigate } from 'react-router-dom'
 
 interface SelectedSubject {
   id: string
@@ -19,14 +19,18 @@ interface SelectedSubject {
 
 export function ConfirmEnrollment() {
   const { profileData } = useProfileData()
-  const navigate = useNavigate();
-  const studentAdmissionId = profileData.refId
-  const courseId = profileData.courseId
+  const navigate = useNavigate()
+  const studentAdmissionId = profileData?.refId
+  const courseId = profileData?.courseId
 
   const { data } = useQuery({
-    enabled:!!courseId,
-    queryKey: ['subjects',courseId],
-    queryFn: () => getSubject(courseId),
+    enabled: !!courseId,
+    queryKey: ['subjects', courseId],
+    queryFn: () => {
+      if (courseId) {
+        return getSubject(courseId)
+      }
+    },
   })
 
   const subjects = data?.content ?? []
@@ -48,7 +52,7 @@ export function ConfirmEnrollment() {
   const handleSubmit = async () => {
     console.log('Disciplinas selecionadas:', selectedSubjects)
     try {
-      console.log("####",studentAdmissionId)
+      console.log('####', studentAdmissionId)
       const enrollmentData = {
         studentAdmissionId: studentAdmissionId,
         courseId: courseId,
@@ -61,7 +65,7 @@ export function ConfirmEnrollment() {
         disciplines: selectedSubjects,
       }
       const amount = 1600 * selectedSubjects.length
-      const dueDate = format(addDays(new Date(), 3), "yyyy-MM-dd'T'HH:mm:ss");
+      const dueDate = format(addDays(new Date(), 3), "yyyy-MM-dd'T'HH:mm:ss")
       const referenceData = {
         amount: amount,
         currency: 'AOA',
@@ -69,15 +73,18 @@ export function ConfirmEnrollment() {
         paymentMethod: 'REF_65e88e95-9d71-4bbb-882a-412fb6a7e111',
         paymentInfo: {
           dueDate: dueDate,
-        }
+        },
       }
 
       const enrollmentResponse = await addEnrollment(enrollmentData)
       const enrollmentCode = enrollmentResponse.enrollmentCode
-      const referenceResponse = await generateReference(enrollmentCode,referenceData)
+      const referenceResponse = await generateReference(
+        enrollmentCode,
+        referenceData,
+      )
       console.log('enrollment:', enrollmentResponse)
       console.log('reference:', referenceResponse)
-        navigate("/")
+      navigate('/')
     } catch (error: any) {
       console.log(error)
       toast.error('Erro ao cadastrar a matricula')

@@ -12,7 +12,7 @@ import { toast } from 'sonner'
 export function Profile() {
   const { profileData, isLoading, isError, error } = useProfileData()
 
-  if (isLoading || isError) {
+  if (isLoading || isError || !profileData) {
     if (error) {
       toast.error(error.message)
     }

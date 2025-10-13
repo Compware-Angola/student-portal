@@ -32,6 +32,7 @@ import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
 import { api } from '@/lib/key'
 import { useProfileData } from '@/hooks/use-profile-data'
+import { RenegociationSkeleton } from './components/renegociation-skeleton'
 
 // Schemas
 const searchDebtSchema = z.object({
@@ -96,7 +97,8 @@ interface PaymentReference {
 // }
 
 export const Renegociation = () => {
-  const { profileData } = useProfileData()
+  const { profileData, isLoading } = useProfileData()
+
   const [step, setStep] = useState<
     'search' | 'simulate' | 'confirm' | 'complete'
   >('search')
@@ -113,8 +115,8 @@ export const Renegociation = () => {
   const searchForm = useForm<SearchDebtFormData>({
     resolver: zodResolver(searchDebtSchema),
     defaultValues: {
-      enrollmentCode: profileData.enrollment?.enrollmentCode,
-      academicYear: profileData.enrollment?.academicYear,
+      enrollmentCode: profileData?.enrollment?.enrollmentCode,
+      academicYear: profileData?.enrollment?.academicYear,
     },
   })
 
@@ -151,29 +153,27 @@ export const Renegociation = () => {
       setStep('simulate')
     } catch (error) {
       console.error(error)
-      toast.error('Erro ao buscar débitos')
+      toast.error(
+        error instanceof Error ? error.message : 'Erro ao buscar débitos',
+      )
     }
   }
 
   const onSimulateNegotiation = async (data: SimulateNegotiationFormData) => {
-    // Simular chamada à API
-    const mockResponse: SimulationResult = {
-      academicYear: data.academicYear,
-      enrollmentCode: data.enrollmentCode,
-      totalAmount: data.totalAmount,
-      negotiationType:
-        data.initialPayment >= data.totalAmount * 0.5 ? 'PARCIAL' : 'TOTAL',
-      startDate: new Date().toISOString(),
-      endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-      initialPayment: data.initialPayment,
-      finalAmount: data.totalAmount - data.initialPayment * 0.05,
-      status: 'SIMULATED',
+    try {
+      const simulationResult = await api
+        .post<SimulationResult>('v1/renegotiation/simulate', { json: data })
+        .json()
+
+      setSimulationData(simulationResult)
+      setStep('confirm')
+      toast('Simulação realizada')
+    } catch (error) {
+      console.error(error)
+      toast.error(
+        error instanceof Error ? error.message : 'Erro ao simular renegociação',
+      )
     }
-
-    setSimulationData(mockResponse)
-    setStep('confirm')
-
-    toast('Simulação realizada')
   }
 
   const onConfirmNegotiation = async () => {
@@ -239,10 +239,7 @@ export const Renegociation = () => {
     searchForm.reset()
     simulateForm.reset()
   }
-  // if (false) {
-  //   return <RenegociationSkeleton />
-  // }
-
+  if (!profileData || isLoading) return <RenegociationSkeleton />
   return (
     <div className="space-y-6">
       <div>
@@ -352,6 +349,8 @@ export const Renegociation = () => {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
+                          <SelectItem value="2021-2020">2021-2020</SelectItem>
+                          <SelectItem value="2021-2022">2021-2022</SelectItem>
                           <SelectItem value="2022-2023">2022-2023</SelectItem>
                           <SelectItem value="2023-2024">2023-2024</SelectItem>
                           <SelectItem value="2024-2025">2024-2025</SelectItem>

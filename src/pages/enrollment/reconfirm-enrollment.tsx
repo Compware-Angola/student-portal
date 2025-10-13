@@ -26,14 +26,17 @@ interface SelectedSubject {
 export function ReConfirmEnrollment() {
   const { profileData } = useProfileData()
   const navigate = useNavigate();
-  const studentAdmissionId = profileData.refId
-  const courseId = profileData.courseId
-  const enrollmentCode = profileData.enrollment?.enrollmentCode
+  const studentAdmissionId = profileData?.refId
+  const courseId = profileData?.courseId
+  const enrollmentCode = profileData?.enrollment?.enrollmentCode
 
   const { data } = useQuery({
     enabled: !!courseId,
     queryKey: ['subjects', courseId],
-    queryFn: () => getSubject(courseId),
+    queryFn: () => {
+      if (!courseId) return 
+      return getSubject(courseId)
+    },
   })
 
   const subjects = data?.content ?? []
