@@ -20,8 +20,8 @@ import { getCurriculum } from '@/services/subject.service'
 export function Enrollment() {
   const { profileData } = useProfileData()
   const navigate = useNavigate()
-  const studentAdmissionId = profileData.refId
-  const isTimeToConfirm = profileData.timetoReconfirm
+  const studentAdmissionId = profileData?.refId
+  const isTimeToConfirm = profileData?.timetoReconfirm
   const { data } = useQuery({
     queryKey: ['enrollment-ref', studentAdmissionId],
     queryFn: () =>
@@ -32,11 +32,10 @@ export function Enrollment() {
   const { data: curriculumData } = useQuery({
     enabled: !!studentAdmissionId,
     queryKey: ['curriculum-ref', studentAdmissionId],
-    queryFn: () =>
-      getCurriculum(studentAdmissionId),
+    queryFn: () => getCurriculum(studentAdmissionId),
   })
   const enrollment = data?.content
-  const academicYear = curriculumData?.academicYear;
+  const academicYear = curriculumData?.academicYear
   const currentSubjects = [
     {
       id: 1,
@@ -145,7 +144,11 @@ export function Enrollment() {
                 </Item>
               </div>
             )}
-            {isVerifiedToEnrollment(enrollment,isTimeToConfirm,academicYear) && (
+            {isVerifiedToEnrollment(
+              enrollment,
+              !!isTimeToConfirm,
+              academicYear,
+            ) && (
               <div className="flex w-full flex-col gap-6 mt-2">
                 <Item variant="outline">
                   <ItemMedia variant="icon">
