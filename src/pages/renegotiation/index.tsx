@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { AlertCircle, Search, Calculator, CheckCircle2 } from 'lucide-react'
+import { AlertCircle, Calculator, CheckCircle2, FileText } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -21,24 +21,14 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
+
 import { toast } from 'sonner'
 import { api } from '@/lib/key'
 import { useProfileData } from '@/hooks/use-profile-data'
 import { RenegociationSkeleton } from './components/renegociation-skeleton'
-
-// Schemas
-const searchDebtSchema = z.object({
-  enrollmentCode: z.string().min(1, 'Código de matrícula é obrigatório'),
-  academicYear: z.string().min(1, 'Ano académico é obrigatório'),
-})
+import { ProgressStep } from './components/progress-step'
+import { SearchDebt } from './components/search-debt'
+import { searchDebtSchema } from './schemas'
 
 const simulateNegotiationSchema = z.object({
   academicYear: z.string().min(1, 'Ano académico é obrigatório'),
@@ -85,16 +75,16 @@ interface PaymentReference {
   expirationDate: string
 }
 
-// interface InvoiceItem {
-//   description: string
-//   value: number
-//   status: string
-//   references: {
-//     referenceNumber: string
-//     startDate: string
-//     expirationDate: string
-//   }[]
-// }
+interface InvoiceItem {
+  description: string
+  value: number
+  status: string
+  references: {
+    referenceNumber: string
+    startDate: string
+    expirationDate: string
+  }[]
+}
 
 export const Renegociation = () => {
   const { profileData, isLoading } = useProfileData()
@@ -109,7 +99,7 @@ export const Renegociation = () => {
   const [paymentReferences, setPaymentReferences] = useState<
     PaymentReference[]
   >([])
-  //  const [invoices, setInvoices] = useState<InvoiceItem[]>([])
+  const [invoices, setInvoices] = useState<InvoiceItem[]>([])
   const [searchData, setSearchData] = useState<SearchDebtFormData | null>(null)
 
   const searchForm = useForm<SearchDebtFormData>({
@@ -162,12 +152,12 @@ export const Renegociation = () => {
   const onSimulateNegotiation = async (data: SimulateNegotiationFormData) => {
     try {
       const simulationResult = await api
-        .post<SimulationResult>('v1/renegotiation/simulate', { json: data })
+        .post<SimulationResult>('v1/renegotiation/simulation', { json: data })
         .json()
 
       setSimulationData(simulationResult)
       setStep('confirm')
-      toast('Simulação realizada')
+      toast.success('Simulação realizada')
     } catch (error) {
       console.error(error)
       toast.error(
@@ -179,48 +169,40 @@ export const Renegociation = () => {
   const onConfirmNegotiation = async () => {
     if (!simulationData || !searchData) return
 
-    // Simular chamada à API
-    const mockResponse: PaymentReference[] = [
-      {
-        id: 'ref-001',
-        referenceNumber: '123456789',
-        entity: '10065',
-        startDate: new Date().toISOString(),
-        expirationDate: new Date(
-          Date.now() + 30 * 24 * 60 * 60 * 1000,
-        ).toISOString(),
-      },
-    ]
+    try {
+      const response = await api
+        .post<PaymentReference[]>('v1/renegotiation/confirmation', {
+          json: simulationData,
+          timeout: false,
+        })
+        .json()
+      setPaymentReferences(response)
+      setStep('complete')
 
-    setPaymentReferences(mockResponse)
-    setStep('complete')
-
-    toast('Renegociação confirmada!')
+      toast.success('Renegociação confirmada!')
+    } catch (error) {
+      console.error(error)
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Erro ao confirmar renegociação',
+      )
+    }
   }
 
-  // const onListInvoices = async () => {
-  //   // Simular chamada à API
-  //   const mockInvoices: InvoiceItem[] = [
-  //     {
-  //       description: 'Mensalidade',
-  //       value: 45000,
-  //       status: 'PENDING',
-  //       references: [
-  //         {
-  //           referenceNumber: '987654321',
-  //           startDate: new Date().toISOString(),
-  //           expirationDate: new Date(
-  //             Date.now() + 15 * 24 * 60 * 60 * 1000,
-  //           ).toISOString(),
-  //         },
-  //       ],
-  //     },
-  //   ]
-
-  //   setInvoices(mockInvoices)
-
-  //   toast('Faturas carregadas')
-  // }
+  const onListInvoices = async () => {
+    try {
+      const response = await api
+        .get<InvoiceItem[]>(`v1/renegotiation/${41309}`)
+        .json()
+      setInvoices(response)
+    } catch (error) {
+      console.error(error)
+      toast.error(
+        error instanceof Error ? error.message : 'Erro ao listar Renegociações',
+      )
+    }
+  }
 
   const formatCurrency = (value: number) => {
     return `${value.toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Kz`
@@ -251,124 +233,10 @@ export const Renegociation = () => {
         </p>
       </div>
 
-      {/* Progress Steps */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
-            <div
-              className={`flex items-center gap-2 ${step === 'search' ? 'text-primary' : 'text-muted-foreground'}`}
-            >
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center ${step === 'search' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
-              >
-                1
-              </div>
-              <span className="text-sm font-medium">Buscar Dívidas</span>
-            </div>
-            <Separator className="flex-1 mx-4" />
-            <div
-              className={`flex items-center gap-2 ${step === 'simulate' ? 'text-primary' : 'text-muted-foreground'}`}
-            >
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center ${step === 'simulate' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
-              >
-                2
-              </div>
-              <span className="text-sm font-medium">Simular</span>
-            </div>
-            <Separator className="flex-1 mx-4" />
-            <div
-              className={`flex items-center gap-2 ${step === 'confirm' ? 'text-primary' : 'text-muted-foreground'}`}
-            >
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center ${step === 'confirm' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
-              >
-                3
-              </div>
-              <span className="text-sm font-medium">Confirmar</span>
-            </div>
-            <Separator className="flex-1 mx-4" />
-            <div
-              className={`flex items-center gap-2 ${step === 'complete' ? 'text-primary' : 'text-muted-foreground'}`}
-            >
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center ${step === 'complete' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
-              >
-                4
-              </div>
-              <span className="text-sm font-medium">Concluído</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
+      <ProgressStep step={step} />
       {/* Step 1: Search Debt */}
       {step === 'search' && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Search className="h-5 w-5" />
-              Buscar Dívidas em Aberto
-            </CardTitle>
-            <CardDescription>
-              Informe seus dados para consultar as dívidas pendentes
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...searchForm}>
-              <form
-                onSubmit={searchForm.handleSubmit(onSearchDebt)}
-                className="space-y-4"
-              >
-                <FormField
-                  control={searchForm.control}
-                  name="enrollmentCode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Código de Matrícula</FormLabel>
-                      <FormControl>
-                        <Input disabled placeholder="Ex: 1" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={searchForm.control}
-                  name="academicYear"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Ano Académico</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione o ano académico" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="2021-2020">2021-2020</SelectItem>
-                          <SelectItem value="2021-2022">2021-2022</SelectItem>
-                          <SelectItem value="2022-2023">2022-2023</SelectItem>
-                          <SelectItem value="2023-2024">2023-2024</SelectItem>
-                          <SelectItem value="2024-2025">2024-2025</SelectItem>
-                          <SelectItem value="2025-2026">2025-2026</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" className="w-full">
-                  <Search className="mr-2 h-4 w-4" />
-                  Buscar Dívidas
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
+        <SearchDebt onSearchDebt={onSearchDebt} searchForm={searchForm} />
       )}
 
       {/* Step 2: Simulate Negotiation */}
@@ -585,23 +453,11 @@ export const Renegociation = () => {
                 </p>
               </div>
               <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">
-                  Valor Final (com desconto)
-                </p>
-                <p className="font-semibold text-success">
+                <p className="text-sm text-muted-foreground">Valor Final</p>
+                <p className="font-semibold">
                   {formatCurrency(simulationData.finalAmount)}
                 </p>
               </div>
-            </div>
-
-            <div className="bg-success/10 p-4 rounded-lg">
-              <p className="text-sm text-success font-medium">
-                Você economiza{' '}
-                {formatCurrency(
-                  simulationData.totalAmount - simulationData.finalAmount,
-                )}{' '}
-                com esta negociação
-              </p>
             </div>
 
             <div className="flex gap-2">
@@ -674,9 +530,6 @@ export const Renegociation = () => {
 
       {/* List Invoices Button */}
 
-      {/*
-
-
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -734,8 +587,6 @@ export const Renegociation = () => {
           )}
         </CardContent>
       </Card>
-
-      */}
     </div>
   )
 }
