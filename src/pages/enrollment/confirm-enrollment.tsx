@@ -7,35 +7,29 @@ import { useQuery } from '@tanstack/react-query'
 import { Coins } from 'lucide-react'
 import { useProfileData } from '@/hooks/use-profile-data'
 import { toast } from 'sonner'
-import { addReconfirmEnrollment } from '@/services/enrollment.service'
+import { addEnrollment } from '@/services/enrollment.service'
 import { generateReference } from '@/services/financial.service'
 import { addDays, format } from 'date-fns'
 import { useNavigate } from 'react-router-dom'
 
 interface SelectedSubject {
-  disciplineId: string
-  disciplineName: string
-  semester: string
-  status: string
-  finalGrade: number
-  startDate: string
-  completionDate: string
-  remarks: string
+  id: string
+  name: string
 }
 
-export function ReConfirmEnrollment() {
+export function ConfirmEnrollment() {
   const { profileData } = useProfileData()
   const navigate = useNavigate()
   const studentAdmissionId = profileData?.refId
   const courseId = profileData?.courseId
-  const enrollmentCode = profileData?.enrollment?.enrollmentCode
 
   const { data } = useQuery({
     enabled: !!courseId,
     queryKey: ['subjects', courseId],
     queryFn: () => {
-      if (!courseId) return
-      return getSubject(courseId)
+      if (courseId) {
+        return getSubject(courseId)
+      }
     },
   })
 
@@ -44,75 +38,56 @@ export function ReConfirmEnrollment() {
     [],
   )
 
-  const handleToggleSubject = (subject: {
-    disciplineId: string
-    disciplineName: string
-  }) => {
+  const handleToggleSubject = (subject: { id: string; name: string }) => {
     setSelectedSubjects((prevSelected) => {
-      const isAlreadySelected = prevSelected.some(
-        (s) => s.disciplineId === subject.disciplineId,
-      )
-
+      const isAlreadySelected = prevSelected.some((s) => s.id === subject.id)
       if (isAlreadySelected) {
-        return prevSelected.filter(
-          (s) => s.disciplineId !== subject.disciplineId,
-        )
+        return prevSelected.filter((s) => s.id !== subject.id)
       } else {
-        const mockedFields = {
-          semester: '2',
-          status: 'IN_PROGRESS',
-          finalGrade: 0,
-          startDate: '2025-10-10',
-          completionDate: '2026-06-30',
-          remarks: 'Em andamento',
-        }
-
-        return [
-          ...prevSelected,
-          {
-            disciplineId: subject.disciplineId,
-            disciplineName: subject.disciplineName,
-            ...mockedFields,
-          },
-        ]
+        return [...prevSelected, { id: subject.id, name: subject.name }]
       }
     })
   }
 
   const handleSubmit = async () => {
-    if (!enrollmentCode) {
-      toast.error('Código de matrícula não encontrado')
-      return
-    }
-
+    console.log('Disciplinas selecionadas:', selectedSubjects)
     try {
+      console.log('####', studentAdmissionId)
       const enrollmentData = {
-        studentRefId: studentAdmissionId,
-        enrollmentId: enrollmentCode,
+        studentAdmissionId: studentAdmissionId,
+        courseId: courseId,
+        courseName: 'Computer Engineering',
+        studentNumber: studentAdmissionId,
+        enrollmentStatus: 'ACTIVE_REGULAR',
+        enrollmentDate: '2025-09-01',
         academicYear: '2025-2026',
-        curriculumYear: '1',
+        semester: 'Semester I',
         disciplines: selectedSubjects,
       }
-      await addReconfirmEnrollment(enrollmentData)
-      const totalAmount = 1600 * selectedSubjects.length
+      const amount = 1600 * selectedSubjects.length
       const dueDate = format(addDays(new Date(), 3), "yyyy-MM-dd'T'HH:mm:ss")
-
       const referenceData = {
-        amount: totalAmount,
+        amount: amount,
         currency: 'AOA',
-        description: 'Pagamento reconfirmação matrícula ' + enrollmentCode,
+        description: 'Teste Mutue 08072025',
         paymentMethod: 'REF_65e88e95-9d71-4bbb-882a-412fb6a7e111',
         paymentInfo: {
           dueDate: dueDate,
         },
       }
-      generateReference(enrollmentCode, referenceData)
-      toast.success('Matrícula e referência criadas com sucesso!')
-      setSelectedSubjects([])
+
+      const enrollmentResponse = await addEnrollment(enrollmentData)
+      const enrollmentCode = enrollmentResponse.enrollmentCode
+      const referenceResponse = await generateReference(
+        enrollmentCode,
+        referenceData,
+      )
+      console.log('enrollment:', enrollmentResponse)
+      console.log('reference:', referenceResponse)
       navigate('/')
-    } catch (error) {
-      console.error(error)
-      toast.error('Erro ao cadastrar a matrícula')
+    } catch (error: any) {
+      console.log(error)
+      toast.error('Erro ao cadastrar a matricula')
     }
   }
 
@@ -122,7 +97,7 @@ export function ReConfirmEnrollment() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Matrícula</h1>
           <p className="text-muted-foreground">
-            Selecione as disciplinas para a grade curricular
+            Seleciona as Disciplinas para a grade curricular
           </p>
         </div>
       </div>
@@ -133,7 +108,7 @@ export function ReConfirmEnrollment() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {subjects.map((subject: any) => (
+            {subjects.map((subject) => (
               <div
                 key={subject.id}
                 className="flex items-start justify-between rounded-lg border p-4"
@@ -141,13 +116,11 @@ export function ReConfirmEnrollment() {
                 <div className="flex items-start gap-3">
                   <Checkbox
                     id={`subject-${subject.id}`}
-                    checked={selectedSubjects.some(
-                      (s) => s.disciplineId === subject.id,
-                    )}
+                    checked={selectedSubjects.some((s) => s.id === subject.id)}
                     onCheckedChange={() =>
                       handleToggleSubject({
-                        disciplineId: subject.id,
-                        disciplineName: subject.name,
+                        id: subject.id,
+                        name: subject.name,
                       })
                     }
                     className="mt-1"
@@ -167,7 +140,7 @@ export function ReConfirmEnrollment() {
                     <div className="flex flex-wrap gap-4 text-sm">
                       <div className="flex items-center gap-1">
                         <Coins className="h-4 w-4 text-muted-foreground" />
-                        <span>16000 KZ</span>
+                        <span>16000KZ</span>
                       </div>
                     </div>
                   </div>
@@ -175,7 +148,6 @@ export function ReConfirmEnrollment() {
               </div>
             ))}
           </div>
-
           <Button
             className="mt-4 w-full"
             disabled={selectedSubjects.length === 0}
