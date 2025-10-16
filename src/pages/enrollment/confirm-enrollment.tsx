@@ -1,21 +1,19 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+
 import { Checkbox } from '@/components/ui/checkbox'
-import { getSubject } from '@/services/subject.service'
+import { getSubject, type Subject } from '@/services/subject.service'
 import { useQuery } from '@tanstack/react-query'
-import { Coins } from 'lucide-react'
+import { AlertCircle, Banknote, BookMarked, Calendar } from 'lucide-react'
 import { useProfileData } from '@/hooks/use-profile-data'
 import { toast } from 'sonner'
 import { addEnrollment } from '@/services/enrollment.service'
 import { generateReference } from '@/services/financial.service'
 import { addDays, format } from 'date-fns'
 import { useNavigate } from 'react-router-dom'
-
-interface SelectedSubject {
-  id: string
-  name: string
-}
+import { Spinner } from '@/components/ui/spinner'
 
 export function ConfirmEnrollment() {
   const { profileData } = useProfileData()
@@ -33,26 +31,20 @@ export function ConfirmEnrollment() {
     },
   })
 
-  const subjects = data?.content ?? []
-  const [selectedSubjects, setSelectedSubjects] = useState<SelectedSubject[]>(
-    [],
-  )
+  const [selectedSubjects, setSelectedSubjects] = useState<Subject[]>([])
+  const [subjects, setSubjects] = useState<Subject[]>([])
 
-  const handleToggleSubject = (subject: { id: string; name: string }) => {
-    setSelectedSubjects((prevSelected) => {
-      const isAlreadySelected = prevSelected.some((s) => s.id === subject.id)
-      if (isAlreadySelected) {
-        return prevSelected.filter((s) => s.id !== subject.id)
-      } else {
-        return [...prevSelected, { id: subject.id, name: subject.name }]
-      }
-    })
+  useEffect(() => {
+    if (data?.content) {
+      setSubjects(data.content)
+    }
+  }, [data])
+  const handleSelectSubject = async () => {
+    setSelectedSubjects(subjects)
+    setSubjects([])
   }
-
   const handleSubmit = async () => {
-    console.log('Disciplinas selecionadas:', selectedSubjects)
     try {
-      console.log('####', studentAdmissionId)
       const enrollmentData = {
         studentAdmissionId: studentAdmissionId,
         courseId: courseId,
@@ -78,12 +70,7 @@ export function ConfirmEnrollment() {
 
       const enrollmentResponse = await addEnrollment(enrollmentData)
       const enrollmentCode = enrollmentResponse.enrollmentCode
-      const referenceResponse = await generateReference(
-        enrollmentCode,
-        referenceData,
-      )
-      console.log('enrollment:', enrollmentResponse)
-      console.log('reference:', referenceResponse)
+      await generateReference(enrollmentCode, referenceData)
       navigate('/')
     } catch (error: any) {
       console.log(error)
@@ -101,7 +88,6 @@ export function ConfirmEnrollment() {
           </p>
         </div>
       </div>
-
       <Card>
         <CardHeader>
           <CardTitle>Disciplinas Disponíveis</CardTitle>
@@ -116,13 +102,7 @@ export function ConfirmEnrollment() {
                 <div className="flex items-start gap-3">
                   <Checkbox
                     id={`subject-${subject.id}`}
-                    checked={selectedSubjects.some((s) => s.id === subject.id)}
-                    onCheckedChange={() =>
-                      handleToggleSubject({
-                        id: subject.id,
-                        name: subject.name,
-                      })
-                    }
+                    checked={true}
                     className="mt-1"
                   />
                   <div className="space-y-2">
@@ -139,8 +119,16 @@ export function ConfirmEnrollment() {
                     </div>
                     <div className="flex flex-wrap gap-4 text-sm">
                       <div className="flex items-center gap-1">
-                        <Coins className="h-4 w-4 text-muted-foreground" />
+                        <Banknote className="h-4 w-4 text-muted-foreground" />
                         <span>16000KZ</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <BookMarked className="h-4 w-4 text-muted-foreground" />
+                        <span>2 Ano</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <span>Semestre II</span>
                       </div>
                     </div>
                   </div>
@@ -149,12 +137,66 @@ export function ConfirmEnrollment() {
             ))}
           </div>
           <Button
+            disabled={selectedSubjects.length > 0}
             className="mt-4 w-full"
-            disabled={selectedSubjects.length === 0}
-            onClick={handleSubmit}
+            onClick={handleSelectSubject}
           >
-            Adicionar Disciplinas Selecionadas
+            Matricular
           </Button>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Disciplinas Selecionadas</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {selectedSubjects.map((subject) => (
+              <div className="flex items-start justify-between rounded-lg border p-4">
+                <div className="flex items-start gap-3">
+                  <Checkbox disabled checked={true} className="mt-1" />
+                  <div className="space-y-2">
+                    <div>
+                      <label className="cursor-pointer font-semibold">
+                        {subject.name}
+                      </label>
+                      <p className="text-sm text-muted-foreground">
+                        EDR • Engenharia Informática
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-4 text-sm">
+                      <div className="flex items-center gap-1">
+                        <Banknote className="h-4 w-4 text-muted-foreground" />
+                        <span>16000KZ</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <BookMarked className="h-4 w-4 text-muted-foreground" />
+                        <span>2 Ano</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <span>Semestre II</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right flex">
+                  <Badge className="bg-warning/10 text-warning hover:bg-warning/20">
+                    <AlertCircle className="mr-1 h-3 w-3" />
+                    <p className="text-sm"> Pendente</p>
+                  </Badge>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex space-x-2 justify-end mt-12">
+            <Button variant="secondary">Cancelar</Button>
+            <Button disabled>
+              <Spinner />
+              Gerar Referência
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

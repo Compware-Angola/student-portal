@@ -1,0 +1,46 @@
+const handleToggleSubject = (subject: {
+    disciplineId: string
+    disciplineName: string
+  }) => {
+    setSelectedSubjects((prevSelected) => {
+      const isAlreadySelected = prevSelected.some(
+        (s) => s.disciplineId === subject.disciplineId,
+      )
+
+      if (isAlreadySelected) {
+        return prevSelected.filter(
+          (s) => s.disciplineId !== subject.disciplineId,
+        )
+      } else {
+        const mockedFields = {
+          semester: '2',
+          status: 'IN_PROGRESS',
+          finalGrade: 0,
+          startDate: '2025-10-10',
+          completionDate: '2026-06-30',
+          remarks: 'Em andamento',
+        }
+
+        return [
+          ...prevSelected,
+          {
+            disciplineId: subject.disciplineId,
+            disciplineName: subject.disciplineName,
+            ...mockedFields,
+          },
+        ]
+      }
+    })
+  }
+
+  --------------------------------------------------------------------------
+  interface SelectedSubject {
+  disciplineId: string
+  disciplineName: string
+  semester: string
+  status: string
+  finalGrade: number
+  startDate: string
+  completionDate: string
+  remarks: string
+}

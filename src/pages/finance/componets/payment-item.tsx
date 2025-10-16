@@ -38,7 +38,7 @@ export function PaymentItem({ data }: IPaymentItemProps) {
     const fullName = profileData?.fullName
     const ticket = {
       cedente: 'UMA',
-      entity: '11248',
+      entity: '10065',
       reference: reference,
       value,
       code: '20211242',
