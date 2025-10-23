@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import {
+  ClipboardList,
   CreditCard,
   GraduationCap,
   HandCoins,
@@ -28,7 +29,7 @@ const data = {
     { title: 'Dashboard', url: '/', icon: LayoutDashboard },
     { title: 'Finanças', url: '/financa', icon: CreditCard },
     { title: 'Matrícula', url: '/matricula', icon: GraduationCap },
-
+    { title: 'Pré-Inscrição', url: '/presubscription', icon: ClipboardList },
     {
       title: 'Pagamento Antecipado',
       url: '/pagamento-antecipado',

@@ -8,7 +8,6 @@ export function AuthRoutes() {
   return (
     <Route path="/auth">
       <Route index element={<Navigate to="/auth/login" replace />} />
-
       <Route
         path="login"
         element={isAuthenticated ? <Navigate to="/" replace /> : <Login />}

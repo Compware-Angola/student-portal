@@ -1,0 +1,105 @@
+ {/* Dados Pessoais */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  Dados Pessoais
+                </h3>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Nome:</span>
+                    <p className="font-medium">{formData.personal?.fullName}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Data de Nascimento:</span>
+                    <p className="font-medium">{formData.personal?.birthDate}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Documento:</span>
+                    <p className="font-medium">
+                      {formData.personal?.documentType} - {formData.personal?.documentNumber}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Género:</span>
+                    <p className="font-medium">{formData.personal?.gender}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Email:</span>
+                    <p className="font-medium">{formData.personal?.email}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Telefone:</span>
+                    <p className="font-medium">{formData.personal?.phone}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dados Académicos */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <GraduationCap className="h-5 w-5" />
+                  Dados Académicos
+                </h3>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Curso:</span>
+                    <p className="font-medium">{formData.academic?.desiredCourse}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Ano Académico:</span>
+                    <p className="font-medium">{formData.academic?.academicYear}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Turno:</span>
+                    <p className="font-medium">{formData.academic?.shift}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Escola Anterior:</span>
+                    <p className="font-medium">{formData.academic?.previousSchool}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Média Final:</span>
+                    <p className="font-medium">{formData.academic?.averageGrade}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Documentos */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Documentos
+                </h3>
+                <div className="space-y-2 text-sm">
+                  {formData.documents?.hasIdentityDocument && (
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-primary" />
+                      <span>Documento de Identidade</span>
+                    </div>
+                  )}
+                  {formData.documents?.hasBirthCertificate && (
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-primary" />
+                      <span>Certidão de Nascimento</span>
+                    </div>
+                  )}
+                  {formData.documents?.hasAcademicCertificate && (
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-primary" />
+                      <span>Certificado de Habilitações</span>
+                    </div>
+                  )}
+                  {formData.documents?.hasPhoto && (
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-primary" />
+                      <span>Fotografias 3x4</span>
+                    </div>
+                  )}
+                  {formData.documents?.hasProofOfAddress && (
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-primary" />
+                      <span>Comprovante de Residência</span>
+                    </div>
+                  )}
+                </div>
+              </div>
