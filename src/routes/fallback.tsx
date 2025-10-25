@@ -10,7 +10,7 @@ export function FallbackRoute() {
     if (isAuthenticated) {
       navigate('/', { replace: true }) // 🔐 Vai para o dashboard
     } else {
-      navigate('/auth/login', { replace: true }) // 🔑 Vai para login
+      navigate('/auth', { replace: true }) // 🔑 Vai para login
     }
   }, [isAuthenticated, navigate])
 

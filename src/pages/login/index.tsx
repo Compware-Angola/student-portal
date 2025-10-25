@@ -9,6 +9,8 @@ import {
 import { ModeToggle } from '@/components/mode-toggle'
 import { LoginForm } from './components/login-form'
 import { LogoBackground } from './components/logo-background'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { RegisterForm } from './components/register-form'
 
 export function Login() {
   return (
@@ -31,7 +33,20 @@ export function Login() {
           <CardDescription>Acesse sua conta acadêmica</CardDescription>
         </CardHeader>
         <CardContent>
-          <LoginForm />
+          <Tabs defaultValue="login" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="login">Entrar</TabsTrigger>
+              <TabsTrigger value="register">Inscrição</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="login" className="mt-4">
+              <LoginForm />
+            </TabsContent>
+
+            <TabsContent value="register" className="mt-4">
+              <RegisterForm />
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>

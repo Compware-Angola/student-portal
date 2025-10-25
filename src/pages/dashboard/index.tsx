@@ -2,34 +2,38 @@ import { AlertCircle, BookOpen, Calendar, Clock } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { HeaderWelcome } from './components/header-welcome'
-import { PaymentAlert } from '@/components/payment-alert'
-import { useProfileData } from '@/hooks/use-profile-data'
 
 import { DashboardSkeleton } from './components/dashboard-skeleton'
 import { toast } from 'sonner'
+import { useGetProfile } from '@/hooks/profile/use-get-profile'
 
 export function Dashboard() {
-  const { profileData, isLoading, isError, error } = useProfileData()
+  const {
+    error: getProfileError,
+    isError: isGetProfileError,
+    isLoading: isGetProfileLoading,
+    profileData,
+  } = useGetProfile()
 
-  if (isLoading || isError || !profileData) {
-    if (error) {
-      toast.error(error.message)
+  if (isGetProfileLoading || isGetProfileError || !profileData) {
+    if (getProfileError) {
+      toast.error(getProfileError.message)
     }
     return <DashboardSkeleton />
   }
 
-  if (
-    profileData.enrollment?.enrollmentStatus !== 'ACTIVE_REGULAR' &&
-    profileData.enrollment?.enrollmentStatus !== undefined
-  )
-    return <PaymentAlert />
+  // if (
+  //   profileData.enrollment?.enrollmentStatus !== 'ACTIVE_REGULAR' &&
+  //   profileData.enrollment?.enrollmentStatus !== undefined
+  // )
+  //   return <PaymentAlert />
 
   return (
     <>
       <div className="space-y-6">
         <div>
           <HeaderWelcome
-            curriculumYear={profileData.curriculumYear}
+            enrollmentState={profileData.enrollmentState}
             firstName={profileData.firstName}
             lastName={profileData.lastName}
             gender={profileData.gender}

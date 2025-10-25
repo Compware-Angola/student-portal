@@ -3,10 +3,10 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { PersonalDataTab } from './personal-data-tab'
 import { AcademicDataTab } from './academic-data-tab'
 type InformationCardProps = {
-  email: string
-  phone: string
+  email?: string
+  phone?: string
   dateOfBirth: string
-  address: string
+  address?: string
   name: string
 }
 
@@ -30,10 +30,10 @@ export function InformationCard({
           </TabsList>
           <PersonalDataTab
             name={name}
-            email={email}
-            phone={phone}
+            email={email ?? ''}
+            phone={phone ?? ''}
             dateOfBirth={dateOfBirth}
-            address={address}
+            address={address ?? ''}
           />
           <AcademicDataTab />
         </Tabs>

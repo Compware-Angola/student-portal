@@ -1,17 +1,26 @@
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+
 type ProfileAvatarProps = {
   firstName: string
   lastName: string
-  curriculumYear: string
+  curriculumYear?: string
+  enrollmentState?: string
+  curso?: string
+  polo?: string
 }
 
 export function ProfileAvatar({
   firstName,
   lastName,
   curriculumYear,
+  enrollmentState,
+  curso,
+  polo,
 }: ProfileAvatarProps) {
+  const displayText = curriculumYear || enrollmentState
+
   return (
     <Card className="lg:col-span-1">
       <CardHeader>
@@ -25,11 +34,16 @@ export function ProfileAvatar({
             </AvatarFallback>
           </Avatar>
         </div>
+
         <div className="space-y-2 text-center">
           <h3 className="font-semibold">{`${firstName} ${lastName}`}</h3>
-          <p className="text-sm text-muted-foreground">N/A</p>
-          <p className="text-sm text-muted-foreground">{curriculumYear}</p>
+          {curso && <p className="text-sm text-muted-foreground">{curso}</p>}
+          {polo && <p className="text-sm text-muted-foreground">{polo}</p>}
+          {displayText && (
+            <p className="text-sm text-muted-foreground">{displayText}</p>
+          )}
         </div>
+
         <Button className="w-full" variant="outline">
           Alterar Foto
         </Button>

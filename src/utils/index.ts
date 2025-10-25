@@ -27,24 +27,24 @@ export const formatCurrency = (value: number | string) => {
   })
 }
 
-export const isVerifiedToEnrollment = (
-  enrollment: Enrollment[] | undefined,
-  isTimeToConfirm: boolean,
-  academicYear: string | undefined
-): boolean => {
-  if (!enrollment || enrollment.length === 0  ) {
-    return false
-  }
-  if(!academicYear ||academicYear == '2025-2026') return false
-  const firstEnrollment = enrollment[0]
+// export const isVerifiedToEnrollment = (
+//   enrollment: Enrollment[] | undefined,
+//   isTimeToConfirm: boolean,
+//   academicYear: string | undefined
+// ): boolean => {
+//   if (!enrollment || enrollment.length === 0  ) {
+//     return false
+//   }
+//   if(!academicYear ||academicYear == '2025-2026') return false
+//   const firstEnrollment = enrollment[0]
 
-  return (
-    isTimeToConfirm && firstEnrollment?.enrollmentStatus === 'ACTIVE_REGULAR'
-  )
-}
+//   return (
+//     isTimeToConfirm && firstEnrollment?.enrollmentStatus === 'ACTIVE_REGULAR'
+//   )
+// }
 
 export const isNewStudent = (enrollment: Enrollment[] | undefined) => {
-  if (enrollment == undefined) return;
+  if (enrollment == undefined) return
   if (enrollment && enrollment.length == 0) return true
   return false
 }

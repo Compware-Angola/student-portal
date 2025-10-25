@@ -1,17 +1,13 @@
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldSeparator,
-} from '@/components/ui/field'
+import { Field, FieldGroup } from '@/components/ui/field'
 
 import { Form } from '@/components/ui/form'
 import { InputFormField } from '@/components/input-form-field'
 import { useLoginForm } from '../use-login-form'
 import { Spinner } from '@/components/ui/spinner'
+import { FormFooter } from './form-footer'
 
 export function LoginForm({
   className,
@@ -48,13 +44,7 @@ export function LoginForm({
               Entrar
             </Button>
           </Field>
-          <FieldSeparator></FieldSeparator>
-          <Field>
-            <FieldDescription className="text-center">
-              © {new Date().getFullYear()} Universidade Metodista de Angola.
-              Todos os direitos reservados.
-            </FieldDescription>
-          </Field>
+          <FormFooter />
         </FieldGroup>
       </form>
     </Form>

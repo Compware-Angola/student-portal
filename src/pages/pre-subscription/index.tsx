@@ -8,143 +8,177 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { toast } from 'sonner'
-import {
-  CheckCircle2,
-  ArrowLeft,
-  User,
-  GraduationCap,
-  FileText,
-  CheckCheck,
-} from 'lucide-react'
+import { CheckCircle2, ArrowLeft, CheckCheck } from 'lucide-react'
 import { PersonalDetails } from './components/personal-details'
 import { AcademicData } from './components/academic-data'
 import { AcademicDocument } from './components/academic-document'
+import { cn } from '@/lib/utils'
+import {
+  FormPreSubscriptionProvider,
+  useFormPreSubscriptionForm,
+} from './components/form-provider'
+import { ProgressBar } from './components/progress-bar'
+import { Form } from '@/components/ui/form'
+import { InputFormField } from '@/components/input-form-field'
+import { SpepNavigation } from './components/spep-navigation'
 
 export function PreSubscription() {
-  const [currentStep, setCurrentStep] = useState(3)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const totalSteps = 4
-  const progress = (currentStep / totalSteps) * 100
-  const steps = [
-    { number: 1, title: 'Dados Pessoais', icon: User },
-    { number: 2, title: 'Dados Académicos', icon: GraduationCap },
-    { number: 3, title: 'Dados da Candidatura', icon: FileText },
-    { number: 4, title: 'Revisão', icon: CheckCheck },
-  ]
-  const onSubmitPersonal = () => {
-    setCurrentStep(2)
-  }
-  const onSubmitAcademic = () => {
-    setCurrentStep(3)
-  }
-  const onSubmitDocuments = () => {
-    setCurrentStep(4)
-  }
-  const onFinalSubmit = async () => {
-    setIsSubmitting(true)
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    toast.success('Pré-inscrição realizada com sucesso!', {
-      description: 'Receberá um email com os próximos passos.',
-    })
-    setIsSubmitting(false)
-  }
-  const goBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1)
-    }
-  }
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Pré-Inscrição</h1>
         <p className="text-muted-foreground mt-2">
           Preencha o formulário para realizar a pré-inscrição ao exame de acesso
         </p>
       </div>
+      <FormPreSubscriptionProvider>
+        <Temp />
+      </FormPreSubscriptionProvider>
+    </div>
+  )
+}
+
+function Temp() {
+  const { steps, currentStep, form, onSubmit } = useFormPreSubscriptionForm()
+  return (
+    <>
+      <ProgressBar />
 
       <Card>
-        <CardContent className="pt-6">
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              {steps.map((step) => {
-                const Icon = step.icon
-                const isActive = currentStep === step.number
-                const isCompleted = currentStep > step.number
-                return (
-                  <div
-                    key={step.number}
-                    className="flex flex-col items-center gap-2"
-                  >
-                    <div
-                      className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-colors ${
-                        isCompleted
-                          ? 'bg-primary border-primary text-primary-foreground'
-                          : isActive
-                            ? 'border-primary text-primary'
-                            : 'border-muted text-muted-foreground'
-                      }`}
-                    >
-                      {isCompleted ? (
-                        <CheckCircle2 className="w-6 h-6" />
-                      ) : (
-                        <Icon className="w-6 h-6" />
-                      )}
-                    </div>
-                    <span
-                      className={`text-xs font-medium text-center ${
-                        isActive ? 'text-primary' : 'text-muted-foreground'
-                      }`}
-                    >
-                      {step.title}
-                    </span>
-                  </div>
-                )
-              })}
-            </div>
-            <Progress value={progress} className="h-2" />
-          </div>
+        <CardHeader>
+          <CardTitle>{steps[currentStep].title}</CardTitle>
+          <CardDescription>{steps[currentStep].description}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {steps[currentStep].component}
+
+              {/*<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={personalForm.control}
+                    name="documentType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tipo de Documento</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="bi">
+                              Bilhete de Identidade
+                            </SelectItem>
+                            <SelectItem value="passaporte">Passaporte</SelectItem>
+                            <SelectItem value="dire">DIRE</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={personalForm.control}
+                    name="documentNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Número do Documento</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Digite o número" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>*/}
+
+              {/*<FormField
+                  control={personalForm.control}
+                  name="nationality"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nacionalidade</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Digite a nacionalidade" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />*/}
+
+              {/*<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={personalForm.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Telefone</FormLabel>
+                        <FormControl>
+                          <Input placeholder="+244 900 000 000" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={personalForm.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="email"
+                            placeholder="seu@email.com"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>*/}
+
+              {/*<FormField
+                  control={personalForm.control}
+                  name="address"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Endereço</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Rua, Bairro" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />*/}
+
+              {/*<FormField
+                  control={personalForm.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Cidade</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Luanda, Benguela, etc." {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />*/}
+
+              <SpepNavigation />
+            </form>
+          </Form>
         </CardContent>
       </Card>
-
-      {/* Step 1: Dados Pessoais */}
-      {currentStep === 1 && (
-        <PersonalDetails onClick={() => onSubmitPersonal()} />
-      )}
-      {/* Step 2: Dados Académicos */}
-      {currentStep === 2 && (
-        <AcademicData
-          onHandleGoback={goBack}
-          onHandleSubmitAcademic={onSubmitAcademic}
-        />
-      )}
-      {/* Step 3: Documentos */}
-      {currentStep === 3 && (
-        <AcademicDocument onHandleGoback={goBack} onHandleDocumentsData={onSubmitDocuments}/>
-      )}
-      {/* Step 4: Revisão */}
-      {currentStep === 4 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Revisão dos Dados</CardTitle>
-            <CardDescription>
-              Confirme todas as informações antes de submeter
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <h2>Revisão dos Dados</h2>
-            <div className="flex justify-between pt-4">
-              <Button type="button" variant="outline" onClick={goBack}>
-                <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
-              </Button>
-              <Button onClick={onFinalSubmit} disabled={isSubmitting}>
-                {isSubmitting ? 'A submeter...' : 'Submeter Pré-Inscrição'}
-                {!isSubmitting && <CheckCheck className="ml-2 h-4 w-4" />}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+    </>
   )
 }

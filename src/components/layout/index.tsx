@@ -32,11 +32,11 @@ export default function Layout() {
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem className="hidden md:block">
-                    <BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
+                    <BreadcrumbLink href="#">Uma</BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator className="hidden md:block" />
                   <BreadcrumbItem>
-                    <BreadcrumbPage>Inicio</BreadcrumbPage>
+                    {/* <BreadcrumbPage>Inicio</BreadcrumbPage> */}
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>

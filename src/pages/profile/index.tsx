@@ -1,20 +1,23 @@
 import { Skeleton } from '@/components/ui/skeleton'
-import { useProfileData } from '@/hooks/use-profile-data'
 import { ProfileCardSkeleton } from './components/profile-card-skeleton'
 import { InformationCard } from './components/information-card'
 import { ProfileAvatar } from './components/profile-avatar'
 import { InfoCardSkeleton } from './components/info-card-skeleton'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { FileText } from 'lucide-react'
 import { toast } from 'sonner'
+import { useGetProfile } from '@/hooks/profile/use-get-profile'
 
 export function Profile() {
-  const { profileData, isLoading, isError, error } = useProfileData()
+  const {
+    isLoading: isProfileLoading,
+    isError: isProfileError,
+    error: profileError,
+    profileData,
+  } = useGetProfile()
+  console.log(isProfileLoading)
 
-  if (isLoading || isError || !profileData) {
-    if (error) {
-      toast.error(error.message)
+  if (isProfileLoading || isProfileError || !profileData) {
+    if (profileError) {
+      toast.error(profileError.message)
     }
     return (
       <div className="space-y-6">
@@ -31,15 +34,18 @@ export function Profile() {
   }
 
   const {
+    birthDate,
+    enrollmentState,
     firstName,
+    fullName,
     lastName,
     email,
     phone,
-    fullName,
     address,
-    dateOfBirth,
-    curriculumYear,
+    curso,
+    polo,
   } = profileData
+  console.log(birthDate.toString())
 
   return (
     <div className="space-y-6">
@@ -54,70 +60,18 @@ export function Profile() {
         <ProfileAvatar
           firstName={firstName}
           lastName={lastName}
-          curriculumYear={curriculumYear}
+          enrollmentState={enrollmentState}
+          curso={curso}
+          polo={polo}
         />
         <InformationCard
           name={fullName}
           email={email}
           phone={phone}
-          dateOfBirth={dateOfBirth}
+          dateOfBirth={birthDate}
           address={address}
         />
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Documentos</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
-            <Button variant="outline" className="h-auto justify-start p-4">
-              <div className="flex items-center gap-3">
-                <FileText className="h-8 w-8 text-primary" />
-                <div className="text-left">
-                  <p className="font-medium">Histórico Acadêmico</p>
-                  <p className="text-xs text-muted-foreground">
-                    Última atualização: 10/01/2025
-                  </p>
-                </div>
-              </div>
-            </Button>
-            <Button variant="outline" className="h-auto justify-start p-4">
-              <div className="flex items-center gap-3">
-                <FileText className="h-8 w-8 text-primary" />
-                <div className="text-left">
-                  <p className="font-medium">Certificado de Matrícula</p>
-                  <p className="text-xs text-muted-foreground">
-                    Ano letivo 2024/2025
-                  </p>
-                </div>
-              </div>
-            </Button>
-            <Button variant="outline" className="h-auto justify-start p-4">
-              <div className="flex items-center gap-3">
-                <FileText className="h-8 w-8 text-primary" />
-                <div className="text-left">
-                  <p className="font-medium">Comprovante de Pagamento</p>
-                  <p className="text-xs text-muted-foreground">
-                    Fevereiro 2025
-                  </p>
-                </div>
-              </div>
-            </Button>
-            <Button variant="outline" className="h-auto justify-start p-4">
-              <div className="flex items-center gap-3">
-                <FileText className="h-8 w-8 text-primary" />
-                <div className="text-left">
-                  <p className="font-medium">Declaração de Frequência</p>
-                  <p className="text-xs text-muted-foreground">
-                    Última emissão: 05/02/2025
-                  </p>
-                </div>
-              </div>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   )
 }
