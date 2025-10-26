@@ -1,15 +1,16 @@
 import { ApiError, type ApiErrorResponse } from '@/error'
+import { AuthStorage } from '@/storage/auth-storage'
 import ky from 'ky'
 
-const API_URL = import.meta.env.VITE_API_URL
+const VITE_API_URL_APEX = import.meta.env.VITE_API_URL_APEX
 
-export const api = ky.create({
-  prefixUrl: API_URL,
+export const apexApi = ky.create({
+  prefixUrl: VITE_API_URL_APEX,
   credentials: 'include',
   hooks: {
     beforeRequest: [
       (request) => {
-        const token = localStorage.getItem('token')
+        const token = AuthStorage.getToken()
         if (token) {
           request.headers.set('Authorization', `Bearer ${token}`)
         }
@@ -22,7 +23,7 @@ export const api = ky.create({
             response.status === 401 &&
             !request.url.includes('/api/v1/auth')
           ) {
-            localStorage.removeItem('token')
+            AuthStorage.clear()
           }
           try {
             const errorData = (await response.json()) as ApiErrorResponse

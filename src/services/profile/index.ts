@@ -1,6 +1,4 @@
-// essse servico se refer a api nova do apex
-//
-import { apexApi } from '@/lib/apex'
+import { apexApi } from '@/lib/apex-api'
 
 export type StudentProfile = {
   codresposta: number

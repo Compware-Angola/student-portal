@@ -1,10 +1,11 @@
 import { ApiError, type ApiErrorResponse } from '@/error'
+
 import ky from 'ky'
 
-const VITE_API_URL_APEX = import.meta.env.VITE_API_URL_APEX
+const VITE_API_URL_INVOICE = import.meta.env.VITE_API_URL_INVOICE
 
-export const apexApi = ky.create({
-  prefixUrl: VITE_API_URL_APEX,
+export const invoiceApi = ky.create({
+  prefixUrl: VITE_API_URL_INVOICE,
   credentials: 'include',
   hooks: {
     afterResponse: [

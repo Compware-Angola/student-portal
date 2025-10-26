@@ -22,7 +22,7 @@ import {
   SidebarMenuButton,
   SidebarRail,
 } from '@/components/ui/sidebar'
-import { logout } from '@/services/auth.service'
+import { AuthStorage } from '@/storage/auth-storage'
 
 const data = {
   navMain: [
@@ -51,7 +51,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenuButton
-          onClick={logout}
+          onClick={() => {
+            AuthStorage.clear()
+            window.location.reload()
+          }}
           aria-label="Terminar Sessão"
           tooltip="Terminar Sessão"
           className="hover:bg-destructive bg-destructive"

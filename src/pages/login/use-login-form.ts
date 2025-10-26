@@ -1,10 +1,11 @@
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { authenticate } from '@/services/auth.service'
 import { toast } from 'sonner'
 import { useNavigate } from 'react-router-dom'
 import { ApiError } from '@/error'
+import { login } from '@/services/auth/login.service'
+import { AuthStorage } from '@/storage/auth-storage'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 export const FormSchema = z.object({
   username: z.string().min(1, { message: 'Nome de usuário é obrigatório' }),
@@ -26,8 +27,8 @@ export function useLoginForm() {
 
   async function onSubmit(data: LoginFormData) {
     try {
-      const response = await authenticate(data)
-      localStorage.setItem('token', response.token)
+      const response = await login(data)
+      AuthStorage.save(response)
       toast.success('Autenticado com sucesso!')
       navigate('/')
     } catch (error) {

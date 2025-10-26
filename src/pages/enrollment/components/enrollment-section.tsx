@@ -6,13 +6,12 @@ import { SubjectCard } from './subject-card'
 import type { NewStudentCurriculumSubject } from '@/services/curriculum/new-student-curriculum-plan.service'
 
 type SectionProps = {
-  label: 'ANUAL' | 'I SEMESTRE' | 'II SEMESTRE'
-
+  label: string
   subjects: NewStudentCurriculumSubject[]
 }
 
 export function EnrollmentSection({ label, subjects }: SectionProps) {
-  const { expandedSections, toggleSection, isSelected, toggleSubject } =
+  const { toggleSection, isSelected, toggleSubject, isExpanded } =
     useEnrollment()
 
   if (subjects.length === 0) return null
@@ -25,12 +24,8 @@ export function EnrollmentSection({ label, subjects }: SectionProps) {
             {label}
             <span className="text-sm ">({subjects.length})</span>
           </CardTitle>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => toggleSection(label)}
-          >
-            {expandedSections[label] ? (
+          <Button variant="outline" size="sm" onClick={() => toggleSection()}>
+            {isExpanded ? (
               <ChevronUp className="h-4 w-4" />
             ) : (
               <ChevronDown className="h-4 w-4" />
@@ -39,7 +34,7 @@ export function EnrollmentSection({ label, subjects }: SectionProps) {
         </div>
       </CardHeader>
 
-      {expandedSections[label] && (
+      {isExpanded && (
         <CardContent className="space-y-3 pt-4">
           {subjects.map((subject) => (
             <SubjectCard

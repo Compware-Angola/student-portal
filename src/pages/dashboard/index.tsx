@@ -5,7 +5,7 @@ import { HeaderWelcome } from './components/header-welcome'
 
 import { DashboardSkeleton } from './components/dashboard-skeleton'
 import { toast } from 'sonner'
-import { useGetProfile } from '@/hooks/profile/use-get-profile'
+import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 
 export function Dashboard() {
   const {
@@ -13,7 +13,7 @@ export function Dashboard() {
     isError: isGetProfileError,
     isLoading: isGetProfileLoading,
     profileData,
-  } = useGetProfile()
+  } = useQueryProfile()
 
   if (isGetProfileLoading || isGetProfileError || !profileData) {
     if (getProfileError) {

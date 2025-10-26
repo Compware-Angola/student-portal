@@ -1,55 +1,25 @@
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+'use client'
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { FinanceProvider } from './context/finance.provider'
+import { FinanceStats } from './componets/finance-stats'
+import { PaymentList } from './componets/payment-list'
+import { InvoicesTable } from './componets/invoice-table'
+import { useFinance } from './hooks/use-finance'
 import { toast } from 'sonner'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Pagination } from '@/components/pagination'
-import { PaymentAlert } from '@/components/payment-alert'
-import { useProfileData } from '@/hooks/use-profile-data'
-import { getFinancial } from '@/services/financial.service'
-import { PaymentItem } from './componets/payment-item'
 import { FinanceSkeleton } from './componets/finance-skeleton'
 
-export function Finance() {
-  const [currentPage, setCurrentPage] = useState(0)
-  const { profileData } = useProfileData()
-
-  const enrollmentCode = profileData?.enrollment?.enrollmentCode
-  const isEnrollmentActive =
-    profileData?.enrollment?.enrollmentStatus === 'ACTIVE_REGULAR'
-
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['financial', currentPage, enrollmentCode],
-    enabled: !!enrollmentCode && isEnrollmentActive,
-    queryFn: () =>
-      getFinancial({
-        enrollmentCode: enrollmentCode!,
-        page: currentPage,
-        size: 100,
-      }),
-  })
-
-  // Tratamento de erro
-  if (isError && error) {
-    toast.error(error.message)
-  }
-
-  // Estados de loading
-  if (isLoading || !profileData) {
+function Content() {
+  const { isLoadingProfileData, isProfileError, profileError, profileData } =
+    useFinance()
+  if (isLoadingProfileData || isProfileError || !profileData) {
+    if (profileError) {
+      toast.error('Error fetching profile data')
+    }
     return <FinanceSkeleton />
   }
-
-  // Verificação de matrícula
-  if (!isEnrollmentActive && enrollmentCode !== undefined) {
-    return <PaymentAlert />
-  }
-
-  const payments = data?.content ?? []
-  const totalPages = data?.totalPages ?? 0
-  const existMorePages = data?.last ?? false
-
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Finanças</h1>
         <p className="text-muted-foreground">
@@ -57,68 +27,31 @@ export function Finance() {
         </p>
       </div>
 
-      {/* Cards de Resumo */}
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">Total Pago</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0 Kz</div>
-            <p className="text-xs text-muted-foreground">-</p>
-          </CardContent>
-        </Card>
+      <FinanceStats />
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">Pendente</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-warning">0 Kz</div>
-            <p className="text-xs text-muted-foreground">-</p>
-          </CardContent>
-        </Card>
+      <Tabs defaultValue="payments" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="payments">Pagamentos</TabsTrigger>
+          <TabsTrigger value="invoices">Faturas</TabsTrigger>
+          <TabsTrigger value="references">Referências</TabsTrigger>
+        </TabsList>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">Total do Ano</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0 Kz</div>
-            <p className="text-xs text-muted-foreground">12 mensalidades</p>
-          </CardContent>
-        </Card>
-      </div>
+        <TabsContent value="payments" className="mt-6">
+          <PaymentList />
+        </TabsContent>
 
-      {/* Histórico de Pagamentos */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Histórico de Pagamentos</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {payments.length > 0 ? (
-              payments.map((payment) => (
-                <PaymentItem key={payment.id} data={payment} />
-              ))
-            ) : (
-              <p className="text-center text-muted-foreground py-8">
-                Nenhum Dado Encontrado
-              </p>
-            )}
-          </div>
-
-          {payments.length > 0 && (
-            <div className="mt-10">
-              <Pagination
-                last={existMorePages}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-              />
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        <TabsContent value="invoices" className="mt-6">
+          <InvoicesTable codigoMatricula={profileData.enrollmentCode} />
+        </TabsContent>
+      </Tabs>
     </div>
+  )
+}
+
+export function Finance() {
+  return (
+    <FinanceProvider>
+      <Content />
+    </FinanceProvider>
   )
 }

@@ -4,7 +4,7 @@ import { InformationCard } from './components/information-card'
 import { ProfileAvatar } from './components/profile-avatar'
 import { InfoCardSkeleton } from './components/info-card-skeleton'
 import { toast } from 'sonner'
-import { useGetProfile } from '@/hooks/profile/use-get-profile'
+import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 
 export function Profile() {
   const {
@@ -12,7 +12,7 @@ export function Profile() {
     isError: isProfileError,
     error: profileError,
     profileData,
-  } = useGetProfile()
+  } = useQueryProfile()
   console.log(isProfileLoading)
 
   if (isProfileLoading || isProfileError || !profileData) {

@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { format } from 'date-fns'
 import { pt } from 'date-fns/locale'
+import { AuthStorage } from '@/storage/auth-storage'
+import type { ProfileData } from '@/types/profile'
 
 const CURRICULUM_YEAR_MAP: Record<string, string> = {
   '1': 'Primeiro ano',
@@ -28,15 +30,18 @@ export function formatDate(dateString?: string | null): string {
   }
 }
 
-export function useGetProfile() {
+export function useQueryProfile() {
+  const auth = AuthStorage.get()
   const { data, isLoading, error, isError } = useQuery<StudentProfile>({
-    queryKey: ['profile2'],
-    queryFn: () => getProfile('19'),
+    queryKey: ['profile'],
+    //eslint-disable-next-line
+    queryFn: () => getProfile(auth?.codigoPreinscricao!),
     staleTime: Infinity,
     retry: 0,
+    enabled: !!auth,
   })
 
-  const profileData = useMemo(() => {
+  const profileData: ProfileData | null = useMemo(() => {
     if (!data) {
       return null
     }
@@ -58,6 +63,7 @@ export function useGetProfile() {
       phone: '',
       address: '',
       curso: data.curso,
+      enrollmentCode: data.codigo_matricula,
     }
   }, [data])
 

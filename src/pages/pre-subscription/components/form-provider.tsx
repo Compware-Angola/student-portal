@@ -43,6 +43,12 @@ export function FormPreSubscriptionProvider({
       maritalStatus: '',
       motherName: '',
       needs: '',
+      averageGrade: 0,
+      graduationYear: '',
+      previousSchool: '',
+      intendedCourse: '',
+      pole: '',
+      secondOption: '',
     },
     mode: 'onChange',
   })

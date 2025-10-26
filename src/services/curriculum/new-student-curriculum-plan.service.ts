@@ -1,4 +1,4 @@
-import { apexApi } from '@/lib/apex'
+import { apexApi } from '@/lib/apex-api'
 
 export type NewStudentCurriculumSubject = {
   disciplina: string

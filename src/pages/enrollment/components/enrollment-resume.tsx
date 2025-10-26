@@ -4,9 +4,17 @@ import { Badge } from '@/components/ui/badge'
 import { AlertCircle } from 'lucide-react'
 import { useEnrollment } from '../hooks/use-enrollment'
 import { formatCurrency } from '@/utils'
+import { Spinner } from '@/components/ui/spinner'
 
 export function EnrollmentResume() {
-  const { selectedSubjects, totalValue, remove, removeAll } = useEnrollment()
+  const {
+    selectedSubjects,
+    totalValue,
+    remove,
+    removeAll,
+    confirmStudentEnrollment,
+    confirmNewStudentEnrollmentPending,
+  } = useEnrollment()
 
   return (
     <>
@@ -24,15 +32,21 @@ export function EnrollmentResume() {
               {selectedSubjects.map((subject) => (
                 <li
                   key={subject.codigoGrade}
-                  className="flex items-center justify-between gap-4"
+                  className="flex items-center justify-between gap-4 border-b py-5"
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col gap-2">
                     <span className="font-medium">{subject.disciplina}</span>
-                    {subject.duracaoDisciplina === 'Anual' && (
-                      <Badge variant="outline" className="ml-2 text-xs">
-                        Anual
-                      </Badge>
-                    )}
+
+                    <Badge
+                      variant={
+                        subject.duracaoDisciplina === 'Anual'
+                          ? 'secondary'
+                          : 'default'
+                      }
+                      className="text-xs"
+                    >
+                      {subject.duracaoDisciplina}
+                    </Badge>
                   </div>
 
                   <div className="flex items-center gap-3">
@@ -51,14 +65,27 @@ export function EnrollmentResume() {
               ))}
             </ul>
 
-            <div className="border-t  pt-4 flex justify-between text-lg font-bold">
+            <div className=" pt-4 flex justify-between text-lg font-bold">
               <span>Total a Pagar:</span>
               <span>{formatCurrency(totalValue)}</span>
             </div>
 
             <div className="flex gap-3">
-              <Button className="flex-1" size="lg" onClick={() => {}}>
-                Confirmar Matrícula
+              <Button
+                className="flex-1"
+                size="lg"
+                onClick={confirmStudentEnrollment}
+                disabled={confirmNewStudentEnrollmentPending}
+              >
+                <>
+                  {confirmNewStudentEnrollmentPending ? (
+                    <>
+                      <Spinner />
+                    </>
+                  ) : (
+                    'Confirmar Matrícula'
+                  )}
+                </>
               </Button>
               <Button variant="outline" size="lg" onClick={removeAll}>
                 Limpar Seleção

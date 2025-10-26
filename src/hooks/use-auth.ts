@@ -1,4 +1,7 @@
+import { AuthStorage } from '@/storage/auth-storage'
+
 export function useAuth() {
-  const token = localStorage.getItem('token')
-  return { isAuthenticated: !!token }
+  const isAuthenticated = AuthStorage.isAuthenticated()
+
+  return { isAuthenticated }
 }

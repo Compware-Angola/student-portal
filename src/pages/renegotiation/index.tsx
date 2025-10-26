@@ -23,12 +23,13 @@ import {
 import { Input } from '@/components/ui/input'
 
 import { toast } from 'sonner'
-import { api } from '@/lib/key'
-import { useProfileData } from '@/hooks/use-profile-data'
+
 import { RenegociationSkeleton } from './components/renegociation-skeleton'
 import { ProgressStep } from './components/progress-step'
 import { SearchDebt } from './components/search-debt'
 import { searchDebtSchema } from './schemas'
+import { useQueryProfile } from '@/hooks/profile/use-query-profile'
+import { apexApi } from '@/lib/apex-api'
 
 const simulateNegotiationSchema = z.object({
   academicYear: z.string().min(1, 'Ano académico é obrigatório'),
@@ -87,7 +88,7 @@ interface InvoiceItem {
 }
 
 export const Renegociation = () => {
-  const { profileData, isLoading } = useProfileData()
+  const { profileData, isLoading } = useQueryProfile()
 
   const [step, setStep] = useState<
     'search' | 'simulate' | 'confirm' | 'complete'
@@ -105,8 +106,8 @@ export const Renegociation = () => {
   const searchForm = useForm<SearchDebtFormData>({
     resolver: zodResolver(searchDebtSchema),
     defaultValues: {
-      enrollmentCode: profileData?.enrollment?.enrollmentCode,
-      academicYear: profileData?.enrollment?.academicYear,
+      enrollmentCode: profileData?.enrollmentCode,
+      academicYear: '2025-2026',
     },
   })
 
@@ -151,7 +152,7 @@ export const Renegociation = () => {
 
   const onSimulateNegotiation = async (data: SimulateNegotiationFormData) => {
     try {
-      const simulationResult = await api
+      const simulationResult = await apexApi
         .post<SimulationResult>('v1/renegotiation/simulation', { json: data })
         .json()
 
@@ -170,7 +171,7 @@ export const Renegociation = () => {
     if (!simulationData || !searchData) return
 
     try {
-      const response = await api
+      const response = await apexApi
         .post<PaymentReference[]>('v1/renegotiation/confirmation', {
           json: simulationData,
           timeout: false,
@@ -192,7 +193,7 @@ export const Renegociation = () => {
 
   const onListInvoices = async () => {
     try {
-      const response = await api
+      const response = await apexApi
         .get<InvoiceItem[]>(`v1/renegotiation/${41309}`)
         .json()
       setInvoices(response)

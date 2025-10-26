@@ -1,12 +1,21 @@
+import { toast } from 'sonner'
 import { EnrollmentHeader } from './components/enrollment-header'
 import { EnrollmentResume } from './components/enrollment-resume'
 import { EnrollmentSection } from './components/enrollment-section'
 import { EnrollmentSummaryCards } from './components/enrollment-summary-cards'
 import { EnrollmentProvider } from './context/enrollment.provider'
 import { useEnrollment } from './hooks/use-enrollment'
+import { EnrollmentSkeleton } from './components/enrollment-skeleton'
 
 function EnrollmentContent() {
-  const { annual, firstSemester, secondSemester } = useEnrollment()
+  const { subject, isLoading, isError } = useEnrollment()
+
+  if (isLoading || isError) {
+    if (isError) {
+      toast.error('Erro ao carregar dados')
+    }
+    return <EnrollmentSkeleton />
+  }
 
   return (
     <div className="space-y-6">
@@ -14,9 +23,7 @@ function EnrollmentContent() {
         <EnrollmentHeader />
         <EnrollmentSummaryCards />
 
-        <EnrollmentSection label="ANUAL" subjects={annual} />
-        <EnrollmentSection label="I SEMESTRE" subjects={firstSemester} />
-        <EnrollmentSection label="II SEMESTRE" subjects={secondSemester} />
+        <EnrollmentSection label="Disciplinas" subjects={subject} />
 
         <EnrollmentResume />
       </div>
