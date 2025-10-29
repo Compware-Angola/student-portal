@@ -7,6 +7,8 @@ import { DashboardSkeleton } from './components/dashboard-skeleton'
 import { toast } from 'sonner'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 
+import { CurriculumCard } from './components/curriculum-card'
+
 export function Dashboard() {
   const {
     error: getProfileError,
@@ -21,12 +23,6 @@ export function Dashboard() {
     }
     return <DashboardSkeleton />
   }
-
-  // if (
-  //   profileData.enrollment?.enrollmentStatus !== 'ACTIVE_REGULAR' &&
-  //   profileData.enrollment?.enrollmentStatus !== undefined
-  // )
-  //   return <PaymentAlert />
 
   return (
     <>
@@ -92,69 +88,7 @@ export function Dashboard() {
           </Card>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Avisos Recentes</CardTitle>
-            </CardHeader>
-            {/*<CardContent>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3 rounded-lg border p-3">
-                  <AlertCircle className="mt-0.5 h-5 w-5 text-warning" />
-                  <div>
-                    <p className="text-sm font-medium">Prazo de Matrícula</p>
-                    <p className="text-xs text-muted-foreground">
-                      A renovação de matrícula termina em 5 dias
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 rounded-lg border p-3">
-                  <AlertCircle className="mt-0.5 h-5 w-5 text-info" />
-                  <div>
-                    <p className="text-sm font-medium">
-                      Novo Material Disponível
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Slides da aula de Bases de Dados foram publicados
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>*/}
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Horário de Hoje</CardTitle>
-            </CardHeader>
-            {/*<CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between rounded-lg border p-3">
-                  <div>
-                    <p className="font-medium">Programação Web</p>
-                    <p className="text-sm text-muted-foreground">
-                      14:00 - 16:00
-                    </p>
-                  </div>
-                  <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                    Lab 3
-                  </span>
-                </div>
-                <div className="flex items-center justify-between rounded-lg border p-3">
-                  <div>
-                    <p className="font-medium">Sistemas Operativos</p>
-                    <p className="text-sm text-muted-foreground">
-                      16:00 - 18:00
-                    </p>
-                  </div>
-                  <span className="rounded-full bg-secondary/10 px-3 py-1 text-xs font-medium text-secondary">
-                    Sala 205
-                  </span>
-                </div>
-              </div>
-            </CardContent>*/}
-          </Card>
-        </div>
+        <CurriculumCard preEnrollmentCode={profileData.preEnrollmentCode} />
       </div>
     </>
   )

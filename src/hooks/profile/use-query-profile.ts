@@ -49,6 +49,7 @@ export function useQueryProfile() {
     const { firstName, lastName } = extractFirstAndLastName(data.nome_completo)
 
     return {
+      ...data,
       firstName,
       lastName,
       fullName: data.nome_completo,
@@ -64,6 +65,7 @@ export function useQueryProfile() {
       address: '',
       curso: data.curso,
       enrollmentCode: data.codigo_matricula,
+      preEnrollmentCode: data.codigo_preinscricao,
     }
   }, [data])
 

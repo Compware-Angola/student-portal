@@ -8,6 +8,7 @@ import { AdvancePayment } from '@/pages/advance-payment/inde'
 import { Finance } from '@/pages/finance'
 import { Renegociation } from '@/pages/renegotiation'
 import { PreSubscription } from '@/pages/pre-subscription'
+import { Schedule } from '@/pages/schedule'
 
 export function MainRoutes() {
   return (
@@ -22,7 +23,9 @@ export function MainRoutes() {
       <Route index element={<Dashboard />} />
       <Route path="/matricula" element={<Enrollment />} />
       <Route path="/perfil" element={<Profile />} />
+      <Route path="/horario" element={<Schedule />} />
       <Route path="/pagamento-antecipado" element={<AdvancePayment />} />
+
       <Route path="/financa" element={<Finance />} />
       <Route path="/renegociacao" element={<Renegociation />} />
       <Route path="/presubscription" element={<PreSubscription />} />

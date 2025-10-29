@@ -1,0 +1,15 @@
+import { apexApi } from '@/lib/apex-api'
+import type { CurriculumPlan } from '@/types/curriculum-plan'
+
+type Params = {
+  class: string
+  course: string
+}
+
+export async function curriculumPlanService(
+  params: Params,
+): Promise<CurriculumPlan> {
+  return apexApi
+    .get(`curriculum/curriculum-plan/student/${params.class}/${params.course}`)
+    .json<CurriculumPlan>()
+}

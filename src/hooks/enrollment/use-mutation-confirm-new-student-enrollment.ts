@@ -21,7 +21,7 @@ export function useMutationConfirmNewStudentEnrollment() {
       toast.success('Matrícula confirmada')
       await queryClient.invalidateQueries({ queryKey: ['profile'] })
     },
-
+    // eslint-disable-next-line
     onError: (error: any) => {
       toast.error(
         error?.message ||

@@ -16,52 +16,23 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import type { Invoice } from '@/services/invoice/get-invoices-by-matricula'
+import type { Invoice } from '@/services/invoice/get-invoices-by-matricula.service'
 import { useQueryInvoices } from '@/hooks/invoice/use-query-invoices'
 import { InvoicesTableSkeleton } from './invoices-table-skeleton'
 import { toast } from 'sonner'
+import { Badge } from '@/components/ui/badge'
+import { PaymentReceipt } from '@/components/uma-invoice'
+import { useQueryAcademicYear } from '@/hooks/academic-year/use-query-academic-year'
+import type { AdemicsYear } from '@/services/academic-year/get-acamedic-year.service'
 
-const columns: ColumnDef<Invoice>[] = [
-  {
-    accessorKey: 'Codigo',
-    header: 'Código',
-  },
-  {
-    accessorKey: 'DataFactura',
-    header: 'Data',
-    cell: ({ row }) =>
-      new Date(row.getValue('DataFactura')).toLocaleDateString('pt-PT'),
-  },
-  {
-    accessorKey: 'Referencia',
-    header: 'Referência',
-  },
-  {
-    accessorKey: 'ValorAPagar',
-    header: 'Valor a Pagar',
-    cell: ({ row }) => (
-      <div className="text-right font-medium">
-        {new Intl.NumberFormat('pt-PT', {
-          style: 'currency',
-          currency: 'AOA',
-        }).format(row.getValue('ValorAPagar'))}
-      </div>
-    ),
-  },
-  {
-    accessorKey: 'ValorAPagarExtenso',
-    header: 'Extenso',
-  },
-]
+export function InvoicesTable({ enrollmentCode }: { enrollmentCode: string }) {
+  const { data: academicYear, isLoading: isLoadingAcademicYear } =
+    useQueryAcademicYear()
+  const columns = useColumnsInvoiceTable(academicYear)
 
-export function InvoicesTable({
-  codigoMatricula,
-}: {
-  codigoMatricula: string
-}) {
   const [page, setPage] = React.useState(1)
   const { data, isLoading, isError } = useQueryInvoices({
-    codigoMatricula,
+    enrollmentCode,
     page,
   })
 
@@ -78,7 +49,7 @@ export function InvoicesTable({
   })
 
   // mostra skeleton durante loading
-  if (isLoading || isError) {
+  if (isLoading || isError || isLoadingAcademicYear) {
     return <InvoicesTableSkeleton />
   }
 
@@ -89,36 +60,62 @@ export function InvoicesTable({
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
-                  </TableHead>
-                ))}
+                {headerGroup.headers.map((header, index) => {
+                  const isLastColumn = index === headerGroup.headers.length - 1
+                  const isValueColumn = header.column.id === 'ValorAPagar'
+
+                  return (
+                    <TableHead
+                      key={header.id}
+                      className={`
+                        ${isLastColumn ? 'text-right pr-6' : 'text-center'}
+                        ${isValueColumn ? 'text-right pr-8' : ''}
+                        align-middle py-3 font-semibold text-gray-300 uppercase tracking-wide
+                      `}
+                    >
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
+                    </TableHead>
+                  )
+                })}
               </TableRow>
             ))}
           </TableHeader>
+
           <TableBody>
             {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  ))}
+                <TableRow key={row.id} className="hover:bg-muted/5">
+                  {row.getVisibleCells().map((cell, index) => {
+                    const isLastColumn =
+                      index === row.getVisibleCells().length - 1
+                    const isValueColumn = cell.column.id === 'ValorAPagar'
+
+                    return (
+                      <TableCell
+                        key={cell.id}
+                        className={`
+                          ${isLastColumn ? 'text-right pr-6' : 'text-center'}
+                          ${isValueColumn ? 'text-right pr-8 font-medium' : ''}
+                          align-middle py-3
+                        `}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    )
+                  })}
                 </TableRow>
               ))
             ) : (
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="text-center h-24"
+                  className="text-center h-24 text-gray-400"
                 >
                   Nenhuma fatura encontrada.
                 </TableCell>
@@ -151,4 +148,78 @@ export function InvoicesTable({
       </div>
     </div>
   )
+}
+
+function useColumnsInvoiceTable(academicYear: AdemicsYear | undefined) {
+  const findAcademicYearDesignation = (codigo: number) => {
+    const year = academicYear?.anolectivos?.find(
+      (y) => y.codigo === String(codigo),
+    )
+    return year ? year.designacao : 'Unknown'
+  }
+  const columns: ColumnDef<Invoice>[] = [
+    {
+      accessorKey: 'Codigo',
+      header: 'Código',
+    },
+    {
+      accessorKey: 'DataFactura',
+      header: 'Data',
+      cell: ({ row }) =>
+        new Date(row.getValue('DataFactura')).toLocaleDateString('pt-PT'),
+    },
+    {
+      accessorKey: 'Referencia',
+      header: 'Referência',
+    },
+    {
+      accessorKey: 'estado',
+      header: 'Estado',
+      cell: ({ row }) => (
+        <div className="text-right font-medium">
+          {row.getValue('estado') === 0 ? (
+            <Badge className="rounded-full border-none bg-amber-600/10 text-amber-600 focus-visible:ring-amber-600/20 focus-visible:outline-none dark:bg-amber-400/10 dark:text-amber-400 dark:focus-visible:ring-amber-400/40 [a&]:hover:bg-amber-600/5 dark:[a&]:hover:bg-amber-400/5">
+              <span
+                className="size-1.5 rounded-full bg-amber-600 dark:bg-amber-400"
+                aria-hidden="true"
+              />
+              Pendente
+            </Badge>
+          ) : (
+            <Badge className="rounded-full border-none bg-green-600/10 text-green-600 focus-visible:ring-green-600/20 focus-visible:outline-none dark:bg-green-400/10 dark:text-green-400 dark:focus-visible:ring-green-400/40 [a&]:hover:bg-green-600/5 dark:[a&]:hover:bg-green-400/5">
+              <span
+                className="size-1.5 rounded-full bg-green-600 dark:bg-green-400"
+                aria-hidden="true"
+              />
+              Pago
+            </Badge>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'ValorAPagar',
+      header: 'Valor a Pagar',
+      cell: ({ row }) => (
+        <div className="text-right font-medium">
+          {new Intl.NumberFormat('pt-PT', {
+            style: 'currency',
+            currency: 'AOA',
+          }).format(row.getValue('ValorAPagar'))}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'Baixar',
+      header: '',
+      cell: ({ row }) => (
+        <PaymentReceipt
+          invoice={row.original}
+          academicYear={findAcademicYearDesignation(row.original.anoLectivo)}
+        />
+      ),
+    },
+  ]
+
+  return columns
 }

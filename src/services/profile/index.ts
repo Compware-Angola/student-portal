@@ -1,6 +1,10 @@
 import { apexApi } from '@/lib/apex-api'
 
-export type StudentProfile = {
+export async function getProfile(id: string): Promise<StudentProfile> {
+  return await apexApi.get(`students/profile/${id}`).json<StudentProfile>()
+}
+
+export interface StudentProfile {
   codresposta: number
   msgresposta: string
   codigo_preinscricao: string
@@ -18,9 +22,19 @@ export type StudentProfile = {
   codigo_curso: string
   codigo_aluno: string
   curso: string
+  periodo: string
+  periodoId: string
+  max_cadeiras_curso: string
   polo: string
+  confirmacoes: Confirmac[]
 }
 
-export async function getProfile(id: string): Promise<StudentProfile> {
-  return await apexApi.get(`students/profile/${id}`).json<StudentProfile>()
+export interface Confirmac {
+  codigo: string
+  codigo_matricula: string
+  ano_lectivo: string
+  estado: string
+  classe: string
+  cadeirante: string
+  canal: string
 }

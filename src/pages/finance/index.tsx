@@ -8,8 +8,12 @@ import { InvoicesTable } from './componets/invoice-table'
 import { useFinance } from './hooks/use-finance'
 import { toast } from 'sonner'
 import { FinanceSkeleton } from './componets/finance-skeleton'
+import { ServicesList } from './componets/services-list'
+import { useQueryAcademicYear } from '@/hooks/academic-year/use-query-academic-year'
 
 function Content() {
+  const { isLoading: isAcademicYearLoading, data: academicYearData } =
+    useQueryAcademicYear()
   const { isLoadingProfileData, isProfileError, profileError, profileData } =
     useFinance()
   if (isLoadingProfileData || isProfileError || !profileData) {
@@ -29,19 +33,20 @@ function Content() {
 
       <FinanceStats />
 
-      <Tabs defaultValue="payments" className="w-full">
+      <Tabs defaultValue="services" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="payments">Pagamentos</TabsTrigger>
+          <TabsTrigger value="services">Serviços</TabsTrigger>
+          <TabsTrigger value="payments">Mensalidades</TabsTrigger>
           <TabsTrigger value="invoices">Faturas</TabsTrigger>
-          <TabsTrigger value="references">Referências</TabsTrigger>
         </TabsList>
-
+        <TabsContent value="services" className="mt-6">
+          <ServicesList />
+        </TabsContent>
         <TabsContent value="payments" className="mt-6">
           <PaymentList />
         </TabsContent>
-
         <TabsContent value="invoices" className="mt-6">
-          <InvoicesTable codigoMatricula={profileData.enrollmentCode} />
+          <InvoicesTable enrollmentCode={profileData.enrollmentCode} />
         </TabsContent>
       </Tabs>
     </div>

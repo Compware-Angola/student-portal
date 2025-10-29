@@ -1,16 +1,17 @@
-import { getInvoicesByMatricula } from '@/services/invoice/get-invoices-by-matricula'
+import { getInvoicesByMatricula } from '@/services/invoice/get-invoices-by-matricula.service'
 import { useQuery } from '@tanstack/react-query'
 
 export function useQueryInvoices({
-  codigoMatricula,
+  enrollmentCode,
   page,
 }: {
-  codigoMatricula: string
-  page: number
+  enrollmentCode: string
+  page?: number
 }) {
   const { data, isLoading, error, isError } = useQuery({
-    queryKey: ['invoices', codigoMatricula, page],
-    queryFn: () => getInvoicesByMatricula({ codigoMatricula, page, limit: 3 }),
+    queryKey: ['invoices', enrollmentCode, page],
+    queryFn: () => getInvoicesByMatricula({ enrollmentCode, page }),
+    enabled: !!enrollmentCode,
   })
 
   return { data, isLoading, error, isError }

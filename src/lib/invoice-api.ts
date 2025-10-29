@@ -5,8 +5,9 @@ import ky from 'ky'
 const VITE_API_URL_INVOICE = import.meta.env.VITE_API_URL_INVOICE
 
 export const invoiceApi = ky.create({
+  retry: 0,
   prefixUrl: VITE_API_URL_INVOICE,
-  credentials: 'include',
+
   hooks: {
     afterResponse: [
       async (_, _options, response) => {

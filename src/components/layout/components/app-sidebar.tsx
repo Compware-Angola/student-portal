@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import {
+  Calendar,
   ClipboardList,
   CreditCard,
   GraduationCap,
@@ -27,6 +28,7 @@ import { AuthStorage } from '@/storage/auth-storage'
 const data = {
   navMain: [
     { title: 'Dashboard', url: '/', icon: LayoutDashboard },
+    { title: 'Horário', url: '/horario', icon: Calendar },
     { title: 'Finanças', url: '/financa', icon: CreditCard },
     { title: 'Matrícula', url: '/matricula', icon: GraduationCap },
     { title: 'Pré-Inscrição', url: '/presubscription', icon: ClipboardList },

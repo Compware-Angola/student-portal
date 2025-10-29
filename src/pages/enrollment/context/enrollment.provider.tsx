@@ -1,18 +1,27 @@
-import { useState, useMemo, useEffect, type ReactNode } from 'react'
-import type { NewStudentCurriculumSubject } from '@/services/curriculum/new-student-curriculum-plan.service'
+import { useState, type ReactNode } from 'react'
 import { EnrollmentContext } from './enrollment.context'
-import { useQueryNewStudentCurriculumPlan } from '@/hooks/curriculum/use-query-new-student-curriculum-plan'
+
 import { toast } from 'sonner'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useMutationConfirmNewStudentEnrollment } from '@/hooks/enrollment/use-mutation-confirm-new-student-enrollment'
+import type { Grade } from '@/types/grade'
+import { useQueryCurriculumPlan } from '@/hooks/curriculum/use-query-curriculum-plan'
+import type { SectionKey } from '../types/enrollment'
+import { useQueryCurriculumPlanPendents } from '@/hooks/curriculum/use-query-curriculum-plan-pendents'
 
+type ToggleState = {
+  new: boolean
+  pendents: boolean
+}
 type EnrollmentProviderProps = {
   children: ReactNode
 }
-// TODO:Criar um subject que sera tanto para novos ou antigos estudantes,
-// mudar NewStudentCurriculumSubject pois esse contexto e sua logica
-//  deve se aplicar tanto para novos ou antigos estudantes
+
 export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
+  const [isExpanded, setIsExpanded] = useState<ToggleState>({
+    new: false,
+    pendents: false,
+  })
   const {
     profileData,
     isLoading: profileLoading,
@@ -21,77 +30,37 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
   } = useQueryProfile()
   const isNewStudent = profileData?.enrollmentCode === undefined ? true : false
   const {
-    newStudentCurriculumPlan,
+    data: grades,
     error: newStudentCurriculumPlanError,
     isLoading: newStudentCurriculumPlanLoading,
     isError: newStudentCurriculumPlanIsError,
-  } = useQueryNewStudentCurriculumPlan()
+  } = useQueryCurriculumPlan({
+    class: profileData?.confirmacoes?.[0]?.classe,
+    course: profileData?.codigo_curso,
+  })
 
   const {
     confirmNewStudentEnrollmentPending,
     confirmNewStudentEnrollmentAsync,
   } = useMutationConfirmNewStudentEnrollment()
 
-  const [selectedSubjects, setSelectedSubjects] = useState<
-    NewStudentCurriculumSubject[]
-  >([])
-  const [isExpanded, setIsExpanded] = useState(true)
+  const { data: pendentsGrades } = useQueryCurriculumPlanPendents()
 
-  useEffect(() => {
-    if (isNewStudent && newStudentCurriculumPlan) {
-      setSelectedSubjects([...newStudentCurriculumPlan])
-      setIsExpanded(true)
-    }
-  }, [newStudentCurriculumPlan, isNewStudent])
+  const [selectedSubjects, setSelectedSubjects] = useState<Grade[]>([])
 
-  const getUniqueSubjects = (
-    subjects: NewStudentCurriculumSubject[],
-  ): NewStudentCurriculumSubject[] => {
-    const seen = new Set<string>()
-    return subjects.filter((subject) => {
-      if (seen.has(subject.codigoGrade)) return false
-      seen.add(subject.codigoGrade)
-      return true
+  const toggleSection = (section: SectionKey) => {
+    setIsExpanded((prev) => {
+      return {
+        ...prev,
+        [section]: !prev[section],
+      }
     })
   }
-
-  const uniqueSubjects = useMemo(
-    () => getUniqueSubjects(newStudentCurriculumPlan ?? []),
-    [newStudentCurriculumPlan],
-  )
-
-  const annual = useMemo(
-    () => uniqueSubjects.filter((s) => s.duracaoDisciplina === 'Anual'),
-    [uniqueSubjects],
-  )
-
-  const firstSemester = useMemo(
-    () =>
-      uniqueSubjects.filter(
-        (s) =>
-          s.duracaoDisciplina === 'Semestral' && s.semestre === 'I SEMESTRE',
-      ),
-    [uniqueSubjects],
-  )
-
-  const secondSemester = useMemo(
-    () =>
-      uniqueSubjects.filter(
-        (s) =>
-          s.duracaoDisciplina === 'Semestral' && s.semestre === 'II SEMESTRE',
-      ),
-    [uniqueSubjects],
-  )
-
-  const toggleSection = () => {
-    setIsExpanded((prev) => !prev)
-  }
-
-  const isSelected = (subject: NewStudentCurriculumSubject) =>
+  const isSelected = (subject: Grade) =>
     selectedSubjects.some((s) => s.codigoGrade === subject.codigoGrade)
 
   const isAllSelected = () => {
-    const all = [...annual, ...firstSemester, ...secondSemester]
+    const all = [...grades, ...pendentsGrades]
     return (
       all.length > 0 &&
       all.every((s) =>
@@ -100,7 +69,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     )
   }
 
-  const toggleSubject = (subject: NewStudentCurriculumSubject) => {
+  const toggleSubject = (subject: Grade) => {
     if (isNewStudent) {
       toast.warning('Novo estudante não pode remover disciplinas obrigatórias.')
       return
@@ -114,7 +83,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
   }
 
   const selectAll = () => {
-    const allSubjects = [...annual, ...firstSemester, ...secondSemester]
+    const allSubjects = [...grades, ...pendentsGrades]
     const allSelected = isAllSelected()
 
     if (isNewStudent) {
@@ -151,8 +120,8 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     0,
   )
   const confirmNewStudentEnrollment = async (
-    newStudentCurriculumPlan: NewStudentCurriculumSubject[],
-    selectedSubjects: NewStudentCurriculumSubject[],
+    newStudentCurriculumPlan: Grade[],
+    selectedSubjects: Grade[],
   ) => {
     const isSelectedAllSubjects =
       newStudentCurriculumPlan.length === selectedSubjects.length
@@ -166,11 +135,11 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
 
   const confirmStudentEnrollment = () => {
     if (isNewStudent) {
-      if (!newStudentCurriculumPlan) {
+      if (!grades) {
         toast.error('Disciplinas obrigatórias não selecionadas.')
         return
       }
-      confirmNewStudentEnrollment(newStudentCurriculumPlan, selectedSubjects)
+      confirmNewStudentEnrollment(grades, selectedSubjects)
       return
     }
     toast.success('Logica para estdante antigo em desenvolvimento!')
@@ -184,7 +153,8 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
         isError: profileIsError || newStudentCurriculumPlanIsError,
         error: profileError || newStudentCurriculumPlanError,
         isExpanded,
-        subject: newStudentCurriculumPlan ?? [],
+        subject: grades ?? [],
+        pendingSubjects: pendentsGrades ?? [],
         totalValue,
         toggleSubject,
         isSelected,

@@ -1,13 +1,12 @@
-import { CheckCircle2, Circle } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { formatCurrency } from '@/utils'
-import { Card } from '@/components/ui/card'
-import type { NewStudentCurriculumSubject } from '@/services/curriculum/new-student-curriculum-plan.service'
+import type { Grade } from '@/types/grade'
+import { Checkbox } from '@/components/ui/checkbox'
 
+import { ScheduleSelectionDialog } from '../schedule'
 type SubjectCardProps = {
-  subject: NewStudentCurriculumSubject
-  isSelected: (subject: NewStudentCurriculumSubject) => boolean
-  toggleSubject: (subject: NewStudentCurriculumSubject) => void
+  subject: Grade
+  isSelected: (subject: Grade) => boolean
+  toggleSubject: (subject: Grade) => void
 }
 
 export function SubjectCard({
@@ -23,59 +22,61 @@ export function SubjectCard({
       toggleSubject(subject)
     }
   }
+  const isNewStudent = false
 
   return (
-    <Card
+    <div
       role="button"
       tabIndex={0}
       onClick={() => toggleSubject(subject)}
       onKeyDown={handleKeyPress}
-      className={cn(
-        'group  gap-2 p-4 transition-all duration-200 cursor-pointer select-none outline-none',
-        'hover:shadow-sm hover:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/40',
-        selected && 'border-primary/70 bg-primary/5',
-      )}
-      aria-pressed={selected}
+      className="rounded-lg border p-4 space-y-4 cursor-pointer"
     >
-      <div className="flex items-center justify-between">
-        <h3
-          className={cn(
-            'font-semibold text-lg  transition-colors duration-200',
-            'group-hover:text-primary',
-            selected && 'text-primary',
-          )}
-        >
-          {subject.disciplina}
-        </h3>
+      <div className="flex items-start gap-3">
+        <Checkbox className="mt-1" checked={selected} />
 
-        <span
-          className="pointer-events-none transition-colors duration-200"
-          aria-hidden="true"
-        >
-          {selected ? (
-            <CheckCircle2 className="text-primary" />
-          ) : (
-            <Circle className="group-hover:text-primary" />
-          )}
-        </span>
-      </div>
+        <div className="flex-1 space-y-3">
+          <div>
+            <label
+              htmlFor={`subject-${subject.codigoGrade}`}
+              className="cursor-pointer font-semibold"
+            >
+              {subject.disciplina}
+            </label>
+            <p className="flex items-center gap-1">
+              <span className="font-medium text-sm">Duração:</span>
+              {subject.duracaoDisciplina}
+            </p>
+            <p className="flex items-center gap-1">
+              <span className="font-medium text-sm">Valor da inscrição:</span>
+              {formatCurrency(subject.valorInscricao)}
+            </p>
+          </div>
 
-      <div
-        className={cn(
-          'mt-2 flex flex-wrap gap-3 text-sm transition-colors duration-200',
-          '',
-        )}
-      >
-        <span className="flex items-center gap-1">
-          <span className="font-medium">Duração:</span>
-          {subject.duracaoDisciplina}
-        </span>
-        <span>•</span>
-        <span className="flex items-center gap-1">
-          <span className="font-medium">Valor da inscrição:</span>
-          {formatCurrency(subject.valorInscricao)}
-        </span>
+          {!isNewStudent && (
+            <div className="space-y-2">
+              <p className="text-sm font-medium">
+                Selecionar Horário (Obrigatório)
+              </p>
+              <ScheduleSelectionDialog
+                codigoGrade={subject.codigoGrade}
+                selectedScheduleId={undefined}
+                subjectName={subject.disciplina}
+              />
+            </div>
+          )}
+
+          {isNewStudent && (
+            <div className="space-y-2">
+              <ScheduleSelectionDialog
+                codigoGrade={subject.codigoGrade}
+                selectedScheduleId={undefined}
+                subjectName={subject.disciplina}
+              />
+            </div>
+          )}
+        </div>
       </div>
-    </Card>
+    </div>
   )
 }

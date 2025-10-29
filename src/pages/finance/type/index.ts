@@ -32,7 +32,6 @@ export type Reference = {
 
 export type FinanceContextType = {
   payments: Payment[]
-  invoices: Invoice[]
   references: Reference[]
   handleGenerateReference: (id: number) => void
   handleDownloadInvoice: (id: number) => void

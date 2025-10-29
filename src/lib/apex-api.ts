@@ -6,16 +6,8 @@ const VITE_API_URL_APEX = import.meta.env.VITE_API_URL_APEX
 
 export const apexApi = ky.create({
   prefixUrl: VITE_API_URL_APEX,
-  credentials: 'include',
+
   hooks: {
-    beforeRequest: [
-      (request) => {
-        const token = AuthStorage.getToken()
-        if (token) {
-          request.headers.set('Authorization', `Bearer ${token}`)
-        }
-      },
-    ],
     afterResponse: [
       async (request, _options, response) => {
         if (!response.ok) {

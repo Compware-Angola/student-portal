@@ -1,3 +1,5 @@
+import type { StudentProfile } from '@/services/profile'
+
 export type ProfileData = {
   firstName: string
   lastName: string
@@ -14,4 +16,5 @@ export type ProfileData = {
   address: string
   curso: string
   enrollmentCode: string
-}
+  preEnrollmentCode: string
+} & StudentProfile

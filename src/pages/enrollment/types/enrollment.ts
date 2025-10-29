@@ -1,20 +1,25 @@
-import type { NewStudentCurriculumSubject } from '@/services/curriculum/new-student-curriculum-plan.service'
+import type { Grade } from '@/types/grade'
 
 export type EnrollmentContextType = {
-  selectedSubjects: NewStudentCurriculumSubject[]
-  isExpanded: boolean
+  selectedSubjects: Grade[]
+  isExpanded: {
+    new: boolean
+    pendents: boolean
+  }
   totalValue: number
-  toggleSubject: (subject: NewStudentCurriculumSubject) => void
-  isSelected: (subject: NewStudentCurriculumSubject) => boolean
-  toggleSection: () => void
+  toggleSubject: (subject: Grade) => void
+  isSelected: (subject: Grade) => boolean
+  toggleSection: (section: SectionKey) => void
   selectAll: () => void
+  pendingSubjects: Grade[]
   isAllSelected: () => boolean
   error: Error | null
   isLoading: boolean
   remove: (codigoGrade: string) => void
   removeAll: () => void
-  subject: NewStudentCurriculumSubject[]
+  subject: Grade[]
   isError: boolean
   confirmStudentEnrollment: () => void
   confirmNewStudentEnrollmentPending: boolean
 }
+export type SectionKey = 'new' | 'pendents'

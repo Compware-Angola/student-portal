@@ -3,14 +3,21 @@ import { Button } from '@/components/ui/button'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useEnrollment } from '../hooks/use-enrollment'
 import { SubjectCard } from './subject-card'
-import type { NewStudentCurriculumSubject } from '@/services/curriculum/new-student-curriculum-plan.service'
+
+import type { SectionKey } from '../types/enrollment'
+import type { Grade } from '@/types/grade'
 
 type SectionProps = {
   label: string
-  subjects: NewStudentCurriculumSubject[]
+  secktionKey: SectionKey
+  subjects: Grade[]
 }
 
-export function EnrollmentSection({ label, subjects }: SectionProps) {
+export function EnrollmentSection({
+  label,
+  subjects,
+  secktionKey,
+}: SectionProps) {
   const { toggleSection, isSelected, toggleSubject, isExpanded } =
     useEnrollment()
 
@@ -24,7 +31,11 @@ export function EnrollmentSection({ label, subjects }: SectionProps) {
             {label}
             <span className="text-sm ">({subjects.length})</span>
           </CardTitle>
-          <Button variant="outline" size="sm" onClick={() => toggleSection()}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => toggleSection(secktionKey)}
+          >
             {isExpanded ? (
               <ChevronUp className="h-4 w-4" />
             ) : (
