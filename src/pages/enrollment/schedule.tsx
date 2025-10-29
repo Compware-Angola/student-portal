@@ -13,6 +13,7 @@ import type { LessonDetail } from '@/types/schedule'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useQueryCurriculumSchedule } from '@/hooks/curriculum/use-query-curriculum-schedule'
 import { useState } from 'react'
+import { useEnrollment } from './hooks/use-enrollment'
 
 interface ScheduleSelectionDialogProps {
   subjectName: string
@@ -24,19 +25,9 @@ export const ScheduleSelectionDialog = ({
   subjectName,
 }: ScheduleSelectionDialogProps) => {
   const [open, setOpen] = useState(false)
-  const [selectedScheduleId, setSelectedScheduleId] = useState<
-    string | undefined
-  >(undefined)
-  const { profileData } = useQueryProfile()
 
-  const { data: horarios } = useQueryCurriculumSchedule(
-    {
-      academicYear: profileData?.confirmacoes[0]?.ano_lectivo!,
-      gradeCurricular: codigoGrade,
-      preocidade: profileData?.periodoId!,
-    },
-    open && !!profileData,
-  )
+  const { selectScheduleForSubject, selectedSchedules } = useEnrollment()
+
   const groupAulasByDay = (aulas: LessonDetail[]) => {
     const grouped: Record<string, LessonDetail[]> = {}
     aulas.forEach((aula) => {
@@ -48,21 +39,25 @@ export const ScheduleSelectionDialog = ({
     return grouped
   }
 
-  console.log(
-    horarios.find((horario) => horario.codigo_horario === selectedScheduleId),
+  const { profileData } = useQueryProfile()
+  const { data: horarios = [] } = useQueryCurriculumSchedule(
+    {
+      academicYear: profileData?.confirmacoes[0]?.ano_lectivo!,
+      gradeCurricular: codigoGrade,
+      preocidade: profileData?.periodoId!,
+    },
+    open && !!profileData, // busca só quando modal aberto
   )
-  const getSelectedSchedule = () => {
-    const aaa = horarios.find(
-      (horario) => horario.codigo_horario === selectedScheduleId,
-    )
-    return {
-      codigoGrade: codigoGrade,
-      codigoHorario: aaa?.codigo_horario,
-      descHorario: aaa?.nome_horario,
-    }
-  }
 
-  console.log(getSelectedSchedule())
+  const selectedSchedule = selectedSchedules[codigoGrade]
+
+  const handleSelectHorario = (horario: any) => {
+    selectScheduleForSubject(codigoGrade, {
+      codigoHorario: horario.codigo_horario,
+      descHorario: horario.nome_horario,
+    })
+    setOpen(false)
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -82,18 +77,19 @@ export const ScheduleSelectionDialog = ({
         </DialogHeader>
         <div className="space-y-4">
           {horarios.map((horario) => {
-            const isSelected = horario.codigo_horario === selectedScheduleId
             const groupedAulas = groupAulasByDay(horario.detalhes_aulas)
+            const isSelectedThis =
+              selectedSchedule?.codigoHorario === horario.codigo_horario
 
             return (
               <Card
                 key={horario.codigo_horario}
                 className={`cursor-pointer transition-all ${
-                  isSelected
+                  isSelectedThis
                     ? 'border-primary ring-2 ring-primary'
                     : 'hover:border-primary/50'
                 }`}
-                onClick={() => setSelectedScheduleId(horario.codigo_horario)}
+                onClick={() => handleSelectHorario(horario)}
               >
                 <CardContent className="p-4 space-y-3">
                   <div className="flex items-start justify-between">
@@ -115,7 +111,7 @@ export const ScheduleSelectionDialog = ({
                       >
                         {horario.periodo_turno}
                       </Badge>
-                      {isSelected && (
+                      {isSelectedThis && (
                         <Badge className="bg-primary">Selecionado</Badge>
                       )}
                     </div>

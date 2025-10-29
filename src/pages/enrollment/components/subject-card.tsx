@@ -60,7 +60,6 @@ export function SubjectCard({
               </p>
               <ScheduleSelectionDialog
                 codigoGrade={subject.codigoGrade}
-                selectedScheduleId={undefined}
                 subjectName={subject.disciplina}
               />
             </div>
@@ -70,7 +69,6 @@ export function SubjectCard({
             <div className="space-y-2">
               <ScheduleSelectionDialog
                 codigoGrade={subject.codigoGrade}
-                selectedScheduleId={undefined}
                 subjectName={subject.disciplina}
               />
             </div>
