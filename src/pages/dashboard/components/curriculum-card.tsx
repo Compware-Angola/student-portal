@@ -17,9 +17,10 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-import { useQueryStudentCurriculumPlan } from '@/hooks/curriculum/use-query-curriculum-plan'
 import { useQueryAcademicYear } from '@/hooks/academic-year/use-query-academic-year'
 import { cn } from '@/lib/utils'
+import { useQueryCurriculumPlan } from '@/hooks/curriculum/use-query-curriculum-plan'
+import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 
 /* =======================
    Componente Select de Ano
@@ -80,8 +81,8 @@ function CurriculumRow({
   subject,
 }: {
   subject: {
-    CodigoGrade: string
-    CodigoDisciplina: string
+    codigoGrade: string
+    codigoDisciplina: string
     disciplina: string
     semestre: string
     estado: string
@@ -89,8 +90,8 @@ function CurriculumRow({
   }
 }) {
   return (
-    <TableRow key={subject.CodigoGrade}>
-      <TableCell className="font-medium">{subject.CodigoDisciplina}</TableCell>
+    <TableRow key={subject.codigoGrade}>
+      <TableCell className="font-medium">{subject.codigoDisciplina}</TableCell>
       <TableCell>{subject.disciplina}</TableCell>
       <TableCell>{subject.semestre}</TableCell>
       <TableCell>
@@ -112,13 +113,14 @@ export function CurriculumCard({
   const [selectedYear, setSelectedYear] = useState<string | undefined>(
     undefined,
   )
+  const { profileData } = useQueryProfile()
 
   const {
     data: studentCurriculumPlanData,
     isLoading: isStudentCurriculumPlanLoading,
-  } = useQueryStudentCurriculumPlan({
-    academicYearCode: selectedYear,
-    preEnrollmentCode,
+  } = useQueryCurriculumPlan({
+    class: profileData?.confirmacoes?.[0]?.classe,
+    course: profileData?.codigo_curso,
   })
 
   const { data: academicYearData } = useQueryAcademicYear()
@@ -139,7 +141,7 @@ export function CurriculumCard({
       <CardContent>
         {isStudentCurriculumPlanLoading ? (
           <p>Carregando plano curricular...</p>
-        ) : !studentCurriculumPlanData?.grades?.length ? (
+        ) : !studentCurriculumPlanData?.length ? (
           <p>Não há plano curricular disponível.</p>
         ) : (
           <Table>
@@ -153,8 +155,8 @@ export function CurriculumCard({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {studentCurriculumPlanData.grades.map((subject) => (
-                <CurriculumRow key={subject.CodigoGrade} subject={subject} />
+              {studentCurriculumPlanData.map((subject) => (
+                <CurriculumRow key={subject.codigoGrade} subject={subject} />
               ))}
             </TableBody>
           </Table>
