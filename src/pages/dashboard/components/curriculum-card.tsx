@@ -19,8 +19,7 @@ import {
 
 import { useQueryAcademicYear } from '@/hooks/academic-year/use-query-academic-year'
 import { cn } from '@/lib/utils'
-import { useQueryCurriculumPlan } from '@/hooks/curriculum/use-query-curriculum-plan'
-import { useQueryProfile } from '@/hooks/profile/use-query-profile'
+import { useQueryCurrentCurriculumPlanSudent } from '@/hooks/curriculum/use-query-current-curriculum-plan-student'
 
 /* =======================
    Componente Select de Ano
@@ -81,8 +80,8 @@ function CurriculumRow({
   subject,
 }: {
   subject: {
-    codigoGrade: string
-    codigoDisciplina: string
+    CodigoGrade: string
+    CodigoDisciplina: string
     disciplina: string
     semestre: string
     estado: string
@@ -90,8 +89,8 @@ function CurriculumRow({
   }
 }) {
   return (
-    <TableRow key={subject.codigoGrade}>
-      <TableCell className="font-medium">{subject.codigoDisciplina}</TableCell>
+    <TableRow key={subject.CodigoGrade}>
+      <TableCell className="font-medium">{subject.CodigoDisciplina}</TableCell>
       <TableCell>{subject.disciplina}</TableCell>
       <TableCell>{subject.semestre}</TableCell>
       <TableCell>
@@ -113,14 +112,13 @@ export function CurriculumCard({
   const [selectedYear, setSelectedYear] = useState<string | undefined>(
     undefined,
   )
-  const { profileData } = useQueryProfile()
 
   const {
     data: studentCurriculumPlanData,
     isLoading: isStudentCurriculumPlanLoading,
-  } = useQueryCurriculumPlan({
-    class: profileData?.confirmacoes?.[0]?.classe,
-    course: profileData?.codigo_curso,
+  } = useQueryCurrentCurriculumPlanSudent({
+    academicYearCode: selectedYear,
+    preEnrollmentCode,
   })
 
   const { data: academicYearData } = useQueryAcademicYear()
@@ -156,7 +154,7 @@ export function CurriculumCard({
             </TableHeader>
             <TableBody>
               {studentCurriculumPlanData.map((subject) => (
-                <CurriculumRow key={subject.codigoGrade} subject={subject} />
+                <CurriculumRow key={subject.CodigoGrade} subject={subject} />
               ))}
             </TableBody>
           </Table>

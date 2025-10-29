@@ -1,4 +1,4 @@
-import { curriculumPlanService } from '@/services/curriculum/curriculum-plan.service'
+import { curriculumPlanService } from '@/services/curriculum/curriculumPlan.Service'
 import type { CurriculumPlan } from '@/types/curriculum-plan'
 import { useQuery } from '@tanstack/react-query'
 type Params = {
