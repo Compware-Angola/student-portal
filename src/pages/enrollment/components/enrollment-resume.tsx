@@ -13,7 +13,7 @@ export function EnrollmentResume() {
     remove,
     removeAll,
     confirmStudentEnrollment,
-    confirmNewStudentEnrollmentPending,
+    confirmStudentEnrollmentState,
   } = useEnrollment()
 
   return (
@@ -75,10 +75,10 @@ export function EnrollmentResume() {
                 className="flex-1"
                 size="lg"
                 onClick={confirmStudentEnrollment}
-                disabled={confirmNewStudentEnrollmentPending}
+                disabled={confirmStudentEnrollmentState}
               >
                 <>
-                  {confirmNewStudentEnrollmentPending ? (
+                  {confirmStudentEnrollmentState ? (
                     <>
                       <Spinner />
                     </>

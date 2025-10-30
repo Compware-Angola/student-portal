@@ -10,8 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
 function EnrollmentContent() {
-  const { subject, isLoading, isError, pendingSubjects } = useEnrollment()
-  const isNewStudent = true
+  const { subject, isLoading, isError, pendingSubjects, isNewStudent } =
+    useEnrollment()
 
   if (isLoading || isError) {
     if (isError) {

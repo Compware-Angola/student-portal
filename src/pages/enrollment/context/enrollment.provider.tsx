@@ -6,12 +6,9 @@ import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useMutationConfirmNewStudentEnrollment } from '@/hooks/enrollment/use-mutation-confirm-new-student-enrollment'
 import type { Grade } from '@/types/grade'
 import { useQueryCurriculumPlan } from '@/hooks/curriculum/use-query-curriculum-plan'
-import type {
-  EnrollmentPayloadItem,
-  SectionKey,
-  SelectedSchedule,
-} from '../types/enrollment'
+import type { SectionKey, SelectedSchedule } from '../types/enrollment'
 import { useQueryCurriculumPlanPendents } from '@/hooks/curriculum/use-query-curriculum-plan-pendents'
+import { useMutationConfirmOldStudentEnrollment } from '@/hooks/enrollment/use-mutation-confirm-old-student-enrollment'
 
 type ToggleState = {
   new: boolean
@@ -19,13 +16,9 @@ type ToggleState = {
 }
 type EnrollmentProviderProps = {
   children: ReactNode
-  isNewStudent?: boolean
 }
 
-export function EnrollmentProvider({
-  children,
-  isNewStudent = false,
-}: EnrollmentProviderProps) {
+export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
   const [isExpanded, setIsExpanded] = useState<ToggleState>({
     new: false,
     pendents: false,
@@ -39,9 +32,9 @@ export function EnrollmentProvider({
 
   const {
     data: grades,
-    error: newStudentCurriculumPlanError,
-    isLoading: newStudentCurriculumPlanLoading,
-    isError: newStudentCurriculumPlanIsError,
+    error: studentCurriculumPlanError,
+    isLoading: studentCurriculumPlanLoading,
+    isError: studentCurriculumPlanIsError,
   } = useQueryCurriculumPlan({
     class: profileData?.confirmacoes?.[0]?.classe,
     course: profileData?.codigo_curso,
@@ -52,7 +45,20 @@ export function EnrollmentProvider({
     confirmNewStudentEnrollmentAsync,
   } = useMutationConfirmNewStudentEnrollment()
 
-  const { data: pendentsGrades } = useQueryCurriculumPlanPendents()
+  const {
+    confirmOldStudentEnrollmentAsync,
+    confirmOldStudentEnrollmentPending,
+  } = useMutationConfirmOldStudentEnrollment()
+
+  const {
+    data: pendentsGrades,
+    error: studentCurriculumPlanPendentsError,
+    isLoading: studentCurriculumPlanPendentsLoading,
+    isError: studentCurriculumPlanPendentsIsError,
+  } = useQueryCurriculumPlanPendents(
+    profileData?.preEnrollmentCode,
+    profileData?.confirmacoes?.[0]?.cadeirante !== 'NAO',
+  )
 
   // Horários selecionados por disciplina (mapeados pelo código da grade)
   const [selectedSchedules, setSelectedSchedules] = useState<
@@ -60,7 +66,9 @@ export function EnrollmentProvider({
   >({})
 
   const [selectedSubjects, setSelectedSubjects] = useState<Grade[]>([])
-
+  const isNewStudent =
+    profileData?.codigo_matricula === undefined ? true : false
+  const maxCourseGrade = Number(profileData?.max_cadeiras_curso)
   const toggleSection = (section: SectionKey) => {
     setIsExpanded((prev) => {
       return {
@@ -125,8 +133,8 @@ export function EnrollmentProvider({
   // 📦 Gerar payload final
   // =====================
 
-  const getEnrollmentPayload = () => {
-    const grades = selectedSubjects.map((subject) => {
+  const getOldStudentEnrollmentPayload = () => {
+    const selectedGrades = selectedSubjects.map((subject) => {
       const horario = selectedSchedules[subject.codigoGrade]
       return {
         codigoGrade: subject.codigoGrade,
@@ -134,7 +142,10 @@ export function EnrollmentProvider({
         descHorario: horario?.descHorario || '',
       }
     })
-    return { grades } as { grades: EnrollmentPayloadItem[] }
+    if (!profileData?.enrollmentCode) {
+      throw new Error('Enrollment code is missing')
+    }
+    return { enrollmentCode: profileData?.enrollmentCode, selectedGrades }
   }
   const selectAll = () => {
     const allSubjects = [...grades, ...pendentsGrades]
@@ -186,7 +197,8 @@ export function EnrollmentProvider({
     }
     await confirmNewStudentEnrollmentAsync(selectedSubjects)
   }
-  const confirmStudentEnrollment = () => {
+  const confirmStudentEnrollment = async () => {
+    // ====== 📚 NOVO ESTUDANTE ======
     if (isNewStudent) {
       if (!grades) {
         toast.error('Disciplinas obrigatórias não selecionadas.')
@@ -201,15 +213,34 @@ export function EnrollmentProvider({
       return
     }
 
-    // 🔍 Verifica se todas as disciplinas selecionadas têm horário
+    if (selectedSubjects.length > maxCourseGrade) {
+      toast.error(`Não é permitido ultrapassar ${maxCourseGrade} disciplinas.`)
+      return
+    }
+
+    // 2️⃣ Verifica se há pendentes ainda não selecionadas
+    const unselectedPendents = (pendentsGrades ?? []).filter(
+      (p) => !selectedSubjects.some((s) => s.codigoGrade === p.codigoGrade),
+    )
+
+    const selectedNews = (grades ?? []).filter((g) =>
+      selectedSubjects.some((s) => s.codigoGrade === g.codigoGrade),
+    )
+
+    if (unselectedPendents.length > 0 && selectedNews.length > 0) {
+      toast.warning('Ainda há disciplinas pendentes não selecionadas.', {
+        description: 'Finalize as pendentes antes de adicionar novas cadeiras.',
+      })
+      return
+    }
+
+    // 3️⃣ Verifica se todas as disciplinas selecionadas têm horário
     const missingSchedules = selectedSubjects.filter(
       (subject) => !selectedSchedules[subject.codigoGrade]?.codigoHorario,
     )
 
     if (missingSchedules.length > 0) {
-      const missingNames = missingSchedules
-        .map((s) => s.disciplina || s.disciplina)
-        .join(', ')
+      const missingNames = missingSchedules.map((s) => s.disciplina).join(', ')
       toast.warning(`Selecione o horário para: ${missingNames}`, {
         description:
           'Cada disciplina precisa ter um horário definido antes de continuar.',
@@ -217,23 +248,26 @@ export function EnrollmentProvider({
       return
     }
 
-    // 🧾 Se chegou até aqui, tudo certo — pode enviar
-    const payload = getEnrollmentPayload()
-    console.log('✅ Payload final pronto para envio:', payload)
-
-    toast.success('Matrícula pronta para envio!')
-    // Aqui podes chamar a mutation ou função de envio, ex:
-    // confirmStudentEnrollmentAsync(payload)
+    const payload = getOldStudentEnrollmentPayload()
+    await confirmOldStudentEnrollmentAsync(payload)
   }
 
-  console.log({ payload: getEnrollmentPayload() })
   return (
     <EnrollmentContext.Provider
       value={{
         selectedSubjects,
-        isLoading: newStudentCurriculumPlanLoading || profileLoading,
-        isError: profileIsError || newStudentCurriculumPlanIsError,
-        error: profileError || newStudentCurriculumPlanError,
+        isLoading:
+          studentCurriculumPlanLoading ||
+          profileLoading ||
+          studentCurriculumPlanPendentsLoading,
+        isError:
+          profileIsError ||
+          studentCurriculumPlanIsError ||
+          studentCurriculumPlanPendentsIsError,
+        error:
+          profileError ||
+          studentCurriculumPlanError ||
+          studentCurriculumPlanPendentsError,
         isExpanded,
         subject: grades ?? [],
         pendingSubjects: pendentsGrades ?? [],
@@ -246,11 +280,14 @@ export function EnrollmentProvider({
         remove,
         removeAll,
         confirmStudentEnrollment,
-        confirmNewStudentEnrollmentPending,
+        confirmStudentEnrollmentState:
+          confirmOldStudentEnrollmentPending ||
+          confirmNewStudentEnrollmentPending,
         removeScheduleForSubject,
         selectScheduleForSubject,
         selectedSchedules,
-        getEnrollmentPayload,
+
+        isNewStudent,
       }}
     >
       {children}

@@ -32,14 +32,16 @@ export function formatDate(dateString?: string | null): string {
 
 export function useQueryProfile() {
   const auth = AuthStorage.get()
-  const { data, isLoading, error, isError } = useQuery<StudentProfile>({
-    queryKey: ['profile'],
-    //eslint-disable-next-line
-    queryFn: () => getProfile(auth?.codigoPreinscricao!),
-    staleTime: Infinity,
-    retry: 0,
-    enabled: !!auth,
-  })
+  const { data, isLoading, error, isError, refetch } = useQuery<StudentProfile>(
+    {
+      queryKey: ['profile'],
+      //eslint-disable-next-line
+      queryFn: () => getProfile(auth?.codigoPreinscricao!),
+      staleTime: Infinity,
+      retry: 0,
+      enabled: !!auth,
+    },
+  )
 
   const profileData: ProfileData | null = useMemo(() => {
     if (!data) {
@@ -74,5 +76,6 @@ export function useQueryProfile() {
     isLoading,
     error,
     isError,
+    refetch,
   }
 }
