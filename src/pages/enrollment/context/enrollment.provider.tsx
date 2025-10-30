@@ -249,7 +249,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     }
 
     const payload = getOldStudentEnrollmentPayload()
-    await confirmOldStudentEnrollmentAsync(payload)
+    await confirmOldStudentEnrollmentAsync(payload.selectedGrades)
   }
 
   return (

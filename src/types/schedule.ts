@@ -22,3 +22,12 @@ export type LessonDetail = {
   hora_inicio: string
   hora_termino: string
 }
+export type StudentSchedule = {
+  codigo_inscricao: string
+  matricula_aluno: string
+  nome_disciplina: string
+  nota_final: string
+  codigo_horario: string
+  nome_horario: string
+  detalhes_aulas: LessonDetail[]
+}

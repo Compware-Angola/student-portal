@@ -2,9 +2,11 @@
 
 import * as React from 'react'
 import {
+  BookOpen,
   Calendar,
   ClipboardList,
   CreditCard,
+  FileText,
   GraduationCap,
   HandCoins,
   LayoutDashboard,
@@ -27,18 +29,24 @@ import { AuthStorage } from '@/storage/auth-storage'
 
 const data = {
   navMain: [
-    { title: 'Dashboard', url: '/', icon: LayoutDashboard },
-    { title: 'Horário', url: '/horario', icon: Calendar },
-    { title: 'Finanças', url: '/financa', icon: CreditCard },
+    { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
+    { title: 'Finanças', url: '/financas', icon: CreditCard },
     { title: 'Matrícula', url: '/matricula', icon: GraduationCap },
-    { title: 'Pré-Inscrição', url: '/presubscription', icon: ClipboardList },
+    { title: 'Horário', url: '/horario', icon: Calendar },
+    { title: 'Avaliações', url: '/avaliacoes', icon: FileText },
+    {
+      title: 'Serviços Acadêmicos',
+      url: '/servicos-academicos',
+      icon: BookOpen,
+    },
+    { title: 'Pré-Inscrição', url: '/pre-inscricao', icon: ClipboardList },
+    { title: 'Perfil', url: '/perfil', icon: User },
     {
       title: 'Pagamento Antecipado',
       url: '/pagamento-antecipado',
       icon: Wallet,
     },
     { title: 'Renegociação', url: '/renegociacao', icon: HandCoins },
-    { title: 'Perfil', url: '/perfil', icon: User },
   ],
 }
 

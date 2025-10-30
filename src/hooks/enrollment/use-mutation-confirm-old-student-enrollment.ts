@@ -2,18 +2,18 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { confirmEnrolmentOldStudent } from '@/services/enrolment/confirm-enrolment-old-student.service'
 import type { OldStudentGrade } from '@/services/enrolment/confirm-enrolment-old-student.service'
+import { AuthStorage } from '@/storage/auth-storage'
 
 export function useMutationConfirmOldStudentEnrollment() {
   const queryClient = useQueryClient()
 
   const { mutate, mutateAsync, isPending, isSuccess } = useMutation({
-    mutationFn: async (params: {
-      selectedGrades: OldStudentGrade[]
-      enrollmentCode: string
-    }) => {
+    mutationFn: async (selectedGrades: OldStudentGrade[]) => {
+      const pre = AuthStorage.get()?.codigoPreinscricao
+      if (!pre) throw new Error('Código de pré-inscrição não encontrado.')
       return await confirmEnrolmentOldStudent({
-        enrollmentCode: params.enrollmentCode,
-        grades: params.selectedGrades,
+        enrollmentCode: pre,
+        grades: selectedGrades,
       })
     },
 

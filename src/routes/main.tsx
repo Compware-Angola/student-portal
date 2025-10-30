@@ -9,6 +9,8 @@ import { Finance } from '@/pages/finance'
 import { Renegociation } from '@/pages/renegotiation'
 import { PreSubscription } from '@/pages/pre-subscription'
 import { Schedule } from '@/pages/schedule'
+import { Evaluation } from '@/pages/evaluation'
+import { AcademicServices } from '@/pages/services'
 
 export function MainRoutes() {
   return (
@@ -25,10 +27,11 @@ export function MainRoutes() {
       <Route path="/perfil" element={<Profile />} />
       <Route path="/horario" element={<Schedule />} />
       <Route path="/pagamento-antecipado" element={<AdvancePayment />} />
-
-      <Route path="/financa" element={<Finance />} />
+      <Route path="/avaliacoes" element={<Evaluation />} />
+      <Route path="/servicos-academicos" element={<AcademicServices />} />
+      <Route path="/financas" element={<Finance />} />
       <Route path="/renegociacao" element={<Renegociation />} />
-      <Route path="/presubscription" element={<PreSubscription />} />
+      <Route path="/pre-inscricao" element={<PreSubscription />} />
     </Route>
   )
 }
