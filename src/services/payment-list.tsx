@@ -1,15 +1,16 @@
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Receipt } from 'lucide-react'
-import { useFinance } from '../hooks/use-finance'
+import { useFinance } from '@/pages/finance/hooks/use-finance'
 
 export function PaymentList() {
   const { payments, getStatusBadge, handleGenerateReference } = useFinance()
 
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Meses de Pagamento</CardTitle>
+        <CardTitle>Meses de Pagamento 3</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {payments.map((p) => (
