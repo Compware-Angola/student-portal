@@ -4,7 +4,13 @@ import { Receipt } from 'lucide-react'
 import { useFinance } from '../hooks/use-finance'
 import { useQueryFinanceMonthlyFee } from '@/hooks/finance/use-query-finance-monthly-fee'
 
-export function PaymentList({academicYear, enrollmentCode}: {academicYear: string, enrollmentCode: string}) {
+export function PaymentList({
+  academicYear,
+  enrollmentCode,
+}: {
+  academicYear?: string
+  enrollmentCode?: string
+}) {
   const { getStatusBadge, handleGenerateReference } = useFinance()
 
   const {
@@ -14,8 +20,10 @@ export function PaymentList({academicYear, enrollmentCode}: {academicYear: strin
   } = useQueryFinanceMonthlyFee({ academicYear, enrollmentCode })
 
   const payments = monthlyFeeData?.mensalidades ?? []
-  const getPaymentStatus = (status: number): 'paid' | 'pending' | 'upcoming' => {
-    return status === 1 ? 'paid' : 'pending' 
+  const getPaymentStatus = (
+    status: number,
+  ): 'paid' | 'pending' | 'upcoming' => {
+    return status === 1 ? 'paid' : 'pending'
   }
 
   if (isLoading) {
@@ -60,18 +68,16 @@ export function PaymentList({academicYear, enrollmentCode}: {academicYear: strin
       <CardContent className="space-y-4">
         {payments.map((p) => (
           <div
-           
-            key={p.id_item} 
+            key={p.id_item}
             className="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted/50"
           >
             <div>
-             
-              <p className="font-medium">{p.mes}</p> 
+              <p className="font-medium">{p.mes}</p>
               <p className="text-sm text-muted-foreground">
-               
-                Vencimento: {new Date(p.data_limite).toLocaleDateString('pt-AO')}
+                Vencimento:{' '}
+                {new Date(p.data_limite).toLocaleDateString('pt-AO')}
               </p>
-            
+
               {p.reference && (
                 <p className="text-xs text-muted-foreground">
                   Referência: {p.reference}
@@ -80,12 +86,11 @@ export function PaymentList({academicYear, enrollmentCode}: {academicYear: strin
             </div>
             <div className="flex items-center gap-4">
               <div className="text-right space-y-2">
-              
-                <p className="font-bold">{p.total_item} Kz</p> 
-              
+                <p className="font-bold">{p.total_item} Kz</p>
+
                 {getStatusBadge(getPaymentStatus(p.status_pagamento))}
               </div>
-              
+
               {/* O botão 'Gerar Referência' só aparece se:
                   1. A referência ainda não foi gerada (p.reference é null/falso)
                   2. O status é 'pending' (não pago, status_pagamento !== 1) */}
@@ -93,7 +98,7 @@ export function PaymentList({academicYear, enrollmentCode}: {academicYear: strin
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handleGenerateReference(p.codigo_factura)} 
+                  onClick={() => handleGenerateReference(p.codigo_factura)}
                 >
                   <Receipt className="mr-2 h-4 w-4" /> Gerar Referência
                 </Button>
