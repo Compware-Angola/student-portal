@@ -8,77 +8,85 @@ import {
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { BookOpen, DollarSign, CheckCircle2 } from 'lucide-react'
-import { toast } from 'sonner'
+import { useQueryAvailableServices } from '@/hooks/service/use-query-available-services'
 
-interface Subject {
-  codigo: string
-  nome: string
-  nota_atual: number
-  ano_letivo: string
-  semestre: string
-  custo_melhoria: number
-}
 
 export function AcademicServices() {
-  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([])
+  const [selectedServices, setSelectedServices] = useState<string[]>([]) 
 
-  // Mock data - substituir por dados reais da API
-  const availableSubjects: Subject[] = [
-    {
-      codigo: 'GSI-101',
-      nome: 'Programação I',
-      nota_atual: 12,
-      ano_letivo: '2023-2024',
-      semestre: '1º Semestre',
-      custo_melhoria: 5000,
-    },
-    {
-      codigo: 'GSI-102',
-      nome: 'Matemática Discreta',
-      nota_atual: 13,
-      ano_letivo: '2023-2024',
-      semestre: '1º Semestre',
-      custo_melhoria: 5000,
-    },
-    {
-      codigo: 'GSI-201',
-      nome: 'Estruturas de Dados',
-      nota_atual: 11,
-      ano_letivo: '2023-2024',
-      semestre: '2º Semestre',
-      custo_melhoria: 5000,
-    },
-    {
-      codigo: 'GSI-202',
-      nome: 'Base de Dados I',
-      nota_atual: 14,
-      ano_letivo: '2023-2024',
-      semestre: '2º Semestre',
-      custo_melhoria: 5000,
-    },
-  ]
+  const  academicYear = "23"
+  const  poloId = "1"
+  const { data: availableServices, isLoading, isError } = useQueryAvailableServices({ academicYear, poloId });
 
-  const handleSubjectToggle = (codigo: string) => {
-    setSelectedSubjects((prev) =>
+
+  const handleServiceToggle = (codigo: string) => {
+    setSelectedServices((prev) =>
       prev.includes(codigo)
         ? prev.filter((c) => c !== codigo)
         : [...prev, codigo],
     )
   }
 
-  const totalCost = selectedSubjects.length * 5000
-
   const handleProceedToPayment = () => {
-    if (selectedSubjects.length === 0) {
-      toast('Nenhuma cadeira selecionada')
-      return
-    }
-
-    toast('Redirecionando para pagamento')
+      console.log("Serviços selecionados para pagamento:", selectedServices);
+    
+      alert(`Prosseguir com o pagamento de ${totalCost.toLocaleString()} Kz`);
   }
 
+  // CÁLCULO DO CUSTO TOTAL (USANDO useMemo)
+  const totalCost = useMemo(() => {
+    if (!availableServices) return 0;
+    
+    return availableServices.servicos.reduce((total, service) => {
+
+      if (selectedServices.includes(service.codigo)) {
+      
+        return total + parseFloat(service.preco);
+      }
+      return total;
+    }, 0);
+  }, [selectedServices, availableServices]);
+  
+  // --- Estados de Carregamento e Erro ---
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Serviços Acadêmicos</CardTitle>
+        </CardHeader>
+        <CardContent>A carregar Serviços...</CardContent>
+      </Card>
+    )
+  }
+
+  if (isError || !availableServices) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Erro</CardTitle>
+        </CardHeader>
+        <CardContent>
+          Não foi possível carregar os dados dos serviços.
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (availableServices.servicos.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Serviços Acadêmicos</CardTitle>
+        </CardHeader>
+        <CardContent>Nenhum serviço disponível no momento.</CardContent>
+      </Card>
+    )
+  }
+
+
+  // --- Renderização Principal ---
   return (
     <>
       <div>
@@ -86,7 +94,7 @@ export function AcademicServices() {
           Serviços Acadêmicos
         </h1>
         <p className="text-muted-foreground mt-2">
-          Solicite melhorias de notas e outros serviços acadêmicos
+          Solicite serviços acadêmicos disponíveis para pagamento.
         </p>
       </div>
 
@@ -94,48 +102,46 @@ export function AcademicServices() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BookOpen className="h-5 w-5" />
-            Melhoria de Notas
+            Serviços Disponíveis
           </CardTitle>
           <CardDescription>
-            Selecione as cadeiras para as quais deseja solicitar melhoria de
-            nota
+            Selecione os serviços que deseja pagar ou solicitar.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {availableSubjects.map((subject) => (
+            {availableServices.servicos 
+              .map((service:any) => (
               <div
-                key={subject.codigo}
+                key={service.codigo}
                 className="flex items-center justify-between rounded-lg border p-4 hover:bg-accent/50 transition-colors"
               >
                 <div className="flex items-center gap-4">
                   <Checkbox
-                    id={subject.codigo}
-                    checked={selectedSubjects.includes(subject.codigo)}
-                    onCheckedChange={() => handleSubjectToggle(subject.codigo)}
+                    id={service.codigo}
+                    checked={selectedServices.includes(service.codigo)}
+                    onCheckedChange={() => handleServiceToggle(service.codigo)}
                   />
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <label
-                        htmlFor={subject.codigo}
+                        htmlFor={service.codigo}
                         className="font-medium cursor-pointer"
                       >
-                        {subject.nome}
+                        {service.descricao} 
                       </label>
-                      <Badge variant="outline">{subject.codigo}</Badge>
+                      <Badge variant="outline">{service.tipo_servico}</Badge> 
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {subject.ano_letivo} • {subject.semestre}
+                       Código: {service.codigo}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-right">
+                    <p className="text-sm text-muted-foreground">Custo</p>
                     <p className="text-sm font-medium">
-                      Nota Atual: {subject.nota_atual}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {subject.custo_melhoria.toLocaleString()} Kz
+                      {parseFloat(service.preco).toLocaleString()} Kz
                     </p>
                   </div>
                 </div>
@@ -143,13 +149,13 @@ export function AcademicServices() {
             ))}
           </div>
 
-          {selectedSubjects.length > 0 && (
+          {selectedServices.length > 0 && (
             <div className="mt-6 pt-6 border-t space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-primary" />
                   <span className="font-medium">
-                    {selectedSubjects.length} cadeira(s) selecionada(s)
+                    {selectedServices.length} serviço(s) selecionado(s)
                   </span>
                 </div>
                 <div className="text-right">
