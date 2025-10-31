@@ -4,14 +4,14 @@ import { Receipt } from 'lucide-react'
 import { useFinance } from '../hooks/use-finance'
 import { useQueryFinanceMonthlyFee } from '@/hooks/finance/use-query-finance-monthly-fee'
 
-export function PaymentList() {
+export function PaymentList({academicYear, enrollmentCode}: {academicYear: string, enrollmentCode: string}) {
   const { getStatusBadge, handleGenerateReference } = useFinance()
 
   const {
     data: monthlyFeeData,
     isLoading,
     isError,
-  } = useQueryFinanceMonthlyFee()
+  } = useQueryFinanceMonthlyFee({ academicYear, enrollmentCode })
 
   const payments = monthlyFeeData?.mensalidades ?? []
   const getPaymentStatus = (status: number): 'paid' | 'pending' | 'upcoming' => {
@@ -61,7 +61,7 @@ export function PaymentList() {
         {payments.map((p) => (
           <div
            
-            key={p.reference} 
+            key={p.id_item} 
             className="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted/50"
           >
             <div>
