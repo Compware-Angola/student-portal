@@ -2,6 +2,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { BookOpen, Wallet, GraduationCap } from 'lucide-react'
 
+// ** NOVAS IMPORTAÇÕES DO TOOLTIP **
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+
 import { useNavigate } from 'react-router-dom'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { DashboardSkeleton } from './components/dashboard-skeleton'
@@ -92,26 +100,54 @@ export const Dashboard = () => {
             </CardContent>
           </Card>
         </div>
-        <div className="grid gap-2 grid-cols-3">
-          <Card
-            onClick={() => navigate('/calendario-academico')}
-            className="cursor-pointer"
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle>Calendário Acadêmico</CardTitle>
-              <BookOpen className="h-4 w-4 text-primary" />
-            </CardHeader>
-          </Card>
-          <Card
-            onClick={() => navigate('/calendario-exames')}
-            className="cursor-pointer"
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle>Calendário de Exames</CardTitle>
-              <BookOpen className="h-4 w-4 text-primary" />
-            </CardHeader>
-          </Card>
-        </div>
+        
+      
+        <TooltipProvider>
+          <div className="grid gap-2 grid-cols-3">
+           
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Card
+                  onClick={() => navigate('/calendario-academico')}
+                  className="cursor-pointer hover:bg-muted transition-colors"
+                >
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="flex items-center gap-2">
+                      <span className="text-xl animate-pulse">👉</span>
+                      Calendário Acadêmico
+                    </CardTitle>
+                    <BookOpen className="h-4 w-4 text-primary" />
+                  </CardHeader>
+                </Card>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Ver as **datas de aulas**, matrículas e feriados.</p>
+              </TooltipContent>
+            </Tooltip>
+
+           
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Card
+                  onClick={() => navigate('/calendario-exames')}
+                  className="cursor-pointer hover:bg-muted transition-colors"
+                >
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="flex items-center gap-2">
+                      <span className="text-xl animate-pulse">👉</span>
+                      Calendário de Exames
+                    </CardTitle>
+                    <BookOpen className="h-4 w-4 text-primary" />
+                  </CardHeader>
+                </Card>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Conferir as **datas e horários** das provas.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        </TooltipProvider>
+       
       </div>
     </>
   )

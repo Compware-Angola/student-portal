@@ -43,7 +43,10 @@ function Content() {
           <ServicesList />
         </TabsContent>
         <TabsContent value="payments" className="mt-6">
-          <PaymentList />
+        <PaymentList 
+        academicYear={academicYearData?.anolectivos[0].codigo ?? '22'} 
+        enrollmentCode={profileData.enrollmentCode} 
+      />
         </TabsContent>
         <TabsContent value="invoices" className="mt-6">
           <InvoicesTable enrollmentCode={profileData.enrollmentCode} />
