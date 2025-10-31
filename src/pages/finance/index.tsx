@@ -16,7 +16,12 @@ function Content() {
     useQueryAcademicYear()
   const { isLoadingProfileData, isProfileError, profileError, profileData } =
     useFinance()
-  if (isLoadingProfileData || isProfileError || !profileData) {
+  if (
+    isLoadingProfileData ||
+    isProfileError ||
+    !profileData ||
+    isAcademicYearLoading
+  ) {
     if (profileError) {
       toast.error('Error fetching profile data')
     }

@@ -124,7 +124,7 @@ export const Renegociation = () => {
 
   const onSearchDebt = async (data: SearchDebtFormData) => {
     try {
-      const openDebit = await api
+      const openDebit = await apexApi
         .get('v1/open-debts', { searchParams: data })
         .json<DebtSearchResult>()
 

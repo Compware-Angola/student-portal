@@ -10,7 +10,7 @@ import {
 import { Button } from '@/components/ui/button'
 import type { Invoice } from '@/services/invoice/get-invoices-by-matricula.service'
 import { DownloadIcon } from 'lucide-react'
-import { useQueryAcademicYear } from '@/hooks/academic-year/use-query-academic-year'
+
 
 // Estilos refinados
 const styles = StyleSheet.create({
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   table: {
-    display: 'table',
+   
     width: 'auto',
     marginTop: 10,
     borderStyle: 'solid',
