@@ -6,6 +6,10 @@ import { useFinance } from '../hooks/use-finance'
 export function ServicesList() {
   const { payments, getStatusBadge, handleGenerateReference } = useFinance()
 
+
+
+  // Vou listar Todos os pagamentos como "Serviços"
+
   return (
     <Card>
       <CardHeader>

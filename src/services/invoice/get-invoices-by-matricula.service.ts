@@ -41,7 +41,7 @@ export async function getInvoicesByMatricula(
 ): Promise<InvoiceResponse> {
   console.log('getInvoicesByMatricula', searchParams)
   const response = await invoiceApi
-    .get('by-matricula', {
+    .get('invoices/by-matricula', {
       searchParams: {
         codigoMatricula: searchParams.enrollmentCode,
         page: searchParams.page,

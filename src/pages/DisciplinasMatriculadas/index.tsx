@@ -1,4 +1,4 @@
-import { useState } from 'react'
+
 
 import {
   Card,
@@ -9,14 +9,8 @@ import {
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { BookOpen, Calendar, Clock, FileText, Eye } from 'lucide-react'
+
+import { BookOpen, Calendar, Eye } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -26,6 +20,8 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useQueryCurriculumPlan } from '@/hooks/curriculum/use-query-curriculum-plan'
+import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 
 interface Disciplina {
   codigo: string
@@ -47,9 +43,15 @@ interface Disciplina {
 }
 
 export const DisciplinasMatriculadas = () => {
-  const [selectedYear, setSelectedYear] = useState('2024-2025')
-  const [selectedSemestre, setSelectedSemestre] = useState('1')
-  const [selectedAno, setSelectedAno] = useState('todos')
+
+
+  const {
+    profileData,
+
+  } = useQueryProfile()
+
+  const { data: filteredDisciplinas, isLoading, isError } = useQueryCurriculumPlan({ class: profileData?.confirmacoes?.[0]?.classe,
+    course: profileData?.codigo_curso,})
 
   // Mock data
   const disciplinas: Disciplina[] = [
@@ -181,13 +183,7 @@ export const DisciplinasMatriculadas = () => {
     },
   ]
 
-  const filteredDisciplinas = disciplinas.filter((d) => {
-    const yearMatch = d.anoLectivo === selectedYear
-    const semestreMatch =
-      selectedSemestre === 'todos' || d.semestre.includes(selectedSemestre)
-    const anoMatch = selectedAno === 'todos' || d.ano.toString() === selectedAno
-    return yearMatch && semestreMatch && anoMatch
-  })
+
 
   const disciplinasAnoAtual = disciplinas.filter(
     (d) => d.anoLectivo === '2024-2025',
@@ -307,7 +303,26 @@ export const DisciplinasMatriculadas = () => {
       </DialogContent>
     </Dialog>
   )
-
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Disciplinas Matriculadas</CardTitle>
+        </CardHeader>
+        <CardContent>Carregando disciplinas...</CardContent>
+      </Card>
+    )
+  }
+  if(isError){
+   return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Erro ao pegar a Grade</CardTitle>
+        </CardHeader>
+        <CardContent>Ops !</CardContent>
+      </Card>
+   )
+  }
   return (
     <div className="space-y-6">
       <div>
@@ -328,50 +343,12 @@ export const DisciplinasMatriculadas = () => {
             <CardHeader>
               <div className="flex flex-col md:flex-row md:items-center gap-4">
                 <div className="flex-1">
-                  <CardTitle>Filtrar Disciplinas</CardTitle>
-                  <CardDescription>
-                    Selecione o ano letivo, ano e semestre
-                  </CardDescription>
+                  <CardTitle>Grade Curricular de  (Nome do Curso)</CardTitle>
+                  <br />
+               <p>  <CardDescription> Cadeiras Pertecentes à sua grade curricular</CardDescription></p>
+                 
                 </div>
-                <div className="flex flex-wrap gap-3">
-                  <Select value={selectedYear} onValueChange={setSelectedYear}>
-                    <SelectTrigger className="w-[150px]">
-                      <SelectValue placeholder="Ano Letivo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="2024-2025">2024-2025</SelectItem>
-                      <SelectItem value="2023-2024">2023-2024</SelectItem>
-                      <SelectItem value="2022-2023">2022-2023</SelectItem>
-                    </SelectContent>
-                  </Select>
 
-                  <Select value={selectedAno} onValueChange={setSelectedAno}>
-                    <SelectTrigger className="w-[130px]">
-                      <SelectValue placeholder="Ano" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todos">Todos</SelectItem>
-                      <SelectItem value="1">1º Ano</SelectItem>
-                      <SelectItem value="2">2º Ano</SelectItem>
-                      <SelectItem value="3">3º Ano</SelectItem>
-                      <SelectItem value="4">4º Ano</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  <Select
-                    value={selectedSemestre}
-                    onValueChange={setSelectedSemestre}
-                  >
-                    <SelectTrigger className="w-[150px]">
-                      <SelectValue placeholder="Semestre" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todos">Todos</SelectItem>
-                      <SelectItem value="1">1º Semestre</SelectItem>
-                      <SelectItem value="2">2º Semestre</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
             </CardHeader>
           </Card>
@@ -387,22 +364,23 @@ export const DisciplinasMatriculadas = () => {
               </Card>
             ) : (
               filteredDisciplinas.map((disciplina) => (
-                <Card key={disciplina.codigo}>
+                <Card key={disciplina.codigoDisciplina}>
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <BookOpen className="h-5 w-5 text-primary" />
                           <CardTitle className="text-lg">
-                            {disciplina.nome}
+                            {disciplina.disciplina}
                           </CardTitle>
                         </div>
                         <CardDescription>
-                          Código: {disciplina.codigo} | {disciplina.creditos}{' '}
-                          Créditos | {disciplina.ano}º Ano
+                        <p>  Código: {disciplina.codigoDisciplina} </p>
+                           {profileData?.course} | {profileData?.confirmacoes?.[0]?.classe} º Ano  
                         </CardDescription>
                       </div>
-                      {getStatusBadge(disciplina.status)}
+
+                       {getStatusBadge('em_curso')}  
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -411,6 +389,7 @@ export const DisciplinasMatriculadas = () => {
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm">{disciplina.semestre}</span>
                       </div>
+                      {/*
                       <div className="flex items-center gap-2">
                         <Clock className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm">{disciplina.horario}</span>
@@ -421,10 +400,13 @@ export const DisciplinasMatriculadas = () => {
                           Docente: {disciplina.docente}
                         </span>
                       </div>
+                       */}
                     </div>
-                    {disciplina.planoEstudo && (
-                      <PlanoEstudoDialog disciplina={disciplina} />
+                  
+                    {disciplina && (
+                      <PlanoEstudoDialog disciplina={disciplinas.filter((d) => d.codigo === d.codigo)[0]} />
                     )}
+                      
                   </CardContent>
                 </Card>
               ))
