@@ -49,7 +49,8 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     confirmOldStudentEnrollmentAsync,
     confirmOldStudentEnrollmentPending,
   } = useMutationConfirmOldStudentEnrollment()
-
+  const isNewStudent =
+    profileData?.codigo_matricula === undefined ? true : false
   const {
     data: pendentsGrades,
     error: studentCurriculumPlanPendentsError,
@@ -57,7 +58,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     isError: studentCurriculumPlanPendentsIsError,
   } = useQueryCurriculumPlanPendents(
     profileData?.preEnrollmentCode,
-    profileData?.confirmacoes?.[0]?.cadeirante !== 'NAO',
+    !isNewStudent,
   )
 
   // Horários selecionados por disciplina (mapeados pelo código da grade)
@@ -66,8 +67,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
   >({})
 
   const [selectedSubjects, setSelectedSubjects] = useState<Grade[]>([])
-  const isNewStudent =
-    profileData?.codigo_matricula === undefined ? true : false
+
   const maxCourseGrade = Number(profileData?.max_cadeiras_curso)
   const toggleSection = (section: SectionKey) => {
     setIsExpanded((prev) => {
