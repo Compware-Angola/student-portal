@@ -18,6 +18,7 @@ export function AcademicServices() {
 
   const  academicYear = "23"
   const  poloId = "1"
+  // Dados reais serão carregados por este hook:
   const { data: availableServices, isLoading, isError } = useQueryAvailableServices({ academicYear, poloId });
 
 
@@ -29,26 +30,61 @@ export function AcademicServices() {
     )
   }
 
-  const handleProceedToPayment = () => {
-      console.log("Serviços selecionados para pagamento:", selectedServices);
+  // --- CÁLCULO E ESTRUTURAÇÃO DO OBJETO FINAL (NOVA LÓGICA) ---
+  const paymentDetails = useMemo(() => {
+    // Verifica se os dados estão disponíveis e se 'servicos' é um array
+    if (!availableServices || !Array.isArray(availableServices.servicos)) {
+      return { total: 0, servicos: [] };
+    }
     
-      alert(`Prosseguir com o pagamento de ${totalCost.toLocaleString()} Kz`);
-  }
+    // 1. Filtra e mapeia os serviços selecionados para o formato final
+    const servicosSelecionadosFormatados = availableServices.servicos
+      .filter((service: any) => selectedServices.includes(service.codigo))
+      .map((service: any) => ({
+        id: service.codigo, // id do serviço
+        descricao: service.descricao,
+        // Garante que o preço seja um número para o cálculo
+        preco: parseFloat(service.preco), 
+      }));
 
-  // CÁLCULO DO CUSTO TOTAL (USANDO useMemo)
-  const totalCost = useMemo(() => {
-    if (!availableServices) return 0;
+    // 2. Calcula o total
+    const custoTotal = servicosSelecionadosFormatados.reduce(
+      (total, service) => total + service.preco,
+      0,
+    );
     
-    return availableServices.servicos.reduce((total, service) => {
-
-      if (selectedServices.includes(service.codigo)) {
-      
-        return total + parseFloat(service.preco);
-      }
-      return total;
-    }, 0);
+    // 3. Retorna o objeto estruturado: { total, servicos: [...] }
+    return {
+      total: custoTotal,
+      servicos: servicosSelecionadosFormatados,
+    };
   }, [selectedServices, availableServices]);
   
+  // Extrai o total para uso na UI
+  const totalCost = paymentDetails.total;
+
+
+  const handleProceedToPayment = () => {
+      if (paymentDetails.servicos.length === 0) {
+          // Aqui, você pode usar um modal ou notificação em vez de alert
+          console.error("Nenhum serviço selecionado.");
+          return;
+      }
+      
+      // ESTE É O OBJETO FINAL NO FORMATO SOLICITADO
+      const finalPayload = {
+          total: paymentDetails.total,
+          servicos: paymentDetails.servicos,
+      };
+
+      console.log("Payload Final para Pagamento:", finalPayload);
+    
+      // Em uma aplicação real, aqui você faria a chamada API para gerar a referência:
+      // api.post('/api/finance/gerar-referencia-agrupada', finalPayload);
+      
+      alert(`Ação: Chamada API para gerar Referência Bancária única. Total: ${finalPayload.total.toLocaleString('pt-PT', { style: 'currency', currency: 'AOA', minimumFractionDigits: 0 })}. Verifique o console para o objeto final.`);
+  }
+
   // --- Estados de Carregamento e Erro ---
   if (isLoading) {
     return (
@@ -89,11 +125,11 @@ export function AcademicServices() {
   // --- Renderização Principal ---
   return (
     <>
-      <div>
+      <div className="space-y-1">
         <h1 className="text-3xl font-bold tracking-tight">
           Serviços Acadêmicos
         </h1>
-        <p className="text-muted-foreground mt-2">
+        <p className="text-muted-foreground">
           Solicite serviços acadêmicos disponíveis para pagamento.
         </p>
       </div>
@@ -155,13 +191,14 @@ export function AcademicServices() {
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-primary" />
                   <span className="font-medium">
-                    {selectedServices.length} serviço(s) selecionado(s)
+                    {paymentDetails.servicos.length} serviço(s) selecionado(s)
                   </span>
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-muted-foreground">Total a pagar</p>
                   <p className="text-2xl font-bold text-primary">
-                    {totalCost.toLocaleString()} Kz
+                    {/* Usando formatação de moeda para AOA (Kwanzas) */}
+                    {totalCost.toLocaleString('pt-PT', { style: 'currency', currency: 'AOA', minimumFractionDigits: 0 })}
                   </p>
                 </div>
               </div>
