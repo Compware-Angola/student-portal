@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import {
+  Banknote,
   BookOpen,
   Calendar,
   ClipboardList,
@@ -9,8 +10,12 @@ import {
   FileText,
   GraduationCap,
   HandCoins,
+  HelpCircle,
   LayoutDashboard,
+  Library,
   LogOut,
+  MessageSquare,
+  Receipt,
   User,
   Wallet,
 } from 'lucide-react'
@@ -46,6 +51,14 @@ const data = {
       url: '/pagamento-antecipado',
       icon: Wallet,
     },
+
+    { title: 'Disciplinas', url: '/disciplinas', icon: Library },
+
+    { title: 'Mensagens', url: '/mensagens', icon: MessageSquare },
+    { title: 'Suporte', url: '/suporte', icon: HelpCircle },
+
+    { title: 'Notas de Pagamento', url: '/notas-pagamento', icon: Receipt },
+
     { title: 'Renegociação', url: '/renegociacao', icon: HandCoins },
   ],
 }

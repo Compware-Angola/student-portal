@@ -13,6 +13,10 @@ import { Assessments } from '@/pages/assessments'
 import { AcademicServices } from '@/pages/services'
 import { AcademicCalendar } from '@/pages/dashboard/academic-calendar'
 import { ExamCalendar } from '@/pages/dashboard/exam-calendar'
+import { MensagensNotificacoes } from '@/pages/MensagensNotificacoes'
+import { Suporte } from '@/pages/Suporte'
+import { DisciplinasMatriculadas } from '@/pages/DisciplinasMatriculadas'
+import { NotaPagamento } from '@/pages/NotaPagamento'
 
 export function MainRoutes() {
   return (
@@ -36,6 +40,11 @@ export function MainRoutes() {
       <Route path="/financas" element={<Finance />} />
       <Route path="/renegociacao" element={<Renegociation />} />
       <Route path="/pre-inscricao" element={<PreSubscription />} />
+
+      <Route path="/mensagens" element={<MensagensNotificacoes />} />
+      <Route path="/suporte" element={<Suporte />} />
+      <Route path="/disciplinas" element={<DisciplinasMatriculadas />} />
+      <Route path="/notas-pagamento" element={<NotaPagamento />} />
     </Route>
   )
 }
