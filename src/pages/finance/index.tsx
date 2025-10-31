@@ -40,7 +40,7 @@ function Content() {
 
       <Tabs defaultValue="services" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="services">Serviços</TabsTrigger>
+          <TabsTrigger value="services">Pagamentos</TabsTrigger>
           <TabsTrigger value="payments">Mensalidades</TabsTrigger>
           <TabsTrigger value="invoices">Faturas</TabsTrigger>
         </TabsList>
@@ -49,7 +49,7 @@ function Content() {
         </TabsContent>
         <TabsContent value="payments" className="mt-6">
           <PaymentList
-            academicYear={academicYearData?.anolectivos[0].codigo}
+            academicYear={academicYearData?.anolectivos[0].codigo ?? '22'}
             enrollmentCode={profileData.enrollmentCode}
           />
         </TabsContent>

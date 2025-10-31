@@ -44,6 +44,7 @@ export function Profile() {
     address,
     curso,
     polo,
+    
   } = profileData
   console.log(birthDate.toString())
 
@@ -70,6 +71,7 @@ export function Profile() {
           phone={phone}
           dateOfBirth={birthDate}
           address={address}
+          course={curso}
         />
       </div>
     </div>
