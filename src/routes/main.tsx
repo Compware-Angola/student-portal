@@ -9,8 +9,10 @@ import { Finance } from '@/pages/finance'
 import { Renegociation } from '@/pages/renegotiation'
 import { PreSubscription } from '@/pages/pre-subscription'
 import { Schedule } from '@/pages/schedule'
-import { Evaluation } from '@/pages/evaluation'
+import { Assessments } from '@/pages/assessments'
 import { AcademicServices } from '@/pages/services'
+import { AcademicCalendar } from '@/pages/dashboard/academic-calendar'
+import { ExamCalendar } from '@/pages/dashboard/exam-calendar'
 
 export function MainRoutes() {
   return (
@@ -23,11 +25,13 @@ export function MainRoutes() {
       }
     >
       <Route index element={<Dashboard />} />
+      <Route path="/calendario-academico" element={<AcademicCalendar />} />
+      <Route path="/calendario-exames" element={<ExamCalendar />} />
       <Route path="/matricula" element={<Enrollment />} />
       <Route path="/perfil" element={<Profile />} />
       <Route path="/horario" element={<Schedule />} />
       <Route path="/pagamento-antecipado" element={<AdvancePayment />} />
-      <Route path="/avaliacoes" element={<Evaluation />} />
+      <Route path="/avaliacoes" element={<Assessments />} />
       <Route path="/servicos-academicos" element={<AcademicServices />} />
       <Route path="/financas" element={<Finance />} />
       <Route path="/renegociacao" element={<Renegociation />} />

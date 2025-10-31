@@ -29,7 +29,7 @@ import { AuthStorage } from '@/storage/auth-storage'
 
 const data = {
   navMain: [
-    { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
+    { title: 'Dashboard', url: '/', icon: LayoutDashboard },
     { title: 'Finanças', url: '/financas', icon: CreditCard },
     { title: 'Matrícula', url: '/matricula', icon: GraduationCap },
     { title: 'Horário', url: '/horario', icon: Calendar },

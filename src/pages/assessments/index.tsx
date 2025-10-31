@@ -22,8 +22,11 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BookOpen, TrendingUp, Award } from 'lucide-react'
+import { GradeCurrentAcademicYear } from './grade CurrentAcademicYear'
+import { useQueryProfile } from '@/hooks/profile/use-query-profile'
+import { toast } from 'sonner'
 
 interface Grade {
   codigo_disciplina: string
@@ -37,49 +40,16 @@ interface Grade {
   semestre: string
 }
 
-export function Evaluation() {
+export function Assessments() {
+  const { profileData, isError, isLoading } = useQueryProfile()
   const [selectedYear, setSelectedYear] = useState('2023-2024')
   const [selectedSemester, setSelectedSemester] = useState('all')
-
-  // Mock data - substituir por dados reais da API v1.3/estudante/notas/cadeiras/aluno
-  const currentYearGrades: Grade[] = [
-    {
-      codigo_disciplina: 'GSI-301',
-      nome_disciplina: 'Engenharia de Software',
-      avaliacao_continua: 14,
-      p1: 15,
-      p2: null,
-      media: 14.5,
-      status: 'Em Curso',
-      ano_letivo: '2023-2024',
-      semestre: '1º Semestre',
-    },
-    {
-      codigo_disciplina: 'GSI-302',
-      nome_disciplina: 'Sistemas Distribuídos',
-      avaliacao_continua: 13,
-      p1: 14,
-      p2: 15,
-      media: 14,
-      status: 'Aprovado',
-      ano_letivo: '2023-2024',
-      semestre: '1º Semestre',
-    },
-    {
-      codigo_disciplina: 'GSI-303',
-      nome_disciplina: 'Inteligência Artificial',
-      avaliacao_continua: 15,
-      p1: 16,
-      p2: null,
-      media: 15.5,
-      status: 'Em Curso',
-      ano_letivo: '2023-2024',
-      semestre: '2º Semestre',
-    },
-  ]
-
+  useEffect(() => {
+    if (isError) {
+      toast.error('Error fetching profile data:')
+    }
+  }, [isError])
   const allGrades: Grade[] = [
-    ...currentYearGrades,
     {
       codigo_disciplina: 'GSI-101',
       nome_disciplina: 'Programação I',
@@ -142,6 +112,13 @@ export function Evaluation() {
     const sum = validGrades.reduce((acc, g) => acc + (g.media || 0), 0)
     return (sum / validGrades.length).toFixed(2)
   }
+  if (isLoading || !profileData) {
+    return <div>Loading...</div>
+  }
+
+  const enrollmentCode = profileData.codigo_matricula
+  const classe = profileData.confirmacoes[0].classe
+  const academicYear = profileData.confirmacoes[0].ano_lectivo
 
   return (
     <div className="space-y-6">
@@ -174,9 +151,7 @@ export function Evaluation() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {calculateAverage(currentYearGrades)}
-            </div>
+            <div className="text-2xl font-bold"></div>
             <p className="text-xs text-muted-foreground">
               Ano letivo {selectedYear}
             </p>
@@ -202,55 +177,11 @@ export function Evaluation() {
         </TabsList>
 
         <TabsContent value="current" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Notas do Ano Letivo Atual</CardTitle>
-              <CardDescription>
-                Visualize suas avaliações contínuas, P1, P2 e médias do ano
-                letivo {selectedYear}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Código</TableHead>
-                    <TableHead>Disciplina</TableHead>
-                    <TableHead className="text-center">
-                      Aval. Contínua
-                    </TableHead>
-                    <TableHead className="text-center">P1</TableHead>
-                    <TableHead className="text-center">P2</TableHead>
-                    <TableHead className="text-center">Média</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {currentYearGrades.map((grade) => (
-                    <TableRow key={grade.codigo_disciplina}>
-                      <TableCell className="font-medium">
-                        {grade.codigo_disciplina}
-                      </TableCell>
-                      <TableCell>{grade.nome_disciplina}</TableCell>
-                      <TableCell className="text-center">
-                        {grade.avaliacao_continua ?? '-'}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {grade.p1 ?? '-'}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {grade.p2 ?? '-'}
-                      </TableCell>
-                      <TableCell className="text-center font-semibold">
-                        {grade.media ?? '-'}
-                      </TableCell>
-                      <TableCell>{getStatusBadge(grade.status)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+          <GradeCurrentAcademicYear
+            academicYear={academicYear}
+            classe={classe}
+            enrollmentCode={enrollmentCode}
+          />
         </TabsContent>
 
         <TabsContent value="all" className="space-y-4">

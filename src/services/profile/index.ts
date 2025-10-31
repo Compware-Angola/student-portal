@@ -27,6 +27,9 @@ export interface StudentProfile {
   max_cadeiras_curso: string
   polo: string
   confirmacoes: Confirmac[]
+  saldo_actual: string
+  saldo_anterior: string
+  codigo_tipo_candidatura: string
 }
 
 export interface Confirmac {

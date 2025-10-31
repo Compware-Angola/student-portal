@@ -31,3 +31,18 @@ export type StudentSchedule = {
   nome_horario: string
   detalhes_aulas: LessonDetail[]
 }
+
+export type AcademicTest = {
+  codigo: string
+  data_prova: string
+  hora_prova: string
+  hora_termino: string
+  duracao_prova: string
+  vigilante: string | null
+  estado: string
+  tipo_prova: string
+  modalidade: string
+  sala: string
+  periodo: string
+  disciplina: string
+}
