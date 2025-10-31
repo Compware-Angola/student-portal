@@ -1,8 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
 import { BookOpen, Wallet, GraduationCap } from 'lucide-react'
-
-// ** NOVAS IMPORTAÇÕES DO TOOLTIP **
 import {
   Tooltip,
   TooltipContent,
@@ -100,11 +97,9 @@ export const Dashboard = () => {
             </CardContent>
           </Card>
         </div>
-        
-      
+
         <TooltipProvider>
           <div className="grid gap-2 grid-cols-3">
-           
             <Tooltip>
               <TooltipTrigger asChild>
                 <Card
@@ -125,7 +120,6 @@ export const Dashboard = () => {
               </TooltipContent>
             </Tooltip>
 
-           
             <Tooltip>
               <TooltipTrigger asChild>
                 <Card
@@ -147,7 +141,6 @@ export const Dashboard = () => {
             </Tooltip>
           </div>
         </TooltipProvider>
-       
       </div>
     </>
   )
