@@ -33,17 +33,20 @@ function YearSelect({
   selectedYear?: string
   onChange: (value: string) => void
 }) {
+  const notTosShow = [20, 19]
   return (
     <Select value={selectedYear} onValueChange={onChange}>
       <SelectTrigger className="min-w-60">
         <SelectValue placeholder="Selecione o ano letivo" />
       </SelectTrigger>
       <SelectContent>
-        {academicYears?.map((year) => (
-          <SelectItem key={year.codigo} value={year.codigo}>
-            {year.designacao}
-          </SelectItem>
-        ))}
+        {academicYears
+          ?.filter((year) => !notTosShow.includes(Number(year.codigo)))
+          .map((year) => (
+            <SelectItem key={year.codigo} value={year.codigo}>
+              {year.designacao}
+            </SelectItem>
+          ))}
       </SelectContent>
     </Select>
   )
@@ -126,7 +129,7 @@ export function CurriculumCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Grade Curricular</CardTitle>
+        <CardTitle>Avaliações</CardTitle>
         <div className="mt-4">
           <YearSelect
             academicYears={academicYearData?.anolectivos}
@@ -138,9 +141,9 @@ export function CurriculumCard({
 
       <CardContent>
         {isStudentCurriculumPlanLoading ? (
-          <p>Carregando plano curricular...</p>
+          <p>Carregando as avaliações...</p>
         ) : !studentCurriculumPlanData?.length ? (
-          <p>Não há plano curricular disponível.</p>
+          <p>Não há avaliações disponíveis.</p>
         ) : (
           <Table>
             <TableHeader>

@@ -6,7 +6,7 @@ import { EnrollmentSummaryCards } from './components/enrollment-summary-cards'
 import { EnrollmentProvider } from './context/enrollment.provider'
 import { useEnrollment } from './hooks/use-enrollment'
 import { EnrollmentSkeleton } from './components/enrollment-skeleton'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+
 import { Badge } from '@/components/ui/badge'
 
 function EnrollmentContent() {
@@ -22,35 +22,33 @@ function EnrollmentContent() {
 
   return (
     <div className="space-y-6">
-      <div className="mx-auto max-w-7xl space-y-6">
-        <EnrollmentHeader />
-        <EnrollmentSummaryCards />
+      <EnrollmentHeader />
+      <EnrollmentSummaryCards />
 
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Disciplinas Disponíveis</CardTitle>
-              <Badge variant="outline">
-                {isNewStudent ? 'Aluno Novo' : 'Aluno Antigo'}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <EnrollmentSection
-              label="Novas"
-              subjects={subject}
-              secktionKey="new"
-            />
-            <EnrollmentSection
-              label="Pendentes"
-              subjects={pendingSubjects}
-              secktionKey="pendents"
-            />
-          </CardContent>
-        </Card>
-
-        <EnrollmentResume />
+      <div>
+        <div>
+          <div className="flex items-center justify-between my-2">
+            <p>Disciplinas Disponíveis</p>
+            <Badge variant="outline">
+              {isNewStudent ? 'Aluno Novo' : 'Aluno Antigo'}
+            </Badge>
+          </div>
+        </div>
+        <div className="space-y-6">
+          <EnrollmentSection
+            label="Novas"
+            subjects={subject}
+            secktionKey="new"
+          />
+          <EnrollmentSection
+            label="Pendentes"
+            subjects={pendingSubjects}
+            secktionKey="pendents"
+          />
+        </div>
       </div>
+
+      <EnrollmentResume />
     </div>
   )
 }

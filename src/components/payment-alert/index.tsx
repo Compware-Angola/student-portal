@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 export function PaymentAlert() {
   const navigate = useNavigate()
   const goBack = () => navigate(-1)
-  const goFinance = () => navigate('/renegociacao')
+  const goFinance = () => navigate('/financas')
   return (
     <>
       <Card>
@@ -31,7 +31,7 @@ export function PaymentAlert() {
             <Button variant="secondary" onClick={goBack}>
               Voltar
             </Button>
-            <Button onClick={goFinance}>Renegociar a divida</Button>
+            <Button onClick={goFinance}>página financeira</Button>
           </div>
         </CardContent>
       </Card>

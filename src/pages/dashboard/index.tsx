@@ -1,8 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
 import { BookOpen, Wallet, GraduationCap } from 'lucide-react'
-
-// ** NOVAS IMPORTAÇÕES DO TOOLTIP **
 import {
   Tooltip,
   TooltipContent,
@@ -14,42 +11,29 @@ import { useNavigate } from 'react-router-dom'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { DashboardSkeleton } from './components/dashboard-skeleton'
 import { formatCurrency } from '@/utils'
+import { useQueryStudentDashboardStatistics } from '@/hooks/statics/use-query-student-dashboard-statistics'
+import { useEffect } from 'react'
+import { toast } from 'sonner'
+import { PaymentAlert } from '@/components/payment-alert'
 
 export const Dashboard = () => {
   const { profileData } = useQueryProfile()
 
   const navigate = useNavigate()
-
-  const studentData = {
-    name: 'João Silva',
-    courses: [
-      { id: 1, name: 'Engenharia Informática', semester: '5º Semestre' },
-      {
-        id: 2,
-        name: 'Gestão de Sistemas de Informação',
-        semester: '3º Semestre',
-      },
-    ],
-    currentCourse: 'Engenharia Informática',
-    semester: '5º Semestre',
-    averageGrade: 15.7,
-    attendance: 92,
-    muteuCashBalance: 12500.0,
-    pendingDebt: 45000.0,
-    completedSubjects: 24,
-    totalSubjects: 30,
-    nextClass: {
-      subject: 'Programação Web',
-      time: '14:00',
-      room: 'Lab 3',
-    },
-    pendingTasks: 3,
-  }
-
-  if (!profileData) {
+  const { data: statistics, isLoading } = useQueryStudentDashboardStatistics(
+    profileData?.enrollmentCode,
+  )
+  useEffect(() => {
+    if ((statistics?.valor_divida ?? 0) > 0) {
+      toast.error('Você possui uma dívida pendente!')
+    }
+  }, [statistics])
+  if (!profileData || isLoading) {
     return <DashboardSkeleton />
   }
-
+  if ((statistics?.valor_divida ?? 0) > 0) {
+    return <PaymentAlert />
+  }
   const greatting = `${profileData.sexo === 'Feminino' ? 'Bem-vinda' : 'Bem-vindo'}, ${profileData.firstName} ${profileData.lastName}`
   return (
     <>
@@ -59,20 +43,7 @@ export const Dashboard = () => {
           <p className="text-muted-foreground">{profileData.course}</p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Média Geral</CardTitle>
-              <BookOpen className="h-4 w-4 text-primary" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {studentData.averageGrade}
-              </div>
-              <p className="text-xs text-muted-foreground">Em 20 valores</p>
-            </CardContent>
-          </Card>
-
+        <div className="grid gap-6 md:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">MUTEU Cash</CardTitle>
@@ -98,7 +69,7 @@ export const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-destructive">
-                {formatCurrency(profileData.saldo_anterior)}
+                {formatCurrency(statistics?.valor_divida ?? 0)}
               </div>
               <p className="text-xs text-muted-foreground">
                 Clique para ver detalhes
@@ -115,23 +86,20 @@ export const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {studentData.completedSubjects}/{studentData.totalSubjects}
+                {statistics?.quantidade_disciplinas_aprovadas || 0}
               </div>
-              <Progress
+              {/*<Progress
                 value={
-                  (studentData.completedSubjects / studentData.totalSubjects) *
-                  100
+                  (statistics?.quantidade_disciplinas_aprovadas || 0) * 100
                 }
                 className="mt-2"
-              />
+              />*/}
             </CardContent>
           </Card>
         </div>
-        
-      
+
         <TooltipProvider>
           <div className="grid gap-2 grid-cols-3">
-           
             <Tooltip>
               <TooltipTrigger asChild>
                 <Card
@@ -152,7 +120,6 @@ export const Dashboard = () => {
               </TooltipContent>
             </Tooltip>
 
-           
             <Tooltip>
               <TooltipTrigger asChild>
                 <Card
@@ -174,7 +141,6 @@ export const Dashboard = () => {
             </Tooltip>
           </div>
         </TooltipProvider>
-       
       </div>
     </>
   )

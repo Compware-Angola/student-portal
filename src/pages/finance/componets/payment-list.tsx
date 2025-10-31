@@ -4,7 +4,7 @@ import { Receipt } from 'lucide-react'
 import { useFinance } from '../hooks/use-finance'
 import { useQueryFinanceMonthlyFee } from '@/hooks/finance/use-query-finance-monthly-fee'
 
-export function PaymentList({ academicYear, enrollmentCode }: { academicYear: string, enrollmentCode: string }) {
+export function PaymentList({academicYear, enrollmentCode}: {academicYear: string, enrollmentCode: string}) {
   const { getStatusBadge, handleGenerateReference } = useFinance()
 
   const {
@@ -15,7 +15,7 @@ export function PaymentList({ academicYear, enrollmentCode }: { academicYear: st
 
   const payments = monthlyFeeData?.mensalidades ?? []
   const getPaymentStatus = (status: number): 'paid' | 'pending' | 'upcoming' => {
-    return status === 1 ? 'paid' : 'pending'
+    return status === 1 ? 'paid' : 'pending' 
   }
 
   if (isLoading) {
@@ -60,15 +60,15 @@ export function PaymentList({ academicYear, enrollmentCode }: { academicYear: st
       <CardContent className="space-y-4">
         {payments.map((p) => (
           <div
-
-            key={p.id_item}
+           
+            key={p.id_item} 
             className="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted/50"
           >
             <div>
-
-              <p className="font-medium">{p.mes}</p>
+             
+              <p className="font-medium">{p.mes}</p> 
               <p className="text-sm text-muted-foreground">
-
+               
                 Vencimento: {new Date(p.data_limite).toLocaleDateString('pt-AO')}
               </p>
 
@@ -80,9 +80,9 @@ export function PaymentList({ academicYear, enrollmentCode }: { academicYear: st
             </div>
             <div className="flex items-center gap-4">
               <div className="text-right space-y-2">
-
-                <p className="font-bold">{p.total_item} Kz</p>
-
+              
+                <p className="font-bold">{p.total_item} Kz</p> 
+              
                 {getStatusBadge(getPaymentStatus(p.status_pagamento))}
               </div>
 
@@ -94,8 +94,7 @@ export function PaymentList({ academicYear, enrollmentCode }: { academicYear: st
                 <Button
                   variant="outline"
                   size="sm"
-                  // Use 'p.id_item' ou 'p.codigo_factura' (conforme sua função espera)
-                  onClick={() => handleGenerateReference(p.codigo_factura)}
+                  onClick={() => handleGenerateReference(p.codigo_factura)} 
                 >
                   <Receipt className="mr-2 h-4 w-4" /> Gerar Referência
                 </Button>
