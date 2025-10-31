@@ -20,9 +20,10 @@ type EnrollmentProviderProps = {
 
 export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
   const [isExpanded, setIsExpanded] = useState<ToggleState>({
-    new: false,
-    pendents: false,
+    new: true,
+    pendents: true,
   })
+
   const {
     profileData,
     isLoading: profileLoading,

@@ -36,7 +36,7 @@ export function EnrollmentSection({
             size="sm"
             onClick={() => toggleSection(secktionKey)}
           >
-            {isExpanded ? (
+            {isExpanded[secktionKey] ? (
               <ChevronUp className="h-4 w-4" />
             ) : (
               <ChevronDown className="h-4 w-4" />
@@ -45,7 +45,7 @@ export function EnrollmentSection({
         </div>
       </CardHeader>
 
-      {isExpanded && (
+      {isExpanded[secktionKey] && (
         <CardContent className="space-y-3 pt-4">
           {subjects.map((subject) => (
             <SubjectCard

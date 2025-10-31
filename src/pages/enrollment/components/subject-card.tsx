@@ -3,6 +3,7 @@ import type { Grade } from '@/types/grade'
 import { Checkbox } from '@/components/ui/checkbox'
 
 import { ScheduleSelectionDialog } from '../schedule'
+import { useEnrollment } from '../hooks/use-enrollment'
 type SubjectCardProps = {
   subject: Grade
   isSelected: (subject: Grade) => boolean
@@ -15,29 +16,17 @@ export function SubjectCard({
   toggleSubject,
 }: SubjectCardProps) {
   const selected = isSelected(subject)
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
-      toggleSubject(subject)
-    }
-  }
-  const isNewStudent = false
+  const { isNewStudent } = useEnrollment()
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={() => toggleSubject(subject)}
-      onKeyDown={handleKeyPress}
-      className="rounded-lg border p-4 space-y-4 cursor-pointer"
-    >
+    <div className="rounded-lg border p-4 space-y-4">
       <div className="flex items-start gap-3">
         <Checkbox className="mt-1" checked={selected} />
 
         <div className="flex-1 space-y-3">
           <div>
             <label
+              onClick={() => toggleSubject(subject)}
               htmlFor={`subject-${subject.codigoGrade}`}
               className="cursor-pointer font-semibold"
             >
