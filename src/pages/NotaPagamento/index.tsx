@@ -148,7 +148,7 @@ export const NotaPagamento = () => {
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
                 <DialogHeader>
-                    <DialogTitle>Nota de Pagamento</DialogTitle>
+                    <DialogTitle>Pagamento</DialogTitle>
                     <DialogDescription>Número: {nota.numero}</DialogDescription>
                 </DialogHeader>
 
@@ -264,9 +264,9 @@ export const NotaPagamento = () => {
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-3xl font-bold">Notas de Pagamento</h1>
+                <h1 className="text-3xl font-bold">Pagamento</h1>
                 <p className="text-muted-foreground mt-2">
-                    Consulte e gerencie as suas notas de pagamento
+                    Consulte e gerencie os  pagamento
                 </p>
             </div>
 

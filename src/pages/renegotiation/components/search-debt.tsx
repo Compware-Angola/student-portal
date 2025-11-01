@@ -58,7 +58,7 @@ export function SearchDebt({ searchForm, onSearchDebt }: SearchDebtProps) {
                 <FormItem>
                   <FormLabel>Código de Matrícula</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ex: 1" {...field} />
+                    <Input placeholder="Ex: 1" {...field} disabled />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

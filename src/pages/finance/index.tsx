@@ -40,9 +40,9 @@ function Content() {
 
       <Tabs defaultValue="services" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-         {/* <TabsTrigger value="services">Pagamentos Pendentes</TabsTrigger>*/}
+         <TabsTrigger value="services">Pagamentos Pendentes</TabsTrigger>
           <TabsTrigger value="payments">Mensalidades</TabsTrigger>
-          <TabsTrigger value="invoices">Faturas</TabsTrigger>
+          <TabsTrigger value="invoices">Nota de Pagamentos</TabsTrigger>
         </TabsList>
         <TabsContent value="services" className="mt-6">
           <ServicesList />

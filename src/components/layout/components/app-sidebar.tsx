@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import {
-  Banknote,
+  
   BookOpen,
   Calendar,
   ClipboardList,
@@ -57,7 +57,7 @@ const data = {
     { title: 'Mensagens', url: '/mensagens', icon: MessageSquare },
     { title: 'Suporte', url: '/suporte', icon: HelpCircle },
 
-    { title: 'Notas de Pagamento', url: '/notas-pagamento', icon: Receipt },
+    { title: 'Pagamento', url: '/notas-pagamento', icon: Receipt },
 
     { title: 'Renegociação', url: '/renegociacao', icon: HandCoins },
   ],

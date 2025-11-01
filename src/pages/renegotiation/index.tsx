@@ -88,7 +88,11 @@ interface InvoiceItem {
 }
 
 export const Renegociation = () => {
-  const { profileData, isLoading } = useQueryProfile()
+  const {
+    isLoading,
+  
+    profileData,
+  } = useQueryProfile()
 
   const [step, setStep] = useState<
     'search' | 'simulate' | 'confirm' | 'complete'
@@ -106,7 +110,7 @@ export const Renegociation = () => {
   const searchForm = useForm<SearchDebtFormData>({
     resolver: zodResolver(searchDebtSchema),
     defaultValues: {
-      enrollmentCode: profileData?.enrollmentCode,
+      enrollmentCode: profileData?.enrollmentCode ,
       academicYear: '2025-2026',
     },
   })
