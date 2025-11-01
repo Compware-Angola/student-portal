@@ -19,6 +19,8 @@ import {
 } from '@/components/ui/dialog'
 import { useQueryPayments } from '@/hooks/finance/use-query-finance-payments'
 import { Loader2 } from 'lucide-react' 
+import { useQueryProfile } from '@/hooks/profile/use-query-profile'
+import { useNavigate } from 'react-router-dom'
 interface NotaPagamento {
     id: string
     numero: string 
@@ -27,20 +29,20 @@ interface NotaPagamento {
     valor: number 
     dataEmissao: string
     dataVencimento: string
-    status: 'paga' | 'pendente' | 'vencida' | string
-    metodoPagamento?: 'cash' | 'transferencia' | 'muteu_cash' | string
+    status: 'concluido' | 'pendente' | 'vencida' | string
+    metodoPagamento?: 'cash' | 'transferencia' | 'muteu_cash' | 'deposito' | 'express' | 'por_referencia' | 'tpa'|string
     comprovante?: string 
 }
 
 // A função de mapeamento (colocada aqui apenas para exemplo, mas deve ser importada)
 const mapApiToNotaPagamento = (apiData: any[]): NotaPagamento[] => {
     return apiData.map((item: any) => {
-        let status: 'paga' | 'pendente' | 'vencida' | string
+        let status: 'concluido' | 'pendente' | 'vencida' | string
         const isPaid = item.p_status_pagamento === 'concluido'
         const isExpired = item.f_DataVencimento && new Date(item.f_DataVencimento) < new Date() && !isPaid
 
         if (isPaid) {
-            status = 'paga'
+            status = 'concluido'
         } else if (isExpired) {
             status = 'vencida'
         } else {
@@ -63,25 +65,26 @@ const mapApiToNotaPagamento = (apiData: any[]): NotaPagamento[] => {
             dataVencimento: item.f_DataVencimento,
             status: status,
             metodoPagamento: item.p_forma_pagamento ? item.p_forma_pagamento.replace(/\s/g, '_').toLowerCase() : undefined,
-            comprovante: undefined, // Remover o mock data
+            comprovante: undefined, 
         }
     })
 }
 
 
 export const NotaPagamento = () => {
-    
+      const {profileData } = useQueryProfile()
 
-    const MOCK_ACADEMIC_YEAR = '23'
-    const MOCK_PRE_REG_CODE = '123913' 
+  const navigate = useNavigate()
+   
+    
 
     const {
         data: pagamentosData, 
         isLoading, 
         isError
     } = useQueryPayments({
-        academicYear: MOCK_ACADEMIC_YEAR,
-        preRegistrationCode: MOCK_PRE_REG_CODE,
+        academicYear: profileData?.confirmacoes[0]?.ano_lectivo,
+        preRegistrationCode: profileData?.codigo_preinscricao,
         // Adicione page e limit se for paginar
         page: 1, 
         limit: 50 
@@ -96,7 +99,7 @@ export const NotaPagamento = () => {
 
     const getStatusBadge = (status: string) => {
         switch (status) {
-            case 'paga':
+            case 'concluido':
                 return <Badge variant="secondary">Paga</Badge>
             case 'pendente':
                 return <Badge variant="default">Pendente</Badge>
@@ -122,21 +125,32 @@ export const NotaPagamento = () => {
         }
     }
 
-    const getMetodoPagamento = (metodo?: string) => {
-        if (!metodo) return 'N/A'
-        switch (metodo.toLowerCase()) {
-            case 'cash':
-            case 'por referência': // Assumindo que o TypeORM retorna a string
-                return 'Dinheiro / Referência'
-            case 'transferencia':
-                return 'Transferência Bancária'
-            case 'muteu_cash':
-                return 'MUTEU Cash'
-            default:
-                return metodo
-        }
+const getMetodoPagamento = (metodo?: string) => {
+    if (!metodo) return 'n/a' 
+    switch (metodo.trim()) { 
+       
+        case 'TPA':
+            return 'tpa'
+        case 'DEPOSITO':
+            return 'deposito'
+        case 'TRANSFERENCIA':
+            return 'transferencia'
+        case 'EXPRESS':
+            return 'express'
+        case 'POR REFERÊNCIA':
+            return 'por referência'
+        case 'PAGAMENTO A CASH':
+        case 'CASH':
+            return 'pagamento a cash'
+            
+        case 'MUTEU_CASH':
+            return 'muteu cash'
+            
+        default:
+            // Retorna o valor original em minúsculas, caso exista
+            return metodo.toLowerCase() 
     }
-
+}
     const NotaDetalhes = ({ nota }: { nota: NotaPagamento }) => (
         // ... (Seu componente NotaDetalhes permanece o mesmo, mas usará os dados mapeados) ...
         <Dialog>
@@ -192,7 +206,7 @@ export const NotaPagamento = () => {
                         </div>
                     </div>
 
-                    {nota.status === 'paga' && (
+                    {nota.status === 'concluido' && (
                         <div className="border-t pt-4 space-y-3">
                             <div>
                                 <p className="text-sm font-semibold mb-1">
@@ -235,7 +249,7 @@ export const NotaPagamento = () => {
         .reduce((sum, n) => sum + n.valor, 0)
 
     const totalPago = notas
-        .filter((n) => n.status === 'paga')
+        .filter((n) => n.status == 'concluido')
         .reduce((sum, n) => sum + n.valor, 0)
 
     // --- Tratamento de Estado de Carregamento e Erro ---
@@ -271,7 +285,7 @@ export const NotaPagamento = () => {
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
-                <Card>
+                <Card  onClick={() => navigate('/financas')}> 
                     <CardHeader className="pb-3">
                         <CardTitle className="text-sm font-medium">
                             Total Pendente
@@ -355,7 +369,7 @@ export const NotaPagamento = () => {
                                                 </div>
                                                 <div className="flex gap-2">
                                                     <NotaDetalhes nota={nota} />
-                                                    {nota.status === 'paga' && nota.comprovante && (
+                                                    {nota.status === 'concluido' && nota.comprovante && (
                                                         <Button variant="outline" size="sm">
                                                             <Download className="mr-2 h-4 w-4" />
                                                             Comprovante
