@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { AlertCircle, Calculator, CheckCircle2, FileText } from 'lucide-react'
+import { AlertCircle, Calculator, CheckCircle2 } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -30,6 +30,7 @@ import { SearchDebt } from './components/search-debt'
 import { searchDebtSchema } from './schemas'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { apexApi } from '@/lib/apex-api'
+import { useQueryGetDebit } from '@/hooks/renegotiation/use-query-renegotiation'
 
 const simulateNegotiationSchema = z.object({
   academicYear: z.string().min(1, 'Ano académico é obrigatório'),
@@ -54,7 +55,10 @@ interface Invoice {
 interface DebtSearchResult {
   invoices: Invoice[]
   totalOutstandingAmount: number
-}
+  totalDivida: number
+ mesesDividas:any
+ size:number
+} 
 
 interface SimulationResult {
   academicYear: string
@@ -90,27 +94,35 @@ interface InvoiceItem {
 export const Renegociation = () => {
   const {
     isLoading,
-  
+  isError,
     profileData,
   } = useQueryProfile()
+  if (!profileData) return <RenegociationSkeleton />
+  const {data:debtData,isLoading:isLoadingDebtData} = useQueryGetDebit({
+    enrollmentCode:profileData?.codigo_matricula,
+   preinscricao:profileData.codigo_preinscricao,
+   type:'1'
+  })
+  
+
 
   const [step, setStep] = useState<
     'search' | 'simulate' | 'confirm' | 'complete'
   >('search')
-  const [debtData, setDebtData] = useState<DebtSearchResult | null>(null)
+  const [, setDebtData] = useState<DebtSearchResult | null>(null)
   const [simulationData, setSimulationData] = useState<SimulationResult | null>(
     null,
   )
   const [paymentReferences, setPaymentReferences] = useState<
     PaymentReference[]
   >([])
-  const [invoices, setInvoices] = useState<InvoiceItem[]>([])
+  const [, setInvoices] = useState<InvoiceItem[]>([])
   const [searchData, setSearchData] = useState<SearchDebtFormData | null>(null)
 
   const searchForm = useForm<SearchDebtFormData>({
     resolver: zodResolver(searchDebtSchema),
     defaultValues: {
-      enrollmentCode: profileData?.enrollmentCode ,
+      enrollmentCode: profileData?.codigo_matricula,
       academicYear: '2025-2026',
     },
   })
@@ -128,10 +140,12 @@ export const Renegociation = () => {
 
   const onSearchDebt = async (data: SearchDebtFormData) => {
     try {
-      const openDebit = await apexApi
-        .get('v1/open-debts', { searchParams: data })
-        .json<DebtSearchResult>()
 
+ 
+      const openDebit = debtData as any;
+
+    
+   /*
       if (
         openDebit.totalOutstandingAmount === 0 ||
         openDebit.invoices.length === 0
@@ -139,7 +153,7 @@ export const Renegociation = () => {
         toast.warning('Nenhum débito encontrado')
         return
       }
-
+  */
       setDebtData(openDebit)
       setSearchData(data)
       simulateForm.setValue('academicYear', data.academicYear)
@@ -227,6 +241,33 @@ export const Renegociation = () => {
     simulateForm.reset()
   }
   if (!profileData || isLoading) return <RenegociationSkeleton />
+
+
+
+
+  if (isLoadingDebtData) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Meses de Pagamento</CardTitle>
+        </CardHeader>
+        <CardContent>A carregar meses de pagamento...</CardContent>
+      </Card>
+    )
+  }
+
+  if (isError) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Erro</CardTitle>
+        </CardHeader>
+        <CardContent>
+          Não foi possível carregar os dados de pagamento.
+        </CardContent>
+      </Card>
+    )
+  }
   return (
     <div className="space-y-6">
       <div>
@@ -264,7 +305,7 @@ export const Renegociation = () => {
                   variant="outline"
                   className="text-warning border-warning"
                 >
-                  {debtData.invoices.length} fatura(s)
+                  {debtData.size} Quabtidade(s)
                 </Badge>
               </div>
             </CardHeader>
@@ -275,23 +316,25 @@ export const Renegociation = () => {
                     Total em atraso
                   </p>
                   <p className="text-3xl font-bold text-warning">
-                    {formatCurrency(debtData.totalOutstandingAmount)}
-                  </p>
+                   
+                   {formatCurrency(debtData.totalDivida)}            </p>
                 </div>
                 <div className="space-y-2">
-                  {debtData.invoices.map((invoice) => (
+                {debtData.mesesDividas.map((m:any) => (
                     <div
-                      key={invoice.reference}
+                      key={m.reference}
                       className="flex justify-between items-center p-3 bg-muted rounded-lg"
                     >
                       <span className="text-sm">
-                        Referência: {invoice.reference}
+                        {m.servico} - {m.mes_propina}
                       </span>
                       <span className="font-semibold">
-                        {formatCurrency(invoice.amount)}
+                        {formatCurrency(m.total)} 
                       </span>
                     </div>
-                  ))}
+                  ))} 
+
+                  
                 </div>
               </div>
             </CardContent>
@@ -533,7 +576,7 @@ export const Renegociation = () => {
         </>
       )}
 
-      {/* List Invoices Button */}
+      {/* List Invoices Button 
 
       <Card>
         <CardHeader>
@@ -592,6 +635,7 @@ export const Renegociation = () => {
           )}
         </CardContent>
       </Card>
+      */}
     </div>
   )
 }

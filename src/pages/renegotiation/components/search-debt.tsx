@@ -46,6 +46,7 @@ export function SearchDebt({ searchForm, onSearchDebt }: SearchDebtProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {/* */}
         <Form {...searchForm}>
           <form
             onSubmit={searchForm.handleSubmit(onSearchDebt)}
@@ -64,22 +65,22 @@ export function SearchDebt({ searchForm, onSearchDebt }: SearchDebtProps) {
                 </FormItem>
               )}
             />
-            <FormField
+            <FormField disabled
               control={searchForm.control}
               name="academicYear"
               render={({ field }) => (
-                <FormItem>
+                <FormItem >
                   <FormLabel>Ano Académico</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o ano académico" />
+                    <FormControl >
+                      <SelectTrigger >
+                        <SelectValue placeholder="Selecione o ano académico" aria-disabled />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent >
                       <SelectItem value="2020-2021">2020-2021</SelectItem>
                       <SelectItem value="2021-2022">2021-2022</SelectItem>
                       <SelectItem value="2022-2023">2022-2023</SelectItem>
