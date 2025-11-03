@@ -80,7 +80,9 @@ export const FinanceProvider = ({ children }: { children: ReactNode }) => {
   ]
 
   const handleGenerateReference = (id: number) =>
-    console.log('Gerando referência para pagamento:', id)
+
+    alert(`Gerando referência para pagamento:${id}`)
+    console.log('Gerando referência para pagamento:', )
   const handleDownloadInvoice = (id: number) =>
     console.log('Baixando fatura:', id)
   const handleDownloadReference = (id: number) =>

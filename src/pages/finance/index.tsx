@@ -27,6 +27,7 @@ function Content() {
     }
     return <FinanceSkeleton />
   }
+  if(!academicYearData) return <FinanceSkeleton />
   return (
     <div className="space-y-6">
       <div>
@@ -37,26 +38,52 @@ function Content() {
       </div>
 
       <FinanceStats />
-
+{/*
       <Tabs defaultValue="services" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-         <TabsTrigger value="services">Pagamentos Pendentes</TabsTrigger>
+        {/* <TabsTrigger value="services">Pagamentos Pendentes</TabsTrigger>
           <TabsTrigger value="payments">Mensalidades</TabsTrigger>
           <TabsTrigger value="invoices">Nota de Pagamentos</TabsTrigger>
         </TabsList>
+         
         <TabsContent value="services" className="mt-6">
           <ServicesList />
         </TabsContent>
+        
         <TabsContent value="payments" className="mt-6">
           <PaymentList
-            academicYear={academicYearData?.anolectivos[0].codigo ?? '22'}
+            academicYear={academicYearData?.anolectivos[0].codigo }
             enrollmentCode={profileData.enrollmentCode}
+            academicYears={academicYearData}
           />
         </TabsContent>
         <TabsContent value="invoices" className="mt-6">
           <InvoicesTable enrollmentCode={profileData.enrollmentCode} />
         </TabsContent>
       </Tabs>
+  */}
+      <Tabs defaultValue="payments" className="w-full">
+  <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 gap-2 p-1 bg-muted rounded-lg">
+    <TabsTrigger value="payments" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">
+      Mensalidades
+    </TabsTrigger>
+    <TabsTrigger value="invoices" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">
+      Nota de Pagamentos
+    </TabsTrigger>
+  </TabsList>
+
+  <TabsContent value="payments" className="mt-6">
+    <PaymentList
+      academicYear={academicYearData?.anolectivos[0].codigo}
+      enrollmentCode={profileData.enrollmentCode}
+      academicYears={academicYearData || []}
+    />
+  </TabsContent>
+
+  <TabsContent value="invoices" className="mt-6">
+    <InvoicesTable enrollmentCode={profileData.enrollmentCode} />
+  </TabsContent>
+</Tabs>
     </div>
   )
 }
