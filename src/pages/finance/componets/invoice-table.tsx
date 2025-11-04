@@ -68,7 +68,7 @@ function usePollPendingTasks(invoiceId: number, enrollmentCode: string) {
     // que começam com ['invoices', enrollmentCode] sejam atualizadas,
     // independentemente da página ou ano letivo específico na chave.
     queryClient.invalidateQueries({
-      queryKey: ['invoices', enrollmentCode],
+      queryKey: ['invoices'],
       refetchType: 'all',
     })
     console.log(`[Polling] Invalidação de queries para ${enrollmentCode} solicitada.`)

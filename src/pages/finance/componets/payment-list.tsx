@@ -130,7 +130,7 @@ export function PaymentList({
                   <p className="font-bold">{p.total_item} Kz</p>
                   {getStatusBadge(getPaymentStatus(p.status_pagamento))}
                 </div>
-                {getPaymentStatus(p.status_pagamento) !== 'paid' && (
+                {!p.reference && (
                   <Button
                     variant="outline"
                     size="sm"
