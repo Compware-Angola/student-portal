@@ -116,9 +116,11 @@ function useFindAcademicYearDesignation(academicYear: AdemicsYear | undefined) {
 function InvoiceDetailsDialog({
   invoice,
   findAcademicYearDesignation,
+
 }: {
   invoice: Invoice
   findAcademicYearDesignation: (codigo: number) => string
+
 }) {
   const totalMultas = invoice.itens.reduce((sum, i) => sum + i.Multa, 0)
   const totalPago = invoice.itens.reduce((sum, i) => sum + i.valor_pago, 0)
@@ -177,9 +179,10 @@ function InvoiceDetailsDialog({
                 <Card key={item.codigo} className="p-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div>
-                      <p className="font-medium">{item.MesDesignacao || `Item ${idx + 1}`}</p>
+
+                      <p className="font-medium"> {item.OBS || item.DescricaoServico || 'Sem descrição'}</p>
                       <p className="text-muted-foreground text-xs">
-                        {item.OBS || item.DescricaoServico || 'Sem descrição'}
+                        {item.MesDesignacao || `Item ${idx + 1}`}
                       </p>
                     </div>
                     <div className="space-y-1">
@@ -242,10 +245,19 @@ function InvoiceDetailsDialog({
 
           {/* Botões de ação */}
           <div className="flex gap-3 pt-4 border-t">
-            <PaymentReceipt
-              invoice={invoice}
-              academicYear={findAcademicYearDesignation(invoice.ano_lectivo)}
-            />
+            {/* ✅ Use invoice.estado direto. Use String() para garantir a comparação se a API retornar string */}
+            {invoice.estado != 0 && ( // OU
+              <PaymentReceipt
+                invoice={invoice}
+                academicYear={findAcademicYearDesignation(invoice.ano_lectivo)}
+              />
+            )}
+              {invoice.estado != 1 && ( 
+             <>
+           
+            <Button>Pagar em Cash ou Multicaixa</Button>
+        </>
+            )}
           </div>
         </div>
       </DialogContent>
@@ -501,6 +513,7 @@ function useColumnsInvoiceTable({
             {/* Ver Detalhes */}
             <InvoiceDetailsDialog
               invoice={invoice}
+
               findAcademicYearDesignation={findAcademicYearDesignation}
             />
           </div>

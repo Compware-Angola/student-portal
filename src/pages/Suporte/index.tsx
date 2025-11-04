@@ -1,5 +1,4 @@
 import { useState } from 'react'
-
 import {
   Card,
   CardContent,
@@ -18,9 +17,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-
 import { Upload, Send, HelpCircle } from 'lucide-react'
 import { toast } from 'sonner'
+import { useQueryCreateSupport, useQuerySupportTypes } from '@/hooks/support/use-query-support'
+import type { SupportPayload } from '@/services/support/support.service'
+
 
 export const Suporte = () => {
   const [formData, setFormData] = useState({
@@ -29,6 +30,10 @@ export const Suporte = () => {
     mensagem: '',
     arquivo: null as File | null,
   })
+
+  // Hooks para API
+  const { data: supportTypes, isLoading: isTypesLoading } = useQuerySupportTypes()
+  const { mutate, isPending: isSubmitting } = useQueryCreateSupport()
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -44,10 +49,14 @@ export const Suporte = () => {
       return
     }
 
-    // Simular envio
-    toast(
-      'A nossa equipa irá responder em breve. Acompanhe as respostas em Mensagens e Comunicados.',
-    )
+    const payload: SupportPayload = {
+      descricao: formData.mensagem,
+      assunto: formData.assunto,
+      tipo_suporte: Number(formData.tipoSuporte),
+    }
+
+    // Chamada à API
+    mutate(payload)
 
     // Limpar formulário
     setFormData({
@@ -91,17 +100,17 @@ export const Suporte = () => {
                 onValueChange={(value) =>
                   setFormData({ ...formData, tipoSuporte: value })
                 }
+                disabled={isTypesLoading}
               >
                 <SelectTrigger id="tipoSuporte">
                   <SelectValue placeholder="Selecione o tipo de suporte" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="academico">Académico</SelectItem>
-                  <SelectItem value="financeiro">Financeiro</SelectItem>
-                  <SelectItem value="tecnico">Técnico</SelectItem>
-                  <SelectItem value="matricula">Matrícula</SelectItem>
-                  <SelectItem value="documentacao">Documentação</SelectItem>
-                  <SelectItem value="outros">Outros</SelectItem>
+                  {supportTypes?.map((type) => (
+                    <SelectItem key={type.codigo} value={type.codigo}>
+                      {type.designacao}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -135,18 +144,25 @@ export const Suporte = () => {
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 relative group">
               <Label htmlFor="arquivo">Anexar Arquivo (Opcional)</Label>
               <div className="flex items-center gap-3">
                 <Input
+                  disabled
                   id="arquivo"
                   type="file"
                   onChange={handleFileChange}
-                  className="cursor-pointer"
+                  className="cursor-not-allowed"
                   accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                 />
                 <Upload className="h-5 w-5 text-muted-foreground" />
               </div>
+
+              {/* Tooltip */}
+              <span className="absolute left-0 mt-1 hidden w-max rounded bg-gray-800 px-2 py-1 text-xs text-white group-hover:block">
+                Temporariamente indisponível o Anexo de Fixeiros
+              </span>
+
               {formData.arquivo && (
                 <p className="text-sm text-muted-foreground">
                   Arquivo selecionado: {formData.arquivo.name}
@@ -157,10 +173,11 @@ export const Suporte = () => {
               </p>
             </div>
 
+
             <div className="flex gap-3">
-              <Button type="submit" className="flex-1">
+              <Button type="submit" className="flex-1" disabled={isSubmitting}>
                 <Send className="mr-2 h-4 w-4" />
-                Enviar Pedido
+                {isSubmitting ? 'Enviando...' : 'Enviar Pedido'}
               </Button>
               <Button
                 type="button"

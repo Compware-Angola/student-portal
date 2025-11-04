@@ -1,4 +1,4 @@
-import { useState } from "react"
+
 import {
   Card,
   CardContent,
@@ -8,14 +8,7 @@ import {
 } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { MessageSquare, Megaphone, Calendar, Loader2 } from "lucide-react"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { MessageSquare, Megaphone, Loader2 } from "lucide-react"
 import { useQueryAnnouncement, useQueryMessage } from "@/hooks/message_and_announcement/use-query-message_and_announcement"
 import type { DetalheResposta } from "@/services/message_and_announcement/message_and_announcement.service"
 import { useQueryProfile } from "@/hooks/profile/use-query-profile"
@@ -34,7 +27,7 @@ type Notification = {
 }
 
 export const MensagensNotificacoes = () => {
-  const [selectedYear, setSelectedYear] = useState("2024-2025")
+ // const [selectedYear, setSelectedYear] = useState("2024-2025")
   const authData = AuthStorage.get() // ← aqui lê o localStorage
 
 
