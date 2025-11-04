@@ -50,7 +50,7 @@ export const DisciplinasMatriculadas = () => {
 
   } = useQueryProfile()
 
-  const { data: filteredDisciplinas, isLoading, isError } = useQueryCurriculumPlan({ class: profileData?.confirmacoes?.[0]?.classe,
+  const { data: filteredDisciplinas, isLoading, isError } = useQueryCurriculumPlan({ class: profileData?.confirmacoes?.[0]?.classe ,
     course: profileData?.codigo_curso,})
 
   // Mock data
@@ -346,7 +346,7 @@ export const DisciplinasMatriculadas = () => {
                   <CardTitle>Grade Curricular de  (Nome do Curso)</CardTitle>
                   <br />
                <p>  <CardDescription> Cadeiras Pertecentes à sua grade curricular</CardDescription></p>
-                 
+
                 </div>
 
               </div>
@@ -376,11 +376,11 @@ export const DisciplinasMatriculadas = () => {
                         </div>
                         <CardDescription>
                         <p>  Código: {disciplina.codigoDisciplina} </p>
-                           {profileData?.course} | {profileData?.confirmacoes?.[0]?.classe} º Ano  
+                           {profileData?.course} | {profileData?.confirmacoes?.[0]?.classe} º Ano
                         </CardDescription>
                       </div>
 
-                       {getStatusBadge('em_curso')}  
+                       {getStatusBadge('em_curso')}
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -402,11 +402,11 @@ export const DisciplinasMatriculadas = () => {
                       </div>
                        */}
                     </div>
-                  
+
                     {disciplina && (
                       <PlanoEstudoDialog disciplina={disciplinas.filter((d) => d.codigo === d.codigo)[0]} />
                     )}
-                      
+
                   </CardContent>
                 </Card>
               ))

@@ -4,14 +4,14 @@ import { getmonthlyFee } from '@/services/finance/get-finance.service'
 import type { MonthlyFeeDataResponse } from '@/types/finance-api-response'
 import { useQuery } from '@tanstack/react-query'
 // Importe o tipo de parâmetros (assumindo que seja MonthlyFeeQueryParams conforme definido anteriormente)
-import type { MonthlyFeeQueryParams } from '@/services/finance/get-finance.service' 
+import type { MonthlyFeeQueryParams } from '@/services/finance/get-finance.service'
 
 // Defina as props que o hook recebe (agora alinhado com o que getmonthlyFee precisa)
 interface UseQueryFinanceMonthlyFeeParams {
   academicYear?: string
   enrollmentCode?: string
   // Adicione parâmetros de paginação se for usá-los no futuro (padrão é 1 e 10)
-  page?: number 
+  page?: number
   limit?: number
 }
 
@@ -43,9 +43,9 @@ export function useQueryFinanceMonthlyFee({
         // Isso não deve ocorrer se 'enabled' for false, mas é um bom fallback
         throw new Error('Parâmetros de Ano Lectivo ou Matrícula estão faltando.')
       }
-      
+
       // 3. Chama getmonthlyFee passando o objeto params completo
-      return getmonthlyFee(params) 
+      return getmonthlyFee(params)
     },
     enabled: isEnabled, // Habilita/desabilita a query
     staleTime: Infinity, // Depende da sua estratégia de cache, Infinity é incomum

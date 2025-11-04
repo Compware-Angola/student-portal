@@ -9,6 +9,11 @@ import { useQueryCurriculumPlan } from '@/hooks/curriculum/use-query-curriculum-
 import type { SectionKey, SelectedSchedule } from '../types/enrollment'
 import { useQueryCurriculumPlanPendents } from '@/hooks/curriculum/use-query-curriculum-plan-pendents'
 import { useMutationConfirmOldStudentEnrollment } from '@/hooks/enrollment/use-mutation-confirm-old-student-enrollment'
+import { useMutationCreateInvoice } from '@/hooks/invoice/use-mutation-create-invoice'
+import type { CreateInvoiceBody } from '@/services/invoice/post-invoice.service'
+import { useMutationCreatePaymentReferenceMensalidades } from '@/hooks/invoice/use-mutation-payment-monthly'
+import type { CreatePaymentReferenceBody } from '@/services/invoice/post-invoice-monthly.service'
+import { useQueryMonthlyFeesValue } from '@/hooks/finance/use-query-monthly-fee'
 
 type ToggleState = {
   new: boolean
@@ -37,14 +42,26 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     isLoading: studentCurriculumPlanLoading,
     isError: studentCurriculumPlanIsError,
   } = useQueryCurriculumPlan({
-    class: profileData?.confirmacoes?.[0]?.classe,
+    class: profileData?.confirmacoes?.[0]?.classe ?? '1',
     course: profileData?.codigo_curso,
   })
+
+  const { createPaymentReference } =
+    useMutationCreatePaymentReferenceMensalidades()
+
+  const { data: monthlyFeeValue, isError: isMonthlyFeeValueErro } =
+    useQueryMonthlyFeesValue({
+      curso: profileData?.codigo_curso,
+      polo: profileData?.poloId,
+      anoLetivo: '23',
+    })
 
   const {
     confirmNewStudentEnrollmentPending,
     confirmNewStudentEnrollmentAsync,
   } = useMutationConfirmNewStudentEnrollment()
+
+  const { createInvoiceAsync } = useMutationCreateInvoice()
 
   const {
     confirmOldStudentEnrollmentAsync,
@@ -185,6 +202,94 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     (sum, s) => sum + parseInt(s.valorInscricao),
     0,
   )
+
+  const createInvoiceWithPayload = async (
+    description: string,
+    serviceTypeCode: number,
+    enrollmentCode: number,
+  ) => {
+    const invoice: CreateInvoiceBody = {
+      polo_id: 1,
+      TotalPreco: totalValue,
+      codigo_descricao: 101,
+      ValorAPagar: totalValue,
+      total_incidencia: 0,
+      total_retencao: 0,
+      CodigoMatricula: enrollmentCode,
+      codigo_preinscricao: parseInt(profileData?.codigo_preinscricao!),
+      Desconto: 0,
+      totalIVA: 0,
+      TotalMulta: 0,
+      Descricao: description,
+      tipo_documento_factura_id: 1,
+      canal: 3,
+      itens: [
+        {
+          CodigoProduto: serviceTypeCode,
+          Quantidade: 1,
+          preco: totalValue,
+          Total: totalValue,
+          valor_pago: totalValue,
+          obs: description,
+          taxaIva: 0,
+          valorIva: 0,
+          retencao: 0,
+          incidencia: 0,
+          valorDesconto: 0,
+          descontoProduto: 0,
+          mes: 'Outubro',
+          multa: 0,
+          mesTempId: 3,
+          estado: 0,
+          valorPago: totalValue,
+          valorATransportar: 0,
+          codigoFactura: 1023,
+        },
+      ],
+      DataFactura: '2025-10-24T10:00:00.000Z',
+    }
+    await createInvoiceAsync(invoice)
+  }
+  const createMonthlyPayments = async (enrollmentCode: number) => {
+    if (isMonthlyFeeValueErro) {
+      throw new Error('Erro ao gerar as mensalidades')
+    }
+    const monthlyValue = monthlyFeeValue[0]
+    const invoiceData : CreatePaymentReferenceBody = {
+      amount: parseFloat(monthlyValue.preco),
+      currency: 'AOA',
+      description: 'Pagamento da mensalidade académica',
+      enrollment: {
+        CodigoMatricula: enrollmentCode,
+        codigo_preinscricao: parseInt(profileData?.preEnrollmentCode!),
+      },
+      itens: [
+        {
+          CodigoProduto: parseInt(monthlyValue.codigo),
+          Quantidade: 2,
+          preco: parseFloat(monthlyValue.preco),
+          Total: parseFloat(monthlyValue.preco),
+          valor_pago: parseFloat(monthlyValue.preco),
+          obs: 'Pagamento da propina do mês de Outubro.',
+          taxaIva: 0,
+          valorIva: 0,
+          retencao: 0,
+          incidencia: 0,
+          valorDesconto: 0,
+          descontoProduto: 0,
+          mes: 'Outubro',
+          multa: 0,
+          mesTempId: 3,
+          estado: 0,
+          valorPago: 0,
+          valorATransportar: 0,
+          codigoFactura: 1023,
+        },
+      ],
+    }
+    createPaymentReference(invoiceData)
+  }
+
   const confirmNewStudentEnrollment = async (
     newStudentCurriculumPlan: Grade[],
     selectedSubjects: Grade[],
@@ -196,7 +301,14 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
       toast.warning('Selecione todas as disciplinas obrigatórias.')
       return
     }
-    await confirmNewStudentEnrollmentAsync(selectedSubjects)
+    const response = await confirmNewStudentEnrollmentAsync(selectedSubjects)
+    const enrollmentCode = response.Codigo_Matricula
+    await createInvoiceWithPayload(
+      'Inscrição de matrícula',
+      11511,
+      enrollmentCode,
+    )
+    createMonthlyPayments(enrollmentCode);
   }
   const confirmStudentEnrollment = async () => {
     // ====== 📚 NOVO ESTUDANTE ======
@@ -205,7 +317,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
         toast.error('Disciplinas obrigatórias não selecionadas.')
         return
       }
-      confirmNewStudentEnrollment(grades, selectedSubjects)
+      await confirmNewStudentEnrollment(grades, selectedSubjects)
       return
     }
 
