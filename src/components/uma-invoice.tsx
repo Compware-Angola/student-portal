@@ -235,7 +235,7 @@ function PaymentReceiptDocument({
             <View style={styles.tableRow} key={index}>
               <Text style={[styles.tableCell, { width: '60%' }]}>
                 {/* Use item.Descricao aqui */}
-                {item.DescricaoServico}
+                {item.DescricaoServico || item.OBS || 'Sem descrição'}
               </Text>
               <Text
                 style={[styles.tableCell, { width: '20%', textAlign: 'right' }]}
@@ -266,7 +266,7 @@ function PaymentReceiptDocument({
             Total Incidência: {Number(invoice.total_incidencia).toFixed(2)} Kz
           </Text>
           <Text style={styles.totalText}>
-            Total a Pagar: {Number(invoice.TotalPreco).toFixed(2)} Kz
+            Total Pago: {Number(invoice.TotalPreco).toFixed(2)} Kz
           </Text>
           <Text>({invoice.ValorAPagarExtenso})</Text>
         </View>
