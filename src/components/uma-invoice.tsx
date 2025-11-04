@@ -1,3 +1,4 @@
+
 import {
   Page,
   Text,
@@ -6,11 +7,11 @@ import {
   StyleSheet,
   Image,
   PDFDownloadLink,
+  pdf,
 } from '@react-pdf/renderer'
 import { Button } from '@/components/ui/button'
 import type { Invoice } from '@/services/invoice/get-invoices-by-matricula.service'
-import { DownloadIcon } from 'lucide-react'
-
+import { Download, Printer } from 'lucide-react'
 
 // Estilos refinados
 const styles = StyleSheet.create({
@@ -85,7 +86,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   table: {
-   
     width: 'auto',
     marginTop: 10,
     borderStyle: 'solid',
@@ -155,10 +155,12 @@ function PaymentReceiptDocument({
             <Text style={styles.companyName}>
               Universidade Metodista de Angola
             </Text>
-            {/*<Text style={styles.companyDetails}>NIF: 5410000000</Text>
-          <Text style={styles.companyDetails}>Rua da Paz, Luanda - Angola</Text>
-          <Text style={styles.companyDetails}>Tel: +244 900 000 000</Text>
-          <Text style={styles.companyDetails}>Email: info@uma.co.ao</Text>*/}
+            {/* Informações opcionais da empresa
+            <Text style={styles.companyDetails}>NIF: 5410000000</Text>
+            <Text style={styles.companyDetails}>Rua da Paz, Luanda - Angola</Text>
+            <Text style={styles.companyDetails}>Tel: +244 900 000 000</Text>
+            <Text style={styles.companyDetails}>Email: info@uma.co.ao</Text>
+            */}
           </View>
         </View>
 
@@ -172,29 +174,28 @@ function PaymentReceiptDocument({
               <Text style={styles.label}>Codigo:</Text> {invoice.Codigo}
             </Text>
           </View>
+
           <View style={styles.infoRow}>
             <Text>
               <Text style={styles.label}>Data Emissão:</Text>{' '}
               {new Date(invoice.DataFactura).toLocaleDateString()}
             </Text>
-            {
-              <>
-                {invoice.dataVencimento && (
-                  <Text>
-                    <Text style={styles.label}>Vencimento:</Text>{' '}
-                    {new Date(invoice.dataVencimento).toLocaleDateString()}
-                  </Text>
-                )}
-              </>
-            }
+
+            {invoice.dataVencimento && (
+              <Text>
+                <Text style={styles.label}>Vencimento:</Text>{' '}
+                {new Date(invoice.dataVencimento).toLocaleDateString()}
+              </Text>
+            )}
           </View>
+
           <View style={styles.infoRow}>
             <Text>
               <Text style={styles.label}>Ano Lectivo:</Text> {academicYear}
             </Text>
             <Text>
               <Text style={styles.label}>Polo:</Text>{' '}
-              {invoice.poloId === '1' ? 'Sede Luanda' : invoice.poloId}
+              {invoice.polo_id === '1' ? 'Sede Luanda' : invoice.polo_id}
             </Text>
           </View>
         </View>
@@ -235,32 +236,36 @@ function PaymentReceiptDocument({
             <Text
               style={[styles.tableCell, { width: '20%', textAlign: 'right' }]}
             >
-              {invoice.TotalPreco.toFixed(2)}
+              {Number(invoice.TotalPreco).toFixed(2)}
             </Text>
             <Text
               style={[styles.tableCell, { width: '20%', textAlign: 'right' }]}
             >
-              {invoice.totalIVA.toFixed(2)}
+              {Number(invoice.totalIVA).toFixed(2)}
             </Text>
           </View>
         </View>
 
         {/* ---------- Totais ---------- */}
         <View style={styles.totalSection}>
-          <Text>Desconto: {invoice.Desconto.toFixed(2)} Kz</Text>
-          <Text>Multa: {invoice.TotalMulta.toFixed(2)} Kz</Text>
-          <Text>Total Retenção: {invoice.totalRetencao.toFixed(2)} Kz</Text>
-          <Text>Total Incidência: {invoice.totalIncidencia.toFixed(2)} Kz</Text>
+          <Text>Desconto: {Number(invoice.Desconto).toFixed(2)} Kz</Text>
+          <Text>Multa: {Number(invoice.TotalMulta).toFixed(2)} Kz</Text>
+          <Text>
+            Total Retenção: {Number(invoice.total_retencao).toFixed(2)} Kz
+          </Text>
+          <Text>
+            Total Incidência: {Number(invoice.total_incidencia).toFixed(2)} Kz
+          </Text>
           <Text style={styles.totalText}>
-            Total a Pagar: {invoice.TotalPreco.toFixed(2)} Kz
+            Total a Pagar: {Number(invoice.TotalPreco).toFixed(2)} Kz
           </Text>
           <Text>({invoice.ValorAPagarExtenso})</Text>
         </View>
 
         {/* ---------- Rodapé ---------- */}
         <Text style={styles.footer}>
-          Documento emitido automaticamente — Universidade Metodista de Angola
-          © {new Date().getFullYear()}
+          Documento emitido automaticamente — Universidade Metodista de Angola ©{' '}
+          {new Date().getFullYear()}
         </Text>
       </Page>
     </Document>
@@ -274,23 +279,52 @@ export function PaymentReceipt({
   invoice: Invoice
   academicYear: string
 }) {
-  return (
-    <PDFDownloadLink
-      document={
-        <PaymentReceiptDocument invoice={invoice} academicYear={academicYear} />
+  const document = (
+    <PaymentReceiptDocument invoice={invoice} academicYear={academicYear} />
+  )
+
+  // Função para imprimir: gera um blob do PDF e abre em nova aba para imprimir
+  const handlePrint = async () => {
+    try {
+      const blob = await pdf(document).toBlob()
+      const fileURL = URL.createObjectURL(blob)
+      const printWindow = window.open(fileURL)
+      // aguarda janela abrir, depois aciona print
+      if (printWindow) {
+        // Algumas browsers bloqueiam print automático; chamamos quando possível
+        printWindow.focus()
+        printWindow.print()
+      } else {
+        // fallback: abrir o arquivo diretamente (usuário poderá imprimir manualmente)
+        window.open(fileURL, '_blank')
       }
-      fileName={`Recibo_de_pagamento_UMA_${invoice.Codigo}.pdf`}
-    >
-      {({ loading }) => (
-        <Button
-          aria-label="Download Invoice"
-          variant="outline"
-          size="icon"
-          disabled={loading}
-        >
-          <DownloadIcon />
-        </Button>
-      )}
-    </PDFDownloadLink>
+    } catch (error) {
+      console.error('Erro ao gerar/abrir PDF para impressão', error)
+      // opcional: notificar usuário via toast
+    }
+  }
+
+  return (
+    <div className="flex gap-3 pt-4">
+      {/* Botão para descarregar o PDF — ocupa o espaço (flex-1) */}
+      <PDFDownloadLink
+        document={document}
+        fileName={`Recibo_de_pagamento_UMA_${invoice.Codigo}.pdf`}
+      >
+        {({ loading }) => (
+          <Button className="flex-1" disabled={loading} aria-label="Descarregar PDF">
+            <Download className="mr-2 h-4 w-4" />
+            Descarregar PDF
+          </Button>
+        )}
+      </PDFDownloadLink>
+
+      {/* Botão para imprimir — apenas ícone, variante outline */}
+      <Button variant="outline" onClick={handlePrint} aria-label="Imprimir">
+        <Printer className="h-4 w-4" />
+      </Button>
+    </div>
   )
 }
+
+export default PaymentReceipt
