@@ -216,6 +216,7 @@ function PaymentReceiptDocument({
         </View>
 
         {/* ---------- Tabela de itens ---------- */}
+        {/* ---------- Tabela de itens ---------- */}
         <View style={styles.table}>
           <View style={[styles.tableRow, styles.tableHeader]}>
             <Text style={[styles.tableCellHeader, { width: '60%' }]}>
@@ -228,25 +229,31 @@ function PaymentReceiptDocument({
               IVA (Kz)
             </Text>
           </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableCell, { width: '60%' }]}>
-              {invoice.Descricao}
-            </Text>
-            <Text
-              style={[styles.tableCell, { width: '20%', textAlign: 'right' }]}
-            >
-              {Number(invoice.TotalPreco).toFixed(2)}
-            </Text>
-            <Text
-              style={[styles.tableCell, { width: '20%', textAlign: 'right' }]}
-            >
-              {Number(invoice.totalIVA).toFixed(2)}
-            </Text>
-          </View>
+
+          {/* ✅ Mapeamento dos itens de invoice.itens */}
+          {invoice.itens.map((item, index) => (
+            <View style={styles.tableRow} key={index}>
+              <Text style={[styles.tableCell, { width: '60%' }]}>
+                {/* Use item.Descricao aqui */}
+                {item.DescricaoServico}
+              </Text>
+              <Text
+                style={[styles.tableCell, { width: '20%', textAlign: 'right' }]}
+              >
+                {/* Use item.TotalPreco aqui */}
+                {Number(item.Total).toFixed(2)}
+              </Text>
+              <Text
+                style={[styles.tableCell, { width: '20%', textAlign: 'right' }]}
+              >
+                {/* Use item.totalIVA aqui */}
+                {Number(item.taxa_iva).toFixed(2)}
+              </Text>
+            </View>
+          ))}
 
         </View>
 
-        
 
         {/* ---------- Totais ---------- */}
         <View style={styles.totalSection}>

@@ -177,9 +177,10 @@ function InvoiceDetailsDialog({
                 <Card key={item.codigo} className="p-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div>
-                      <p className="font-medium">{item.MesDesignacao || `Item ${idx + 1}`}</p>
+                    
+                      <p className="font-medium"> {item.OBS || item.DescricaoServico || 'Sem descrição'}</p>
                       <p className="text-muted-foreground text-xs">
-                        {item.OBS || item.DescricaoServico || 'Sem descrição'}
+                       {item.MesDesignacao || `Item ${idx + 1}`}
                       </p>
                     </div>
                     <div className="space-y-1">
