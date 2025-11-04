@@ -41,8 +41,6 @@ import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { useQueryClient } from '@tanstack/react-query'
 import { useGenerateReference } from '@/services/finance/generate-reference.service'
 import { checkTaskStatus } from '@/services/finance/check-task-status.service'
-
-// === CORREÇÃO: Importação do Select do shadcn/ui ===
 import {
   Select,
   SelectContent,
@@ -50,7 +48,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-// ===================================================
 
 // --- Chave do localStorage ---
 const PENDING_TASKS_KEY = 'pending_payment_tasks'
@@ -60,10 +57,22 @@ interface PendingTask {
   taskId: string
 }
 
-// --- Hook de Polling ---
+// --- Hook de Polling (CORRIGIDO) ---
 function usePollPendingTasks(invoiceId: number, enrollmentCode: string) {
   const queryClient = useQueryClient()
   const [isPolling, setIsPolling] = React.useState(false)
+
+  // Função auxiliar para invalidar e refetch
+  const refetchInvoices = React.useCallback(() => {
+    // CORREÇÃO CRÍTICA: Usar refetchType: 'all' para garantir que todas as queries
+    // que começam com ['invoices', enrollmentCode] sejam atualizadas,
+    // independentemente da página ou ano letivo específico na chave.
+    queryClient.invalidateQueries({
+      queryKey: ['invoices', enrollmentCode],
+      refetchType: 'all',
+    })
+    console.log(`[Polling] Invalidação de queries para ${enrollmentCode} solicitada.`)
+  }, [enrollmentCode, queryClient])
 
   React.useEffect(() => {
     const pendingTasks: PendingTask[] = JSON.parse(localStorage.getItem(PENDING_TASKS_KEY) || '[]')
@@ -72,45 +81,62 @@ function usePollPendingTasks(invoiceId: number, enrollmentCode: string) {
 
     setIsPolling(true)
     const interval = setInterval(async () => {
+      console.log(`[Polling] Verificando status para a fatura ${invoiceId}...`)
       try {
         const { status } = await checkTaskStatus(task.taskId)
 
-        if (status === 'completed') {
-          toast.success('Referência gerada com sucesso!')
+        const finishPolling = (isSuccess: boolean) => {
+          if (isSuccess) {
+            toast.success('Referência gerada com sucesso! Atualizando faturas.')
+          } else {
+            toast.error('Erro na geração da referência. Tente novamente.')
+          }
           removePendingTask(invoiceId)
-          queryClient.invalidateQueries({ queryKey: ['invoices', enrollmentCode] })
+          refetchInvoices()
           setIsPolling(false)
-        } else if (status === 'error') {
-          toast.error('Erro na geração da referência.')
-          removePendingTask(invoiceId)
-          queryClient.invalidateQueries({ queryKey: ['invoices', enrollmentCode] })
-          setIsPolling(false)
+          clearInterval(interval) // Parar o polling
         }
+
+        if (status === 'completed') {
+          finishPolling(true)
+        } else if (status === 'error') {
+          finishPolling(false)
+        }
+
       } catch (error) {
-        toast.info('Processo finalizado no backend. Atualizando...')
+        // Assume que qualquer erro de rede ou na resposta significa que o processo
+        // foi finalizado ou a task não existe mais no backend.
+        console.error('[Polling] Erro de API ou task finalizada no backend:', error)
+        toast.info('Processo finalizado ou erro de comunicação. Atualizando a lista de faturas.')
         removePendingTask(invoiceId)
-        queryClient.invalidateQueries({ queryKey: ['invoices', enrollmentCode] })
+        refetchInvoices()
         setIsPolling(false)
+        clearInterval(interval) // Parar o polling
       }
     }, 5000)
 
     return () => clearInterval(interval)
-  }, [invoiceId, enrollmentCode, queryClient])
+  }, [invoiceId, enrollmentCode, queryClient, refetchInvoices])
 
   return isPolling
 }
 
-// --- Remove task do localStorage ---
+// --- Remove task do localStorage (Melhorada para logging) ---
 function removePendingTask(invoiceId: number) {
-  const pendingTasks: PendingTask[] = JSON.parse(localStorage.getItem(PENDING_TASKS_KEY) || '[]')
-  const updated = pendingTasks.filter(t => t.invoiceId !== invoiceId)
-  localStorage.setItem(PENDING_TASKS_KEY, JSON.stringify(updated))
+  try {
+    const pendingTasks: PendingTask[] = JSON.parse(localStorage.getItem(PENDING_TASKS_KEY) || '[]')
+    const updated = pendingTasks.filter(t => t.invoiceId !== invoiceId)
+    localStorage.setItem(PENDING_TASKS_KEY, JSON.stringify(updated))
+    console.log(`[LocalStorage] Task ${invoiceId} removida com sucesso.`)
+  } catch (e) {
+    console.error(`[LocalStorage] Falha ao remover task ${invoiceId}:`, e)
+  }
 }
 
 // --- Função para buscar ano letivo ---
 function useFindAcademicYearDesignation(academicYear: AdemicsYear | undefined) {
   return (codigo: number) => {
-    // CORREÇÃO: Certifique-se de que a comparação seja segura (string vs string ou number vs number)
+    // Garantir que a comparação de código (number) seja correta
     const year = academicYear?.anolectivos?.find((y) => y.codigo === String(codigo))
     return year ? year.designacao : 'Unknown'
   }
@@ -245,13 +271,26 @@ function InvoiceDetailsDialog({
             </div>
           </div>
 
-          {/* Botões de ação */}
-          <div className="flex gap-3 pt-4 border-t">
-            <PaymentReceipt
-              invoice={invoice}
-              academicYear={findAcademicYearDesignation(invoice.ano_lectivo)}
-            />
-          </div>
+        {/* Botões de ação */}
+<div className="flex gap-3 pt-4 border-t">
+  <>
+    {invoice.estado === 1 ? (
+      <PaymentReceipt
+      invoice={invoice}
+      academicYear={findAcademicYearDesignation(invoice.ano_lectivo)}
+    />
+    ) : (
+      // Conteúdo 2: FATURA PENDENTE (Seu objetivo)
+      <>
+       
+        <Button variant="default" size="sm">
+          Pagar em Cash/Multicaixa
+        </Button>
+      </>
+    )}
+  </>
+ 
+</div>
         </div>
       </DialogContent>
     </Dialog>
@@ -274,19 +313,13 @@ export function InvoicesTable({
   const [page, setPage] = React.useState(1);
   const limit = 10;
   
-  // === CORREÇÃO: Incluir selectedAcademicYear na query ===
-  // O hook useQueryInvoices precisa aceitar o ano letivo para filtrar no backend.
-  // Assumo que o terceiro parâmetro seja o academicYearCode (string)
   const { data, isLoading, isError } = useQueryInvoices({ 
     enrollmentCode, 
     page, 
     limit,
-    academicYear: selectedAcademicYear // Adicionado para filtrar
+    academicYear: selectedAcademicYear // Filtro aplicado corretamente
   })
-  // Se o hook useQueryInvoices não aceitar academicYearCode, você deve ajustá-lo.
-  // Se aceita, este é o uso correto aqui.
 
-  // === USANDO O NOVO SERVICE ===
   const gerarRefMutation = useGenerateReference()
 
   const findAcademicYearDesignation = useFindAcademicYearDesignation(academicYear)
@@ -317,8 +350,6 @@ export function InvoicesTable({
     return <InvoicesTableSkeleton />
   }
   
-  // CORREÇÃO DE ESTRUTURA: O Select está agora importado corretamente e 
-  // com a estrutura do shadcn/ui.
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
@@ -332,14 +363,11 @@ export function InvoicesTable({
             onValueChange={handleYearChange} // Usando a função de tratamento
           >
             <SelectTrigger className="w-[180px]">
-              {/* CORREÇÃO: O SelectValue deve estar dentro do SelectTrigger */}
               <SelectValue placeholder="Selecione o Ano Lectivo" />
             </SelectTrigger>
 
-            {/* CORREÇÃO: SelectContent precisa de um wrapper para funcionar corretamente com portais (se necessário), mas a estrutura básica é essa. */}
             <SelectContent>
               {academicYears.anolectivos.map((year) => (
-                // CORREÇÃO: O valor do SelectItem deve ser o código (string)
                 <SelectItem key={year.codigo} value={year.codigo}>
                   {year.designacao}
                 </SelectItem>
@@ -437,7 +465,7 @@ export function InvoicesTable({
   )
 }
 
-// --- Colunas (Sem Alterações) ---
+// --- Colunas ---
 function useColumnsInvoiceTable({
   gerarRefMutation,
   enrollmentCode,
