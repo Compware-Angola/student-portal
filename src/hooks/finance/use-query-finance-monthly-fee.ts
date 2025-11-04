@@ -21,7 +21,6 @@ export function useQueryFinanceMonthlyFee({
   page = 1, // Definindo valor padrão aqui
   limit = 10, // Definindo valor padrão aqui
 }: UseQueryFinanceMonthlyFeeParams) {
-
   // O Type Guard garante que só buscaremos se tivermos o mínimo necessário.
   const isEnabled = !!academicYear && !!enrollmentCode
 
@@ -41,7 +40,9 @@ export function useQueryFinanceMonthlyFee({
     queryFn: async () => {
       if (!isEnabled) {
         // Isso não deve ocorrer se 'enabled' for false, mas é um bom fallback
-        throw new Error('Parâmetros de Ano Lectivo ou Matrícula estão faltando.')
+        throw new Error(
+          'Parâmetros de Ano Lectivo ou Matrícula estão faltando.',
+        )
       }
 
       // 3. Chama getmonthlyFee passando o objeto params completo

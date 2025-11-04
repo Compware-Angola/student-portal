@@ -1,4 +1,4 @@
-import { apexApi } from "@/lib/apex-api"
+import { apexApi } from '@/lib/apex-api'
 
 export type SupportPayload = {
   descricao: string
@@ -14,7 +14,7 @@ export type RespostaMensagens = {
 
 export async function createSupport(
   UserId: string,
-  payload: SupportPayload
+  payload: SupportPayload,
 ): Promise<RespostaMensagens> {
   try {
     const response = await apexApi

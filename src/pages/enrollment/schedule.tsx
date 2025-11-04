@@ -24,10 +24,10 @@ import { useQueryCurriculumSchedule } from '@/hooks/curriculum/use-query-curricu
 import { useEffect, useState } from 'react'
 import { useEnrollment } from './hooks/use-enrollment'
 import { toast } from 'sonner'
+import type { Grade } from '@/types/grade'
 
 interface ScheduleSelectionDialogProps {
-  subjectName: string
-  codigoGrade: string
+  subject: Grade
 }
 
 // Componente de Skeleton para Loading
@@ -107,13 +107,13 @@ const EmptyState = () => {
 }
 
 export const ScheduleSelectionDialog = ({
-  codigoGrade,
-  subjectName,
+  subject,
 }: ScheduleSelectionDialogProps) => {
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState<string | undefined>(undefined)
 
-  const { selectScheduleForSubject, selectedSchedules } = useEnrollment()
+  const { selectScheduleForSubject, selectedSchedules, toggleSubject } =
+    useEnrollment()
 
   const groupAulasByDay = (aulas: LessonDetail[]) => {
     const grouped: Record<string, LessonDetail[]> = {}
@@ -135,7 +135,7 @@ export const ScheduleSelectionDialog = ({
   } = useQueryCurriculumSchedule(
     {
       academicYear: profileData?.confirmacoes[0]?.ano_lectivo!,
-      gradeCurricular: codigoGrade,
+      gradeCurricular: subject?.codigoGrade,
       preocidade: profileData?.periodoId!,
     },
     open && !!profileData,
@@ -147,14 +147,15 @@ export const ScheduleSelectionDialog = ({
     }
   }, [isError])
 
-  const selectedSchedule = selectedSchedules[codigoGrade]
+  const selectedSchedule = selectedSchedules[subject.codigoGrade]
 
   const handleSelectHorario = (schedule: Schedule) => {
-    selectScheduleForSubject(codigoGrade, {
+    selectScheduleForSubject(subject.codigoGrade, {
       codigoHorario: schedule.codigo_horario,
       descHorario: schedule.nome_horario,
     })
     setTitle(schedule.nome_horario)
+    toggleSubject(subject)
     setOpen(false)
   }
 
@@ -177,7 +178,7 @@ export const ScheduleSelectionDialog = ({
       <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl">
-            Selecionar Horário - {subjectName}
+            Selecionar Horário - {subject.disciplina}
           </DialogTitle>
         </DialogHeader>
 

@@ -1,5 +1,7 @@
-
-import { getNewStudentConfirmationActivity, type NewStudentConfirmationActivityResponse } from '@/services/academic/get-academic-enrollment-time.service'
+import {
+  getNewStudentConfirmationActivity,
+  type NewStudentConfirmationActivityResponse,
+} from '@/services/academic/get-academic-enrollment-time.service'
 import { useQuery } from '@tanstack/react-query'
 
 type Params = {

@@ -6,7 +6,7 @@ export type EnrollmentContextType = {
     new: boolean
     pendents: boolean
   }
-  isNewStudent: boolean
+  isNewStudentWithOutEnrollment: boolean
   totalValue: number
   toggleSubject: (subject: Grade) => void
   isSelected: (subject: Grade) => boolean
@@ -14,12 +14,9 @@ export type EnrollmentContextType = {
   selectAll: () => void
   pendingSubjects: Grade[]
   isAllSelected: () => boolean
-  error: Error | null
-  isLoading: boolean
   remove: (codigoGrade: string) => void
   removeAll: () => void
   subject: Grade[]
-  isError: boolean
   confirmStudentEnrollment: () => void
   confirmStudentEnrollmentState: boolean
   selectedSchedules: Record<string, SelectedSchedule>
@@ -28,6 +25,13 @@ export type EnrollmentContextType = {
     horario: SelectedSchedule,
   ) => void
   removeScheduleForSubject: (codigoGrade: string) => void
+  isLoadingStudentCurriculumPlan: boolean
+  isErrorStudentCurriculumPlan: boolean
+  isLoadingStudentCurriculumPlanPendents: boolean
+  isErrorStudentCurriculumPlanPendents: boolean
+  isLoadingProfileData: boolean
+  isErrorProfileData: boolean
+  enrollmentState: boolean
 }
 export type SectionKey = 'new' | 'pendents'
 

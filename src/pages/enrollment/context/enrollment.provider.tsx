@@ -14,6 +14,8 @@ import type { CreateInvoiceBody } from '@/services/invoice/post-invoice.service'
 import { useMutationCreatePaymentReferenceMensalidades } from '@/hooks/invoice/use-mutation-payment-monthly'
 import type { CreatePaymentReferenceBody } from '@/services/invoice/post-invoice-monthly.service'
 import { useQueryMonthlyFeesValue } from '@/hooks/finance/use-query-monthly-fee'
+import { useQueryStudentSituation } from '@/hooks/student/use-query-student-situation'
+import { StudentSituation } from '@/constants/student-situation'
 
 type ToggleState = {
   new: boolean
@@ -28,23 +30,44 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     new: true,
     pendents: true,
   })
-
+  // Busaca de dados
   const {
     profileData,
-    isLoading: profileLoading,
-    error: profileError,
-    isError: profileIsError,
+    isLoading: isLoadingProfileData,
+    isError: isErrorProfileData,
   } = useQueryProfile()
 
+  const { data: studentSituation } = useQueryStudentSituation({
+    preErrolmentCode: profileData?.preEnrollmentCode,
+  })
+  const shouldFecthCurriculumPlan =
+    StudentSituation.NEW_WITHOUT_ENROLLMENT ===
+      Number(studentSituation?.codigo_status) ||
+    StudentSituation.OLD_WITH_CURRENT_CONFIRMATION ===
+      Number(studentSituation?.codigo_status)
   const {
     data: grades,
-    error: studentCurriculumPlanError,
-    isLoading: studentCurriculumPlanLoading,
-    isError: studentCurriculumPlanIsError,
-  } = useQueryCurriculumPlan({
-    class: profileData?.confirmacoes?.[0]?.classe ?? '1',
-    course: profileData?.codigo_curso,
-  })
+    isLoading: isLoadingStudentCurriculumPlan,
+    isError: isErrorStudentCurriculumPlan,
+  } = useQueryCurriculumPlan(
+    {
+      class: profileData?.confirmacoes?.[0]?.classe ?? '1',
+      course: profileData?.codigo_curso,
+    },
+    shouldFecthCurriculumPlan,
+  )
+
+  const shouldFecthCurriculumPlanPendents =
+    StudentSituation.OLD_WITHOUT_CURRENT_CONFIRMATION ===
+    Number(studentSituation?.codigo_status)
+  const {
+    data: pendentsGrades,
+    isLoading: isLoadingStudentCurriculumPlanPendents,
+    isError: isErrorStudentCurriculumPlanPendents,
+  } = useQueryCurriculumPlanPendents(
+    profileData?.preEnrollmentCode,
+    shouldFecthCurriculumPlanPendents,
+  )
 
   const { createPaymentReference } =
     useMutationCreatePaymentReferenceMensalidades()
@@ -67,17 +90,10 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     confirmOldStudentEnrollmentAsync,
     confirmOldStudentEnrollmentPending,
   } = useMutationConfirmOldStudentEnrollment()
-  const isNewStudent =
-    profileData?.codigo_matricula === undefined ? true : false
-  const {
-    data: pendentsGrades,
-    error: studentCurriculumPlanPendentsError,
-    isLoading: studentCurriculumPlanPendentsLoading,
-    isError: studentCurriculumPlanPendentsIsError,
-  } = useQueryCurriculumPlanPendents(
-    profileData?.preEnrollmentCode,
-    !isNewStudent,
-  )
+
+  const isNewStudentWithOutEnrollment =
+    StudentSituation.NEW_WITHOUT_ENROLLMENT ===
+    Number(studentSituation?.codigo_status)
 
   // Horários selecionados por disciplina (mapeados pelo código da grade)
   const [selectedSchedules, setSelectedSchedules] = useState<
@@ -108,7 +124,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     )
   }
   const toggleSubject = (subject: Grade) => {
-    if (isNewStudent) {
+    if (isNewStudentWithOutEnrollment) {
       toast.warning('Novo estudante não pode remover disciplinas obrigatórias.')
       return
     }
@@ -169,7 +185,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     const allSubjects = [...grades, ...pendentsGrades]
     const allSelected = isAllSelected()
 
-    if (isNewStudent) {
+    if (isNewStudentWithOutEnrollment) {
       if (allSelected) {
         toast.warning(
           'Novo estudante deve manter todas as disciplinas selecionadas.',
@@ -191,7 +207,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
   }
 
   const removeAll = () => {
-    if (isNewStudent) {
+    if (isNewStudentWithOutEnrollment) {
       toast.warning('Novo estudante não pode remover disciplinas obrigatórias.')
       return
     }
@@ -255,13 +271,16 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
       throw new Error('Erro ao gerar as mensalidades')
     }
     const monthlyValue = monthlyFeeValue[0]
-    const invoiceData : CreatePaymentReferenceBody = {
+    if (!profileData) {
+      throw new Error('profile data nont found')
+    }
+    const invoiceData: CreatePaymentReferenceBody = {
       amount: parseFloat(monthlyValue.preco),
       currency: 'AOA',
       description: 'Pagamento da mensalidade académica',
       enrollment: {
         CodigoMatricula: enrollmentCode,
-        codigo_preinscricao: parseInt(profileData?.preEnrollmentCode!),
+        codigo_preinscricao: parseInt(profileData?.preEnrollmentCode),
       },
       itens: [
         {
@@ -308,11 +327,11 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
       11511,
       enrollmentCode,
     )
-    createMonthlyPayments(enrollmentCode);
+    createMonthlyPayments(enrollmentCode)
   }
   const confirmStudentEnrollment = async () => {
     // ====== 📚 NOVO ESTUDANTE ======
-    if (isNewStudent) {
+    if (isNewStudentWithOutEnrollment) {
       if (!grades) {
         toast.error('Disciplinas obrigatórias não selecionadas.')
         return
@@ -369,18 +388,12 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     <EnrollmentContext.Provider
       value={{
         selectedSubjects,
-        isLoading:
-          studentCurriculumPlanLoading ||
-          profileLoading ||
-          studentCurriculumPlanPendentsLoading,
-        isError:
-          profileIsError ||
-          studentCurriculumPlanIsError ||
-          studentCurriculumPlanPendentsIsError,
-        error:
-          profileError ||
-          studentCurriculumPlanError ||
-          studentCurriculumPlanPendentsError,
+        isErrorProfileData,
+        isErrorStudentCurriculumPlan,
+        isErrorStudentCurriculumPlanPendents,
+        isLoadingProfileData,
+        isLoadingStudentCurriculumPlan,
+        isLoadingStudentCurriculumPlanPendents,
         isExpanded,
         subject: grades ?? [],
         pendingSubjects: pendentsGrades ?? [],
@@ -399,8 +412,12 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
         removeScheduleForSubject,
         selectScheduleForSubject,
         selectedSchedules,
-
-        isNewStudent,
+        isNewStudentWithOutEnrollment,
+        enrollmentState:
+          StudentSituation.OLD_WITHOUT_CURRENT_CONFIRMATION ===
+            Number(studentSituation?.codigo_matricula) ||
+          StudentSituation.NEW_WITH_CURRENT_CONFIRMATION ===
+            Number(studentSituation?.codigo_matricula),
       }}
     >
       {children}

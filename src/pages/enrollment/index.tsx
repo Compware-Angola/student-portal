@@ -8,15 +8,41 @@ import { useEnrollment } from './hooks/use-enrollment'
 import { EnrollmentSkeleton } from './components/enrollment-skeleton'
 
 import { Badge } from '@/components/ui/badge'
+import { useEffect } from 'react'
 
 function EnrollmentContent() {
-  const { subject, isLoading, isError, pendingSubjects, isNewStudent } =
-    useEnrollment()
-
-  if (isLoading || isError) {
-    if (isError) {
-      toast.error('Erro ao carregar dados')
+  const {
+    subject,
+    isLoadingProfileData,
+    isLoadingStudentCurriculumPlan,
+    isLoadingStudentCurriculumPlanPendents,
+    isErrorProfileData,
+    isErrorStudentCurriculumPlan,
+    isErrorStudentCurriculumPlanPendents,
+    pendingSubjects,
+    isNewStudentWithOutEnrollment,
+  } = useEnrollment()
+  useEffect(() => {
+    if (isErrorProfileData) {
+      toast.error('Erro ao carregar dados do estudante')
     }
+    if (isErrorStudentCurriculumPlan) {
+      toast.error('Erro ao carregar as grades curriculares')
+    }
+    if (isErrorStudentCurriculumPlanPendents) {
+      toast.error('Erro ao carregar as grandes curriculares pendentes')
+    }
+  }, [
+    isErrorProfileData,
+    isErrorStudentCurriculumPlan,
+    isErrorStudentCurriculumPlanPendents,
+  ])
+  if (
+    isLoadingProfileData ||
+    isErrorProfileData ||
+    isLoadingStudentCurriculumPlan ||
+    isLoadingStudentCurriculumPlanPendents
+  ) {
     return <EnrollmentSkeleton />
   }
 
@@ -30,7 +56,7 @@ function EnrollmentContent() {
           <div className="flex items-center justify-between my-2">
             <p>Disciplinas Disponíveis</p>
             <Badge variant="outline">
-              {isNewStudent ? 'Aluno Novo' : 'Aluno Antigo'}
+              {isNewStudentWithOutEnrollment ? 'Aluno Novo' : 'Aluno Antigo'}
             </Badge>
           </div>
         </div>

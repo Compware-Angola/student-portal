@@ -16,7 +16,7 @@ export function SubjectCard({
   toggleSubject,
 }: SubjectCardProps) {
   const selected = isSelected(subject)
-  const { isNewStudent } = useEnrollment()
+  const { isNewStudentWithOutEnrollment } = useEnrollment()
 
   return (
     <div className="rounded-lg border p-4 space-y-4">
@@ -42,21 +42,13 @@ export function SubjectCard({
             </p>
           </div>
 
-          {!isNewStudent && (
+          {!isNewStudentWithOutEnrollment && (
             <div className="space-y-2">
               <p className="text-sm font-medium">
                 Selecionar Horário (Obrigatório)
               </p>
               <ScheduleSelectionDialog
-                codigoGrade={subject.codigoGrade}
-                subjectName={subject.disciplina}
-              />
-            </div>
-          )}
-
-          {isNewStudent && (
-            <div className="space-y-2">
-              <ScheduleSelectionDialog
+                subject={subject}
                 codigoGrade={subject.codigoGrade}
                 subjectName={subject.disciplina}
               />

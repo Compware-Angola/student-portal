@@ -36,7 +36,7 @@ function SummaryCard({
 }
 
 export function EnrollmentSummaryCards() {
-  const { selectedSubjects, totalValue } = useEnrollment()
+  const { selectedSubjects, enrollmentState } = useEnrollment()
 
   const cards = [
     {
@@ -45,22 +45,25 @@ export function EnrollmentSummaryCards() {
       value: selectedSubjects.length,
       description: 'Total selecionadas',
     },
-    {
-      icon: CurrencyIcon,
-      title: 'Valor Total',
-      value: formatCurrency(totalValue),
-      description: '',
-    },
+    // {
+    //   icon: CurrencyIcon,
+    //   title: 'Valor Total',
+    //   value: formatCurrency(totalValue),
+    //   description: '',
+    // },
     {
       icon: LibraryBig,
       title: 'Estado',
-      value: <Badge className="bg-blue-100 text-blue-800">Em andamento</Badge>,
-      description: 'Matrícula aberta',
+      value: (
+        <Badge className="bg-blue-100 text-blue-800">
+          {enrollmentState ? 'Matriculado' : 'Matricula Aberta'}
+        </Badge>
+      ),
     },
   ]
 
   return (
-    <div className="grid gap-4 md:grid-cols-3">
+    <div className="grid gap-4 md:grid-cols-2">
       {cards.map((card, index) => (
         <SummaryCard key={index} {...card} />
       ))}
