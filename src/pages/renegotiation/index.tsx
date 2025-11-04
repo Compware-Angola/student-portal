@@ -80,16 +80,7 @@ interface PaymentReference {
   expirationDate: string
 }
 
-interface InvoiceItem {
-  description: string
-  value: number
-  status: string
-  references: {
-    referenceNumber: string
-    startDate: string
-    expirationDate: string
-  }[]
-}
+
 
 export const Renegociation = () => {
   const {
@@ -116,7 +107,7 @@ export const Renegociation = () => {
   const [paymentReferences, setPaymentReferences] = useState<
     PaymentReference[]
   >([])
-  const [, setInvoices] = useState<InvoiceItem[]>([])
+
   const [searchData, setSearchData] = useState<SearchDebtFormData | null>(null)
 
   const searchForm = useForm<SearchDebtFormData>({
@@ -209,19 +200,6 @@ export const Renegociation = () => {
     }
   }
 
-  const onListInvoices = async () => {
-    try {
-      const response = await apexApi
-        .get<InvoiceItem[]>(`v1/renegotiation/${41309}`)
-        .json()
-      setInvoices(response)
-    } catch (error) {
-      console.error(error)
-      toast.error(
-        error instanceof Error ? error.message : 'Erro ao listar Renegociações',
-      )
-    }
-  }
 
   const formatCurrency = (value: number) => {
     return `${value.toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Kz`
