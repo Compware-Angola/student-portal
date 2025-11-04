@@ -54,7 +54,7 @@ const data = {
 
     { title: 'Disciplinas', url: '/disciplinas', icon: Library },
 
-    { title: 'Mensagens', url: '/mensagens', icon: MessageSquare },
+    { title: 'Mensagens & Comunicados', url: '/mensagens', icon: MessageSquare },
     { title: 'Suporte', url: '/suporte', icon: HelpCircle },
 
     { title: 'Pagamento', url: '/notas-pagamento', icon: Receipt },
