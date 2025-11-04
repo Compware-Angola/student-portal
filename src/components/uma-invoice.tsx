@@ -228,7 +228,6 @@ function PaymentReceiptDocument({
               IVA (Kz)
             </Text>
           </View>
-
           <View style={styles.tableRow}>
             <Text style={[styles.tableCell, { width: '60%' }]}>
               {invoice.Descricao}
@@ -244,7 +243,10 @@ function PaymentReceiptDocument({
               {Number(invoice.totalIVA).toFixed(2)}
             </Text>
           </View>
+
         </View>
+
+        
 
         {/* ---------- Totais ---------- */}
         <View style={styles.totalSection}>
