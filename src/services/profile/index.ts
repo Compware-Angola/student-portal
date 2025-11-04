@@ -29,6 +29,7 @@ export interface StudentProfile {
   confirmacoes: Confirmac[]
   saldo_actual: string
   saldo_anterior: string
+  userId: string
   codigo_tipo_candidatura: string
 }
 

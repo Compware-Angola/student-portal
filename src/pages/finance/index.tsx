@@ -8,7 +8,6 @@ import { InvoicesTable } from './componets/invoice-table'
 import { useFinance } from './hooks/use-finance'
 import { toast } from 'sonner'
 import { FinanceSkeleton } from './componets/finance-skeleton'
-import { ServicesList } from './componets/services-list'
 import { useQueryAcademicYear } from '@/hooks/academic-year/use-query-academic-year'
 
 function Content() {
