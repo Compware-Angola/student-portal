@@ -17,7 +17,7 @@ import {
   MessageSquare,
   Receipt,
   User,
-  Wallet,
+
 } from 'lucide-react'
 
 import { NavMain } from '@/components/layout/components/nav-main'
@@ -46,12 +46,12 @@ const data = {
     },
     { title: 'Pré-Inscrição', url: '/pre-inscricao', icon: ClipboardList },
     { title: 'Perfil', url: '/perfil', icon: User },
-    {
+  
+    /* {
       title: 'Pagamento Antecipado',
       url: '/pagamento-antecipado',
       icon: Wallet,
-    },
-
+    }, */
     { title: 'Disciplinas', url: '/disciplinas', icon: Library },
 
     { title: 'Mensagens & Comunicados', url: '/mensagens', icon: MessageSquare },
