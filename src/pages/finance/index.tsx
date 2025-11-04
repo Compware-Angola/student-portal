@@ -3,12 +3,13 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { FinanceProvider } from './context/finance.provider'
 import { FinanceStats } from './componets/finance-stats'
-import { PaymentList } from './componets/payment-list'
+
 import { InvoicesTable } from './componets/invoice-table'
 import { useFinance } from './hooks/use-finance'
 import { toast } from 'sonner'
 import { FinanceSkeleton } from './componets/finance-skeleton'
 import { useQueryAcademicYear } from '@/hooks/academic-year/use-query-academic-year'
+import { PaymentList } from './componets/payment-list'
 
 function Content() {
   const { isLoading: isAcademicYearLoading, data: academicYearData } =
@@ -80,7 +81,9 @@ function Content() {
   </TabsContent>
 
   <TabsContent value="invoices" className="mt-6">
-    <InvoicesTable enrollmentCode={profileData.enrollmentCode} />
+    <InvoicesTable academicYear={academicYearData?.anolectivos[0].codigo}
+      enrollmentCode={profileData.enrollmentCode}
+      academicYears={academicYearData || []}/>
   </TabsContent>
 </Tabs>
     </div>

@@ -95,10 +95,11 @@ export type InvoiceResponse = {
   totalPages: number
 }
 
-type InvoiceSearchParams = {
+export type InvoiceSearchParams = {
   page?: number
   limit?: number
   enrollmentCode: string
+  academicYear:string
 }
 
 export async function getInvoicesByMatricula(
@@ -109,6 +110,7 @@ export async function getInvoicesByMatricula(
     .get('invoices/by-matricula', {
       searchParams: {
         codigoMatricula: searchParams.enrollmentCode,
+        academicYear: searchParams.academicYear,
         page: searchParams.page,
         limit: searchParams.limit,
       },

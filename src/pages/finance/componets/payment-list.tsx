@@ -78,7 +78,7 @@ export function PaymentList({
 
         <div className="flex items-center gap-2">
           
-<Calendar className="h-5 w-5 text-muted-foreground" />
+        <Calendar className="h-5 w-5 text-muted-foreground" />
           <Select
             value={selectedAcademicYear}
             onValueChange={(value) => {
