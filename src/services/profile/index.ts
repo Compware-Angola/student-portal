@@ -25,11 +25,13 @@ export interface StudentProfile {
   periodo: string
   periodoId: string
   max_cadeiras_curso: string
+  curso_candidatura: string
   polo: string
   confirmacoes: Confirmac[]
   saldo_actual: string
   saldo_anterior: string
   userId: string
+  poloId: string
   codigo_tipo_candidatura: string
 }
 

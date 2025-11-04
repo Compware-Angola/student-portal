@@ -4,9 +4,16 @@ type ConfirmEnrolmentNewStudentBody = {
   grades: string[]
 }
 
+type EnrollmentResponse = {
+  Codigo_Matricula: number;
+  Numero_Aluno: number;
+  codresposta: number;
+  msgresposta: string;
+};
+
 export function confirmEnrolmentNewStudent(
   params: ConfirmEnrolmentNewStudentBody,
-): Promise<void> {
+): Promise<EnrollmentResponse> {
   return apexApi
     .post(`enrollment/newstudent/${params.studentId}`, {
       json: { grades: params.grades },
