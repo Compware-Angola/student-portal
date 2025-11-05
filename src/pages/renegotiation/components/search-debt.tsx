@@ -1,11 +1,11 @@
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -13,27 +13,29 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import {
+  Select,
   SelectContent,
   SelectItem,
-  Select,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@/components/ui/select';
+import { Search, Loader2 } from 'lucide-react';
+import z from 'zod';
+import type { searchDebtSchema } from '../schemas';
+import type { UseFormReturn } from 'react-hook-form';
 
-import { Search } from 'lucide-react'
-import z from 'zod'
-import type { searchDebtSchema } from '../schemas'
-import type { UseFormReturn } from 'react-hook-form'
+type SearchDebtFormData = z.infer<typeof searchDebtSchema>;
 
-type SearchDebtFormData = z.infer<typeof searchDebtSchema>
 type SearchDebtProps = {
-  searchForm: UseFormReturn<SearchDebtFormData>
-  onSearchDebt: (data: SearchDebtFormData) => Promise<void>
-}
-export function SearchDebt({ searchForm, onSearchDebt }: SearchDebtProps) {
+  searchForm: UseFormReturn<SearchDebtFormData>;
+  onSearchDebt: (data: SearchDebtFormData) => Promise<void>;
+  isSearching: boolean; // ADICIONADO AQUI
+};
+
+export function SearchDebt({ searchForm, onSearchDebt, isSearching }: SearchDebtProps) {
   return (
     <Card>
       <CardHeader>
@@ -46,7 +48,6 @@ export function SearchDebt({ searchForm, onSearchDebt }: SearchDebtProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {/* */}
         <Form {...searchForm}>
           <form
             onSubmit={searchForm.handleSubmit(onSearchDebt)}
@@ -65,22 +66,24 @@ export function SearchDebt({ searchForm, onSearchDebt }: SearchDebtProps) {
                 </FormItem>
               )}
             />
-            <FormField disabled
+
+            <FormField
+            
               control={searchForm.control}
               name="academicYear"
               render={({ field }) => (
                 <FormItem >
                   <FormLabel>Ano Académico</FormLabel>
-                  <Select
+                  <Select disabled
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
-                    <FormControl >
-                      <SelectTrigger >
-                        <SelectValue placeholder="Selecione o ano académico" aria-disabled />
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o ano académico" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent >
+                    <SelectContent>
                       <SelectItem value="2020-2021">2020-2021</SelectItem>
                       <SelectItem value="2021-2022">2021-2022</SelectItem>
                       <SelectItem value="2022-2023">2022-2023</SelectItem>
@@ -93,13 +96,23 @@ export function SearchDebt({ searchForm, onSearchDebt }: SearchDebtProps) {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full">
-              <Search className="mr-2 h-4 w-4" />
-              Buscar Dívidas
+
+            <Button type="submit" className="w-full" disabled={isSearching}>
+              {isSearching ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Pesquisando...
+                </>
+              ) : (
+                <>
+                  <Search className="mr-2 h-4 w-4" />
+                  Buscar Dívidas
+                </>
+              )}
             </Button>
           </form>
         </Form>
       </CardContent>
     </Card>
-  )
+  );
 }

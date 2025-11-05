@@ -26,7 +26,7 @@ export function useQueryGetDebit({
         }
         return getDebit({ enrollmentCode, preinscricao, type })
       },
-      enabled: isEnabled,
+      enabled:Boolean(isEnabled) ,
       staleTime: Infinity,
       retry: 0,
     },
