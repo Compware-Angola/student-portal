@@ -13,10 +13,9 @@ import {
   AlertCircle,
   Calculator,
   CheckCircle2,
-
   Mail,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -49,7 +48,7 @@ import {
 } from '@/services/renegotiation/renegotiation.service';
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year';
 
-// === SCHEMA COM TIPO DE RENEGOCIAÇÃO ===
+// === SCHEMA ===
 const simulateNegotiationSchema = z.object({
   academicYear: z.string().min(1, 'Ano académico é obrigatório'),
   enrollmentCode: z.string().min(1, 'Código de matrícula é obrigatório'),
@@ -103,7 +102,24 @@ export const Renegociation = () => {
     },
   });
 
-  // === LOADING SKELETON ===
+  // === ATUALIZA PAGAMENTO INICIAL AO MUDAR TIPO ===
+  useEffect(() => {
+    const subscription = simulateForm.watch((value, { name }) => {
+      if (name === 'negotiationType' && value.totalAmount != null) {
+        const total = value.totalAmount as number;
+        const type = value.negotiationType as 'Total' | 'Parcial' | undefined;
+
+        if (type === 'Total') {
+          simulateForm.setValue('initialPayment', total);
+        } else if (type === 'Parcial') {
+          simulateForm.setValue('initialPayment', Math.round(total / 2));
+        }
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [simulateForm]);
+
+  // === LOADING ===
   if (isLoadingProfile || !profileData) {
     return <RenegociationSkeleton />;
   }
@@ -127,7 +143,7 @@ export const Renegociation = () => {
       simulateForm.setValue('enrollmentCode', data.enrollmentCode);
       simulateForm.setValue('totalAmount', result.totalDivida);
       setStep('simulate');
-
+      toast.success('Dívidas carregadas com sucesso');
     } catch (error: any) {
       console.error(error);
       if (error.response?.status === 404) {
@@ -140,14 +156,14 @@ export const Renegociation = () => {
     }
   };
 
-  // === SIMULAR (avança para confirmação) ===
+  // === SIMULAR ===
   const onSimulateNegotiation = async (data: SimulateNegotiationFormData) => {
     setSimulationData(data);
     setStep('confirm');
     toast.success('Pronto para confirmar a renegociação');
   };
 
-  // === CONFIRMAR RENEGOCIAÇÃO (payload real) ===
+  // === CONFIRMAR ===
   const onConfirmNegotiation = async () => {
     if (!debtData || !simulationData) return;
 
@@ -191,17 +207,14 @@ export const Renegociation = () => {
         somaValorDividaRecurso: debtData.somaValorDividaRecurso || 0,
       };
 
-      // === AQUI VOCÊ VAI CHAMAR O apexApi.post() ===
-      // const response = await apexApi.post('/v1/renegotiation/confirmation', { json: payload }).json();
-      // setPaymentReferences(response);
-
-      // MOCK TEMPORÁRIO
       console.log('Payload enviado:', payload);
+      // const response = await apexApi.post(...).json();
+      // setPaymentReferences(response);
       toast.success('Renegociação confirmada com sucesso!');
       setStep('complete');
     } catch (error: any) {
-      console.error('Erro ao confirmar:', error);
-      toast.error(error.response?.data?.message || 'Erro ao confirmar renegociação');
+      console.error('Erro:', error);
+      toast.error(error.response?.data?.message || 'Erro ao confirmar');
     }
   };
 
@@ -212,7 +225,7 @@ export const Renegociation = () => {
   const formatDate = (dateString: string) =>
     new Date(dateString).toLocaleDateString('pt-AO');
 
-  // === RESETAR FLUXO ===
+  // === RESET ===
   const resetProcess = () => {
     setStep('search');
     setDebtData(null);
@@ -246,9 +259,9 @@ export const Renegociation = () => {
       {/* PASSO 2: SIMULAR */}
       {step === 'simulate' && debtData && (
         <>
-          {/* Resumo da Dívida */}
           {debtData.totalDivida > 0 ? (
             <>
+              {/* Resumo */}
               <Card className="border-warning">
                 <CardHeader>
                   <div className="flex items-center justify-between">
@@ -257,10 +270,10 @@ export const Renegociation = () => {
                         <AlertCircle className="h-5 w-5 text-warning" />
                         Dívidas Encontradas
                       </CardTitle>
-                      <CardDescription>Faturas pendentes de pagamento</CardDescription>
+                      <CardDescription>Faturas pendentes</CardDescription>
                     </div>
                     <Badge variant="outline" className="text-warning border-warning">
-                      {debtData.size} Quantidade(s)
+                      {debtData.size} item(s)
                     </Badge>
                   </div>
                 </CardHeader>
@@ -287,14 +300,14 @@ export const Renegociation = () => {
                 </CardContent>
               </Card>
 
-              {/* Formulário de Simulação */}
+              {/* Formulário */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Calculator className="h-5 w-5" />
                     Renegociar Dívida
                   </CardTitle>
-                  <CardDescription>Escolha o tipo e defina o pagamento inicial</CardDescription>
+                  <CardDescription>Escolha o tipo e ajuste o pagamento inicial</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Form {...simulateForm}>
@@ -302,6 +315,7 @@ export const Renegociation = () => {
                       onSubmit={simulateForm.handleSubmit(onSimulateNegotiation)}
                       className="space-y-4"
                     >
+                      {/* Total */}
                       <FormField
                         control={simulateForm.control}
                         name="totalAmount"
@@ -316,6 +330,7 @@ export const Renegociation = () => {
                         )}
                       />
 
+                      {/* Tipo */}
                       <FormField
                         control={simulateForm.control}
                         name="negotiationType"
@@ -330,7 +345,7 @@ export const Renegociation = () => {
                               </FormControl>
                               <SelectContent>
                                 <SelectItem value="Total">Total (pagar tudo)</SelectItem>
-                                <SelectItem value="Parcial">Parcial (em prestações)</SelectItem>
+                                <SelectItem value="Parcial">Parcial (50% inicial)</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -338,6 +353,7 @@ export const Renegociation = () => {
                         )}
                       />
 
+                      {/* Pagamento Inicial */}
                       <FormField
                         control={simulateForm.control}
                         name="initialPayment"
@@ -375,7 +391,6 @@ export const Renegociation = () => {
               </Card>
             </>
           ) : (
-            /* CARD VAZIO – MELHORADO */
             <Card className="border-success/20 bg-success/5">
               <CardContent className="flex flex-col items-center justify-center py-12 text-center">
                 <div className="bg-success/10 border-2 border-success/30 rounded-full p-4 mb-4">
@@ -385,7 +400,7 @@ export const Renegociation = () => {
                   Nenhuma Dívida Pendente
                 </h3>
                 <p className="text-sm text-muted-foreground max-w-md mb-4">
-                  Parabéns! Você está em dia com suas obrigações financeiras. Não há dívidas para renegociar no momento.
+                  Parabéns! Você está em dia com suas obrigações financeiras.
                 </p>
                 <Button variant="outline" size="sm" onClick={resetProcess}>
                   <Mail className="mr-2 h-4 w-4" />
@@ -405,7 +420,7 @@ export const Renegociation = () => {
               <CheckCircle2 className="h-5 w-5" />
               Confirmar Renegociação
             </CardTitle>
-            <CardDescription>Revise os detalhes antes de confirmar</CardDescription>
+            <CardDescription>Revise os detalhes</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
@@ -458,20 +473,20 @@ export const Renegociation = () => {
               <CheckCircle2 className="h-5 w-5" />
               Renegociação Confirmada!
             </CardTitle>
-            <CardDescription>Suas referências de pagamento foram geradas</CardDescription>
+            <CardDescription>Referências geradas</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {paymentReferences.map((ref) => (
               <div key={ref.id} className="p-4 bg-muted rounded-lg space-y-2">
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">Referência</span>
                   <span className="font-bold text-lg">{ref.referenceNumber}</span>
                 </div>
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">Entidade</span>
                   <span className="font-semibold">{ref.entity}</span>
                 </div>
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">Validade</span>
                   <span className="font-semibold">
                     {formatDate(ref.startDate)} - {formatDate(ref.expirationDate)}
