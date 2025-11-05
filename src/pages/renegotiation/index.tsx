@@ -56,9 +56,9 @@ interface DebtSearchResult {
   invoices: Invoice[]
   totalOutstandingAmount: number
   totalDivida: number
- mesesDividas:any
- size:number
-} 
+  mesesDividas: any
+  size: number
+}
 
 interface SimulationResult {
   academicYear: string
@@ -80,22 +80,13 @@ interface PaymentReference {
   expirationDate: string
 }
 
-
-
 export const Renegociation = () => {
-  const {
-    isLoading,
-  isError,
-    profileData,
-  } = useQueryProfile()
-  if (!profileData) return <RenegociationSkeleton />
-  const {data:debtData,isLoading:isLoadingDebtData} = useQueryGetDebit({
-    enrollmentCode:profileData?.codigo_matricula,
-   preinscricao:profileData.codigo_preinscricao,
-   type:'1'
+  const { isLoading, isError, profileData } = useQueryProfile()
+  const { data: debtData, isLoading: isLoadingDebtData } = useQueryGetDebit({
+    enrollmentCode: profileData?.codigo_matricula,
+    preinscricao: profileData?.codigo_preinscricao,
+    type: '1',
   })
-  
-
 
   const [step, setStep] = useState<
     'search' | 'simulate' | 'confirm' | 'complete'
@@ -131,12 +122,9 @@ export const Renegociation = () => {
 
   const onSearchDebt = async (data: SearchDebtFormData) => {
     try {
+      const openDebit = debtData as any
 
- 
-      const openDebit = debtData as any;
-
-    
-   /*
+      /*
       if (
         openDebit.totalOutstandingAmount === 0 ||
         openDebit.invoices.length === 0
@@ -200,7 +188,6 @@ export const Renegociation = () => {
     }
   }
 
-
   const formatCurrency = (value: number) => {
     return `${value.toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Kz`
   }
@@ -218,10 +205,8 @@ export const Renegociation = () => {
     searchForm.reset()
     simulateForm.reset()
   }
+
   if (!profileData || isLoading) return <RenegociationSkeleton />
-
-
-
 
   if (isLoadingDebtData) {
     return (
@@ -294,11 +279,11 @@ export const Renegociation = () => {
                     Total em atraso
                   </p>
                   <p className="text-3xl font-bold text-warning">
-                   
-                   {formatCurrency(debtData.totalDivida)}            </p>
+                    {formatCurrency(debtData.totalDivida)}{' '}
+                  </p>
                 </div>
                 <div className="space-y-2">
-                {debtData.mesesDividas.map((m:any) => (
+                  {debtData.mesesDividas.map((m: any) => (
                     <div
                       key={m.reference}
                       className="flex justify-between items-center p-3 bg-muted rounded-lg"
@@ -307,12 +292,10 @@ export const Renegociation = () => {
                         {m.servico} - {m.mes_propina}
                       </span>
                       <span className="font-semibold">
-                        {formatCurrency(m.total)} 
+                        {formatCurrency(m.total)}
                       </span>
                     </div>
-                  ))} 
-
-                  
+                  ))}
                 </div>
               </div>
             </CardContent>
@@ -554,7 +537,7 @@ export const Renegociation = () => {
         </>
       )}
 
-      {/* List Invoices Button 
+      {/* List Invoices Button
 
       <Card>
         <CardHeader>

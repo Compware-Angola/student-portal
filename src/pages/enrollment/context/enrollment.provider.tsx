@@ -1,4 +1,4 @@
-import { useState, type ReactNode, useCallback, useMemo } from 'react'
+import { useState, type ReactNode, useMemo } from 'react'
 import { EnrollmentContext } from './enrollment.context'
 
 import { toast } from 'sonner'
@@ -50,8 +50,14 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
   const shouldFecthCurriculumPlan =
     StudentSituation.NEW_WITHOUT_ENROLLMENT ===
       Number(studentSituation?.codigo_status) ||
-    StudentSituation.OLD_WITH_CURRENT_CONFIRMATION ===
+    StudentSituation.OLD_WITHOUT_CURRENT_CONFIRMATION ===
       Number(studentSituation?.codigo_status)
+  console.log({
+    shouldFecthCurriculumPlan,
+    aaaa: Number(studentSituation?.codigo_status),
+    newWithput: StudentSituation.NEW_WITHOUT_ENROLLMENT,
+    old: StudentSituation.OLD_WITHOUT_CURRENT_CONFIRMATION,
+  })
   const {
     data: grades,
     isLoading: isLoadingStudentCurriculumPlan,
