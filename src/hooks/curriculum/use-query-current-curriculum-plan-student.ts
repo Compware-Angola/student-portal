@@ -28,9 +28,19 @@ export function useQueryCurrentCurriculumPlanSudent(params: Params) {
     enabled: !!params.academicYearCode && !!params.preEnrollmentCode,
     staleTime: Infinity,
   })
-
+  const formatGrade = (grades: StudentCurriculumPlan['grades']) => {
+    return grades.map((grade) => {
+      if (grade.ValorInscricao === 'None' || !grade.ValorInscricao) {
+        return {
+          ...grade,
+          ValorInscricao: '1600',
+        }
+      }
+      return grade
+    })
+  }
   return {
-    data: data?.grades ?? [],
+    data: formatGrade(data?.grades ?? []),
     isLoading,
     error,
     isError,

@@ -1,5 +1,6 @@
 import { curriculumPlanService } from '@/services/curriculum/curriculumPlan.Service'
 import type { CurriculumPlan } from '@/types/curriculum-plan'
+
 import { useQuery } from '@tanstack/react-query'
 type Params = {
   class?: string
@@ -21,9 +22,19 @@ export function useQueryCurriculumPlan(params: Params, enabled?: boolean) {
     enabled: Boolean(params.class && params.course && enabled),
     staleTime: Infinity,
   })
-
+  const formatGrade = (grades: CurriculumPlan['grades']) => {
+    return grades.map((grade) => {
+      if (grade.valorInscricao === 'None' || !grade.valorInscricao) {
+        return {
+          ...grade,
+          valorInscricao: '1600',
+        }
+      }
+      return grade
+    })
+  }
   return {
-    data: data?.grades ?? [],
+    data: formatGrade(data?.grades ?? []),
     isLoading,
     error,
     isError,
