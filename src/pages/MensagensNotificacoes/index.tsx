@@ -15,7 +15,7 @@ import { useQueryProfile } from "@/hooks/profile/use-query-profile"
 import { AuthStorage } from "@/storage/auth-storage"
 
 
-type Notification = {
+export type Notification = {
   id: string
   type: "mensagem" | "comunicado"
   title: string

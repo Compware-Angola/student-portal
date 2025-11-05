@@ -180,7 +180,7 @@ function InvoiceDetailsDialog({
             <div>
               <p className="font-semibold">Valor Total</p>
               <p className="text-xl font-bold text-primary">
-                {new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'AOA' }).format(invoice.ValorAPagar)}
+                {new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'AOA' }).format(invoice.TotalPreco)}
               </p>
             </div>
             <div>
@@ -209,9 +209,9 @@ function InvoiceDetailsDialog({
                 <Card key={item.codigo} className="p-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div>
-                      <p className="font-medium">{item.MesDesignacao || `Item ${idx + 1}`}</p>
-                      <p className="text-muted-foreground text-xs">
-                        {item.OBS || item.DescricaoServico || 'Sem descrição'}
+                     
+                      <p className="font-medium">
+                        {`${idx + 1} -`}{item.OBS || item.DescricaoServico || 'Sem descrição'}
                       </p>
                     </div>
                     <div className="space-y-1">
@@ -355,14 +355,14 @@ export function InvoicesTable({
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
-        <CardTitle>Faturas</CardTitle>
+        <CardTitle></CardTitle>
 
         <div className="flex items-center gap-2">
           <Calendar className="h-5 w-5 text-muted-foreground" />
 
           <Select
             value={selectedAcademicYear}
-            onValueChange={handleYearChange} // Usando a função de tratamento
+            onValueChange={handleYearChange} 
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Selecione o Ano Lectivo" />
