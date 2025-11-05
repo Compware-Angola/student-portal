@@ -18,7 +18,7 @@ export function useQueryCurriculumPlan(params: Params, enabled?: boolean) {
       })
     },
     retry: 0,
-    enabled: Boolean((params.class && params.course) || enabled),
+    enabled: Boolean(params.class && params.course && enabled),
     staleTime: Infinity,
   })
 
