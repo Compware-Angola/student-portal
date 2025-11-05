@@ -5,7 +5,7 @@ import {
   
   BookOpen,
   Calendar,
-  ClipboardList,
+ 
   CreditCard,
   FileText,
   GraduationCap,
@@ -44,7 +44,7 @@ const data = {
       url: '/servicos-academicos',
       icon: BookOpen,
     },
-    { title: 'Pré-Inscrição', url: '/pre-inscricao', icon: ClipboardList },
+  //  { title: 'Pré-Inscrição', url: '/pre-inscricao', icon: ClipboardList },
     { title: 'Perfil', url: '/perfil', icon: User },
   
     /* {
