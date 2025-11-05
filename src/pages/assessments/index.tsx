@@ -34,8 +34,8 @@ export function Assessments() {
 
       <Tabs defaultValue="current" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="current">Todas as Avaliações</TabsTrigger>
-          <TabsTrigger value="all">Todas as Notas</TabsTrigger>
+          <TabsTrigger value="current">Avaliações do Ano Corrente</TabsTrigger>
+          <TabsTrigger value="all">Todas as Notas Finais</TabsTrigger>
         </TabsList>
 
         <TabsContent value="current" className="space-y-4">

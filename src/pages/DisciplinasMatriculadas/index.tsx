@@ -8,43 +8,19 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 
-import { BookOpen, Calendar, Eye } from 'lucide-react'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
+import { BookOpen, Calendar } from 'lucide-react'
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useQueryCurriculumPlan } from '@/hooks/curriculum/use-query-curriculum-plan'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
+import { useQueryCurrentCurriculumPlanSudent } from '@/hooks/curriculum/use-query-current-curriculum-plan-student'
+import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 
-interface Disciplina {
-  codigo: string
-  nome: string
-  creditos: number
-  ano: number
-  semestre: string
-  anoLectivo: string
-  docente: string
-  horario: string
-  sala: string
-  status: 'em_curso' | 'concluida' | 'reprovada'
-  planoEstudo?: {
-    objetivos: string[]
-    conteudoProgramatico: string[]
-    metodologiaAvaliacao: string
-    bibliografia: string[]
-  }
-}
 
 export const DisciplinasMatriculadas = () => {
 
-
+const {data: academicYearData}=useQueryCurrentAcademicYear()
   const {
     profileData,
 
@@ -52,142 +28,15 @@ export const DisciplinasMatriculadas = () => {
 
   const { data: filteredDisciplinas, isLoading, isError } = useQueryCurriculumPlan({ class: profileData?.confirmacoes?.[0]?.classe ,
     course: profileData?.codigo_curso,},true)
-
-  // Mock data
-  const disciplinas: Disciplina[] = [
-    {
-      codigo: 'ENGINFO501',
-      nome: 'Programação Avançada',
-      creditos: 6,
-      ano: 3,
-      semestre: '1º Semestre',
-      anoLectivo: '2024-2025',
-      docente: 'Dr. João Silva',
-      horario: 'Segunda-Feira 14:00-17:00',
-      sala: 'Lab 201',
-      status: 'em_curso',
-      planoEstudo: {
-        objetivos: [
-          'Dominar conceitos avançados de programação orientada a objetos',
-          'Implementar padrões de design em projetos reais',
-          'Desenvolver aplicações escaláveis e mantíveis',
-        ],
-        conteudoProgramatico: [
-          'Revisão de POO e conceitos fundamentais',
-          'Padrões de Design (Factory, Singleton, Observer, Strategy)',
-          'Arquitetura de Software (MVC, MVVM, Clean Architecture)',
-          'Testes Unitários e TDD',
-          'Refatoração e Code Review',
-          'Boas Práticas e Princípios SOLID',
-        ],
-        metodologiaAvaliacao:
-          'Avaliação Contínua (40%), Projeto Prático (30%), Exame Final (30%)',
-        bibliografia: [
-          'Design Patterns - Gang of Four',
-          'Clean Code - Robert C. Martin',
-          'Refactoring - Martin Fowler',
-        ],
-      },
-    },
-    {
-      codigo: 'ENGINFO502',
-      nome: 'Bases de Dados II',
-      creditos: 6,
-      ano: 3,
-      semestre: '1º Semestre',
-      anoLectivo: '2024-2025',
-      docente: 'Dra. Maria Santos',
-      horario: 'Terça-Feira 10:00-13:00',
-      sala: 'Sala 305',
-      status: 'em_curso',
-      planoEstudo: {
-        objetivos: [
-          'Compreender arquiteturas avançadas de bases de dados',
-          'Implementar otimização de consultas complexas',
-          'Trabalhar com bases de dados distribuídas',
-        ],
-        conteudoProgramatico: [
-          'Otimização de Queries e Índices',
-          'Stored Procedures e Triggers',
-          'Transações e Controlo de Concorrência',
-          'Bases de Dados Distribuídas',
-          'NoSQL e Big Data',
-          'Data Warehousing e Business Intelligence',
-        ],
-        metodologiaAvaliacao:
-          'Avaliação Contínua (50%), Projeto (25%), Exame (25%)',
-        bibliografia: [
-          'Database System Concepts - Silberschatz',
-          'NoSQL Distilled - Pramod Sadalage',
-          'The Data Warehouse Toolkit - Ralph Kimball',
-        ],
-      },
-    },
-    {
-      codigo: 'ENGINFO503',
-      nome: 'Sistemas Operativos',
-      creditos: 5,
-      ano: 3,
-      semestre: '1º Semestre',
-      anoLectivo: '2024-2025',
-      docente: 'Dr. Paulo Costa',
-      horario: 'Quarta-Feira 15:00-18:00',
-      sala: 'Lab 102',
-      status: 'em_curso',
-      planoEstudo: {
-        objetivos: [
-          'Compreender a arquitetura interna de sistemas operativos',
-          'Dominar gestão de processos e memória',
-          'Implementar algoritmos de escalonamento',
-        ],
-        conteudoProgramatico: [
-          'Estrutura de Sistemas Operativos',
-          'Processos e Threads',
-          'Sincronização e Deadlocks',
-          'Gestão de Memória',
-          'Sistema de Ficheiros',
-          'Segurança e Proteção',
-        ],
-        metodologiaAvaliacao:
-          'Trabalhos Práticos (40%), Exame Parcial (30%), Exame Final (30%)',
-        bibliografia: [
-          'Operating System Concepts - Silberschatz',
-          'Modern Operating Systems - Tanenbaum',
-          'Linux Kernel Development - Robert Love',
-        ],
-      },
-    },
-    {
-      codigo: 'ENGINFO401',
-      nome: 'Estruturas de Dados',
-      creditos: 6,
-      ano: 2,
-      semestre: '2º Semestre',
-      anoLectivo: '2023-2024',
-      docente: 'Dr. Carlos Mendes',
-      horario: 'Segunda-Feira 10:00-13:00',
-      sala: 'Lab 203',
-      status: 'concluida',
-    },
-    {
-      codigo: 'ENGINFO402',
-      nome: 'Redes de Computadores',
-      creditos: 5,
-      ano: 2,
-      semestre: '2º Semestre',
-      anoLectivo: '2023-2024',
-      docente: 'Dra. Ana Rodrigues',
-      horario: 'Quinta-Feira 14:00-17:00',
-      sala: 'Lab 301',
-      status: 'concluida',
-    },
-  ]
+  const {
+    data: studentCurriculumPlanData,
+  
+  } = useQueryCurrentCurriculumPlanSudent({
+    academicYearCode: academicYearData?.codigo,
+    preEnrollmentCode:profileData?.preEnrollmentCode,
+  })
 
 
-
-  const disciplinasAnoAtual = disciplinas.filter(
-    (d) => d.anoLectivo === '2024-2025',
-  )
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -201,7 +50,7 @@ export const DisciplinasMatriculadas = () => {
         return <Badge>Desconhecido</Badge>
     }
   }
-
+{/*
   const PlanoEstudoDialog = ({ disciplina }: { disciplina: Disciplina }) => (
     <Dialog>
       <DialogTrigger asChild>
@@ -303,6 +152,7 @@ export const DisciplinasMatriculadas = () => {
       </DialogContent>
     </Dialog>
   )
+ */}
   if (isLoading) {
     return (
       <Card>
@@ -343,7 +193,7 @@ export const DisciplinasMatriculadas = () => {
             <CardHeader>
               <div className="flex flex-col md:flex-row md:items-center gap-4">
                 <div className="flex-1">
-                  <CardTitle>Grade Curricular de  (Nome do Curso)</CardTitle>
+                  <CardTitle>Grade Curricular de  {profileData?.curso}</CardTitle>
                   <br />
                <p>  <CardDescription> Cadeiras Pertecentes à sua grade curricular</CardDescription></p>
 
@@ -402,10 +252,11 @@ export const DisciplinasMatriculadas = () => {
                       </div>
                        */}
                     </div>
-
+                 {/*
                     {disciplina && (
                       <PlanoEstudoDialog disciplina={disciplinas.filter((d) => d.codigo === d.codigo)[0]} />
                     )}
+                       */}
 
                   </CardContent>
                 </Card>
@@ -417,65 +268,56 @@ export const DisciplinasMatriculadas = () => {
         <TabsContent value="atual" className="space-y-6 mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Disciplinas do Ano Letivo 2024-2025</CardTitle>
+              <CardTitle>Disciplinas do Ano Letivo {academicYearData?.designacao}</CardTitle>
               <CardDescription>Cadeiras inscritas no ano atual</CardDescription>
             </CardHeader>
           </Card>
 
-          <div className="grid gap-4">
-            {disciplinasAnoAtual.map((disciplina) => (
-              <Card key={disciplina.codigo}>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <BookOpen className="h-5 w-5 text-primary" />
-                        <CardTitle className="text-lg">
-                          {disciplina.nome}
-                        </CardTitle>
-                      </div>
-                      <CardDescription>
-                        Código: {disciplina.codigo} | {disciplina.creditos}{' '}
-                        Créditos
-                      </CardDescription>
-                    </div>
-                    {getStatusBadge(disciplina.status)}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <p className="text-sm font-semibold mb-1">Horário</p>
-                      <p className="text-sm text-muted-foreground">
-                        {disciplina.horario}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold mb-1">Sala</p>
-                      <p className="text-sm text-muted-foreground">
-                        {disciplina.sala}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold mb-1">Docente</p>
-                      <p className="text-sm text-muted-foreground">
-                        {disciplina.docente}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold mb-1">Semestre</p>
-                      <p className="text-sm text-muted-foreground">
-                        {disciplina.semestre}
-                      </p>
-                    </div>
-                  </div>
-                  {disciplina.planoEstudo && (
-                    <PlanoEstudoDialog disciplina={disciplina} />
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+<div className="grid gap-4">
+  {studentCurriculumPlanData.length > 0 ? (
+    studentCurriculumPlanData.map((disciplina) => (
+      <Card key={disciplina.CodigoDisciplina}>
+        <CardHeader>
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <BookOpen className="h-5 w-5 text-primary" />
+                <CardTitle className="text-lg">{disciplina.disciplina}</CardTitle>
+              </div>
+              <CardDescription>
+                Código: {disciplina.CodigoGrade} | Créditos: {disciplina.estado}
+              </CardDescription>
+            </div>
+            {getStatusBadge('em_curso')}
           </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <p className="text-sm font-semibold mb-1">Semestre</p>
+              <p className="text-sm text-muted-foreground">{disciplina.semestre}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    ))
+  ) : (
+    // CARD VAZIO — NENHUMA DISCIPLINA
+    <Card className="border-dashed">
+      <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+        <div className="bg-muted/50 border-2 border-dashed rounded-full p-4 mb-4">
+          <BookOpen className="h-10 w-10 text-muted-foreground" />
+        </div>
+        <h3 className="text-lg font-semibold text-foreground mb-1">
+          Nenhuma disciplina cadastrada
+        </h3>
+        <p className="text-sm text-muted-foreground max-w-sm">
+          Não há disciplinas no seu plano de estudos no momento. Entre em contato com a secretaria acadêmica se achar que isso é um erro.
+        </p>
+      </CardContent>
+    </Card>
+  )}
+</div>
         </TabsContent>
       </Tabs>
     </div>

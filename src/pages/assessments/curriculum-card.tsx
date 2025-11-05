@@ -129,7 +129,7 @@ export function CurriculumCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Avaliações</CardTitle>
+        <CardTitle>Notas Finais</CardTitle>
         <div className="mt-4">
           <YearSelect
             academicYears={academicYearData?.anolectivos}
@@ -141,7 +141,7 @@ export function CurriculumCard({
 
       <CardContent>
         {isStudentCurriculumPlanLoading ? (
-          <p>Carregando as avaliações...</p>
+          <p>Carregando as Notas...</p>
         ) : !studentCurriculumPlanData?.length ? (
           <p>Não há avaliações disponíveis.</p>
         ) : (
