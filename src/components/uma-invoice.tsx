@@ -155,12 +155,14 @@ function PaymentReceiptDocument({
             <Text style={styles.companyName}>
               Universidade Metodista de Angola
             </Text>
-            {/* Informações opcionais da empresa
-            <Text style={styles.companyDetails}>NIF: 5410000000</Text>
-            <Text style={styles.companyDetails}>Rua da Paz, Luanda - Angola</Text>
-            <Text style={styles.companyDetails}>Tel: +244 900 000 000</Text>
-            <Text style={styles.companyDetails}>Email: info@uma.co.ao</Text>
-            */}
+            Informações opcionais da empresa
+            <Text style={styles.companyDetails}></Text>
+            <Text style={styles.companyDetails}>Nome: MUTUE- SOLUÇOES TECNOLOGIA INTELIGENTES, LDA</Text>
+            <Text style={styles.companyDetails}>NIF: 5000977381</Text>
+            <Text style={styles.companyDetails}>Cidade: Luanda - Angola</Text>
+            <Text style={styles.companyDetails}>Tel: +244 922969192 </Text>
+            <Text style={styles.companyDetails}>Email: geral@mutue.net</Text>
+            <Text style={styles.companyDetails}>Web-site: www.mutue.net</Text>
           </View>
         </View>
 
@@ -203,6 +205,7 @@ function PaymentReceiptDocument({
         {/* ---------- Dados do Estudante ---------- */}
         <View style={styles.section}>
           <Text style={styles.label}>Dados do Estudante</Text>
+          <Text>Nome: {invoice.NomeCompletoAluno}</Text>
           <Text>Matrícula: {invoice.CodigoMatricula}</Text>
         </View>
 
@@ -210,8 +213,8 @@ function PaymentReceiptDocument({
         <View style={styles.paymentBox}>
           <Text style={styles.paymentTitle}>DADOS PARA PAGAMENTO</Text>
           <View style={styles.paymentInfo}>
-            <Text>Entidade: 10065</Text>
-            <Text>Referência: {invoice.Referencia}</Text>
+            <Text>Entidade: {invoice.referencias_pagamento[0]?.ENTITY_ID || '10065'}</Text>
+            <Text>Referência: {invoice.referencias_pagamento[0]?.REFERENCE || invoice.Referencia}</Text>
           </View>
         </View>
 

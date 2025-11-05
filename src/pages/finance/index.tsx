@@ -1,8 +1,7 @@
-'use client'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { FinanceProvider } from './context/finance.provider'
-import { FinanceStats } from './componets/finance-stats'
+//import { FinanceStats } from './componets/finance-stats'
 
 import { InvoicesTable } from './componets/invoice-table'
 import { useFinance } from './hooks/use-finance'
@@ -37,7 +36,7 @@ function Content() {
         </p>
       </div>
 
-      <FinanceStats />
+    {/* <FinanceStats /> */} 
 {/*
       <Tabs defaultValue="services" className="w-full">
         <TabsList className="grid w-full grid-cols-3">

@@ -246,7 +246,7 @@ function FiltroCard({ titulo, icone, contador = 0, ativo, cor, onClick }: any) {
   )
 }
 
-function InfoLinha({
+export function InfoLinha({
   icone,
   label,
   valor,
