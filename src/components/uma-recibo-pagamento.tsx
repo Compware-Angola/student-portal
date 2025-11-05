@@ -7,11 +7,11 @@ import {
   StyleSheet,
   Image,
   PDFDownloadLink,
-  pdf,
+
 } from '@react-pdf/renderer'
 import { Button } from '@/components/ui/button'
 import type { Invoice } from '@/services/invoice/get-invoices-by-matricula.service'
-import { Download, Printer } from 'lucide-react'
+import { Download, FileText, Loader2 } from 'lucide-react'
 
 // Estilos refinados
 const styles = StyleSheet.create({
@@ -155,12 +155,15 @@ function PaymentReceiptDocument({
             <Text style={styles.companyName}>
               Universidade Metodista de Angola
             </Text>
-            {/* Informações opcionais da empresa
-            <Text style={styles.companyDetails}>NIF: 5410000000</Text>
+             Informações opcionais da empresa
+
+            <Text style={styles.companyDetails}>NOME: MUTUE- SOLUÇOES TECNOLOGIA INTELIGENTES, LDA</Text>
+            <Text style={styles.companyDetails}>NIF: 5000977381</Text>
             <Text style={styles.companyDetails}>Rua da Paz, Luanda - Angola</Text>
-            <Text style={styles.companyDetails}>Tel: +244 900 000 000</Text>
-            <Text style={styles.companyDetails}>Email: info@uma.co.ao</Text>
-            */}
+            <Text style={styles.companyDetails}>TEL: +244 922969192/ +244 922969192 </Text>
+            <Text style={styles.companyDetails}>Email: geral@mutue.net</Text> 
+            <Text style={styles.companyDetails}>WEB-SITE: www.mutue.net</Text> 
+            
           </View>
         </View>
 
@@ -210,8 +213,8 @@ function PaymentReceiptDocument({
         <View style={styles.paymentBox}>
           <Text style={styles.paymentTitle}>DADOS PARA PAGAMENTO</Text>
           <View style={styles.paymentInfo}>
-            <Text>Entidade: 10065</Text>
-            <Text>Referência: {invoice.Referencia}</Text>
+            <Text>Entidade: {invoice.referencias_pagamento[0].ENTITY_ID}</Text>
+            <Text>Referência: {invoice.referencias_pagamento[0].REFERENCE || '*** N/A ***'}</Text>
           </View>
         </View>
 
@@ -281,7 +284,7 @@ function PaymentReceiptDocument({
   )
 }
 
-export function PaymentReceipt({
+export function PaymentReceipt2({
   invoice,
   academicYear,
 }: {
@@ -292,48 +295,35 @@ export function PaymentReceipt({
     <PaymentReceiptDocument invoice={invoice} academicYear={academicYear} />
   )
 
-  // Função para imprimir: gera um blob do PDF e abre em nova aba para imprimir
-  const handlePrint = async () => {
-    try {
-      const blob = await pdf(document).toBlob()
-      const fileURL = URL.createObjectURL(blob)
-      const printWindow = window.open(fileURL)
-      // aguarda janela abrir, depois aciona print
-      if (printWindow) {
-        // Algumas browsers bloqueiam print automático; chamamos quando possível
-        printWindow.focus()
-        printWindow.print()
-      } else {
-        // fallback: abrir o arquivo diretamente (usuário poderá imprimir manualmente)
-        window.open(fileURL, '_blank')
-      }
-    } catch (error) {
-      console.error('Erro ao gerar/abrir PDF para impressão', error)
-      // opcional: notificar usuário via toast
-    }
-  }
 
-  return (
-    <div className="flex gap-3 pt-4">
-      {/* Botão para descarregar o PDF — ocupa o espaço (flex-1) */}
-      <PDFDownloadLink
-        document={document}
-        fileName={`Recibo_de_pagamento_UMA_${invoice.Codigo}.pdf`}
-      >
-        {({ loading }) => (
-          <Button className="flex-1" disabled={loading} aria-label="Descarregar PDF">
-            <Download className="mr-2 h-4 w-4" />
-            Descarregar PDF
-          </Button>
-        )}
-      </PDFDownloadLink>
-
-      {/* Botão para imprimir — apenas ícone, variante outline */}
-      <Button variant="outline" onClick={handlePrint} aria-label="Imprimir">
-        <Printer className="h-4 w-4" />
-      </Button>
-    </div>
-  )
+return (
+  <div className="flex gap-3 pt-4">
+    <PDFDownloadLink
+      document={document}
+      fileName={`Recibo_de_pagamento_UMA_${invoice.Codigo}.pdf`}
+    >
+      {({ loading }) => (
+        <Button
+          className="flex-1"
+          disabled={loading}
+          aria-label={loading ? 'A gerar recibo...' : 'Descarregar recibo de pagamento'}
+        >
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              A gerar recibo...
+            </>
+          ) : (
+            <>
+              <FileText className="mr-2 h-4 w-4" />
+              Descarregar Recibo
+            </>
+          )}
+        </Button>
+      )}
+    </PDFDownloadLink>
+  </div>
+);
 }
 
-export default PaymentReceipt
+export default PaymentReceipt2

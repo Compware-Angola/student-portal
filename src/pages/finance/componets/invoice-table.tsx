@@ -48,6 +48,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import PaymentReceipt2 from '@/components/uma-recibo-pagamento'
 
 // --- Chave do localStorage ---
 const PENDING_TASKS_KEY = 'pending_payment_tasks'
@@ -283,9 +284,10 @@ function InvoiceDetailsDialog({
                 // Conteúdo 2: FATURA PENDENTE (Seu objetivo)
                 <>
 
-                  <Button variant="default" size="sm">
-                    Pagar em Cash/Multicaixa
-                  </Button>
+                     <PaymentReceipt2
+                  invoice={invoice}
+                  academicYear={findAcademicYearDesignation(invoice.ano_lectivo)}
+                />
                 </>
               )}
             </>
@@ -548,7 +550,7 @@ function useColumnsInvoiceTable({
       header: 'Valor a Pagar',
       cell: ({ row }) => {
         const totalPreco = row.getValue('TotalPreco') as number | undefined;
-        const valorAPagar = row.original.ValorAPagar as number | undefined; // <--- ASSUMINDO que 'ValorAPagar' está em row.original
+        const valorAPagar = row.original.ValorAPagar as number | undefined; 
         const valorFinal = valorAPagar || totalPreco;
 
         if (valorFinal === null || valorFinal === undefined || valorFinal === 0) {
