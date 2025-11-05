@@ -309,7 +309,7 @@ const {data: academicYearData}=useQueryCurrentAcademicYear()
           <BookOpen className="h-10 w-10 text-muted-foreground" />
         </div>
         <h3 className="text-lg font-semibold text-foreground mb-1">
-          Nenhuma disciplina cadastrada
+          Nenhuma disciplina Encontrada
         </h3>
         <p className="text-sm text-muted-foreground max-w-sm">
           Não há disciplinas no seu plano de estudos no momento. Entre em contato com a secretaria acadêmica se achar que isso é um erro.
