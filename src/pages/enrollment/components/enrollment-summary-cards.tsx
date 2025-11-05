@@ -4,7 +4,6 @@ import { Badge } from '@/components/ui/badge'
 import { BookOpen, FileText, GraduationCap, LibraryBig, TrendingUp } from 'lucide-react'
 import { useEnrollment } from '../hooks/use-enrollment'
 import { StudentSituation } from '@/constants/student-situation'
-import { Progress } from '@radix-ui/react-progress'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 
@@ -41,8 +40,8 @@ function SummaryCard({
 export function EnrollmentSummaryCards() {
   const { selectedSubjects, enrollmentStatus, studentSituation } =
     useEnrollment()
-    const {data:academicYear}=useQueryCurrentAcademicYear()
-    const {profileData}= useQueryProfile()
+  const { data: academicYear } = useQueryCurrentAcademicYear()
+  const { profileData } = useQueryProfile()
 
   const enrollmentState =
     StudentSituation.NEW_WITH_CURRENT_CONFIRMATION ===
@@ -99,7 +98,10 @@ export function EnrollmentSummaryCards() {
                 </div>
                 <div>
                   <CardTitle>Ano Curricular {academicYear?.designacao}</CardTitle>
-                  <CardDescription> {profileData?.confirmacoes[0].classe}º Ano - {profileData?.curso}</CardDescription>
+                  <br />
+                  <CardDescription> <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                    {profileData?.confirmacoes[0].classe}º Ano Ativo
+                  </Badge> - {profileData?.curso}</CardDescription>
                 </div>
               </div>
             </CardHeader>
@@ -132,7 +134,7 @@ export function EnrollmentSummaryCards() {
                   <p className="text-xs text-muted-foreground">Este ano</p>
                 </div>
 
-              
+
               </div>
             </CardContent>
           </Card>

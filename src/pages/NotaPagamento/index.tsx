@@ -59,7 +59,7 @@ const mapApiToNotaPagamento = (apiData: any[]): NotaPagamento[] => {
             id: String(item.CodigoPagamento || item.CodigoFactura), 
             numero: item.f_Referencia || `FAT-${item.CodigoFactura}`,
             tipo: tipo,
-            descricao: item.Descricao_produto || item.Descricao_factura || 'Serviço/Fatura',
+            descricao: item.Descricao_produto || item.Descricao_factura || 'Servço/Pagamentos',
             valor: item.f_ValorAPagar || item.TotalItem || 0,
             dataEmissao: item.f_DataFactura,
             dataVencimento: item.f_DataVencimento,
