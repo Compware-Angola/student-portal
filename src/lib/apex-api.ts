@@ -6,7 +6,7 @@ const VITE_API_URL_APEX = import.meta.env.VITE_API_URL_APEX
 
 export const apexApi = ky.create({
   prefixUrl: VITE_API_URL_APEX,
-
+  timeout: false,
   hooks: {
     afterResponse: [
       async (request, _options, response) => {
