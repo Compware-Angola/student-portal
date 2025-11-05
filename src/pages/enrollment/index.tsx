@@ -72,15 +72,16 @@ function EnrollmentContent() {
               </div>
             </div>
             <div className="space-y-6">
-              <EnrollmentSection
-                label="Novas"
-                subjects={subject}
-                secktionKey="new"
-              />
+
               <EnrollmentSection
                 label="Pendentes"
                 subjects={pendingSubjects}
                 secktionKey="pendents"
+              />
+               <EnrollmentSection
+                label="Novas"
+                subjects={subject}
+                secktionKey="new"
               />
             </div>
           </div>

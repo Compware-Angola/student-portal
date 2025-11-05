@@ -421,6 +421,12 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
 
     const payload = getOldStudentEnrollmentPayload()
     await confirmOldStudentEnrollmentAsync(payload.selectedGrades)
+    await createInvoiceWithPayload(
+      'Inscrição de Confirmação da Matrícula',
+      11478,
+      parseInt(profileData?.codigo_matricula!),
+    )
+    createMonthlyPayments(parseInt(profileData?.codigo_matricula!))
   }
 
   return (
