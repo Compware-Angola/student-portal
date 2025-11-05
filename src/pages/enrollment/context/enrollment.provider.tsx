@@ -438,6 +438,8 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
         isNewStudentWithOutEnrollment,
         studentSituation: studentSituation,
         enrollmentStatus,
+        isLoadingAcademmicYear,
+        isErrorAcademicYear,
       }}
     >
       {children}

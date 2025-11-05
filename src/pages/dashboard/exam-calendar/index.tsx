@@ -30,9 +30,10 @@ export const ExamCalendar = () => {
   >('all')
 
   const { isError: isProfileError, profileData } = useQueryProfile()
+  //TODO: POSSIBILIDADE DE TER FILTRO DE TRAZER TODOS OU DO ANO ATUAL
   const { data: exams = [], isError: isExamError } =
     useQueryAcademicTestSchedule({
-      academicYear: profileData?.confirmacoes[0].ano_lectivo,
+      academicYear: profileData?.confirmacoes[0]?.ano_lectivo,
       semester: '1',
       enrollmentCode: profileData?.enrollmentCode,
     })

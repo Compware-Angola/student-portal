@@ -18,10 +18,10 @@ export function Assessments() {
     return <div>Loading...</div>
   }
 
-  const enrollmentCode = profileData.codigo_matricula
-  const classe = profileData.confirmacoes[0].classe
-  const academicYear = profileData.confirmacoes[0].ano_lectivo
-  const preEnrollmentCode = profileData.preEnrollmentCode
+  const enrollmentCode = profileData?.codigo_matricula
+  const classe = profileData?.confirmacoes[0]?.classe
+  const academicYear = profileData?.confirmacoes[0]?.ano_lectivo
+  const preEnrollmentCode = profileData?.preEnrollmentCode
 
   return (
     <div className="space-y-6">

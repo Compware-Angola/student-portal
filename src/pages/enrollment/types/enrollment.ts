@@ -34,6 +34,8 @@ export type EnrollmentContextType = {
   isErrorProfileData: boolean
   studentSituation: StudentSituationResponse | undefined
   enrollmentStatus: 'not_yet_open' | 'open' | 'closed'
+  isLoadingAcademmicYear: boolean
+  isErrorAcademicYear: boolean
 }
 export type SectionKey = 'new' | 'pendents'
 

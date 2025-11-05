@@ -9,6 +9,7 @@ import { EnrollmentSkeleton } from './components/enrollment-skeleton'
 
 import { Badge } from '@/components/ui/badge'
 import { useEffect } from 'react'
+import { StudentSituation } from '@/constants/student-situation'
 
 function EnrollmentContent() {
   const {
@@ -21,6 +22,8 @@ function EnrollmentContent() {
     isErrorStudentCurriculumPlanPendents,
     pendingSubjects,
     isNewStudentWithOutEnrollment,
+    isLoadingAcademmicYear,
+    studentSituation,
   } = useEnrollment()
   useEffect(() => {
     if (isErrorProfileData) {
@@ -41,40 +44,50 @@ function EnrollmentContent() {
     isLoadingProfileData ||
     isErrorProfileData ||
     isLoadingStudentCurriculumPlan ||
-    isLoadingStudentCurriculumPlanPendents
+    isLoadingStudentCurriculumPlanPendents ||
+    isLoadingAcademmicYear
   ) {
     return <EnrollmentSkeleton />
   }
-
+  const enrollmentState =
+    StudentSituation.NEW_WITH_CURRENT_CONFIRMATION ===
+      Number(studentSituation?.codigo_status) ||
+    StudentSituation.OLD_WITH_CURRENT_CONFIRMATION ===
+      Number(studentSituation?.codigo_status)
   return (
     <div className="space-y-6">
       <EnrollmentHeader />
       <EnrollmentSummaryCards />
-
-      <div>
-        <div>
-          <div className="flex items-center justify-between my-2">
-            <p>Disciplinas Disponíveis</p>
-            <Badge variant="outline">
-              {isNewStudentWithOutEnrollment ? 'Aluno Novo' : 'Aluno Antigo'}
-            </Badge>
+      {!enrollmentState && (
+        <>
+          <div>
+            <div>
+              <div className="flex items-center justify-between my-2">
+                <p>Disciplinas Disponíveis</p>
+                <Badge variant="outline">
+                  {isNewStudentWithOutEnrollment
+                    ? 'Aluno Novo'
+                    : 'Aluno Antigo'}
+                </Badge>
+              </div>
+            </div>
+            <div className="space-y-6">
+              <EnrollmentSection
+                label="Novas"
+                subjects={subject}
+                secktionKey="new"
+              />
+              <EnrollmentSection
+                label="Pendentes"
+                subjects={pendingSubjects}
+                secktionKey="pendents"
+              />
+            </div>
           </div>
-        </div>
-        <div className="space-y-6">
-          <EnrollmentSection
-            label="Novas"
-            subjects={subject}
-            secktionKey="new"
-          />
-          <EnrollmentSection
-            label="Pendentes"
-            subjects={pendingSubjects}
-            secktionKey="pendents"
-          />
-        </div>
-      </div>
 
-      <EnrollmentResume />
+          <EnrollmentResume />
+        </>
+      )}
     </div>
   )
 }

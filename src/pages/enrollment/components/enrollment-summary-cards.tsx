@@ -56,8 +56,12 @@ export function EnrollmentSummaryCards() {
       }
     >
       {enrollmentState ? 'Matriculado' : 'Matrícula Aberta'}{' '}
-      {enrollmentStatus === 'closed' && '- Fora de Época'}
-      {enrollmentStatus === 'not_yet_open' && '- Ainda não iniciada'}
+      {!enrollmentState && (
+        <>
+          {enrollmentStatus === 'closed' && '- Fora de Época'}
+          {enrollmentStatus === 'not_yet_open' && '- Ainda não iniciada'}
+        </>
+      )}
     </Badge>
   )
 
