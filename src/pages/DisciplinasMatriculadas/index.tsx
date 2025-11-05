@@ -51,7 +51,7 @@ export const DisciplinasMatriculadas = () => {
   } = useQueryProfile()
 
   const { data: filteredDisciplinas, isLoading, isError } = useQueryCurriculumPlan({ class: profileData?.confirmacoes?.[0]?.classe ,
-    course: profileData?.codigo_curso,})
+    course: profileData?.codigo_curso,},true)
 
   // Mock data
   const disciplinas: Disciplina[] = [
