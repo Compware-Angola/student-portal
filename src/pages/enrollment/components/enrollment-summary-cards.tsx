@@ -1,9 +1,9 @@
 import React from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { BookOpen, CurrencyIcon, LibraryBig } from 'lucide-react'
-import { formatCurrency } from '@/utils'
+import { BookOpen, LibraryBig } from 'lucide-react'
 import { useEnrollment } from '../hooks/use-enrollment'
+import { StudentSituation } from '@/constants/student-situation'
 
 function SummaryCard({
   icon: Icon,
@@ -36,8 +36,32 @@ function SummaryCard({
 }
 
 export function EnrollmentSummaryCards() {
-  const { selectedSubjects, enrollmentState } = useEnrollment()
+  const { selectedSubjects, enrollmentStatus, studentSituation } =
+    useEnrollment()
 
+  const enrollmentState =
+    StudentSituation.NEW_WITH_CURRENT_CONFIRMATION ===
+      Number(studentSituation?.codigo_status) ||
+    StudentSituation.OLD_WITH_CURRENT_CONFIRMATION ===
+      Number(studentSituation?.codigo_status)
+
+  const enrollmentBadge = (
+    <Badge
+      className={
+        enrollmentStatus === 'closed'
+          ? 'bg-red-100 text-red-700'
+          : enrollmentStatus === 'not_yet_open'
+            ? 'bg-gray-100 text-gray-700'
+            : 'bg-green-100 text-green-700'
+      }
+    >
+      {enrollmentState ? 'Matriculado' : 'Matrícula Aberta'}{' '}
+      {enrollmentStatus === 'closed' && '- Fora de Época'}
+      {enrollmentStatus === 'not_yet_open' && '- Ainda não iniciada'}
+    </Badge>
+  )
+
+  // 🧩 Cards principais
   const cards = [
     {
       icon: BookOpen,
@@ -45,20 +69,11 @@ export function EnrollmentSummaryCards() {
       value: selectedSubjects.length,
       description: 'Total selecionadas',
     },
-    // {
-    //   icon: CurrencyIcon,
-    //   title: 'Valor Total',
-    //   value: formatCurrency(totalValue),
-    //   description: '',
-    // },
     {
       icon: LibraryBig,
-      title: 'Estado',
-      value: (
-        <Badge className="bg-blue-100 text-blue-800">
-          {enrollmentState ? 'Matriculado' : 'Matricula Aberta'}
-        </Badge>
-      ),
+      title: 'Estado da Matrícula',
+      value: enrollmentBadge,
+      description: 'Situação da inscrição atual',
     },
   ]
 

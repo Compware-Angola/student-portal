@@ -16,7 +16,8 @@ import type { CreatePaymentReferenceBody } from '@/services/invoice/post-invoice
 import { useQueryMonthlyFeesValue } from '@/hooks/finance/use-query-monthly-fee'
 import { useQueryStudentSituation } from '@/hooks/student/use-query-student-situation'
 import { StudentSituation } from '@/constants/student-situation'
-
+import { useQueryAcademicConfirmationNewStudent } from '@/hooks/academic/useQueryAcademicConfirmationNewStudent'
+import { getEnrollmentStatus } from '@/utils'
 type ToggleState = {
   new: boolean
   pendents: boolean
@@ -68,7 +69,20 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     profileData?.preEnrollmentCode,
     shouldFecthCurriculumPlanPendents,
   )
-
+  const shouldFetchAcademicConfirmationNewStudent =
+    StudentSituation.NEW_WITHOUT_ENROLLMENT ===
+      Number(studentSituation?.codigo_status) ||
+    StudentSituation.NEW_WITH_CURRENT_CONFIRMATION ===
+      Number(studentSituation?.codigo_status)
+  const { data: confirmationNewStudent } =
+    useQueryAcademicConfirmationNewStudent(
+      {
+        academicYearCode: profileData?.confirmacoes[0].ano_lectivo ?? '1',
+        candidacyType: profileData?.codigo_tipo_candidatura,
+      },
+      shouldFetchAcademicConfirmationNewStudent,
+    )
+  const enrollmentStatus = getEnrollmentStatus(confirmationNewStudent[0])
   const { createPaymentReference } =
     useMutationCreatePaymentReferenceMensalidades()
 
@@ -413,11 +427,8 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
         selectScheduleForSubject,
         selectedSchedules,
         isNewStudentWithOutEnrollment,
-        enrollmentState:
-          StudentSituation.OLD_WITHOUT_CURRENT_CONFIRMATION ===
-            Number(studentSituation?.codigo_matricula) ||
-          StudentSituation.NEW_WITH_CURRENT_CONFIRMATION ===
-            Number(studentSituation?.codigo_matricula),
+        studentSituation: studentSituation,
+        enrollmentStatus,
       }}
     >
       {children}

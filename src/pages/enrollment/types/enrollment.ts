@@ -1,3 +1,4 @@
+import type { StudentSituationResponse } from '@/services/students/situation.service'
 import type { Grade } from '@/types/grade'
 
 export type EnrollmentContextType = {
@@ -31,7 +32,8 @@ export type EnrollmentContextType = {
   isErrorStudentCurriculumPlanPendents: boolean
   isLoadingProfileData: boolean
   isErrorProfileData: boolean
-  enrollmentState: boolean
+  studentSituation: StudentSituationResponse | undefined
+  enrollmentStatus: 'not_yet_open' | 'open' | 'closed'
 }
 export type SectionKey = 'new' | 'pendents'
 

@@ -47,11 +47,7 @@ export function SubjectCard({
               <p className="text-sm font-medium">
                 Selecionar Horário (Obrigatório)
               </p>
-              <ScheduleSelectionDialog
-                subject={subject}
-                codigoGrade={subject.codigoGrade}
-                subjectName={subject.disciplina}
-              />
+              <ScheduleSelectionDialog subject={subject} />
             </div>
           )}
         </div>
