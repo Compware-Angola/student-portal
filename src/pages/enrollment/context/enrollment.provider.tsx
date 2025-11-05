@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useState, type ReactNode, useCallback, useMemo } from 'react'
 import { EnrollmentContext } from './enrollment.context'
 
 import { toast } from 'sonner'
@@ -16,8 +16,9 @@ import type { CreatePaymentReferenceBody } from '@/services/invoice/post-invoice
 import { useQueryMonthlyFeesValue } from '@/hooks/finance/use-query-monthly-fee'
 import { useQueryStudentSituation } from '@/hooks/student/use-query-student-situation'
 import { StudentSituation } from '@/constants/student-situation'
-import { useQueryAcademicConfirmationNewStudent } from '@/hooks/academic/useQueryAcademicConfirmationNewStudent'
+import { useQueryActivityAcademicConfirmationStudent } from '@/hooks/academic/use-quer-activity-academic-confirmation'
 import { getEnrollmentStatus } from '@/utils'
+import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 type ToggleState = {
   new: boolean
   pendents: boolean
@@ -41,6 +42,11 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
   const { data: studentSituation } = useQueryStudentSituation({
     preErrolmentCode: profileData?.preEnrollmentCode,
   })
+  const {
+    data: currentAcademicYear,
+    isError: isErrorAcademicYear,
+    isLoading: isLoadingAcademmicYear,
+  } = useQueryCurrentAcademicYear()
   const shouldFecthCurriculumPlan =
     StudentSituation.NEW_WITHOUT_ENROLLMENT ===
       Number(studentSituation?.codigo_status) ||
@@ -69,20 +75,27 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     profileData?.preEnrollmentCode,
     shouldFecthCurriculumPlanPendents,
   )
+  const isNewStudentWithOutEnrollment =
+    StudentSituation.NEW_WITHOUT_ENROLLMENT ===
+    Number(studentSituation?.codigo_status)
   const shouldFetchAcademicConfirmationNewStudent =
     StudentSituation.NEW_WITHOUT_ENROLLMENT ===
       Number(studentSituation?.codigo_status) ||
     StudentSituation.NEW_WITH_CURRENT_CONFIRMATION ===
       Number(studentSituation?.codigo_status)
   const { data: confirmationNewStudent } =
-    useQueryAcademicConfirmationNewStudent(
+    useQueryActivityAcademicConfirmationStudent(
       {
-        academicYearCode: profileData?.confirmacoes[0].ano_lectivo ?? '1',
+        academicYearCode: currentAcademicYear?.codigo ?? '23',
         candidacyType: profileData?.codigo_tipo_candidatura,
+        type: isNewStudentWithOutEnrollment ? 'new' : 'old',
       },
       shouldFetchAcademicConfirmationNewStudent,
     )
-  const enrollmentStatus = getEnrollmentStatus(confirmationNewStudent[0])
+  const enrollmentStatus = useMemo(
+    () => getEnrollmentStatus(confirmationNewStudent[0]),
+    [confirmationNewStudent],
+  )
   const { createPaymentReference } =
     useMutationCreatePaymentReferenceMensalidades()
 
@@ -90,7 +103,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     useQueryMonthlyFeesValue({
       curso: profileData?.codigo_curso,
       polo: profileData?.poloId,
-      anoLetivo: '23',
+      anoLetivo: currentAcademicYear?.codigo ?? '23',
     })
 
   const {
@@ -104,10 +117,6 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     confirmOldStudentEnrollmentAsync,
     confirmOldStudentEnrollmentPending,
   } = useMutationConfirmOldStudentEnrollment()
-
-  const isNewStudentWithOutEnrollment =
-    StudentSituation.NEW_WITHOUT_ENROLLMENT ===
-    Number(studentSituation?.codigo_status)
 
   // Horários selecionados por disciplina (mapeados pelo código da grade)
   const [selectedSchedules, setSelectedSchedules] = useState<

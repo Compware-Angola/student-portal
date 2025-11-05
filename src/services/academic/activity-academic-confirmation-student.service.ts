@@ -21,14 +21,16 @@ export type AcademicActivitiesResponse = {
 type Params = {
   academicYearCode: string
   candidacyType: string
+  type: 'old' | 'new'
 }
 
-export async function academicConfirmationNewStudentService(
+export async function activityAcademicConfirmationStudentService(
   params: Params,
 ): Promise<AcademicActivitiesResponse> {
+  const type = params.type === 'old' ? 'oldstudent' : 'newstudent'
   return apexApi
     .get(
-      `activity/academic/confirmation/newstudent/${params.academicYearCode}/${params.candidacyType}`,
+      `activity/academic/confirmation/${type}/${params.academicYearCode}/${params.candidacyType}`,
     )
     .json<AcademicActivitiesResponse>()
 }

@@ -1,12 +1,13 @@
-import { academicConfirmationNewStudentService } from '@/services/academic/confirmation-new-student.service'
+import { activityAcademicConfirmationStudentService } from '@/services/academic/activity-academic-confirmation-student.service'
 import { useQuery } from '@tanstack/react-query'
 
 type Params = {
   academicYearCode?: string
   candidacyType?: string
+  type: 'old' | 'new'
 }
 
-export function useQueryAcademicConfirmationNewStudent(
+export function useQueryActivityAcademicConfirmationStudent(
   params: Params,
   enable?: boolean,
 ) {
@@ -21,9 +22,10 @@ export function useQueryAcademicConfirmationNewStudent(
         throw new Error('Missing required parameters')
       }
 
-      return await academicConfirmationNewStudentService({
+      return await activityAcademicConfirmationStudentService({
         academicYearCode: params.academicYearCode!,
         candidacyType: params.candidacyType!,
+        type: params.type,
       })
     },
     retry: 0,

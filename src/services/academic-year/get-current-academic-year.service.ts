@@ -1,6 +1,6 @@
 import { apexApi } from '@/lib/apex-api'
 
- export type CurrentAcademicYear = {
+export type CurrentAcademicYear = {
   codresposta: number
   msgresposta: string
   codigo: string
@@ -8,7 +8,5 @@ import { apexApi } from '@/lib/apex-api'
 }
 
 export async function getCurrentAcademicYear(): Promise<CurrentAcademicYear> {
-  return apexApi
-    .get('academic-year/current-year')
-    .json<CurrentAcademicYear>()
+  return apexApi.get('academic-year/current-year').json<CurrentAcademicYear>()
 }
