@@ -247,6 +247,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     serviceTypeCode: number,
     enrollmentCode: number,
   ) => {
+    const now = new Date();
     const invoice: CreateInvoiceBody = {
       polo_id: 1,
       TotalPreco: totalValue,
@@ -280,12 +281,12 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
           multa: 0,
           mesTempId: 3,
           estado: 0,
-          valorPago: totalValue,
+          valorPago: 0,
           valorATransportar: 0,
           codigoFactura: 1023,
         },
       ],
-      DataFactura: '2025-10-24T10:00:00.000Z',
+      DataFactura: now.toISOString(),
     }
     await createInvoiceAsync(invoice)
   }
