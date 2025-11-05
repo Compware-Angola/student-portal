@@ -48,6 +48,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import PaymentReceipt2 from '@/components/uma-recibo-pagamento'
 
 // --- Chave do localStorage ---
 const PENDING_TASKS_KEY = 'pending_payment_tasks'
@@ -154,7 +155,7 @@ function InvoiceDetailsDialog({
   const totalPago = invoice.itens.reduce((sum, i) => sum + i.valor_pago, 0)
 
   return (
-     
+
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
@@ -271,30 +272,31 @@ function InvoiceDetailsDialog({
             </div>
           </div>
 
-        {/* Botões de ação */}
-<div className="flex gap-3 pt-4 border-t">
-  <>
-    {invoice.estado === 1 ? (
-      <PaymentReceipt
-      invoice={invoice}
-      academicYear={findAcademicYearDesignation(invoice.ano_lectivo)}
-    />
-    ) : (
-      // Conteúdo 2: FATURA PENDENTE (Seu objetivo)
-      <>
-       
-        <Button variant="default" size="sm">
-          Pagar em Cash/Multicaixa
-        </Button>
-      </>
-    )}
-  </>
- 
-</div>
+          {/* Botões de ação */}
+          <div className="flex gap-3 pt-4 border-t">
+            <>
+              {invoice.estado === 1 ? (
+                <PaymentReceipt
+                  invoice={invoice}
+                  academicYear={findAcademicYearDesignation(invoice.ano_lectivo)}
+                />
+              ) : (
+                // Conteúdo 2: FATURA PENDENTE (Seu objetivo)
+                <>
+
+                     <PaymentReceipt2
+                  invoice={invoice}
+                  academicYear={findAcademicYearDesignation(invoice.ano_lectivo)}
+                />
+                </>
+              )}
+            </>
+
+          </div>
         </div>
       </DialogContent>
     </Dialog>
-  
+
   )
 }
 
@@ -312,10 +314,10 @@ export function InvoicesTable({
 
   const [page, setPage] = React.useState(1);
   const limit = 10;
-  
-  const { data, isLoading, isError } = useQueryInvoices({ 
-    enrollmentCode, 
-    page, 
+
+  const { data, isLoading, isError } = useQueryInvoices({
+    enrollmentCode,
+    page,
     limit,
     academicYear: selectedAcademicYear // Filtro aplicado corretamente
   })
@@ -349,7 +351,7 @@ export function InvoicesTable({
   if (isLoading || isError || isLoadingAcademicYear) {
     return <InvoicesTableSkeleton />
   }
-  
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
@@ -376,91 +378,91 @@ export function InvoicesTable({
           </Select>
         </div>
       </CardHeader>
-    <TooltipProvider>
-      <div className="w-full">
-        <div className="overflow-hidden rounded-md border">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header, index) => {
-                    const isLastColumn = index === headerGroup.headers.length - 1
-                    const isValueColumn = header.column.id === 'ValorAPagar'
+      <TooltipProvider>
+        <div className="w-full">
+          <div className="overflow-hidden rounded-md border">
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header, index) => {
+                      const isLastColumn = index === headerGroup.headers.length - 1
+                      const isValueColumn = header.column.id === 'ValorAPagar'
 
-                    return (
-                      <TableHead
-                        key={header.id}
-                        className={`
+                      return (
+                        <TableHead
+                          key={header.id}
+                          className={`
                           ${isLastColumn ? 'text-right pr-6' : 'text-center'}
                           ${isValueColumn ? 'text-right pr-8' : ''}
                           align-middle py-3 font-semibold text-gray-300 uppercase tracking-wide text-xs
                         `}
-                      >
-                        {flexRender(header.column.columnDef.header, header.getContext())}
-                      </TableHead>
-                    )
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
+                        >
+                          {flexRender(header.column.columnDef.header, header.getContext())}
+                        </TableHead>
+                      )
+                    })}
+                  </TableRow>
+                ))}
+              </TableHeader>
 
-            <TableBody>
-              {table.getRowModel().rows.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id} className="hover:bg-muted/5">
-                    {row.getVisibleCells().map((cell, index) => {
-                      const isLastColumn = index === row.getVisibleCells().length - 1
-                      const isValueColumn = cell.column.id === 'ValorAPagar'
+              <TableBody>
+                {table.getRowModel().rows.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow key={row.id} className="hover:bg-muted/5">
+                      {row.getVisibleCells().map((cell, index) => {
+                        const isLastColumn = index === row.getVisibleCells().length - 1
+                        const isValueColumn = cell.column.id === 'ValorAPagar'
 
-                      return (
-                        <TableCell
-                          key={cell.id}
-                          className={`
+                        return (
+                          <TableCell
+                            key={cell.id}
+                            className={`
                             ${isLastColumn ? 'text-right pr-6' : 'text-center'}
                             ${isValueColumn ? 'text-right pr-8 font-medium' : ''}
                             align-middle py-3 text-sm
                           `}
-                        >
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                      )
-                    })}
+                          >
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </TableCell>
+                        )
+                      })}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={columns.length} className="text-center h-24 text-gray-400">
+                      Nenhuma fatura encontrada.
+                    </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="text-center h-24 text-gray-400">
-                    Nenhuma fatura encontrada.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                )}
+              </TableBody>
+            </Table>
+          </div>
 
-        <div className="flex items-center justify-end gap-2 py-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage((p) => Math.max(p - 1, 1))}
-            disabled={page === 1}
-          >
-            Anterior
-          </Button>
-          <span className="text-sm">
-            Página {data?.page} de {data?.totalPages}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage((p) => p + 1)}
-            disabled={data?.page === data?.totalPages}
-          >
-            Próxima
-          </Button>
+          <div className="flex items-center justify-end gap-2 py-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.max(p - 1, 1))}
+              disabled={page === 1}
+            >
+              Anterior
+            </Button>
+            <span className="text-sm">
+              Página {data?.page} de {data?.totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => p + 1)}
+              disabled={data?.page === data?.totalPages}
+            >
+              Próxima
+            </Button>
+          </div>
         </div>
-      </div>
-    </TooltipProvider>
+      </TooltipProvider>
     </Card>
   )
 }
@@ -544,16 +546,30 @@ function useColumnsInvoiceTable({
       },
     },
     {
-      accessorKey: 'ValorAPagar',
+      accessorKey: 'TotalPreco',
       header: 'Valor a Pagar',
-      cell: ({ row }) => (
-        <div className="text-right font-medium">
-          {new Intl.NumberFormat('pt-PT', {
-            style: 'currency',
-            currency: 'AOA',
-          }).format(row.getValue('ValorAPagar') || 0)}
-        </div>
-      ),
+      cell: ({ row }) => {
+        const totalPreco = row.getValue('TotalPreco') as number | undefined;
+        const valorAPagar = row.original.ValorAPagar as number | undefined; 
+        const valorFinal = valorAPagar || totalPreco;
+
+        if (valorFinal === null || valorFinal === undefined || valorFinal === 0) {
+          return (
+            <div className="text-right font-medium text-gray-400">
+              N/A
+            </div>
+          );
+        }
+
+        return (
+          <div className="text-right font-medium">
+            {new Intl.NumberFormat('pt-PT', {
+              style: 'currency',
+              currency: 'AOA',
+            }).format(valorFinal)}
+          </div>
+        );
+      },
     },
     {
       id: 'acoes',
