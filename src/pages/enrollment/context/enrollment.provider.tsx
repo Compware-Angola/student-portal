@@ -58,17 +58,6 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     newWithput: StudentSituation.NEW_WITHOUT_ENROLLMENT,
     old: StudentSituation.OLD_WITHOUT_CURRENT_CONFIRMATION,
   })
-  const {
-    data: grades,
-    isLoading: isLoadingStudentCurriculumPlan,
-    isError: isErrorStudentCurriculumPlan,
-  } = useQueryCurriculumPlan(
-    {
-      class: profileData?.confirmacoes?.[0]?.classe ?? '1',
-      course: profileData?.codigo_curso,
-    },
-    shouldFecthCurriculumPlan,
-  )
 
   const shouldFecthCurriculumPlanPendents =
     StudentSituation.OLD_WITHOUT_CURRENT_CONFIRMATION ===
@@ -98,6 +87,26 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
       },
       shouldFetchAcademicConfirmationNewStudent,
     )
+  const generateClasse = useMemo(() => {
+    const classe = profileData?.confirmacoes?.[0]?.classe
+    if (isNewStudentWithOutEnrollment) {
+      return classe ?? '1'
+    }
+    const newClass = Number(classe) + 1
+    return `${newClass > 5 ? classe : newClass}`
+  }, [profileData, isNewStudentWithOutEnrollment])
+  const {
+    data: grades,
+    isLoading: isLoadingStudentCurriculumPlan,
+    isError: isErrorStudentCurriculumPlan,
+  } = useQueryCurriculumPlan(
+    {
+      class: generateClasse,
+      course: profileData?.codigo_curso,
+    },
+    shouldFecthCurriculumPlan,
+  )
+
   const enrollmentStatus = useMemo(
     () => getEnrollmentStatus(confirmationNewStudent[0]),
     [confirmationNewStudent],
@@ -253,7 +262,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     serviceTypeCode: number,
     enrollmentCode: number,
   ) => {
-    const now = new Date();
+    const now = new Date()
     const invoice: CreateInvoiceBody = {
       polo_id: 1,
       TotalPreco: totalValue,
@@ -389,26 +398,26 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
       selectedSubjects.some((s) => s.codigoGrade === g.codigoGrade),
     )
 
-    if (unselectedPendents.length > 0 && selectedNews.length > 0) {
-      toast.warning('Ainda há disciplinas pendentes não selecionadas.', {
-        description: 'Finalize as pendentes antes de adicionar novas cadeiras.',
-      })
-      return
-    }
+    // if (unselectedPendents.length > 0 && selectedNews.length > 0) {
+    //   toast.warning('Ainda há disciplinas pendentes não selecionadas.', {
+    //     description: 'Finalize as pendentes antes de adicionar novas cadeiras.',
+    //   })
+    //   return
+    // }
 
     // 3️⃣ Verifica se todas as disciplinas selecionadas têm horário
     const missingSchedules = selectedSubjects.filter(
       (subject) => !selectedSchedules[subject.codigoGrade]?.codigoHorario,
     )
 
-    if (missingSchedules.length > 0) {
-      const missingNames = missingSchedules.map((s) => s.disciplina).join(', ')
-      toast.warning(`Selecione o horário para: ${missingNames}`, {
-        description:
-          'Cada disciplina precisa ter um horário definido antes de continuar.',
-      })
-      return
-    }
+    // if (missingSchedules.length > 0) {
+    //   const missingNames = missingSchedules.map((s) => s.disciplina).join(', ')
+    //   toast.warning(`Selecione o horário para: ${missingNames}`, {
+    //     description:
+    //       'Cada disciplina precisa ter um horário definido antes de continuar.',
+    //   })
+    //   return
+    // }
 
     const payload = getOldStudentEnrollmentPayload()
     await confirmOldStudentEnrollmentAsync(payload.selectedGrades)

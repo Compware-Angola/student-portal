@@ -18,9 +18,20 @@ export function useQueryCurriculumPlanPendents(
     enabled: !!preEnrollmentCode && enabled,
     staleTime: Infinity,
   })
+  const formatGrade = (grades: CurriculumPlan['grades']) => {
+    return grades.map((grade) => {
+      if (grade.valorInscricao === 'None' || !grade.valorInscricao) {
+        return {
+          ...grade,
 
+          valorInscricao: '1600',
+        }
+      }
+      return grade
+    })
+  }
   return {
-    data: data?.grades ?? [],
+    data: formatGrade(data?.grades ?? []),
     isLoading,
     error,
     isError,
