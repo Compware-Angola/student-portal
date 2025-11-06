@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
+  AlertCircle,
   BookOpen,
   FileText,
   GraduationCap,
@@ -100,65 +101,105 @@ export function EnrollmentSummaryCards() {
   return (
     <div className="space-y-3">
       {enrollmentState ? (
-        <div>
-          <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-primary/10 rounded-lg">
-                  <GraduationCap className="h-6 w-6 text-primary" />
+        <>
+          {profileData?.confirmacoes?.length > 0 ? (
+            <div>
+              <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-primary/10 rounded-lg">
+                      <GraduationCap className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <CardTitle>
+                        Ano Curricular {academicYear?.designacao}
+                      </CardTitle>
+                      <br />
+                      <CardDescription>
+                        {' '}
+                        <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                          {profileData?.confirmacoes[0].classe}º Ano Ativo
+                        </Badge>{' '}
+                        - {profileData?.curso}
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <BookOpen className="h-4 w-4 text-muted-foreground" />
+                        <p className="text-sm font-medium">Periodo</p>
+                      </div>
+                      <p className="text-2xl font-bold">
+                        {' '}
+                        {profileData?.periodo}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        No ano atual
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                        <p className="text-sm font-medium">Polo</p>
+                      </div>
+                      <p className="text-2xl font-bold text-primary">
+                        {profileData?.polo}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        A decorrer
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-muted-foreground" />
+                        <p className="text-sm font-medium">Cadeirante</p>
+                      </div>
+                      <p className="text-2xl font-bold">
+                        {' '}
+                        {profileData?.confirmacoes[0].cadeirante}
+                      </p>
+                      <p className="text-xs text-muted-foreground">Este ano</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          ) : (
+            <Card className="border-amber-600   shadow-sm">
+              <CardHeader className="flex flex-row items-center gap-3">
+                <div className="p-3 bg-sencodary rounded-full">
+                  <AlertCircle className="h-6 w-6  text-amber-600" />
                 </div>
                 <div>
-                  <CardTitle>
-                    Ano Curricular {academicYear?.designacao}
+                  <CardTitle className=" font-semibold">
+                    Matrícula Pendente
                   </CardTitle>
-                  <br />
                   <CardDescription>
-                    {' '}
-                    <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                      {profileData?.confirmacoes[0].classe}º Ano Ativo
-                    </Badge>{' '}
-                    - {profileData?.curso}
+                    Sua matrícula ainda não foi confirmada.
                   </CardDescription>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="h-4 w-4 text-muted-foreground" />
-                    <p className="text-sm font-medium">Periodo</p>
-                  </div>
-                  <p className="text-2xl font-bold"> {profileData?.periodo}</p>
-                  <p className="text-xs text-muted-foreground">No ano atual</p>
-                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm  leading-relaxed">
+                  Para prosseguir com as disciplinas, é necessário efetuar o
+                  pagamento da matrícula. Após o pagamento, sua inscrição será
+                  ativada automaticamente.
+                </p>
 
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                    <p className="text-sm font-medium">Polo</p>
-                  </div>
-                  <p className="text-2xl font-bold text-primary">
-                    {profileData?.polo}
-                  </p>
-                  <p className="text-xs text-muted-foreground">A decorrer</p>
+                <div className="mt-4 flex items-center gap-2">
+                  <Badge className="bg-amber-500/90 hover:bg-amber-600 text-white px-3 py-1">
+                    Pagamento Pendente
+                  </Badge>
                 </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-muted-foreground" />
-                    <p className="text-sm font-medium">Cadeirante</p>
-                  </div>
-                  <p className="text-2xl font-bold">
-                    {' '}
-                    {profileData?.confirmacoes[0].cadeirante}
-                  </p>
-                  <p className="text-xs text-muted-foreground">Este ano</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
+          )}
+        </>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {cards.map((card, index) => (

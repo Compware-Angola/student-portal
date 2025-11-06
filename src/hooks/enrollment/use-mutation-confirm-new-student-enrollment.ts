@@ -29,6 +29,7 @@ export function useMutationConfirmNewStudentEnrollment() {
       await queryClient.invalidateQueries({
         queryKey: ['student-situation'],
       })
+      await queryClient.invalidateQueries({ queryKey: ['finance-monthly-fee'] })
       navigate('/financas')
     },
 
