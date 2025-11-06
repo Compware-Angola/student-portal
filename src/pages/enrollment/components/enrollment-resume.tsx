@@ -14,8 +14,9 @@ export function EnrollmentResume() {
     removeAll,
     confirmStudentEnrollment,
     confirmStudentEnrollmentState,
+    enrollmentStatus,
   } = useEnrollment()
-
+  const valorAcrescer = enrollmentStatus === 'closed' ? 10200 : 0
   return (
     <>
       {selectedSubjects.length === 0 ? null : (
@@ -64,10 +65,22 @@ export function EnrollmentResume() {
                 </li>
               ))}
             </ul>
+            <div className="pt-4">
+              {enrollmentStatus === 'closed' && (
+                <div className="flex justify-between text-lg font-bold">
+                  <span>Taxa de Inscrição Fora de Prazo:</span>
+                  <span>{formatCurrency(10200)}</span>
+                </div>
+              )}
 
-            <div className=" pt-4 flex justify-between text-lg font-bold">
-              <span>Total a Pagar:</span>
-              <span>{formatCurrency(totalValue)}</span>
+              <div className="flex justify-between text-lg font-bold">
+                <span>Disciplinas Calculadas:</span>
+                <span>{formatCurrency(totalValue)}</span>
+              </div>
+              <div className="flex justify-between text-lg font-bold">
+                <span>Total a pagar :</span>
+                <span>{formatCurrency(totalValue + valorAcrescer)}</span>
+              </div>
             </div>
 
             <div className="flex gap-3">

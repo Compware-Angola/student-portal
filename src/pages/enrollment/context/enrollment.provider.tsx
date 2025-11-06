@@ -19,6 +19,7 @@ import { StudentSituation } from '@/constants/student-situation'
 import { useQueryActivityAcademicConfirmationStudent } from '@/hooks/academic/use-quer-activity-academic-confirmation'
 import { getEnrollmentStatus } from '@/utils'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
+
 type ToggleState = {
   new: boolean
   pendents: boolean
@@ -262,16 +263,20 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     serviceTypeCode: number,
     enrollmentCode: number,
   ) => {
+    if (!profileData) {
+      throw new Error('dados do perfil nao encontrado')
+    }
     const now = new Date()
+    const valorAcrescer = enrollmentStatus === 'closed' ? 10200 : 0
     const invoice: CreateInvoiceBody = {
-      polo_id: 1,
-      TotalPreco: totalValue,
+      polo_id: parseInt(profileData?.poloId),
+      TotalPreco: totalValue + valorAcrescer,
       codigo_descricao: 101,
-      ValorAPagar: totalValue,
+      ValorAPagar: totalValue + valorAcrescer,
       total_incidencia: 0,
       total_retencao: 0,
       CodigoMatricula: enrollmentCode,
-      codigo_preinscricao: parseInt(profileData?.codigo_preinscricao!),
+      codigo_preinscricao: parseInt(profileData.codigo_preinscricao!),
       Desconto: 0,
       totalIVA: 0,
       TotalMulta: 0,
@@ -282,9 +287,9 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
         {
           CodigoProduto: serviceTypeCode,
           Quantidade: 1,
-          preco: totalValue,
-          Total: totalValue,
-          valor_pago: totalValue,
+          preco: totalValue + valorAcrescer,
+          Total: totalValue + valorAcrescer,
+          valor_pago: totalValue + valorAcrescer,
           obs: description,
           taxaIva: 0,
           valorIva: 0,
@@ -398,26 +403,26 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
       selectedSubjects.some((s) => s.codigoGrade === g.codigoGrade),
     )
 
-    // if (unselectedPendents.length > 0 && selectedNews.length > 0) {
-    //   toast.warning('Ainda há disciplinas pendentes não selecionadas.', {
-    //     description: 'Finalize as pendentes antes de adicionar novas cadeiras.',
-    //   })
-    //   return
-    // }
+    if (unselectedPendents.length > 0 && selectedNews.length > 0) {
+      toast.warning('Ainda há disciplinas pendentes não selecionadas.', {
+        description: 'Finalize as pendentes antes de adicionar novas cadeiras.',
+      })
+      return
+    }
 
     // 3️⃣ Verifica se todas as disciplinas selecionadas têm horário
     const missingSchedules = selectedSubjects.filter(
       (subject) => !selectedSchedules[subject.codigoGrade]?.codigoHorario,
     )
 
-    // if (missingSchedules.length > 0) {
-    //   const missingNames = missingSchedules.map((s) => s.disciplina).join(', ')
-    //   toast.warning(`Selecione o horário para: ${missingNames}`, {
-    //     description:
-    //       'Cada disciplina precisa ter um horário definido antes de continuar.',
-    //   })
-    //   return
-    // }
+    if (missingSchedules.length > 0) {
+      const missingNames = missingSchedules.map((s) => s.disciplina).join(', ')
+      toast.warning(`Selecione o horário para: ${missingNames}`, {
+        description:
+          'Cada disciplina precisa ter um horário definido antes de continuar.',
+      })
+      return
+    }
 
     const payload = getOldStudentEnrollmentPayload()
     await confirmOldStudentEnrollmentAsync(payload.selectedGrades)
