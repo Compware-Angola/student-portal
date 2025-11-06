@@ -13,6 +13,7 @@ import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AlertCircle, Calendar } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 type DiaSemana =
   | 'Segunda-Feira'
   | 'Terça-Feira'
@@ -41,19 +42,24 @@ const obterDiaAtual = () => {
   return dias[new Date().getDay()]
 }
 
+// 🧩 Componente principal
 export function Schedule() {
+  // Estados locais
   const [diaSelecionado, setDiaSelecionado] = useState(obterDiaAtual())
 
+  // 🔹 1. Consulta do perfil do estudante
   const {
     error: errorProfile,
     isError: isErrorProfile,
     isLoading: isLoadingProfile,
     profileData,
   } = useQueryProfile()
+  const { data: currentAcademicYear } = useQueryCurrentAcademicYear()
+  const academicYear = currentAcademicYear?.codigo
 
-  const academicYear = profileData?.confirmacoes[0]?.ano_lectivo
   const preEnrollmentCode = profileData?.preEnrollmentCode
 
+  // 🔹 2. Consulta do horário
   const {
     data: scheduleData,
     error: errorSchedule,
@@ -63,36 +69,8 @@ export function Schedule() {
     academicYear,
     preEnrollmentCode,
   })
-  // ✅ NOVA CONDIÇÃO: Confirmação não validada
-if (!isLoadingProfile && (!profileData?.confirmacoes || profileData.confirmacoes.length === 0)) {
-  return (
-    <div className="space-y-6 p-6">
-      <h1 className="text-3xl font-bold">Meu Horário</h1>
-      
-      <Card className="border-red-200 bg-red-50/50 overflow-hidden">
-        <CardContent className="flex flex-col items-center justify-center py-16 px-6 text-center">
-          
-          {/* ÍCONE ANIMADO CENTRALIZADO */}
-          <div className="relative mb-6">
-            <div className="absolute inset-0 animate-ping rounded-full bg-red-400 opacity-75 w-24 h-24 mx-auto" />
-            <div className="relative animate-bounce-slow">
-              <AlertCircle className="h-20 w-20 text-red-600 drop-shadow-lg" />
-            </div>
-          </div>
 
-          <h3 className="text-xl font-bold text-red-900 mb-2">
-            Confirmação Pendente
-          </h3>
-          
-          <p className="text-red-700 max-w-md leading-relaxed">
-            A sua confirmação <strong>não está validada pelo setor das finanças</strong>.<br />
-            Por favor, dirija-se à <strong>secretaria</strong> para regularizar a situação e acessar o seu horário.
-          </p>
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
+  // 🧩 Função para organizar as aulas por dia da semana
   const organizarPorDia = (): Record<DiaSemana, AulaHorario[]> => {
     const diasSemana: Record<DiaSemana, AulaHorario[]> = {
       'Segunda-Feira': [],
@@ -120,12 +98,14 @@ if (!isLoadingProfile && (!profileData?.confirmacoes || profileData.confirmacoes
       })
     })
 
+    // Ordenar aulas por hora
     Object.values(diasSemana).forEach((aulas) =>
       aulas.sort((a, b) => a.hora_inicio.localeCompare(b.hora_inicio)),
     )
 
     return diasSemana
   }
+
   const schedule = useMemo(() => organizarPorDia(), [scheduleData])
 
   const diasDisponiveis = useMemo(
@@ -139,15 +119,21 @@ if (!isLoadingProfile && (!profileData?.confirmacoes || profileData.confirmacoes
       : Object.entries(schedule).filter(([dia]) => dia === diaSelecionado)
   }, [diaSelecionado, schedule])
 
-  const temAulas = useMemo(() => {
-    return diasParaMostrar.some(([, aulas]) => aulas.length > 0)
-  }, [diasParaMostrar])
+  const temAulas = useMemo(
+    () => diasParaMostrar.some(([, aulas]) => aulas.length > 0),
+    [diasParaMostrar],
+  )
 
-  // ✅ AGORA OS RETURNS CONDICIONAIS
+  const formatarHora = (hora: string) => hora.substring(0, 5)
+
+  // 🧭 ======== RENDERIZAÇÃO CONDICIONAL ========
+
+  // ⏳ Carregando dados
   if (isLoadingProfile || isLoadingSchedule) {
     return <ScheduleSkeleton />
   }
 
+  // ❌ Erro na consulta
   if (isErrorProfile || isErrorSchedule) {
     return (
       <div className="space-y-6 p-6">
@@ -164,12 +150,44 @@ if (!isLoadingProfile && (!profileData?.confirmacoes || profileData.confirmacoes
     )
   }
 
-  if (!scheduleData || scheduleData.length === 0) {
+  // ⚠️ Confirmação pendente
+  if (!profileData?.confirmacoes || profileData.confirmacoes.length === 0) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 p-6">
         <h1 className="text-3xl font-bold">Meu Horário</h1>
 
-        <Card>
+        <Card className="border border-red-200  overflow-hidden shadow-sm">
+          <CardContent className="flex flex-col items-center justify-center py-16 px-6 text-center">
+            <div className="relative mb-6">
+              <div className="absolute inset-0 animate-ping rounded-full bg-red-400 opacity-75 w-24 h-24 mx-auto" />
+              <div className="relative animate-bounce-slow">
+                <AlertCircle className="h-20 w-20 text-red-600 drop-shadow-lg" />
+              </div>
+            </div>
+
+            <h3 className="text-xl font-bold text-red-900 mb-2">
+              Confirmação Pendente
+            </h3>
+
+            <p className="text-red-700 max-w-md leading-relaxed">
+              A sua confirmação{' '}
+              <strong>não está validada pelo setor das finanças</strong>.<br />
+              Por favor, dirija-se à <strong>secretaria</strong> para
+              regularizar a situação e acessar o seu horário.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  // 📅 Sem horário disponível
+  if (!scheduleData || scheduleData.length === 0) {
+    return (
+      <div className="space-y-6 p-6">
+        <h1 className="text-3xl font-bold">Meu Horário</h1>
+
+        <Card className="bg-muted/30 shadow-sm">
           <CardContent className="flex flex-col items-center justify-center py-16">
             <Calendar className="h-16 w-16 text-muted-foreground mb-4" />
             <h3 className="text-xl font-semibold mb-2">
@@ -185,15 +203,15 @@ if (!isLoadingProfile && (!profileData?.confirmacoes || profileData.confirmacoes
     )
   }
 
-  const formatarHora = (hora: string) => hora.substring(0, 5)
-
+  // ✅ Renderização normal do horário
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <h1 className="text-3xl font-bold">Meu Horário</h1>
       </div>
 
-      <div className="max-w-40">
+      {/* Filtro de dia da semana */}
+      <div className="max-w-48">
         <Select value={diaSelecionado} onValueChange={setDiaSelecionado}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Filtrar por dia da semana" />
@@ -208,6 +226,7 @@ if (!isLoadingProfile && (!profileData?.confirmacoes || profileData.confirmacoes
         </Select>
       </div>
 
+      {/* Conteúdo */}
       {!temAulas ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
@@ -226,16 +245,18 @@ if (!isLoadingProfile && (!profileData?.confirmacoes || profileData.confirmacoes
           {diasParaMostrar.map(
             ([dia, aulas]) =>
               aulas.length > 0 && (
-                <Card key={dia}>
+                <Card key={dia} className="shadow-sm border border-muted/30">
                   <CardHeader>
-                    <CardTitle className="text-lg">{dia}</CardTitle>
+                    <CardTitle className="text-lg font-semibold">
+                      {dia}
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-4">
                     <div className="space-y-3">
                       {aulas.map((aula, index) => (
                         <div
                           key={index}
-                          className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 rounded-lg border transition-colors"
+                          className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 rounded-lg border bg-card hover:bg-muted/40 transition-colors"
                         >
                           <div className="flex-shrink-0 font-medium text-sm text-muted-foreground min-w-[140px] flex items-center gap-2">
                             <span className="font-bold">
@@ -248,12 +269,8 @@ if (!isLoadingProfile && (!profileData?.confirmacoes || profileData.confirmacoes
                               {aula.disciplina}
                             </div>
                             <div className="text-sm text-muted-foreground flex flex-wrap gap-2">
-                              <span className="flex items-center gap-1">
-                                {aula.sala}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                {aula.tipo.toUpperCase()}
-                              </span>
+                              <span>{aula.sala}</span>
+                              <span className="uppercase">{aula.tipo}</span>
                             </div>
                           </div>
                         </div>

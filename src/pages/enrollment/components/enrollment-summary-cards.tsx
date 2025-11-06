@@ -102,7 +102,7 @@ export function EnrollmentSummaryCards() {
     <div className="space-y-3">
       {enrollmentState ? (
         <>
-          {profileData?.confirmacoes?.length > 0 ? (
+          {profileData?.confirmacoes && profileData.confirmacoes.length > 0 ? (
             <div>
               <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
                 <CardHeader>
@@ -116,11 +116,10 @@ export function EnrollmentSummaryCards() {
                       </CardTitle>
                       <br />
                       <CardDescription>
-                        {' '}
                         <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                          {profileData?.confirmacoes[0].classe}º Ano Ativo
+                          {profileData.confirmacoes[0].classe}º Ano Ativo
                         </Badge>{' '}
-                        - {profileData?.curso}
+                        - {profileData.curso}
                       </CardDescription>
                     </div>
                   </div>
@@ -133,35 +132,31 @@ export function EnrollmentSummaryCards() {
                         <p className="text-sm font-medium">Periodo</p>
                       </div>
                       <p className="text-2xl font-bold">
-                        {' '}
-                        {profileData?.periodo}
+                        {profileData.periodo}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         No ano atual
                       </p>
                     </div>
-
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <TrendingUp className="h-4 w-4 text-muted-foreground" />
                         <p className="text-sm font-medium">Polo</p>
                       </div>
                       <p className="text-2xl font-bold text-primary">
-                        {profileData?.polo}
+                        {profileData.polo}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         A decorrer
                       </p>
                     </div>
-
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <FileText className="h-4 w-4 text-muted-foreground" />
                         <p className="text-sm font-medium">Cadeirante</p>
                       </div>
                       <p className="text-2xl font-bold">
-                        {' '}
-                        {profileData?.confirmacoes[0].cadeirante}
+                        {profileData.confirmacoes[0].cadeirante}
                       </p>
                       <p className="text-xs text-muted-foreground">Este ano</p>
                     </div>
@@ -170,32 +165,24 @@ export function EnrollmentSummaryCards() {
               </Card>
             </div>
           ) : (
-            <Card className="border-amber-600   shadow-sm">
-              <CardHeader className="flex flex-row items-center gap-3">
-                <div className="p-3 bg-sencodary rounded-full">
-                  <AlertCircle className="h-6 w-6  text-amber-600" />
+            <Card className="border-red-200 overflow-hidden">
+              <CardContent className="flex flex-col items-center justify-center py-16 px-6 text-center">
+                <div className="relative mb-6">
+                  <div className="absolute inset-0 animate-ping rounded-full bg-red-400 opacity-75 w-24 h-24 mx-auto" />
+                  <div className="relative animate-bounce-slow">
+                    <AlertCircle className="h-20 w-20 text-red-600 drop-shadow-lg" />
+                  </div>
                 </div>
-                <div>
-                  <CardTitle className=" font-semibold">
-                    Matrícula Pendente
-                  </CardTitle>
-                  <CardDescription>
-                    Sua matrícula ainda não foi confirmada.
-                  </CardDescription>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm  leading-relaxed">
-                  Para prosseguir com as disciplinas, é necessário efetuar o
-                  pagamento da matrícula. Após o pagamento, sua inscrição será
-                  ativada automaticamente.
+                <h3 className="text-xl font-bold text-red-900 mb-2">
+                  Matrícula Pendente
+                </h3>
+                <p className="text-red-700 max-w-md leading-relaxed">
+                  A sua confirmação{' '}
+                  <strong>não está validada pelo setor das finanças</strong>.
+                  <br />
+                  Por favor, dirija-se à <strong>secretaria</strong> para
+                  regularizar a situação e acessar a sua matrícula.
                 </p>
-
-                <div className="mt-4 flex items-center gap-2">
-                  <Badge className="bg-amber-500/90 hover:bg-amber-600 text-white px-3 py-1">
-                    Pagamento Pendente
-                  </Badge>
-                </div>
               </CardContent>
             </Card>
           )}
