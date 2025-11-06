@@ -270,9 +270,9 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     const valorAcrescer = enrollmentStatus === 'closed' ? 10200 : 0
     const invoice: CreateInvoiceBody = {
       polo_id: parseInt(profileData?.poloId),
-      TotalPreco: totalValue + valorAcrescer,
+      TotalPreco: totalValue + valorAcrescer + 19300,
       codigo_descricao: 101,
-      ValorAPagar: totalValue + valorAcrescer,
+      ValorAPagar: totalValue + valorAcrescer + 19300,
       total_incidencia: 0,
       total_retencao: 0,
       CodigoMatricula: enrollmentCode,
@@ -287,9 +287,9 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
         {
           CodigoProduto: serviceTypeCode,
           Quantidade: 1,
-          preco: totalValue + valorAcrescer,
-          Total: totalValue + valorAcrescer,
-          valor_pago: totalValue + valorAcrescer,
+          preco: totalValue + valorAcrescer + 19300,
+          Total: totalValue + valorAcrescer + 19300,
+          valor_pago: totalValue + valorAcrescer + 19300,
           obs: description,
           taxaIva: 0,
           valorIva: 0,

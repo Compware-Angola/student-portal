@@ -65,22 +65,29 @@ export function EnrollmentResume() {
                 </li>
               ))}
             </ul>
-            <div className="pt-4">
+            <div className="pt-4 space-y-2">
+              <ResumoItem
+                label="Taxa de inscrição por disciplina"
+                value={formatCurrency(totalValue)}
+              />
+
+              <ResumoItem
+                label="Taxa de matrícula"
+                value={formatCurrency(19300)}
+              />
+
               {enrollmentStatus === 'closed' && (
-                <div className="flex justify-between text-lg font-bold">
-                  <span>Taxa de Inscrição Fora de Prazo:</span>
-                  <span>{formatCurrency(10200)}</span>
-                </div>
+                <ResumoItem
+                  label="Taxa de inscrição fora de época"
+                  value={formatCurrency(10200)}
+                />
               )}
 
-              <div className="flex justify-between text-lg font-bold">
-                <span>Disciplinas Calculadas:</span>
-                <span>{formatCurrency(totalValue)}</span>
-              </div>
-              <div className="flex justify-between text-lg font-bold">
-                <span>Total a pagar :</span>
-                <span>{formatCurrency(totalValue + valorAcrescer)}</span>
-              </div>
+              <ResumoItem
+                label="Total a pagar"
+                value={formatCurrency(totalValue + valorAcrescer + 19300)}
+                destaque
+              />
             </div>
 
             <div className="flex gap-3">
@@ -108,5 +115,25 @@ export function EnrollmentResume() {
         </Card>
       )}
     </>
+  )
+}
+function ResumoItem({
+  label,
+  value,
+  destaque = false,
+}: {
+  label: string
+  value: string
+  destaque?: boolean
+}) {
+  return (
+    <div
+      className={`flex justify-between text-lg ${
+        destaque ? 'font-extrabold text-primary' : 'font-semibold'
+      }`}
+    >
+      <span>{label}:</span>
+      <span>{value}</span>
+    </div>
   )
 }

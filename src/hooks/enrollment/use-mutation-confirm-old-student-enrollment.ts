@@ -3,8 +3,10 @@ import { toast } from 'sonner'
 import { confirmEnrolmentOldStudent } from '@/services/enrolment/confirm-enrolment-old-student.service'
 import type { OldStudentGrade } from '@/services/enrolment/confirm-enrolment-old-student.service'
 import { AuthStorage } from '@/storage/auth-storage'
+import { useNavigate } from 'react-router-dom'
 
 export function useMutationConfirmOldStudentEnrollment() {
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   const { mutate, mutateAsync, isPending, isSuccess } = useMutation({
@@ -18,8 +20,15 @@ export function useMutationConfirmOldStudentEnrollment() {
     },
 
     onSuccess: async () => {
-      toast.success('Matrícula de aluno antigo confirmada com sucesso!')
+      toast.success('Matrícula confirmada')
       await queryClient.invalidateQueries({ queryKey: ['profile'] })
+      await queryClient.invalidateQueries({
+        queryKey: ['academic-confirmation-new-student'],
+      })
+      await queryClient.invalidateQueries({
+        queryKey: ['student-situation'],
+      })
+      navigate('/financas')
     },
 
     onError: (error: Error) => {

@@ -5,8 +5,10 @@ import { AuthStorage } from '@/storage/auth-storage'
 
 import { confirmEnrolmentNewStudent } from '@/services/enrolment/confirm-enrolment-new-student.service'
 import type { Grade } from '@/types/grade'
+import { useNavigate } from 'react-router-dom'
 
 export function useMutationConfirmNewStudentEnrollment() {
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   const { mutate, isSuccess, mutateAsync, isPending } = useMutation({
@@ -21,6 +23,13 @@ export function useMutationConfirmNewStudentEnrollment() {
     onSuccess: async () => {
       toast.success('Matrícula confirmada')
       await queryClient.invalidateQueries({ queryKey: ['profile'] })
+      await queryClient.invalidateQueries({
+        queryKey: ['academic-confirmation-new-student'],
+      })
+      await queryClient.invalidateQueries({
+        queryKey: ['student-situation'],
+      })
+      navigate('/financas')
     },
 
     onError: (error: Error) => {
