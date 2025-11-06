@@ -14,11 +14,11 @@ export function EnrollmentHeader() {
     <div className="flex items-center justify-between">
       <div>
         <h1 className="text-3xl font-bold">Matrícula</h1>
-         {
-        enrollmentState ?
-        <p></p>
-        :<p>Selecione as disciplinas para o ano letivo</p> 
-          }
+        {enrollmentState ? (
+          <p></p>
+        ) : (
+          <p>Selecione as disciplinas para o ano letivo</p>
+        )}
       </div>
 
       {!enrollmentState && (

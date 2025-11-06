@@ -14,8 +14,9 @@ export function EnrollmentResume() {
     removeAll,
     confirmStudentEnrollment,
     confirmStudentEnrollmentState,
+    enrollmentStatus,
   } = useEnrollment()
-
+  const valorAcrescer = enrollmentStatus === 'closed' ? 10200 : 0
   return (
     <>
       {selectedSubjects.length === 0 ? null : (
@@ -64,10 +65,29 @@ export function EnrollmentResume() {
                 </li>
               ))}
             </ul>
+            <div className="pt-4 space-y-2">
+              <ResumoItem
+                label="Taxa de inscrição por disciplina"
+                value={formatCurrency(totalValue)}
+              />
 
-            <div className=" pt-4 flex justify-between text-lg font-bold">
-              <span>Total a Pagar:</span>
-              <span>{formatCurrency(totalValue)}</span>
+              <ResumoItem
+                label="Taxa de matrícula"
+                value={formatCurrency(19300)}
+              />
+
+              {enrollmentStatus === 'closed' && (
+                <ResumoItem
+                  label="Taxa de inscrição fora de época"
+                  value={formatCurrency(10200)}
+                />
+              )}
+
+              <ResumoItem
+                label="Total a pagar"
+                value={formatCurrency(totalValue + valorAcrescer + 19300)}
+                destaque
+              />
             </div>
 
             <div className="flex gap-3">
@@ -95,5 +115,25 @@ export function EnrollmentResume() {
         </Card>
       )}
     </>
+  )
+}
+function ResumoItem({
+  label,
+  value,
+  destaque = false,
+}: {
+  label: string
+  value: string
+  destaque?: boolean
+}) {
+  return (
+    <div
+      className={`flex justify-between text-lg ${
+        destaque ? 'font-extrabold text-primary' : 'font-semibold'
+      }`}
+    >
+      <span>{label}:</span>
+      <span>{value}</span>
+    </div>
   )
 }
