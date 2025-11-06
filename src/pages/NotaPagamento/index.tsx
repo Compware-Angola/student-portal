@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { FileText, Download, Printer, Eye } from 'lucide-react'
+import { FileText, Download, Eye } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -216,7 +216,7 @@ const getMetodoPagamento = (metodo?: string) => {
                                     {getMetodoPagamento(nota.metodoPagamento)}
                                 </p>
                             </div>
-                            {/* O comprovante virá da API, mas por enquanto, manteremos a lógica */}
+                            {/* O comprovante virá da API, mas por enquanto, manteremos a lógica 
                             {nota.comprovante && (
                                 <div>
                                     <p className="text-sm font-semibold mb-2">Comprovante</p>
@@ -225,11 +225,10 @@ const getMetodoPagamento = (metodo?: string) => {
                                         Descarregar Comprovante
                                     </Button>
                                 </div>
-                            )}
+                            )}*/}
                         </div>
                     )}
-
-                    <div className="flex gap-3 pt-4">
+          {/*  <div className="flex gap-3 pt-4">
                         <Button className="flex-1">
                             <Download className="mr-2 h-4 w-4" />
                             Descarregar PDF
@@ -237,7 +236,8 @@ const getMetodoPagamento = (metodo?: string) => {
                         <Button variant="outline">
                             <Printer className="h-4 w-4" />
                         </Button>
-                    </div>
+                    </div>*/}
+                  
                 </div>
             </DialogContent>
         </Dialog>
