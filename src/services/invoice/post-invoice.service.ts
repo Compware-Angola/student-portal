@@ -15,18 +15,18 @@ export type InvoiceItem = {
   descontoProduto: number
   mes: string
   multa: number
-  mesTempId: number
+  mesTempId?: number
   estado: number
   valorPago: number
   valorATransportar: number
-  codigoFactura: number
+  codigoFactura?: number
 }
 
 export type CreateInvoiceBody = {
   DataFactura: string
   polo_id: number
   TotalPreco: number
-  codigo_descricao: number
+  codigo_descricao: any
   ValorAPagar: number
   total_incidencia: number
   total_retencao: number

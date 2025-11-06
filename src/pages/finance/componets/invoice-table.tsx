@@ -319,7 +319,7 @@ export function InvoicesTable({
     enrollmentCode,
     page,
     limit,
-    academicYear: selectedAcademicYear // Filtro aplicado corretamente
+    academicYear: selectedAcademicYear 
   })
 
   const gerarRefMutation = useGenerateReference()
