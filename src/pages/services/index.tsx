@@ -5,11 +5,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
-import { useState, useMemo } from 'react'
-import { BookOpen, DollarSign, CheckCircle2 } from 'lucide-react'
+import { useState } from 'react'
+import { BookOpen } from 'lucide-react'
 import { useQueryAvailableServices } from '@/hooks/service/use-query-available-services'
 
 
@@ -29,7 +29,8 @@ export function AcademicServices() {
         : [...prev, codigo],
     )
   }
-
+  
+  /*
   // --- CÁLCULO E ESTRUTURAÇÃO DO OBJETO FINAL (NOVA LÓGICA) ---
   const paymentDetails = useMemo(() => {
     // Verifica se os dados estão disponíveis e se 'servicos' é um array
@@ -59,18 +60,17 @@ export function AcademicServices() {
       servicos: servicosSelecionadosFormatados,
     };
   }, [selectedServices, availableServices]);
-  
-  // Extrai o total para uso na UI
+ Extrai o total para uso na UI
   const totalCost = paymentDetails.total;
 
-
+  
   const handleProceedToPayment = () => {
       if (paymentDetails.servicos.length === 0) {
           // Aqui, você pode usar um modal ou notificação em vez de alert
           console.error("Nenhum serviço selecionado.");
           return;
       }
-      
+    
       // ESTE É O OBJETO FINAL NO FORMATO SOLICITADO
       const finalPayload = {
           total: paymentDetails.total,
@@ -84,7 +84,7 @@ export function AcademicServices() {
       
       alert(`Ação: Chamada API para gerar Referência Bancária única. Total: ${finalPayload.total.toLocaleString('pt-PT', { style: 'currency', currency: 'AOA', minimumFractionDigits: 0 })}. Verifique o console para o objeto final.`);
   }
-
+*/
   // --- Estados de Carregamento e Erro ---
   if (isLoading) {
     return (
@@ -184,7 +184,7 @@ export function AcademicServices() {
               </div>
             ))}
           </div>
-
+      { /*
           {selectedServices.length > 0 && (
             <div className="mt-6 pt-6 border-t space-y-4">
               <div className="flex items-center justify-between">
@@ -197,7 +197,7 @@ export function AcademicServices() {
                 <div className="text-right">
                   <p className="text-sm text-muted-foreground">Total a pagar</p>
                   <p className="text-2xl font-bold text-primary">
-                    {/* Usando formatação de moeda para AOA (Kwanzas) */}
+                    {/* Usando formatação de moeda para AOA (Kwanzas) 
                     {totalCost.toLocaleString('pt-PT', { style: 'currency', currency: 'AOA', minimumFractionDigits: 0 })}
                   </p>
                 </div>
@@ -211,7 +211,7 @@ export function AcademicServices() {
                 Proceder ao Pagamento
               </Button>
             </div>
-          )}
+          )} */}
         </CardContent>
       </Card>
     </>

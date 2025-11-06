@@ -47,6 +47,7 @@ import {
   type DebtNegotiationResponse,
 } from '@/services/renegotiation/renegotiation.service';
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year';
+import { useNavigate } from 'react-router-dom';
 
 // === SCHEMA ===
 const simulateNegotiationSchema = z.object({
@@ -64,16 +65,11 @@ const simulateNegotiationSchema = z.object({
 type SearchDebtFormData = z.infer<typeof searchDebtSchema>;
 type SimulateNegotiationFormData = z.infer<typeof simulateNegotiationSchema>;
 
-interface PaymentReference {
-  id: string;
-  referenceNumber: string;
-  entity: string;
-  startDate: string;
-  expirationDate: string;
-}
+
 
 export const Renegociation = () => {
   const queryClient = useQueryClient();
+   const navigate = useNavigate()
   const { isLoading: isLoadingProfile, profileData } = useQueryProfile();
   const { data: academicYear } = useQueryCurrentAcademicYear();
 
@@ -81,7 +77,6 @@ export const Renegociation = () => {
   const [debtData, setDebtData] = useState<DebtNegotiationResponse | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [simulationData, setSimulationData] = useState<SimulateNegotiationFormData | null>(null);
-  const [paymentReferences, setPaymentReferences] = useState<PaymentReference[]>([]);
 
   const searchForm = useForm<SearchDebtFormData>({
     resolver: zodResolver(searchDebtSchema),
@@ -143,7 +138,7 @@ export const Renegociation = () => {
       simulateForm.setValue('enrollmentCode', data.enrollmentCode);
       simulateForm.setValue('totalAmount', result.totalDivida);
       setStep('simulate');
-      toast.success('Dívidas carregadas com sucesso');
+     
     } catch (error: any) {
       console.error(error);
       if (error.response?.status === 404) {
@@ -209,7 +204,7 @@ export const Renegociation = () => {
 
       console.log('Payload enviado:', payload);
       // const response = await apexApi.post(...).json();
-      // setPaymentReferences(response);
+      
       toast.success('Renegociação confirmada com sucesso!');
       setStep('complete');
     } catch (error: any) {
@@ -222,15 +217,13 @@ export const Renegociation = () => {
   const formatCurrency = (value: number) =>
     `${value.toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Kz`;
 
-  const formatDate = (dateString: string) =>
-    new Date(dateString).toLocaleDateString('pt-AO');
 
   // === RESET ===
   const resetProcess = () => {
     setStep('search');
     setDebtData(null);
     setSimulationData(null);
-    setPaymentReferences([]);
+   
     searchForm.reset();
     simulateForm.reset();
   };
@@ -466,40 +459,53 @@ export const Renegociation = () => {
       )}
 
       {/* PASSO 4: COMPLETO */}
-      {step === 'complete' && paymentReferences.length > 0 && (
-        <Card className="border-success">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-success">
-              <CheckCircle2 className="h-5 w-5" />
-              Renegociação Confirmada!
-            </CardTitle>
-            <CardDescription>Referências geradas</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {paymentReferences.map((ref) => (
-              <div key={ref.id} className="p-4 bg-muted rounded-lg space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Referência</span>
-                  <span className="font-bold text-lg">{ref.referenceNumber}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Entidade</span>
-                  <span className="font-semibold">{ref.entity}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Validade</span>
-                  <span className="font-semibold">
-                    {formatDate(ref.startDate)} - {formatDate(ref.expirationDate)}
-                  </span>
-                </div>
-              </div>
-            ))}
-            <Button onClick={resetProcess} className="w-full">
-              Nova Renegociação
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+     {step === 'complete' && (
+  <Card className="border-success/20 bg-success/5">
+    <CardContent className="flex flex-col items-center justify-center py-16 text-center space-y-6">
+      {/* Animação de Sucesso */}
+      <div className="relative">
+        <div className="animate-ping absolute inline-flex h-20 w-20 rounded-full bg-success/20 opacity-75"></div>
+        <div className="relative inline-flex rounded-full bg-success/10 p-4">
+          <CheckCircle2 className="h-12 w-12 text-success animate-bounce" />
+        </div>
+      </div>
+
+      {/* Título */}
+      <div>
+        <h3 className="text-2xl font-bold text-foreground">Renegociação Confirmada!</h3>
+        <p className="text-muted-foreground mt-1">
+          Sua renegociação foi processada com sucesso.
+        </p>
+      </div>
+
+      {/* Instrução */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md">
+        <p className="text-sm font-medium text-blue-900">
+          Vá à área de <span className="font-bold">Finanças</span> para:
+        </p>
+        <ul className="mt-2 text-sm text-blue-800 space-y-1">
+          <li>Ver a nota de pagamento</li>
+          <li>Obter a referência Multicaixa</li>
+          <li>Efetuar o pagamento</li>
+        </ul>
+      </div>
+
+      {/* Botões */}
+      <div className="flex gap-3 w-full max-w-xs">
+        <Button variant="outline" onClick={resetProcess} className="flex-1">
+          Nova Renegociação
+        </Button>
+        <Button
+          className="flex-1"
+          onClick={() => navigate('/financas')}
+         
+        >
+          Ir para Finanças
+        </Button>
+      </div>
+    </CardContent>
+  </Card>
+)}
     </div>
   );
 };

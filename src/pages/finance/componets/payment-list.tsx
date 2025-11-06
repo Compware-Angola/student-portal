@@ -127,7 +127,7 @@ export function PaymentList({
 
               <div className="flex items-center gap-4">
                 <div className="text-right space-y-2">
-                  <p className="font-bold">{p.total_item} Kz</p>
+                  <p className="font-bold">{p.total_preco} Kz</p>
                   {getStatusBadge(getPaymentStatus(p.status_pagamento))}
                 </div>
                 {!p.reference && (
