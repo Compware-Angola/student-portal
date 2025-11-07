@@ -49,6 +49,17 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import PaymentReceipt2 from '@/components/uma-recibo-pagamento'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 // --- Chave do localStorage ---
 const PENDING_TASKS_KEY = 'pending_payment_tasks'
@@ -581,47 +592,76 @@ function useColumnsInvoiceTable({
         const estaPendente = invoice.estado === 0
         const isPolling = usePollPendingTasks(invoice.Codigo, enrollmentCode)
 
-        return (
-          <div className="flex items-center justify-end gap-2">
-            {/* Gerar Referência */}
-            {(!temReferencia && estaPendente )? (
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-8 text-xs"
-                disabled={gerarRefMutation.isPending || isPolling}
-                onClick={() => {
-                  if (confirm('Gerar nova referência de pagamento?')) {
-                    gerarRefMutation.mutate({ codigoFactura: invoice.Codigo })
-                  }
-                }}
-              >
-                {(gerarRefMutation.isPending || isPolling) ? (
-                  <>
-                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                    Gerando...
-                  </>
-                ) : (
-                  'Gerar Referência'
-                )}
-              </Button>
-            ):
-             <PaymentReceipt
-                  invoice={invoice}
-                  academicYear={findAcademicYearDesignation(invoice.ano_lectivo)}
+       return (
+  <div className="flex items-center justify-end gap-2">
+    {/* Gerar Referência */}
+    {(!temReferencia && estaPendente) ? (
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8 text-xs"
+            disabled={gerarRefMutation.isPending || isPolling}
+          >
+            {gerarRefMutation.isPending || isPolling ? (
+              <>
+                <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                Gerando...
+              </>
+            ) : (
+              "Gerar Referência"
+            )}
+          </Button>
+        </AlertDialogTrigger>
 
-                  showDownloadButton={false}
-                  showPrintButton={true}
-                />
-            }
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Gerar nova referência de pagamento?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação irá gerar uma nova referência Multibanco/ MB Way para a Nota de Pagamento{" "}
+              <span className="font-medium">{invoice.Codigo}</span>.
+              <br />
+             
+            </AlertDialogDescription>
+          </AlertDialogHeader>
 
-            {/* Ver Detalhes */}
-            <InvoiceDetailsDialog
-              invoice={invoice}
-              findAcademicYearDesignation={findAcademicYearDesignation}
-            />
-          </div>
-        )
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() =>
+                gerarRefMutation.mutate({ codigoFactura: invoice.Codigo })
+              }
+              disabled={gerarRefMutation.isPending || isPolling}
+            >
+              {gerarRefMutation.isPending || isPolling ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  A gerar...
+                </>
+              ) : (
+                "Gerar"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    ) : (
+      <PaymentReceipt
+        invoice={invoice}
+        academicYear={findAcademicYearDesignation(invoice.ano_lectivo)}
+        showDownloadButton={false}
+        showPrintButton={true}
+      />
+    )}
+
+    {/* Ver Detalhes */}
+    <InvoiceDetailsDialog
+      invoice={invoice}
+      findAcademicYearDesignation={findAcademicYearDesignation}
+    />
+  </div>
+)
       },
     },
   ]
