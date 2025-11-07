@@ -49,6 +49,7 @@ import {
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year';
 import { useNavigate } from 'react-router-dom';
 import { useMutationNegotiation } from '@/hooks/renegotiation/use-query-renegotiation';
+import { ApiError } from '@/error';
 
 // === SCHEMA ===
 const simulateNegotiationSchema = z.object({
@@ -205,15 +206,21 @@ export const Renegociation = () => {
 
       console.log('Payload enviado:', payload);
       await createRenegotiationAsync({
-        payload,                         
-        enrollmentCode: profileData?.codigo_matricula ?? '', 
+        payload,
+        enrollmentCode: profileData?.codigo_matricula ?? '',
       });
 
       toast.success('Renegociação confirmada com sucesso!');
       setStep('complete');
     } catch (error: any) {
-      console.error('Erro:', error);
-      toast.error(error.response?.data?.message || 'Erro ao confirmar');
+      console.error('Erro ao criar renegociação:', error);
+      if (error instanceof ApiError) {
+        // Remove as aspas quebradas que o backend manda
+      //  const cleanMessage = error.message.replace(/"/g, '').trim()
+       // toast.error(cleanMessage || 'Erro ao criar renegociação.')
+      } else {
+        toast.error('Erro de conexão. Tente novamente.')
+      }
     }
   };
 

@@ -584,7 +584,7 @@ function useColumnsInvoiceTable({
         return (
           <div className="flex items-center justify-end gap-2">
             {/* Gerar Referência */}
-            {!temReferencia && estaPendente && (
+            {(!temReferencia && estaPendente )? (
               <Button
                 size="sm"
                 variant="outline"
@@ -605,7 +605,15 @@ function useColumnsInvoiceTable({
                   'Gerar Referência'
                 )}
               </Button>
-            )}
+            ):
+             <PaymentReceipt
+                  invoice={invoice}
+                  academicYear={findAcademicYearDesignation(invoice.ano_lectivo)}
+
+                  showDownloadButton={false}
+                  showPrintButton={true}
+                />
+            }
 
             {/* Ver Detalhes */}
             <InvoiceDetailsDialog

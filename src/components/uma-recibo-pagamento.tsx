@@ -11,7 +11,7 @@ import {
 } from '@react-pdf/renderer'
 import { Button } from '@/components/ui/button'
 import type { Invoice } from '@/services/invoice/get-invoices-by-matricula.service'
-import {  FileText, Loader2 } from 'lucide-react'
+import { FileText, Loader2 } from 'lucide-react'
 
 // Estilos refinados
 const styles = StyleSheet.create({
@@ -155,21 +155,21 @@ function PaymentReceiptDocument({
             <Text style={styles.companyName}>
               Universidade Metodista de Angola
             </Text>
-             Informações opcionais da empresa
-    
+            Informações opcionais da empresa
+
             <Text style={styles.companyDetails}></Text>
             <Text style={styles.companyDetails}>Nome: MUTUE- SOLUÇOES TECNOLOGIA INTELIGENTES, LDA</Text>
             <Text style={styles.companyDetails}>NIF: 5000977381</Text>
             <Text style={styles.companyDetails}>Cidade: Luanda - Angola</Text>
             <Text style={styles.companyDetails}>Tel: +244 922969192 </Text>
-            <Text style={styles.companyDetails}>Email: geral@mutue.net</Text> 
-            <Text style={styles.companyDetails}>Web-site: www.mutue.net</Text> 
-            
+            <Text style={styles.companyDetails}>Email: geral@mutue.net</Text>
+            <Text style={styles.companyDetails}>Web-site: www.mutue.net</Text>
+
           </View>
         </View>
 
         {/* ---------- Título ---------- */}
-        <Text style={styles.title}>Recibo de Pagamento</Text>
+        <Text style={styles.title}>Nota de Pagamento</Text>
 
         {/* ---------- Informações principais ---------- */}
         <View style={styles.section}>
@@ -271,7 +271,12 @@ function PaymentReceiptDocument({
             Total Incidência: {Number(invoice.total_incidencia).toFixed(2)} Kz
           </Text>
           <Text style={styles.totalText}>
-            Total Pago: {Number(invoice.TotalPreco).toFixed(2)} Kz
+            {invoice.estado === 0
+              ? `Total a pagar: ${Number(invoice.TotalPreco).toFixed(2)} Kz`
+              : invoice.estado === 1
+                ? `Total pago: ${Number(invoice.TotalPreco).toFixed(2)} Kz`
+                : `Valor: ${Number(invoice.TotalPreco).toFixed(2)} Kz`
+            }
           </Text>
           <Text>({invoice.ValorAPagarExtenso})</Text>
         </View>
@@ -298,34 +303,34 @@ export function PaymentReceipt2({
   )
 
 
-return (
-  <div className="flex gap-3 pt-4">
-    <PDFDownloadLink
-      document={document}
-      fileName={`Recibo_de_pagamento_UMA_${invoice.Codigo}.pdf`}
-    >
-      {({ loading }) => (
-        <Button
-          className="flex-1"
-          disabled={loading}
-          aria-label={loading ? 'A gerar recibo...' : 'Descarregar recibo de pagamento'}
-        >
-          {loading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              A gerar recibo...
-            </>
-          ) : (
-            <>
-              <FileText className="mr-2 h-4 w-4" />
-              Pagar Em Cash 
-            </>
-          )}
-        </Button>
-      )}
-    </PDFDownloadLink>
-  </div>
-);
+  return (
+    <div className="flex gap-3 pt-4">
+      <PDFDownloadLink
+        document={document}
+        fileName={`Recibo_de_pagamento_UMA_${invoice.Codigo}.pdf`}
+      >
+        {({ loading }) => (
+          <Button
+            className="flex-1"
+            disabled={loading}
+            aria-label={loading ? 'A gerar recibo...' : 'Descarregar recibo de pagamento'}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                A gerar recibo...
+              </>
+            ) : (
+              <>
+                <FileText className="mr-2 h-4 w-4" />
+                Pagar Em Cash
+              </>
+            )}
+          </Button>
+        )}
+      </PDFDownloadLink>
+    </div>
+  );
 }
 
 export default PaymentReceipt2

@@ -167,7 +167,7 @@ function PaymentReceiptDocument({
         </View>
 
         {/* ---------- Título ---------- */}
-        <Text style={styles.title}>Recibo de Pagamento</Text>
+        <Text style={styles.title}>Nota de Pagamento</Text>
 
         {/* ---------- Informações principais ---------- */}
         <View style={styles.section}>
@@ -269,7 +269,12 @@ function PaymentReceiptDocument({
             Total Incidência: {Number(invoice.total_incidencia).toFixed(2)} Kz
           </Text>
           <Text style={styles.totalText}>
-            Total Pago: {Number(invoice.TotalPreco).toFixed(2)} Kz
+            {invoice.estado === 0
+              ? `Total a pagar: ${Number(invoice.TotalPreco).toFixed(2)} Kz`
+              : invoice.estado === 1
+                ? `Total pago: ${Number(invoice.TotalPreco).toFixed(2)} Kz`
+                : `Valor: ${Number(invoice.TotalPreco).toFixed(2)} Kz`
+            }
           </Text>
           <Text>({invoice.ValorAPagarExtenso})</Text>
         </View>
@@ -287,9 +292,14 @@ function PaymentReceiptDocument({
 export function PaymentReceipt({
   invoice,
   academicYear,
+  showDownloadButton = true,
+  showPrintButton = true,
+
 }: {
   invoice: Invoice
   academicYear: string
+  showPrintButton?: boolean
+  showDownloadButton?: boolean
 }) {
   const document = (
     <PaymentReceiptDocument invoice={invoice} academicYear={academicYear} />
@@ -317,24 +327,28 @@ export function PaymentReceipt({
   }
 
   return (
-    <div className="flex gap-3 pt-4">
+    <div className="flex items-center justify-end gap-2">
       {/* Botão para descarregar o PDF — ocupa o espaço (flex-1) */}
-      <PDFDownloadLink
-        document={document}
-        fileName={`Recibo_de_pagamento_UMA_${invoice.Codigo}.pdf`}
-      >
-        {({ loading }) => (
-          <Button className="flex-1" disabled={loading} aria-label="Descarregar PDF">
-            <Download className="mr-2 h-4 w-4" />
-            Descarregar PDF
-          </Button>
-        )}
-      </PDFDownloadLink>
 
-      {/* Botão para imprimir — apenas ícone, variante outline */}
-      <Button variant="outline" onClick={handlePrint} aria-label="Imprimir">
-        <Printer className="h-4 w-4" />
-      </Button>
+      {showDownloadButton && (
+        <PDFDownloadLink
+          document={document}
+          fileName={`Recibo_de_pagamento_UMA_${invoice.Codigo}.pdf`}
+        >
+          {({ loading }) => (
+            <Button className="flex-1" disabled={loading} aria-label="Descarregar PDF">
+              <Download className="mr-2 h-4 w-4" />
+              Descarregar PDF
+            </Button>
+          )}
+        </PDFDownloadLink>
+      )}
+
+      {showPrintButton && (
+        <Button variant="outline" onClick={handlePrint} aria-label="Imprimir recibo">
+          <Printer className="h-4 w-4" />
+        </Button>
+      )}
     </div>
   )
 }
