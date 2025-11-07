@@ -1,8 +1,11 @@
 import {
+  createDebitNegotation,
   getDebit,
   type DebtNegotiationResponse,
+  type RenegociacaoPayload,
 } from '@/services/renegotiation/renegotiation.service'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 interface UseQueryDebitFeeParams {
   enrollmentCode?: string
@@ -26,7 +29,7 @@ export function useQueryGetDebit({
         }
         return getDebit({ enrollmentCode, preinscricao, type })
       },
-      enabled:Boolean(isEnabled) ,
+      enabled: Boolean(isEnabled),
       staleTime: Infinity,
       retry: 0,
     },
@@ -38,4 +41,33 @@ export function useQueryGetDebit({
     error,
     isError,
   }
+}type RenegociacaoVariables = {
+  payload: RenegociacaoPayload;
+  enrollmentCode: string;
+};
+
+export function useMutationNegotiation() {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: ({ payload, enrollmentCode }: RenegociacaoVariables) =>
+      createDebitNegotation(enrollmentCode, payload),
+    
+    onSuccess: () => {
+      toast.success('Renegociação criada com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['create-renegotiation-debit'] });
+    },
+    
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : 'Erro ao criar Renegociação.';
+      toast.error(message);
+    },
+  });
+
+  return {
+    createRenegotiation: mutation.mutate,
+    createRenegotiationAsync: mutation.mutateAsync,
+    createRenegotiationPending: mutation.isPending,
+    createRenegotiationSuccess: mutation.isSuccess,
+  };
 }
