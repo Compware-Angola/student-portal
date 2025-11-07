@@ -75,7 +75,7 @@ export const Dashboard = () => {
 
   // === Loading & Erros ===
 
-  const greeting = `${profileData.sexo === 'Feminino' ? 'Bem-vinda' : 'Bem-vindo'}, ${profileData.firstName} ${profileData.lastName}`
+  const greeting = `${profileData?.sexo === 'Feminino' ? 'Bem-vinda' : 'Bem-vindo'}, ${profileData?.firstName} ${profileData?.lastName}`
 
   // === Normalização ===
   const normalizedMensagens: Notification[] = (mensagens || []).map((item) => ({
