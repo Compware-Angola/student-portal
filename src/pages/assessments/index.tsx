@@ -4,9 +4,11 @@ import { GradeCurrentAcademicYear } from './grade CurrentAcademicYear'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { toast } from 'sonner'
 import { CurriculumCard } from './curriculum-card'
+import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 
 export function Assessments() {
   const { profileData, isError, isLoading } = useQueryProfile()
+  const {data:academicYearData}=useQueryCurrentAcademicYear()
 
   useEffect(() => {
     if (isError) {
@@ -20,7 +22,7 @@ export function Assessments() {
 
   const enrollmentCode = profileData?.codigo_matricula
   const classe = profileData?.confirmacoes[0]?.classe
-  const academicYear = profileData?.confirmacoes[0]?.ano_lectivo
+  const academicYear = academicYearData?.codigo||profileData?.confirmacoes[0]?.ano_lectivo
   const preEnrollmentCode = profileData?.preEnrollmentCode
 
   return (

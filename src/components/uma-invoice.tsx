@@ -333,7 +333,7 @@ export function PaymentReceipt({
       {showDownloadButton && (
         <PDFDownloadLink
           document={document}
-          fileName={`Recibo_de_pagamento_UMA_${invoice.Codigo}.pdf`}
+          fileName={`Nota_de_pagamento_UMA_${invoice.Codigo}.pdf`}
         >
           {({ loading }) => (
             <Button className="flex-1" disabled={loading} aria-label="Descarregar PDF">

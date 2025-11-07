@@ -307,13 +307,13 @@ export function PaymentReceipt2({
     <div className="flex gap-3 pt-4">
       <PDFDownloadLink
         document={document}
-        fileName={`Recibo_de_pagamento_UMA_${invoice.Codigo}.pdf`}
+        fileName={`Nota_de_pagamento_UMA_${invoice.Codigo}.pdf`}
       >
         {({ loading }) => (
           <Button
             className="flex-1"
             disabled={loading}
-            aria-label={loading ? 'A gerar recibo...' : 'Descarregar recibo de pagamento'}
+            aria-label={loading ? 'A gerar Nota...' : 'Descarregar Nota de pagamento'}
           >
             {loading ? (
               <>
