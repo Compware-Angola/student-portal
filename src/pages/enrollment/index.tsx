@@ -10,6 +10,7 @@ import { EnrollmentSkeleton } from './components/enrollment-skeleton'
 import { Badge } from '@/components/ui/badge'
 import { useEffect } from 'react'
 import { StudentSituation } from '@/constants/student-situation'
+import { PaymentAlert } from '@/components/payment-alert'
 
 function EnrollmentContent() {
   const {
@@ -24,6 +25,9 @@ function EnrollmentContent() {
     isNewStudentWithOutEnrollment,
     isLoadingAcademmicYear,
     studentSituation,
+    isLoadingStudenttatistics,
+    studentStatistics,
+    profileData,
   } = useEnrollment()
   useEffect(() => {
     if (isErrorProfileData) {
@@ -40,20 +44,25 @@ function EnrollmentContent() {
     isErrorStudentCurriculumPlan,
     isErrorStudentCurriculumPlanPendents,
   ])
-  if (
-    isLoadingProfileData ||
-    isErrorProfileData ||
-    isLoadingStudentCurriculumPlan ||
-    isLoadingStudentCurriculumPlanPendents ||
-    isLoadingAcademmicYear
-  ) {
-    return <EnrollmentSkeleton />
-  }
   const enrollmentState =
     StudentSituation.NEW_WITH_CURRENT_CONFIRMATION ===
       Number(studentSituation?.codigo_status) ||
     StudentSituation.OLD_WITH_CURRENT_CONFIRMATION ===
       Number(studentSituation?.codigo_status)
+  if (
+    isLoadingProfileData ||
+    isErrorProfileData ||
+    isLoadingStudentCurriculumPlan ||
+    isLoadingStudentCurriculumPlanPendents ||
+    isLoadingAcademmicYear ||
+    isLoadingStudenttatistics ||
+    !studentStatistics ||
+    !profileData
+  ) {
+    return <EnrollmentSkeleton />
+  }
+  if ((studentStatistics.valor_divida ?? 0) > 0) return <PaymentAlert />
+
   return (
     <div className="space-y-6">
       <EnrollmentHeader />

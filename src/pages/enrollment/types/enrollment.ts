@@ -1,5 +1,7 @@
+import type { StudentDashboardStatistics } from '@/services/statistics/dashboard'
 import type { StudentSituationResponse } from '@/services/students/situation.service'
 import type { Grade } from '@/types/grade'
+import type { ProfileData } from '@/types/profile'
 
 export type EnrollmentContextType = {
   selectedSubjects: Grade[]
@@ -36,6 +38,9 @@ export type EnrollmentContextType = {
   enrollmentStatus: 'not_yet_open' | 'open' | 'closed'
   isLoadingAcademmicYear: boolean
   isErrorAcademicYear: boolean
+  studentStatistics?: StudentDashboardStatistics
+  isLoadingStudenttatistics: boolean
+  profileData: ProfileData | null
 }
 export type SectionKey = 'new' | 'pendents'
 

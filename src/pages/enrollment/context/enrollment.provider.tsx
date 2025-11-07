@@ -19,7 +19,7 @@ import { StudentSituation } from '@/constants/student-situation'
 import { useQueryActivityAcademicConfirmationStudent } from '@/hooks/academic/use-quer-activity-academic-confirmation'
 import { getEnrollmentStatus } from '@/utils'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
-
+import { useQueryStudentDashboardStatistics } from '@/hooks/statics/use-query-student-dashboard-statistics'
 type ToggleState = {
   new: boolean
   pendents: boolean
@@ -53,13 +53,8 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
       Number(studentSituation?.codigo_status) ||
     StudentSituation.OLD_WITHOUT_CURRENT_CONFIRMATION ===
       Number(studentSituation?.codigo_status)
-  console.log({
-    shouldFecthCurriculumPlan,
-    aaaa: Number(studentSituation?.codigo_status),
-    newWithput: StudentSituation.NEW_WITHOUT_ENROLLMENT,
-    old: StudentSituation.OLD_WITHOUT_CURRENT_CONFIRMATION,
-  })
-
+  const { isLoading: isLoadingStudenttatistics, data: studentStatistics } =
+    useQueryStudentDashboardStatistics(profileData?.enrollmentCode)
   const shouldFecthCurriculumPlanPendents =
     StudentSituation.OLD_WITHOUT_CURRENT_CONFIRMATION ===
     Number(studentSituation?.codigo_status)
@@ -467,6 +462,9 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
         enrollmentStatus,
         isLoadingAcademmicYear,
         isErrorAcademicYear,
+        isLoadingStudenttatistics,
+        studentStatistics,
+        profileData,
       }}
     >
       {children}
