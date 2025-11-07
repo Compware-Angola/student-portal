@@ -48,6 +48,7 @@ import {
 } from '@/services/renegotiation/renegotiation.service';
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year';
 import { useNavigate } from 'react-router-dom';
+import { useMutationNegotiation } from '@/hooks/renegotiation/use-query-renegotiation';
 
 // === SCHEMA ===
 const simulateNegotiationSchema = z.object({
@@ -69,10 +70,10 @@ type SimulateNegotiationFormData = z.infer<typeof simulateNegotiationSchema>;
 
 export const Renegociation = () => {
   const queryClient = useQueryClient();
-   const navigate = useNavigate()
+  const navigate = useNavigate()
   const { isLoading: isLoadingProfile, profileData } = useQueryProfile();
   const { data: academicYear } = useQueryCurrentAcademicYear();
-
+  const { createRenegotiationAsync } = useMutationNegotiation()
   const [step, setStep] = useState<'search' | 'simulate' | 'confirm' | 'complete'>('search');
   const [debtData, setDebtData] = useState<DebtNegotiationResponse | null>(null);
   const [isSearching, setIsSearching] = useState(false);
@@ -138,7 +139,7 @@ export const Renegociation = () => {
       simulateForm.setValue('enrollmentCode', data.enrollmentCode);
       simulateForm.setValue('totalAmount', result.totalDivida);
       setStep('simulate');
-     
+
     } catch (error: any) {
       console.error(error);
       if (error.response?.status === 404) {
@@ -194,7 +195,7 @@ export const Renegociation = () => {
           tipo_taxas: m.tipo_taxas || 0,
           taxa_descricao: m.taxa_descricao || '',
         })),
-        fatura_item_servicos: debtData.dividaRecurso as any[],
+        fatura_item_servicos: debtData.dividaOutrosServicos as any[],
         valor_pago_na_hora: simulationData.initialPayment,
         percentagem_retencao: debtData.percentagem_retencao,
         size: debtData.size,
@@ -203,8 +204,11 @@ export const Renegociation = () => {
       };
 
       console.log('Payload enviado:', payload);
-      // const response = await apexApi.post(...).json();
-      
+      await createRenegotiationAsync({
+        payload,                         
+        enrollmentCode: profileData?.codigo_matricula ?? '', 
+      });
+
       toast.success('Renegociação confirmada com sucesso!');
       setStep('complete');
     } catch (error: any) {
@@ -223,7 +227,7 @@ export const Renegociation = () => {
     setStep('search');
     setDebtData(null);
     setSimulationData(null);
-   
+
     searchForm.reset();
     simulateForm.reset();
   };
@@ -273,21 +277,56 @@ export const Renegociation = () => {
                 <CardContent>
                   <div className="space-y-4">
                     <div>
-                      <p className="text-sm text-muted-foreground">Total em atraso</p>
+                      <p className="text-sm text-muted-foreground">Total em atraso </p>
                       <p className="text-3xl font-bold text-warning">
                         {formatCurrency(debtData.totalDivida)}
                       </p>
                     </div>
                     <div className="space-y-2">
-                      {debtData.mesesDividas.map((m: any) => (
-                        <div
-                          key={m.codigo_propina || m.reference}
-                          className="flex justify-between items-center p-3 bg-muted rounded-lg"
-                        >
-                          <span className="text-sm">{m.servico} - {m.mes_propina}</span>
-                          <span className="font-semibold">{formatCurrency(m.total)}</span>
+                      <p className="text-sm text-muted-foreground">Mensalidade(s)</p>
+
+                      {debtData.mesesDividas && debtData.mesesDividas.length > 0 ? (
+                        debtData.mesesDividas.map((m: any) => (
+                          <div
+                            key={m.codigo_propina || m.reference || m.mes_propina}
+                            className="flex justify-between items-center p-3 bg-muted rounded-lg hover:bg-muted/80 transition-colors"
+                          >
+                            <span className="text-sm">
+                              {m.servico || 'Mensalidade'} - {m.mes_propina || 'Mês não informado'}
+                            </span>
+                            <span className="font-semibold text-primary">
+                              {formatCurrency(m.total)}
+                            </span>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="flex justify-center items-center p-4 bg-muted/50 rounded-lg text-muted-foreground text-sm italic">
+                          Sem mensalidades em dívida
                         </div>
-                      ))}
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground">Outros Serviço(s)</p>
+
+                      {debtData.dividaOutrosServicos && debtData.dividaOutrosServicos.length > 0 ? (
+                        debtData.dividaOutrosServicos.map((m: any) => (
+                          <div
+                            key={m.servico}
+                            className="flex justify-between items-center p-3 bg-muted rounded-lg hover:bg-muted/80 transition-colors"
+                          >
+                            <span className="text-sm">
+                              {m.servico}
+                            </span>
+                            <span className="font-semibold text-primary">
+                              {formatCurrency(m.total)}
+                            </span>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="flex justify-center items-center p-4 bg-muted/50 rounded-lg text-muted-foreground text-sm italic">
+                          Sem dívida em outros serviços
+                        </div>
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -459,53 +498,53 @@ export const Renegociation = () => {
       )}
 
       {/* PASSO 4: COMPLETO */}
-     {step === 'complete' && (
-  <Card className="border-success/20 bg-success/5">
-    <CardContent className="flex flex-col items-center justify-center py-16 text-center space-y-6">
-      {/* Animação de Sucesso */}
-      <div className="relative">
-        <div className="animate-ping absolute inline-flex h-20 w-20 rounded-full bg-success/20 opacity-75"></div>
-        <div className="relative inline-flex rounded-full bg-success/10 p-4">
-          <CheckCircle2 className="h-12 w-12 text-success animate-bounce" />
-        </div>
-      </div>
+      {step === 'complete' && (
+        <Card className="border-success/20 bg-success/5">
+          <CardContent className="flex flex-col items-center justify-center py-16 text-center space-y-6">
+            {/* Animação de Sucesso */}
+            <div className="relative">
+              <div className="animate-ping absolute inline-flex h-20 w-20 rounded-full bg-success/20 opacity-75"></div>
+              <div className="relative inline-flex rounded-full bg-success/10 p-4">
+                <CheckCircle2 className="h-12 w-12 text-success animate-bounce" />
+              </div>
+            </div>
 
-      {/* Título */}
-      <div>
-        <h3 className="text-2xl font-bold text-foreground">Renegociação Confirmada!</h3>
-        <p className="text-muted-foreground mt-1">
-          Sua renegociação foi processada com sucesso.
-        </p>
-      </div>
+            {/* Título */}
+            <div>
+              <h3 className="text-2xl font-bold text-foreground">Renegociação Confirmada!</h3>
+              <p className="text-muted-foreground mt-1">
+                Sua renegociação foi processada com sucesso.
+              </p>
+            </div>
 
-      {/* Instrução */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md">
-        <p className="text-sm font-medium text-blue-900">
-          Vá à área de <span className="font-bold">Finanças</span> para:
-        </p>
-        <ul className="mt-2 text-sm text-blue-800 space-y-1">
-          <li>Ver a nota de pagamento</li>
-          <li>Obter a referência Multicaixa</li>
-          <li>Efetuar o pagamento</li>
-        </ul>
-      </div>
+            {/* Instrução */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md">
+              <p className="text-sm font-medium text-blue-900">
+                Vá à área de <span className="font-bold">Finanças</span> para:
+              </p>
+              <ul className="mt-2 text-sm text-blue-800 space-y-1">
+                <li>Ver a nota de pagamento</li>
+                <li>Obter a referência Multicaixa</li>
+                <li>Efetuar o pagamento</li>
+              </ul>
+            </div>
 
-      {/* Botões */}
-      <div className="flex gap-3 w-full max-w-xs">
-        <Button variant="outline" onClick={resetProcess} className="flex-1">
-          Nova Renegociação
-        </Button>
-        <Button
-          className="flex-1"
-          onClick={() => navigate('/financas')}
-         
-        >
-          Ir para Finanças
-        </Button>
-      </div>
-    </CardContent>
-  </Card>
-)}
+            {/* Botões */}
+            <div className="flex gap-3 w-full max-w-xs">
+              <Button variant="outline" onClick={resetProcess} className="flex-1">
+                Nova Renegociação
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={() => navigate('/financas')}
+
+              >
+                Ir para Finanças
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
