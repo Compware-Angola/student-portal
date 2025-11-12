@@ -1,5 +1,7 @@
-
-import { createPaymentReferenceMensalidades, type CreatePaymentReferenceBody } from '@/services/invoice/post-invoice-monthly.service'
+import {
+  createPaymentReferenceMensalidades,
+  type CreatePaymentReferenceBody,
+} from '@/services/invoice/post-invoice-monthly.service'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
@@ -15,7 +17,7 @@ export function useMutationCreatePaymentReferenceMensalidades() {
     },
 
     onSuccess: async () => {
-      toast.success('Referência dos pagamentos da mensalidades criada com sucesso!')
+      toast.success('Referências das  mensalidades criadas com sucesso!')
       await queryClient.invalidateQueries({
         queryKey: ['payment-references'],
       })
@@ -25,7 +27,7 @@ export function useMutationCreatePaymentReferenceMensalidades() {
       const message =
         error instanceof Error
           ? error.message
-          : 'Erro ao criar referência de pagamento. Tente novamente.'
+          : 'Erro ao criar referências das mensalidades. Tente novamente.'
       toast.error(message)
     },
   })

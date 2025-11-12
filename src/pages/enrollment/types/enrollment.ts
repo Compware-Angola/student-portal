@@ -41,6 +41,7 @@ export type EnrollmentContextType = {
   studentStatistics?: StudentDashboardStatistics
   isLoadingStudenttatistics: boolean
   profileData: ProfileData | null
+  maxCourseGrade: number
 }
 export type SectionKey = 'new' | 'pendents'
 
