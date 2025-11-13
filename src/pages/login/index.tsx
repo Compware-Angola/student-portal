@@ -36,7 +36,9 @@ export function Login() {
           <Tabs defaultValue="login" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Entrar</TabsTrigger>
-              <TabsTrigger value="register">Inscrição</TabsTrigger>
+              <TabsTrigger disabled value="register">
+                Inscrição
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="login" className="mt-4">

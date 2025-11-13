@@ -8,7 +8,7 @@ import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-cur
 
 export function Assessments() {
   const { profileData, isError, isLoading } = useQueryProfile()
-  const {data:academicYearData}=useQueryCurrentAcademicYear()
+  const { data: academicYearData } = useQueryCurrentAcademicYear()
 
   useEffect(() => {
     if (isError) {
@@ -22,7 +22,8 @@ export function Assessments() {
 
   const enrollmentCode = profileData?.codigo_matricula
   const classe = profileData?.confirmacoes[0]?.classe
-  const academicYear = academicYearData?.codigo||profileData?.confirmacoes[0]?.ano_lectivo
+  const academicYear =
+    academicYearData?.codigo || profileData?.confirmacoes[0]?.ano_lectivo
   const preEnrollmentCode = profileData?.preEnrollmentCode
 
   return (
