@@ -41,33 +41,37 @@ export function useQueryGetDebit({
     error,
     isError,
   }
-}type RenegociacaoVariables = {
-  payload: RenegociacaoPayload;
-  enrollmentCode: string;
-};
+}
+type RenegociacaoVariables = {
+  payload: RenegociacaoPayload
+  enrollmentCode: string
+}
 
 export function useMutationNegotiation() {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   const mutation = useMutation({
     mutationFn: ({ payload, enrollmentCode }: RenegociacaoVariables) =>
       createDebitNegotation(enrollmentCode, payload),
-    
+
     onSuccess: () => {
-      toast.success('Renegociação criada com sucesso!');
-      queryClient.invalidateQueries({ queryKey: ['create-renegotiation-debit'] });
+      toast.success('Renegociação criada com sucesso!')
+      queryClient.invalidateQueries({
+        queryKey: ['create-renegotiation-debit'],
+      })
     },
-    
+
     onError: (error: unknown) => {
-      const message = error instanceof Error ? error.message : 'Erro ao criar Renegociação.';
-      toast.error(message);
+      const message =
+        error instanceof Error ? error.message : 'Erro ao criar Renegociação.'
+      toast.error(message)
     },
-  });
+  })
 
   return {
     createRenegotiation: mutation.mutate,
     createRenegotiationAsync: mutation.mutateAsync,
     createRenegotiationPending: mutation.isPending,
     createRenegotiationSuccess: mutation.isSuccess,
-  };
+  }
 }

@@ -37,13 +37,15 @@ function SummaryCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-sm font-medium ">
+        <CardTitle className="flex items-center gap-2 text-sm font-medium">
           <Icon className="h-4 w-4" />
           {title}
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
+        <div className="text-2xl font-bold">
+          {typeof value === 'number' && isNaN(value) ? '—' : value}
+        </div>
         {description && <p className="text-xs">{description}</p>}
         {footer && <div className="mt-2">{footer}</div>}
       </CardContent>
@@ -59,6 +61,7 @@ export function EnrollmentSummaryCards() {
     maxCourseGrade,
     isNewStudentWithOutEnrollment,
   } = useEnrollment()
+
   const { data: academicYear } = useQueryCurrentAcademicYear()
   const { profileData } = useQueryProfile()
 
@@ -93,13 +96,13 @@ export function EnrollmentSummaryCards() {
     {
       icon: BookOpen,
       title: 'Disciplinas Selecionadas',
-      value: selectedSubjects.length,
+      value: selectedSubjects?.length ?? 0,
       description: 'Total selecionadas',
     },
     {
       icon: BookOpen,
       title: 'Limite de cadeiras',
-      value: maxCourseGrade,
+      value: !isNaN(Number(maxCourseGrade)) ? Number(maxCourseGrade) : 0,
       description: 'Máx. permitidas',
     },
     {
@@ -109,6 +112,8 @@ export function EnrollmentSummaryCards() {
       description: 'Situação da inscrição atual',
     },
   ]
+
+  // Remove "Limite de cadeiras" se for novo estudante sem matrícula
   const cardsToRender = cards.filter((c) =>
     isNewStudentWithOutEnrollment ? c.title !== 'Limite de cadeiras' : true,
   )
@@ -127,14 +132,14 @@ export function EnrollmentSummaryCards() {
                     </div>
                     <div>
                       <CardTitle>
-                        Ano Curricular {academicYear?.designacao}
+                        Ano Curricular {academicYear?.designacao ?? '—'}
                       </CardTitle>
                       <br />
                       <CardDescription>
                         <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                          {profileData.confirmacoes[0].classe}º Ano Ativo
+                          {profileData.confirmacoes[0]?.classe ?? '—'}º Ano Ativo
                         </Badge>{' '}
-                        - {profileData.curso}
+                        - {profileData?.curso ?? '—'}
                       </CardDescription>
                     </div>
                   </div>
@@ -144,10 +149,10 @@ export function EnrollmentSummaryCards() {
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <BookOpen className="h-4 w-4 text-muted-foreground" />
-                        <p className="text-sm font-medium">Periodo</p>
+                        <p className="text-sm font-medium">Período</p>
                       </div>
                       <p className="text-2xl font-bold">
-                        {profileData.periodo}
+                        {profileData?.periodo ?? '—'}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         No ano atual
@@ -159,11 +164,9 @@ export function EnrollmentSummaryCards() {
                         <p className="text-sm font-medium">Polo</p>
                       </div>
                       <p className="text-2xl font-bold text-primary">
-                        {profileData.polo}
+                        {profileData?.polo ?? '—'}
                       </p>
-                      <p className="text-xs text-muted-foreground">
-                        A decorrer
-                      </p>
+                      <p className="text-xs text-muted-foreground">A decorrer</p>
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
@@ -171,7 +174,7 @@ export function EnrollmentSummaryCards() {
                         <p className="text-sm font-medium">Cadeirante</p>
                       </div>
                       <p className="text-2xl font-bold">
-                        {profileData.confirmacoes[0].cadeirante}
+                        {profileData?.confirmacoes?.[0]?.cadeirante ?? '—'}
                       </p>
                       <p className="text-xs text-muted-foreground">Este ano</p>
                     </div>

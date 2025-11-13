@@ -1,3 +1,4 @@
+import type { DebtNegotiationResponse } from '@/services/renegotiation/renegotiation.service'
 import type { StudentDashboardStatistics } from '@/services/statistics/dashboard'
 import type { StudentSituationResponse } from '@/services/students/situation.service'
 import type { Grade } from '@/types/grade'
@@ -42,6 +43,8 @@ export type EnrollmentContextType = {
   isLoadingStudenttatistics: boolean
   profileData: ProfileData | null
   maxCourseGrade: number
+  isLoadingDebit: boolean
+  debit?: DebtNegotiationResponse
 }
 export type SectionKey = 'new' | 'pendents'
 

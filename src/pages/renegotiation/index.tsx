@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 import {
   Card,
@@ -6,19 +6,14 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import {
-  AlertCircle,
-  Calculator,
-  CheckCircle2,
-  Mail,
-} from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+} from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { AlertCircle, Calculator, CheckCircle2, Mail } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
 import {
   Form,
   FormControl,
@@ -26,30 +21,30 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { toast } from 'sonner';
-import { RenegociationSkeleton } from './components/renegociation-skeleton';
-import { ProgressStep } from './components/progress-step';
-import { SearchDebt } from './components/search-debt';
-import { searchDebtSchema } from './schemas';
-import { useQueryProfile } from '@/hooks/profile/use-query-profile';
-import { useQueryClient } from '@tanstack/react-query';
+} from '@/components/ui/select'
+import { toast } from 'sonner'
+import { RenegociationSkeleton } from './components/renegociation-skeleton'
+import { ProgressStep } from './components/progress-step'
+import { SearchDebt } from './components/search-debt'
+import { searchDebtSchema } from './schemas'
+import { useQueryProfile } from '@/hooks/profile/use-query-profile'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   getDebit,
   type DebtNegotiationResponse,
-} from '@/services/renegotiation/renegotiation.service';
-import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year';
-import { useNavigate } from 'react-router-dom';
-import { useMutationNegotiation } from '@/hooks/renegotiation/use-query-renegotiation';
-import { ApiError } from '@/error';
+} from '@/services/renegotiation/renegotiation.service'
+import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
+import { useNavigate } from 'react-router-dom'
+import { useMutationNegotiation } from '@/hooks/renegotiation/use-query-renegotiation'
+import { ApiError } from '@/error'
 
 // === SCHEMA ===
 const simulateNegotiationSchema = z.object({
@@ -57,28 +52,27 @@ const simulateNegotiationSchema = z.object({
   enrollmentCode: z.string().min(1, 'Código de matrícula é obrigatório'),
   totalAmount: z.number().min(0, 'Valor total é obrigatório'),
   initialPayment: z.number().min(0, 'Pagamento inicial obrigatório'),
-  negotiationType: z
-    .enum(['Total', 'Parcial'])
-    .refine((val) => val != null, {
-      message: 'Selecione o tipo de renegociação',
-    }),
-});
+  negotiationType: z.enum(['Total', 'Parcial']).refine((val) => val != null, {
+    message: 'Selecione o tipo de renegociação',
+  }),
+})
 
-type SearchDebtFormData = z.infer<typeof searchDebtSchema>;
-type SimulateNegotiationFormData = z.infer<typeof simulateNegotiationSchema>;
-
-
+type SearchDebtFormData = z.infer<typeof searchDebtSchema>
+type SimulateNegotiationFormData = z.infer<typeof simulateNegotiationSchema>
 
 export const Renegociation = () => {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
   const navigate = useNavigate()
-  const { isLoading: isLoadingProfile, profileData } = useQueryProfile();
-  const { data: academicYear } = useQueryCurrentAcademicYear();
+  const { isLoading: isLoadingProfile, profileData } = useQueryProfile()
+  const { data: academicYear } = useQueryCurrentAcademicYear()
   const { createRenegotiationAsync } = useMutationNegotiation()
-  const [step, setStep] = useState<'search' | 'simulate' | 'confirm' | 'complete'>('search');
-  const [debtData, setDebtData] = useState<DebtNegotiationResponse | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
-  const [simulationData, setSimulationData] = useState<SimulateNegotiationFormData | null>(null);
+  const [step, setStep] = useState<
+    'search' | 'simulate' | 'confirm' | 'complete'
+  >('search')
+  const [debtData, setDebtData] = useState<DebtNegotiationResponse | null>(null)
+  const [isSearching, setIsSearching] = useState(false)
+  const [simulationData, setSimulationData] =
+    useState<SimulateNegotiationFormData | null>(null)
 
   const searchForm = useForm<SearchDebtFormData>({
     resolver: zodResolver(searchDebtSchema),
@@ -86,7 +80,7 @@ export const Renegociation = () => {
       enrollmentCode: profileData?.codigo_matricula ?? '',
       academicYear: academicYear?.designacao ?? '',
     },
-  });
+  })
 
   const simulateForm = useForm<SimulateNegotiationFormData>({
     resolver: zodResolver(simulateNegotiationSchema),
@@ -97,33 +91,33 @@ export const Renegociation = () => {
       initialPayment: 0,
       negotiationType: undefined,
     },
-  });
+  })
 
   // === ATUALIZA PAGAMENTO INICIAL AO MUDAR TIPO ===
   useEffect(() => {
     const subscription = simulateForm.watch((value, { name }) => {
       if (name === 'negotiationType' && value.totalAmount != null) {
-        const total = value.totalAmount as number;
-        const type = value.negotiationType as 'Total' | 'Parcial' | undefined;
+        const total = value.totalAmount as number
+        const type = value.negotiationType as 'Total' | 'Parcial' | undefined
 
         if (type === 'Total') {
-          simulateForm.setValue('initialPayment', total);
+          simulateForm.setValue('initialPayment', total)
         } else if (type === 'Parcial') {
-          simulateForm.setValue('initialPayment', Math.round(total / 2));
+          simulateForm.setValue('initialPayment', Math.round(total / 2))
         }
       }
-    });
-    return () => subscription.unsubscribe();
-  }, [simulateForm]);
+    })
+    return () => subscription.unsubscribe()
+  }, [simulateForm])
 
   // === LOADING ===
   if (isLoadingProfile || !profileData) {
-    return <RenegociationSkeleton />;
+    return <RenegociationSkeleton />
   }
 
   // === BUSCAR DÉBITO ===
   const onSearchDebt = async (data: SearchDebtFormData) => {
-    setIsSearching(true);
+    setIsSearching(true)
     try {
       const result = await queryClient.fetchQuery<DebtNegotiationResponse>({
         queryKey: ['renegotiation-debit', data.enrollmentCode],
@@ -133,36 +127,35 @@ export const Renegociation = () => {
             preinscricao: profileData?.codigo_preinscricao,
             type: '1',
           }),
-      });
+      })
 
-      setDebtData(result);
-      simulateForm.setValue('academicYear', data.academicYear);
-      simulateForm.setValue('enrollmentCode', data.enrollmentCode);
-      simulateForm.setValue('totalAmount', result.totalDivida);
-      setStep('simulate');
-
+      setDebtData(result)
+      simulateForm.setValue('academicYear', data.academicYear)
+      simulateForm.setValue('enrollmentCode', data.enrollmentCode)
+      simulateForm.setValue('totalAmount', result.totalDivida)
+      setStep('simulate')
     } catch (error: any) {
-      console.error(error);
+      console.error(error)
       if (error.response?.status === 404) {
-        toast.error('Nenhuma dívida encontrada para esta matrícula.');
+        toast.error('Nenhuma dívida encontrada para esta matrícula.')
       } else {
-        toast.error('Erro ao buscar débitos. Tente novamente.');
+        toast.error('Erro ao buscar débitos. Tente novamente.')
       }
     } finally {
-      setIsSearching(false);
+      setIsSearching(false)
     }
-  };
+  }
 
   // === SIMULAR ===
   const onSimulateNegotiation = async (data: SimulateNegotiationFormData) => {
-    setSimulationData(data);
-    setStep('confirm');
-    toast.success('Pronto para confirmar a renegociação');
-  };
+    setSimulationData(data)
+    setStep('confirm')
+    toast.success('Pronto para confirmar a renegociação')
+  }
 
   // === CONFIRMAR ===
   const onConfirmNegotiation = async () => {
-    if (!debtData || !simulationData) return;
+    if (!debtData || !simulationData) return
 
     try {
       const payload = {
@@ -173,7 +166,9 @@ export const Renegociation = () => {
         total_incidencia: debtData.total_incidencia,
         totalIVA: debtData.totalIVA,
         saldo_reset: debtData.saldo_reset,
-        tipoPagamento: simulationData.negotiationType.toUpperCase() as 'TOTAL' | 'PARCIAL',
+        tipoPagamento: simulationData.negotiationType.toUpperCase() as
+          | 'TOTAL'
+          | 'PARCIAL',
         fatura_item_mensalidades: debtData.mesesDividas.map((m: any) => ({
           codGradeCurricular: m.codGradeCurricular || '',
           codFacturaOutrosServicos: m.codFacturaOutrosServicos || '',
@@ -202,48 +197,49 @@ export const Renegociation = () => {
         size: debtData.size,
         bolsa: debtData.bolsa || '',
         somaValorDividaRecurso: debtData.somaValorDividaRecurso || 0,
-      };
+      }
 
-      console.log('Payload enviado:', payload);
+      console.log('Payload enviado:', payload)
       await createRenegotiationAsync({
         payload,
         enrollmentCode: profileData?.codigo_matricula ?? '',
-      });
+      })
 
-      toast.success('Renegociação confirmada com sucesso!');
-      setStep('complete');
+      toast.success('Renegociação confirmada com sucesso!')
+      setStep('complete')
     } catch (error: any) {
-      console.error('Erro ao criar renegociação:', error);
+      console.error('Erro ao criar renegociação:', error)
       if (error instanceof ApiError) {
         // Remove as aspas quebradas que o backend manda
-      //  const cleanMessage = error.message.replace(/"/g, '').trim()
-       // toast.error(cleanMessage || 'Erro ao criar renegociação.')
+        //  const cleanMessage = error.message.replace(/"/g, '').trim()
+        // toast.error(cleanMessage || 'Erro ao criar renegociação.')
       } else {
         toast.error('Erro de conexão. Tente novamente.')
       }
     }
-  };
+  }
 
   // === FORMATADORES ===
   const formatCurrency = (value: number) =>
-    `${value.toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Kz`;
-
+    `${value.toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Kz`
 
   // === RESET ===
   const resetProcess = () => {
-    setStep('search');
-    setDebtData(null);
-    setSimulationData(null);
+    setStep('search')
+    setDebtData(null)
+    setSimulationData(null)
 
-    searchForm.reset();
-    simulateForm.reset();
-  };
+    searchForm.reset()
+    simulateForm.reset()
+  }
 
   return (
     <div className="space-y-6">
       {/* Cabeçalho */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Renegociação de Dívida</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Renegociação de Dívida
+        </h1>
         <p className="text-muted-foreground">
           Regularize sua situação financeira com condições especiais
         </p>
@@ -276,7 +272,10 @@ export const Renegociation = () => {
                       </CardTitle>
                       <CardDescription>Faturas pendentes</CardDescription>
                     </div>
-                    <Badge variant="outline" className="text-warning border-warning">
+                    <Badge
+                      variant="outline"
+                      className="text-warning border-warning"
+                    >
                       {debtData.size} item(s)
                     </Badge>
                   </div>
@@ -284,22 +283,30 @@ export const Renegociation = () => {
                 <CardContent>
                   <div className="space-y-4">
                     <div>
-                      <p className="text-sm text-muted-foreground">Total em atraso </p>
+                      <p className="text-sm text-muted-foreground">
+                        Total em atraso{' '}
+                      </p>
                       <p className="text-3xl font-bold text-warning">
                         {formatCurrency(debtData.totalDivida)}
                       </p>
                     </div>
                     <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">Mensalidade(s)</p>
+                      <p className="text-sm text-muted-foreground">
+                        Mensalidade(s)
+                      </p>
 
-                      {debtData.mesesDividas && debtData.mesesDividas.length > 0 ? (
+                      {debtData.mesesDividas &&
+                      debtData.mesesDividas.length > 0 ? (
                         debtData.mesesDividas.map((m: any) => (
                           <div
-                            key={m.codigo_propina || m.reference || m.mes_propina}
+                            key={
+                              m.codigo_propina || m.reference || m.mes_propina
+                            }
                             className="flex justify-between items-center p-3 bg-muted rounded-lg hover:bg-muted/80 transition-colors"
                           >
                             <span className="text-sm">
-                              {m.servico || 'Mensalidade'} - {m.mes_propina || 'Mês não informado'}
+                              {m.servico || 'Mensalidade'} -{' '}
+                              {m.mes_propina || 'Mês não informado'}
                             </span>
                             <span className="font-semibold text-primary">
                               {formatCurrency(m.total)}
@@ -313,17 +320,18 @@ export const Renegociation = () => {
                       )}
                     </div>
                     <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">Outros Serviço(s)</p>
+                      <p className="text-sm text-muted-foreground">
+                        Outros Serviço(s)
+                      </p>
 
-                      {debtData.dividaOutrosServicos && debtData.dividaOutrosServicos.length > 0 ? (
+                      {debtData.dividaOutrosServicos &&
+                      debtData.dividaOutrosServicos.length > 0 ? (
                         debtData.dividaOutrosServicos.map((m: any) => (
                           <div
                             key={m.servico}
                             className="flex justify-between items-center p-3 bg-muted rounded-lg hover:bg-muted/80 transition-colors"
                           >
-                            <span className="text-sm">
-                              {m.servico}
-                            </span>
+                            <span className="text-sm">{m.servico}</span>
                             <span className="font-semibold text-primary">
                               {formatCurrency(m.total)}
                             </span>
@@ -346,12 +354,16 @@ export const Renegociation = () => {
                     <Calculator className="h-5 w-5" />
                     Renegociar Dívida
                   </CardTitle>
-                  <CardDescription>Escolha o tipo e ajuste o pagamento inicial</CardDescription>
+                  <CardDescription>
+                    Escolha o tipo e ajuste o pagamento inicial
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Form {...simulateForm}>
                     <form
-                      onSubmit={simulateForm.handleSubmit(onSimulateNegotiation)}
+                      onSubmit={simulateForm.handleSubmit(
+                        onSimulateNegotiation,
+                      )}
                       className="space-y-4"
                     >
                       {/* Total */}
@@ -376,15 +388,22 @@ export const Renegociation = () => {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Tipo de Renegociação</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Selecione o tipo" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="Total">Total (pagar tudo)</SelectItem>
-                                <SelectItem value="Parcial">Parcial (50% inicial)</SelectItem>
+                                <SelectItem value="Total">
+                                  Total (pagar tudo)
+                                </SelectItem>
+                                <SelectItem value="Parcial">
+                                  Parcial (50% inicial)
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -405,8 +424,8 @@ export const Renegociation = () => {
                                 placeholder="Ex: 30000"
                                 {...field}
                                 onChange={(e) => {
-                                  const value = parseFloat(e.target.value) || 0;
-                                  field.onChange(value);
+                                  const value = parseFloat(e.target.value) || 0
+                                  field.onChange(value)
                                 }}
                               />
                             </FormControl>
@@ -416,7 +435,12 @@ export const Renegociation = () => {
                       />
 
                       <div className="flex gap-2">
-                        <Button type="button" variant="outline" onClick={resetProcess} className="flex-1">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={resetProcess}
+                          className="flex-1"
+                        >
                           Voltar
                         </Button>
                         <Button type="submit" className="flex-1">
@@ -473,26 +497,39 @@ export const Renegociation = () => {
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Valor Total</p>
-                <p className="font-semibold">{formatCurrency(simulationData.totalAmount)}</p>
+                <p className="font-semibold">
+                  {formatCurrency(simulationData.totalAmount)}
+                </p>
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Tipo</p>
                 <Badge>{simulationData.negotiationType}</Badge>
               </div>
               <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Pagamento Inicial</p>
-                <p className="font-semibold">{formatCurrency(simulationData.initialPayment)}</p>
+                <p className="text-sm text-muted-foreground">
+                  Pagamento Inicial
+                </p>
+                <p className="font-semibold">
+                  {formatCurrency(simulationData.initialPayment)}
+                </p>
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Valor Restante</p>
                 <p className="font-semibold">
-                  {formatCurrency(simulationData.totalAmount - simulationData.initialPayment)}
+                  {formatCurrency(
+                    simulationData.totalAmount - simulationData.initialPayment,
+                  )}
                 </p>
               </div>
             </div>
 
             <div className="flex gap-2">
-              <Button type="button" variant="outline" onClick={() => setStep('simulate')} className="flex-1">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setStep('simulate')}
+                className="flex-1"
+              >
                 Voltar
               </Button>
               <Button onClick={onConfirmNegotiation} className="flex-1">
@@ -518,7 +555,9 @@ export const Renegociation = () => {
 
             {/* Título */}
             <div>
-              <h3 className="text-2xl font-bold text-foreground">Renegociação Confirmada!</h3>
+              <h3 className="text-2xl font-bold text-foreground">
+                Renegociação Confirmada!
+              </h3>
               <p className="text-muted-foreground mt-1">
                 Sua renegociação foi processada com sucesso.
               </p>
@@ -538,14 +577,14 @@ export const Renegociation = () => {
 
             {/* Botões */}
             <div className="flex gap-3 w-full max-w-xs">
-              <Button variant="outline" onClick={resetProcess} className="flex-1">
+              <Button
+                variant="outline"
+                onClick={resetProcess}
+                className="flex-1"
+              >
                 Nova Renegociação
               </Button>
-              <Button
-                className="flex-1"
-                onClick={() => navigate('/financas')}
-
-              >
+              <Button className="flex-1" onClick={() => navigate('/financas')}>
                 Ir para Finanças
               </Button>
             </div>
@@ -553,5 +592,5 @@ export const Renegociation = () => {
         </Card>
       )}
     </div>
-  );
-};
+  )
+}
