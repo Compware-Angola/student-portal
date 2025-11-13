@@ -36,6 +36,7 @@ const data = {
   navMain: [
     { title: 'Dashboard', url: '/', icon: LayoutDashboard },
     { title: 'Finanças', url: '/financas', icon: CreditCard },
+    { title: 'Pagamento', url: '/notas-pagamento', icon: Receipt },
     { title: 'Matrícula', url: '/matricula', icon: GraduationCap },
     { title: 'Horário', url: '/horario', icon: Calendar },
     { title: 'Avaliações', url: '/avaliacoes', icon: FileText },
@@ -57,7 +58,7 @@ const data = {
     { title: 'Mensagens & Comunicados', url: '/mensagens', icon: MessageSquare },
     { title: 'Suporte', url: '/suporte', icon: HelpCircle },
 
-    { title: 'Pagamento', url: '/notas-pagamento', icon: Receipt },
+  
 
     { title: 'Renegociação', url: '/renegociacao', icon: HandCoins },
   ],
