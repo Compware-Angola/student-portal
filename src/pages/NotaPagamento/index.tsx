@@ -1,40 +1,41 @@
 
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { FileText, Download, Eye } from 'lucide-react'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from '@/components/ui/dialog'
 import { useQueryPayments } from '@/hooks/finance/use-query-finance-payments'
-import { Loader2 } from 'lucide-react' 
+import { Loader2 } from 'lucide-react'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useNavigate } from 'react-router-dom'
 interface NotaPagamento {
     id: string
-    numero: string 
+    numero: string
     tipo: 'propina' | 'servico' | 'melhoria' | 'inscricao' | string
-    descricao: string 
-    valor: number 
+    descricao: string
+    valor: number
     dataEmissao: string
     dataVencimento: string
+    dataFactura: string
     status: 'concluido' | 'pendente' | 'vencida' | string
-    metodoPagamento?: 'cash' | 'transferencia' | 'muteu_cash' | 'deposito' | 'express' | 'por_referencia' | 'tpa'|string
-    comprovante?: string 
+    metodoPagamento?: 'cash' | 'transferencia' | 'muteu_cash' | 'deposito' | 'express' | 'por_referencia' | 'tpa' | string
+    comprovante?: string
 }
 
-// A função de mapeamento (colocada aqui apenas para exemplo, mas deve ser importada)
+
 const mapApiToNotaPagamento = (apiData: any[]): NotaPagamento[] => {
     return apiData.map((item: any) => {
         let status: 'concluido' | 'pendente' | 'vencida' | string
@@ -48,53 +49,62 @@ const mapApiToNotaPagamento = (apiData: any[]): NotaPagamento[] => {
         } else {
             status = 'pendente'
         }
-        
+
         // Simples regra de tipo
         let tipo: string = 'servico'
         if (item.Descricao_produto && item.Descricao_produto.toLowerCase().includes('propina')) {
             tipo = 'propina'
         }
-
         return {
-            id: String(item.CodigoPagamento || item.CodigoFactura), 
+            id: String(item.CodigoPagamento || item.CodigoFactura),
             numero: item.f_Referencia || `FAT-${item.CodigoFactura}`,
             tipo: tipo,
-            descricao: item.Descricao_produto || item.Descricao_factura || 'Servço/Pagamentos',
-            valor: item.f_ValorAPagar || item.TotalItem || 0,
+
+           
+            descricao: [item.Descricao_produto, item.Descricao_factura]
+                .map(v => (v ?? '').toString().trim())
+                .find(s => s && !['', 'None', 'null'].includes(s))
+                || 'Servço/Pagamentos',
+
+            valor: Number(item.f_ValorAPagar) || Number(item.TotalItem) || 0,
             dataEmissao: item.f_DataFactura,
             dataVencimento: item.f_DataVencimento,
             status: status,
-            metodoPagamento: item.p_forma_pagamento ? item.p_forma_pagamento.replace(/\s/g, '_').toLowerCase() : undefined,
-            comprovante: undefined, 
-        }
+            dataFactura: item.f_DataFactura,
+            metodoPagamento: item.p_forma_pagamento
+                ? item.p_forma_pagamento.replace(/\s/g, '_').toLowerCase()
+                : undefined,
+            comprovante: undefined,
+        };
     })
 }
 
 
 export const NotaPagamento = () => {
-      const {profileData } = useQueryProfile()
+    const { profileData } = useQueryProfile()
 
-  const navigate = useNavigate()
-   
-    
+    const navigate = useNavigate()
+
+
 
     const {
-        data: pagamentosData, 
-        isLoading, 
+        data: pagamentosData,
+        isLoading,
         isError
     } = useQueryPayments({
         academicYear: profileData?.confirmacoes[0]?.ano_lectivo,
         preRegistrationCode: profileData?.codigo_preinscricao,
         // Adicione page e limit se for paginar
-        page: 1, 
-        limit: 50 
+        page: 1,
+        limit: 50
     })
 
     // Mapear dados da API para o formato do componente
-    const notas: NotaPagamento[] = pagamentosData?.data 
-        ? mapApiToNotaPagamento(pagamentosData.data) 
+    const notas: NotaPagamento[] = pagamentosData?.data
+        ? mapApiToNotaPagamento(pagamentosData.data)
         : []
-    // --- FIM DA INTEGRAÇÃO ---
+
+
 
 
     const getStatusBadge = (status: string) => {
@@ -125,32 +135,32 @@ export const NotaPagamento = () => {
         }
     }
 
-const getMetodoPagamento = (metodo?: string) => {
-    if (!metodo) return 'n/a' 
-    switch (metodo.trim()) { 
-       
-        case 'TPA':
-            return 'tpa'
-        case 'DEPOSITO':
-            return 'deposito'
-        case 'TRANSFERENCIA':
-            return 'transferencia'
-        case 'EXPRESS':
-            return 'express'
-        case 'POR REFERÊNCIA':
-            return 'por referência'
-        case 'PAGAMENTO A CASH':
-        case 'CASH':
-            return 'pagamento a cash'
-            
-        case 'MUTEU_CASH':
-            return 'muteu cash'
-            
-        default:
-            // Retorna o valor original em minúsculas, caso exista
-            return metodo.toLowerCase() 
+    const getMetodoPagamento = (metodo?: string) => {
+        if (!metodo) return 'n/a'
+        switch (metodo.trim()) {
+
+            case 'TPA':
+                return 'tpa'
+            case 'DEPOSITO':
+                return 'deposito'
+            case 'TRANSFERENCIA':
+                return 'transferencia'
+            case 'EXPRESS':
+                return 'express'
+            case 'POR REFERÊNCIA':
+                return 'por referência'
+            case 'PAGAMENTO A CASH':
+            case 'CASH':
+                return 'pagamento a cash'
+
+            case 'MUTEU_CASH':
+                return 'muteu cash'
+
+            default:
+                // Retorna o valor original em minúsculas, caso exista
+                return metodo.toLowerCase()
+        }
     }
-}
     const NotaDetalhes = ({ nota }: { nota: NotaPagamento }) => (
         // ... (Seu componente NotaDetalhes permanece o mesmo, mas usará os dados mapeados) ...
         <Dialog>
@@ -228,7 +238,7 @@ const getMetodoPagamento = (metodo?: string) => {
                             )}*/}
                         </div>
                     )}
-          {/*  <div className="flex gap-3 pt-4">
+                    {/*  <div className="flex gap-3 pt-4">
                         <Button className="flex-1">
                             <Download className="mr-2 h-4 w-4" />
                             Descarregar PDF
@@ -237,7 +247,7 @@ const getMetodoPagamento = (metodo?: string) => {
                             <Printer className="h-4 w-4" />
                         </Button>
                     </div>*/}
-                  
+
                 </div>
             </DialogContent>
         </Dialog>
@@ -258,7 +268,7 @@ const getMetodoPagamento = (metodo?: string) => {
         return (
             <div className="flex justify-center items-center h-40">
                 <Loader2 className="mr-2 h-8 w-8 animate-spin text-primary" />
-                <p>Carregando dados financeiros...</p>
+                <p>Carregando dados dos pagamentos Liquidados...</p>
             </div>
         )
     }
@@ -285,7 +295,7 @@ const getMetodoPagamento = (metodo?: string) => {
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
-                <Card  onClick={() => navigate('/financas')}> 
+                <Card onClick={() => navigate('/financas')}>
                     <CardHeader className="pb-3">
                         <CardTitle className="text-sm font-medium">
                             Total Pendente
@@ -331,12 +341,12 @@ const getMetodoPagamento = (metodo?: string) => {
                 <CardContent>
                     <div className="space-y-4">
                         {notas.length === 0 ? (
-                             <p className="text-muted-foreground text-center py-6">
+                            <p className="text-muted-foreground text-center py-6">
                                 Não há notas de pagamento registradas para este período.
                             </p>
                         ) : (
                             notas.map((nota) => (
-                                <Card key={nota.id}>
+                                <Card key={nota.numero}>
                                     <CardContent className="pt-6">
                                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                             <div className="flex-1">
@@ -361,8 +371,8 @@ const getMetodoPagamento = (metodo?: string) => {
                                                         {nota.valor.toLocaleString('pt-PT')} Kz
                                                     </p>
                                                     <p className="text-sm text-muted-foreground">
-                                                        Vence:{' '}
-                                                        {new Date(nota.dataVencimento).toLocaleDateString(
+                                                        Data Nota Pagamento:{' '}
+                                                        {new Date(nota.dataFactura).toLocaleDateString(
                                                             'pt-PT',
                                                         )}
                                                     </p>

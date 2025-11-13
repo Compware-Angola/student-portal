@@ -191,7 +191,7 @@ export function AcademicServices() {
       <div className="space-y-6">
         <header>
           <h1 className="text-3xl font-bold tracking-tight">Serviços Acadêmicos</h1>
-          <p className="text-muted-foreground">Selecione os serviços que deseja incluir na fatura.</p>
+          <p className="text-muted-foreground">Selecione os serviços que deseja incluir na Nota de Pagamento.</p>
         </header>
 
         <Card>
@@ -201,7 +201,7 @@ export function AcademicServices() {
               Serviços Disponíveis
             </CardTitle>
             <CardDescription>
-              Marque os itens que deseja faturar. Desconto de 5% aplicado automaticamente.
+              Marque os itens que deseja faturar.
             </CardDescription>
           </CardHeader>
           <CardContent>

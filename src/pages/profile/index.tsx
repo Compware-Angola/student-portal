@@ -44,6 +44,8 @@ export function Profile() {
     address,
     curso,
     polo,
+    codigo_matricula,
+    
     
   } = profileData
   console.log(birthDate.toString())
@@ -66,6 +68,7 @@ export function Profile() {
           polo={polo}
         />
         <InformationCard
+        studentId={codigo_matricula}
           name={fullName}
           email={email}
           phone={phone}
