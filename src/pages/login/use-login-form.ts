@@ -2,10 +2,10 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { useNavigate } from 'react-router-dom'
-import { ApiError } from '@/error'
 import { login } from '@/services/auth/login.service'
 import { AuthStorage } from '@/storage/auth-storage'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { authApi } from '@/lib/auth-api'
 
 export const FormSchema = z.object({
   username: z.string().min(1, { message: 'Nome de usuário é obrigatório' }),
@@ -24,31 +24,30 @@ export function useLoginForm() {
       password: '',
     },
   })
-
+  type AuthResponse = {
+    access_token: string
+    expires_in: number
+  }
   async function onSubmit(data: LoginFormData) {
     try {
       const response = await login(data)
-      AuthStorage.save(response)
+      const body = { texto: data.password, hash_da_bd: response.hash }
+      const authResponse = await authApi
+        .post<AuthResponse>('login', { json: body })
+        .json()
+      AuthStorage.save({
+        codigoPreinscricao: response.codigoPreinscricao,
+        token: authResponse.access_token,
+        user_id: response.user_id,
+        user_name: response.user_name,
+      })
       toast.success('Autenticado com sucesso!')
+
       navigate('/')
     } catch (error) {
-      if (error instanceof ApiError) {
-        switch (error.status) {
-          case 400:
-            toast.error('Dados inválidos, verifique os campos.')
-            break
-          case 401:
-            toast.error('Credenciais inválidas, tente novamente.')
-            break
-          case 500:
-            toast.error('Erro no servidor. Tente mais tarde.')
-            break
-          default:
-            toast.error('Erro desconhecido contacte suporte.')
-        }
-        return
-      }
-      toast.error('Erro desconhecido contacte suporte.')
+      console.log(error)
+      toast.error('Credenciais inválidas, tente novamente.')
+      return
     }
   }
 

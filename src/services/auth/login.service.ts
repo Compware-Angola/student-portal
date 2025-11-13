@@ -5,6 +5,7 @@ type AuthResponse = {
   user_id: string
   user_name: string
   codigoPreinscricao: string
+  hash: string
 }
 
 type AuthCredentials = {

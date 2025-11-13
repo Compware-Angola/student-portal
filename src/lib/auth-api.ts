@@ -2,11 +2,10 @@
 import { ApiError, type ApiErrorResponse } from '@/error'
 import ky from 'ky'
 
-const VITE_API_URL_INVOICE = import.meta.env.VITE_API_URL_INVOICE
-
-export const invoiceApi = ky.create({
+const VITE_API_URL_AUTH = import.meta.env.VITE_API_URL_AUTH
+export const authApi = ky.create({
   retry: 0,
-  prefixUrl: VITE_API_URL_INVOICE,
+  prefixUrl: VITE_API_URL_AUTH,
   hooks: {
     afterResponse: [
       async (_request, _options, response) => {

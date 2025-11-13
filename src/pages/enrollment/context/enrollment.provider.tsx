@@ -1,4 +1,4 @@
-import { useState, type ReactNode, useMemo } from 'react'
+import { useState, type ReactNode, useMemo, useEffect } from 'react'
 import { EnrollmentContext } from './enrollment.context'
 
 import { toast } from 'sonner'
@@ -135,8 +135,14 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
   >({})
 
   const [selectedSubjects, setSelectedSubjects] = useState<Grade[]>([])
+  useEffect(() => {
+    if (isNewStudentWithOutEnrollment) {
+      setSelectedSubjects([...grades])
+    }
+  }, [isNewStudentWithOutEnrollment, grades])
 
   const maxCourseGrade = Number(profileData?.max_cadeiras_curso)
+
   const toggleSection = (section: SectionKey) => {
     setIsExpanded((prev) => {
       return {
@@ -158,24 +164,38 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     )
   }
   const toggleSubject = (subject: Grade) => {
+    // 🔒 Impede modificações se for novo estudante sem matrícula
     if (isNewStudentWithOutEnrollment) {
       toast.warning('Novo estudante não pode remover disciplinas obrigatórias.')
       return
     }
 
-    setSelectedSubjects((prev) => {
-      const alreadySelected = prev.some(
-        (s) => s.codigoGrade === subject.codigoGrade,
+    // 🔍 Verifica se já está selecionada
+    const alreadySelected = selectedSubjects.some(
+      (s) => s.codigoGrade === subject.codigoGrade,
+    )
+
+    // ✅ Caso esteja selecionada → o usuário quer desmarcar
+    if (alreadySelected) {
+      // Remove o horário vinculado
+      removeScheduleForSubject(subject.codigoGrade)
+
+      // Atualiza a lista removendo o item
+      setSelectedSubjects((prev) =>
+        prev.filter((s) => s.codigoGrade !== subject.codigoGrade),
       )
 
-      if (alreadySelected) {
-        // Ao remover a disciplina, remover também o horário associado
-        removeScheduleForSubject(subject.codigoGrade)
-        return prev.filter((s) => s.codigoGrade !== subject.codigoGrade)
-      }
+      return
+    }
 
-      return [...prev, subject]
-    })
+    // 🚫 Impede selecionar se já atingiu o máximo permitido
+    if (selectedSubjects.length >= maxCourseGrade) {
+      toast.error('Você já atingiu o número máximo de disciplinas permitidas.')
+      return
+    }
+
+    // ✅ Caso contrário, adiciona normalmente
+    setSelectedSubjects((prev) => [...prev, subject])
   }
 
   const selectScheduleForSubject = (
@@ -232,7 +252,24 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
       return
     }
 
-    setSelectedSubjects(allSelected ? [] : allSubjects)
+    if (allSelected) {
+      setSelectedSubjects([])
+      toast.info('Todas as disciplinas foram desmarcadas.')
+      return
+    }
+
+    const totalToSelect = allSubjects.length
+
+    if (totalToSelect > maxCourseGrade) {
+      toast.error(
+        `Você pode selecionar no máximo ${maxCourseGrade} disciplinas.`,
+      )
+      return
+    }
+
+    // ✅ Caso esteja dentro do limite → seleciona todas
+    setSelectedSubjects(allSubjects)
+    toast.success('Todas as disciplinas foram selecionadas.')
   }
 
   const remove = (codigoGrade: string) => {
@@ -465,6 +502,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
         isLoadingStudenttatistics,
         studentStatistics,
         profileData,
+        maxCourseGrade,
       }}
     >
       {children}

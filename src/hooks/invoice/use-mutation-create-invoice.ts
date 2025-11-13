@@ -1,4 +1,7 @@
-import { createInvoice, type CreateInvoiceBody } from '@/services/invoice/post-invoice.service'
+import {
+  createInvoice,
+  type CreateInvoiceBody,
+} from '@/services/invoice/post-invoice.service'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
@@ -11,7 +14,7 @@ export function useMutationCreateInvoice() {
     },
 
     onSuccess: async () => {
-      toast.success('Fatura criada com sucesso!')
+      toast.success('Nota de Pagamento criada com sucesso')
       await queryClient.invalidateQueries({ queryKey: ['invoices'] })
     },
 
@@ -19,7 +22,7 @@ export function useMutationCreateInvoice() {
       const message =
         error instanceof Error
           ? error.message
-          : 'Erro ao criar fatura. Tente novamente.'
+          : 'Erro ao criar nota de pagamento. Tente novamente.'
       toast.error(message)
     },
   })

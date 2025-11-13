@@ -1,29 +1,36 @@
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Calendar, Receipt } from 'lucide-react';
-import { useFinance } from '../hooks/use-finance';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useState } from 'react';
-import { useQueryFinanceMonthlyFee } from '@/hooks/finance/use-query-finance-monthly-fee';
-import type { AdemicsYear } from '@/services/academic-year/get-acamedic-year.service';
-
-
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Calendar, Receipt } from 'lucide-react'
+import { useFinance } from '../hooks/use-finance'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { useCallback, useState } from 'react'
+import { useQueryFinanceMonthlyFee } from '@/hooks/finance/use-query-finance-monthly-fee'
+import type { AdemicsYear } from '@/services/academic-year/get-acamedic-year.service'
+import type { Mensalidade } from '@/types/finance-api-response'
 
 export function PaymentList({
   academicYear: defaultAcademicYear,
   enrollmentCode,
-  academicYears
+  academicYears,
 }: {
-  academicYear: string;
-  enrollmentCode: string;
-  academicYears: AdemicsYear;
+  academicYear: string
+  enrollmentCode: string
+  academicYears: AdemicsYear
 }) {
-  const { getStatusBadge, handleGenerateReference } = useFinance();
+  const { getStatusBadge, handleGenerateReference } = useFinance()
 
-  const [selectedAcademicYear, setSelectedAcademicYear] = useState(String(defaultAcademicYear));
+  const [selectedAcademicYear, setSelectedAcademicYear] = useState(
+    String(defaultAcademicYear),
+  )
 
-  const [page, setPage] = useState(1);
-  const limit = 10;
+  const [page, setPage] = useState(1)
+  const limit = 10
 
   const {
     data: monthlyFeeData,
@@ -34,56 +41,68 @@ export function PaymentList({
     enrollmentCode,
     page,
     limit,
-  });
+  })
 
-  const payments = monthlyFeeData?.data ?? [];
-  const totalPages = monthlyFeeData?.totalPages ?? 1;
+  const payments = monthlyFeeData?.data ?? []
+  const totalPages = monthlyFeeData?.totalPages ?? 1
+
+  const sortByInitialDate = useCallback((payments: Mensalidade[]) => {
+    return payments.sort(
+      (a, b) =>
+        new Date(a.data_inicial).getTime() - new Date(b.data_inicial).getTime(),
+    )
+  }, [])
 
   const getPaymentStatus = (
-    status: number | string
+    status: number | string,
   ): 'paid' | 'pending' | 'upcoming' => {
-    const normalized = Number(status);
+    const normalized = Number(status)
     switch (normalized) {
       case 1:
-        return 'paid';
+        return 'paid'
       case 2:
-        return 'upcoming';
+        return 'upcoming'
       default:
-        return 'pending';
+        return 'pending'
     }
-  };
+  }
 
   if (isLoading) {
     return (
       <Card>
-        <CardHeader><CardTitle>Meses de Pagamento</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>Meses de Pagamento</CardTitle>
+        </CardHeader>
         <CardContent>A carregar meses de pagamento...</CardContent>
       </Card>
-    );
+    )
   }
 
   if (isError) {
     return (
       <Card>
-        <CardHeader><CardTitle>Erro</CardTitle></CardHeader>
-        <CardContent>Não foi possível carregar os dados. Tente mais tarde.</CardContent>
+        <CardHeader>
+          <CardTitle>Erro</CardTitle>
+        </CardHeader>
+        <CardContent>
+          Não foi possível carregar os dados. Tente mais tarde.
+        </CardContent>
       </Card>
-    );
+    )
   }
-
+  console.log(payments)
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <CardTitle>Meses de Pagamento</CardTitle>
 
         <div className="flex items-center gap-2">
-          
-        <Calendar className="h-5 w-5 text-muted-foreground" />
+          <Calendar className="h-5 w-5 text-muted-foreground" />
           <Select
             value={selectedAcademicYear}
             onValueChange={(value) => {
-              setSelectedAcademicYear(value);
-              setPage(1);
+              setSelectedAcademicYear(value)
+              setPage(1)
             }}
           >
             <SelectTrigger className="w-[180px]">
@@ -107,7 +126,7 @@ export function PaymentList({
             Nenhuma mensalidade encontrada.
           </p>
         ) : (
-          payments.map((p) => (
+          sortByInitialDate(payments).map((p) => (
             <div
               key={p.id_item}
               className="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted/50"
@@ -115,7 +134,8 @@ export function PaymentList({
               <div>
                 <p className="font-medium">{p.mes}</p>
                 <p className="text-sm text-muted-foreground">
-                  Vencimento: {new Date(p.data_limite).toLocaleDateString('pt-AO')}
+                  Vencimento:{' '}
+                  {new Date(p.data_limite).toLocaleDateString('pt-AO')}
                 </p>
 
                 {p.reference && (
@@ -135,7 +155,8 @@ export function PaymentList({
                     variant="outline"
                     size="sm"
                     disabled={!p.codigo_factura}
-                    onClick={() => handleGenerateReference(p.codigo_factura as number)
+                    onClick={() =>
+                      handleGenerateReference(p.codigo_factura as number)
                     }
                   >
                     <Receipt className="mr-2 h-4 w-4" />
@@ -171,5 +192,5 @@ export function PaymentList({
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

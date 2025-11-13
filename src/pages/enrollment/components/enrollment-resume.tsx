@@ -15,6 +15,7 @@ export function EnrollmentResume() {
     confirmStudentEnrollment,
     confirmStudentEnrollmentState,
     enrollmentStatus,
+    isNewStudentWithOutEnrollment,
   } = useEnrollment()
   const valorAcrescer = enrollmentStatus === 'closed' ? 10200 : 0
   return (
@@ -55,6 +56,7 @@ export function EnrollmentResume() {
                       {formatCurrency(Number(subject.valorInscricao))}
                     </span>
                     <Button
+                      disabled={isNewStudentWithOutEnrollment}
                       variant="outline"
                       size="sm"
                       onClick={() => remove(subject.codigoGrade)}
@@ -107,7 +109,12 @@ export function EnrollmentResume() {
                   )}
                 </>
               </Button>
-              <Button variant="outline" size="lg" onClick={removeAll}>
+              <Button
+                disabled={isNewStudentWithOutEnrollment}
+                variant="outline"
+                size="lg"
+                onClick={removeAll}
+              >
                 Limpar Seleção
               </Button>
             </div>

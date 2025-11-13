@@ -20,7 +20,7 @@ export function useMutationConfirmOldStudentEnrollment() {
     },
 
     onSuccess: async () => {
-      toast.success('Matrícula confirmada')
+      toast.success('Matrícula confirmada, aguarda confirmação de pagamento')
       await queryClient.invalidateQueries({ queryKey: ['profile'] })
       await queryClient.invalidateQueries({
         queryKey: ['academic-confirmation-new-student'],

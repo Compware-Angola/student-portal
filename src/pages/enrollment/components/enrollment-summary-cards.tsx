@@ -19,6 +19,7 @@ import { useEnrollment } from '../hooks/use-enrollment'
 import { StudentSituation } from '@/constants/student-situation'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
+import { cn } from '@/lib/utils'
 
 function SummaryCard({
   icon: Icon,
@@ -51,8 +52,13 @@ function SummaryCard({
 }
 
 export function EnrollmentSummaryCards() {
-  const { selectedSubjects, enrollmentStatus, studentSituation } =
-    useEnrollment()
+  const {
+    selectedSubjects,
+    enrollmentStatus,
+    studentSituation,
+    maxCourseGrade,
+    isNewStudentWithOutEnrollment,
+  } = useEnrollment()
   const { data: academicYear } = useQueryCurrentAcademicYear()
   const { profileData } = useQueryProfile()
 
@@ -91,12 +97,21 @@ export function EnrollmentSummaryCards() {
       description: 'Total selecionadas',
     },
     {
+      icon: BookOpen,
+      title: 'Limite de cadeiras',
+      value: maxCourseGrade,
+      description: 'Máx. permitidas',
+    },
+    {
       icon: LibraryBig,
       title: 'Estado da Matrícula',
       value: enrollmentBadge,
       description: 'Situação da inscrição atual',
     },
   ]
+  const cardsToRender = cards.filter((c) =>
+    isNewStudentWithOutEnrollment ? c.title !== 'Limite de cadeiras' : true,
+  )
 
   return (
     <div className="space-y-3">
@@ -177,19 +192,22 @@ export function EnrollmentSummaryCards() {
                   Matrícula Pendente
                 </h3>
                 <p className="text-red-700 max-w-md leading-relaxed">
-                  A sua confirmação{' '}
-                  <strong>não está validada pelo setor das finanças</strong>.
-                  <br />
-                  Por favor, dirija-se à <strong>secretaria</strong> para
-                  regularizar a situação e acessar a sua matrícula.
+                  Por favor, verifique a situação do seu pagamento no sistema ou
+                  dirija-se à secretaria para regularizar a situação e acessar a
+                  sua matrícula.
                 </p>
               </CardContent>
             </Card>
           )}
         </>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
-          {cards.map((card, index) => (
+        <div
+          className={cn(
+            'grid gap-4',
+            isNewStudentWithOutEnrollment ? 'md:grid-cols-2' : 'md:grid-cols-3',
+          )}
+        >
+          {cardsToRender.map((card, index) => (
             <SummaryCard key={index} {...card} />
           ))}
         </div>

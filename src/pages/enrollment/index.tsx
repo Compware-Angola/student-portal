@@ -56,12 +56,12 @@ function EnrollmentContent() {
     isLoadingStudentCurriculumPlanPendents ||
     isLoadingAcademmicYear ||
     isLoadingStudenttatistics ||
-    !studentStatistics ||
     !profileData
   ) {
     return <EnrollmentSkeleton />
   }
-  if ((studentStatistics.valor_divida ?? 0) > 0) return <PaymentAlert />
+  if (studentStatistics && (studentStatistics.valor_divida ?? 0) > 0)
+    return <PaymentAlert />
 
   return (
     <div className="space-y-6">
