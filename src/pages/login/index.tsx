@@ -35,9 +35,8 @@ export function Login() {
         <CardContent>
           <Tabs defaultValue="login" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Entrar</TabsTrigger>
-              <TabsTrigger disabled value="register">
-                Inscrição
+              <TabsTrigger className="min-w-full" value="login">
+                Entrar
               </TabsTrigger>
             </TabsList>
 
