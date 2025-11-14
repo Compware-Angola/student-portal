@@ -79,7 +79,7 @@ export const Renegociation = () => {
   const [debtData, setDebtData] = useState<DebtNegotiationResponse | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [simulationData, setSimulationData] = useState<SimulateNegotiationFormData | null>(null);
-
+  console.log(academicYear)
   const searchForm = useForm<SearchDebtFormData>({
     resolver: zodResolver(searchDebtSchema),
     defaultValues: {
