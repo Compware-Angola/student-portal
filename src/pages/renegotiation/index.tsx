@@ -162,7 +162,7 @@ export const Renegociation = () => {
         total_retencao: debtData.total_retencao,
         total_incidencia: debtData.total_incidencia,
         totalIVA: debtData.totalIVA,
-        saldo_reset: debtData.saldo_reset,
+        saldo_reset: Number(debtData.saldo_reset),
         tipoPagamento: simulationData.negotiationType.toUpperCase() as
           | 'TOTAL'
           | 'PARCIAL',
@@ -170,22 +170,22 @@ export const Renegociation = () => {
           codGradeCurricular: m.codGradeCurricular || '',
           codFacturaOutrosServicos: m.codFacturaOutrosServicos || '',
           bolsa: m.bolsa || '',
-          mes_temp_id: m.mes_temp_id || 0,
-          n_prestacao: m.n_prestacao || 0,
+          mes_temp_id: Number(m.mes_temp_id) || 0,
+          n_prestacao: Number(m.n_prestacao) || 0,
           valor: String(m.valor) || '0',
-          multa: m.multa || 0,
-          total: m.total || 0,
+          multa: Number(m.multa) || 0,
+          total: Number(m.total) || 0,
           servico: m.servico || '',
           mes_propina: m.mes_propina || '',
           ano_lectivo: m.ano_lectivo || '',
-          taxa_multa: m.taxa_multa || 0,
-          taxa_desconto: m.taxa_desconto || 0,
-          codigo_propina: m.codigo_propina || 0,
-          codigo_anoLectivo: m.codigo_anoLectivo || 0,
-          desconto: m.desconto || 0,
-          incidencia: m.incidencia || 0,
-          valor_iva: m.valor_iva || 0,
-          tipo_taxas: m.tipo_taxas || 0,
+          taxa_multa: Number(m.taxa_multa) || 0,
+          taxa_desconto: Number(m.taxa_desconto) || 0,
+          codigo_propina:Number( m.codigo_propina )|| 0,
+          codigo_anoLectivo: Number(m.codigo_anoLectivo) || 0,
+          desconto: Number(m.desconto) || 0,
+          incidencia:Number( m.incidencia) || 0,
+          valor_iva: Number(m.valor_iva) || 0,
+          tipo_taxas: Number( m.tipo_taxas )|| 0,
           taxa_descricao: m.taxa_descricao || '',
         })),
         fatura_item_servicos: debtData.dividaOutrosServicos as any[],
@@ -417,6 +417,7 @@ export const Renegociation = () => {
                             <FormLabel>Pagamento Inicial</FormLabel>
                             <FormControl>
                               <Input
+                              disabled
                                 type="number"
                                 placeholder="Ex: 30000"
                                 {...field}
