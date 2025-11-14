@@ -26,7 +26,8 @@ function EnrollmentContent() {
     isLoadingAcademmicYear,
     studentSituation,
     isLoadingStudenttatistics,
-    studentStatistics,
+    isLoadingDebit,
+    debit,
     profileData,
   } = useEnrollment()
   useEffect(() => {
@@ -56,12 +57,12 @@ function EnrollmentContent() {
     isLoadingStudentCurriculumPlanPendents ||
     isLoadingAcademmicYear ||
     isLoadingStudenttatistics ||
-    !profileData
+    !profileData ||
+    isLoadingDebit
   ) {
     return <EnrollmentSkeleton />
   }
-  if (studentStatistics && (studentStatistics.valor_divida ?? 0) > 0)
-    return <PaymentAlert />
+  if (debit && (debit?.totalDivida ?? 0) > 0) return <PaymentAlert />
 
   return (
     <div className="space-y-6">

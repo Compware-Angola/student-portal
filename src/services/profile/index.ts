@@ -33,6 +33,7 @@ export interface StudentProfile {
   userId: string
   poloId: string
   codigo_tipo_candidatura: string
+  curso_candidatura_designacao: string
 }
 
 export interface Confirmac {

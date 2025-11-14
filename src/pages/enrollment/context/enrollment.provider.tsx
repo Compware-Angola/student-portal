@@ -20,6 +20,7 @@ import { useQueryActivityAcademicConfirmationStudent } from '@/hooks/academic/us
 import { getEnrollmentStatus } from '@/utils'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 import { useQueryStudentDashboardStatistics } from '@/hooks/statics/use-query-student-dashboard-statistics'
+import { useQueryGetDebit } from '@/hooks/renegotiation/use-query-renegotiation'
 type ToggleState = {
   new: boolean
   pendents: boolean
@@ -48,6 +49,11 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     isError: isErrorAcademicYear,
     isLoading: isLoadingAcademmicYear,
   } = useQueryCurrentAcademicYear()
+  const { data: debit, isLoading: isLoadingDebit } = useQueryGetDebit({
+    type: '1',
+    enrollmentCode: profileData?.enrollmentCode,
+    preinscricao: profileData?.codigo_preinscricao,
+  })
   const shouldFecthCurriculumPlan =
     StudentSituation.NEW_WITHOUT_ENROLLMENT ===
       Number(studentSituation?.codigo_status) ||
@@ -136,9 +142,14 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
 
   const [selectedSubjects, setSelectedSubjects] = useState<Grade[]>([])
   useEffect(() => {
-    if (isNewStudentWithOutEnrollment) {
+    if (
+      isNewStudentWithOutEnrollment &&
+      grades?.length > 0 &&
+      selectedSubjects.length === 0
+    ) {
       setSelectedSubjects([...grades])
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNewStudentWithOutEnrollment, grades])
 
   const maxCourseGrade = Number(profileData?.max_cadeiras_curso)
@@ -503,6 +514,8 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
         studentStatistics,
         profileData,
         maxCourseGrade,
+        isLoadingDebit,
+        debit,
       }}
     >
       {children}

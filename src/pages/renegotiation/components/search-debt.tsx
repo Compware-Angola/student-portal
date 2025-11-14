@@ -1,11 +1,11 @@
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -13,29 +13,33 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Search, Loader2 } from 'lucide-react';
-import z from 'zod';
-import type { searchDebtSchema } from '../schemas';
-import type { UseFormReturn } from 'react-hook-form';
+} from '@/components/ui/select'
+import { Search, Loader2 } from 'lucide-react'
+import z from 'zod'
+import type { searchDebtSchema } from '../schemas'
+import type { UseFormReturn } from 'react-hook-form'
 
-type SearchDebtFormData = z.infer<typeof searchDebtSchema>;
+type SearchDebtFormData = z.infer<typeof searchDebtSchema>
 
 type SearchDebtProps = {
-  searchForm: UseFormReturn<SearchDebtFormData>;
-  onSearchDebt: (data: SearchDebtFormData) => Promise<void>;
-  isSearching: boolean; // ADICIONADO AQUI
-};
+  searchForm: UseFormReturn<SearchDebtFormData>
+  onSearchDebt: (data: SearchDebtFormData) => Promise<void>
+  isSearching: boolean // ADICIONADO AQUI
+}
 
-export function SearchDebt({ searchForm, onSearchDebt, isSearching }: SearchDebtProps) {
+export function SearchDebt({
+  searchForm,
+  onSearchDebt,
+  isSearching,
+}: SearchDebtProps) {
   return (
     <Card>
       <CardHeader>
@@ -68,13 +72,13 @@ export function SearchDebt({ searchForm, onSearchDebt, isSearching }: SearchDebt
             />
 
             <FormField
-            
               control={searchForm.control}
               name="academicYear"
               render={({ field }) => (
-                <FormItem >
+                <FormItem>
                   <FormLabel>Ano Académico</FormLabel>
-                  <Select disabled
+                  <Select
+                    disabled
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
@@ -114,5 +118,5 @@ export function SearchDebt({ searchForm, onSearchDebt, isSearching }: SearchDebt
         </Form>
       </CardContent>
     </Card>
-  );
+  )
 }

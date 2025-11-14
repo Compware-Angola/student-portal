@@ -10,6 +10,7 @@ type Grade = {
   CodigoDisciplina: string
   CodigoGrade: string
   ValorInscricao: string
+  ano_lectivo: string
 }
 export type StudentCurriculumPlan = {
   grades: Grade[]

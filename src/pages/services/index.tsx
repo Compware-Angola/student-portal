@@ -33,21 +33,26 @@ interface ServiceItem {
   tipo_servico: string
 }
 
-
-
 export function AcademicServices() {
   const [selectedServices, setSelectedServices] = useState<string[]>([])
   const [showSuccessDialog, setShowSuccessDialog] = useState(false)
 
   const { data: academicYearData } = useQueryCurrentAcademicYear()
-  const { profileData, isLoading: loadingProfile, isError: errorProfile } = useQueryProfile()
-  const { data: servicesData, isLoading: loadingServices, isError: errorServices } = useQueryAvailableServices({
+  const {
+    profileData,
+    isLoading: loadingProfile,
+    isError: errorProfile,
+  } = useQueryProfile()
+  const {
+    data: servicesData,
+    isLoading: loadingServices,
+    isError: errorServices,
+  } = useQueryAvailableServices({
     academicYear: academicYearData?.codigo,
     poloId: profileData?.poloId ?? '1',
   })
 
   const { createInvoiceAsync } = useMutationCreateInvoice()
-
 
   const poloId = profileData?.poloId ?? '1'
   const enrollmentCode = profileData?.codigo_matricula
@@ -55,7 +60,9 @@ export function AcademicServices() {
 
   // === Validação e conversão de IDs ===
   const matriculaNumero = enrollmentCode ? parseInt(enrollmentCode, 10) : null
-  const preInscricaoNumero = pre_inscricao_raw ? parseInt(pre_inscricao_raw, 10) : null
+  const preInscricaoNumero = pre_inscricao_raw
+    ? parseInt(pre_inscricao_raw, 10)
+    : null
 
   // === Cálculo do payload ===
   const payload = useMemo(() => {
@@ -114,9 +121,18 @@ export function AcademicServices() {
 
     const TotalPreco = itens.reduce((sum: number, i: any) => sum + i.Total, 0)
     const totalIVA = itens.reduce((sum: number, i: any) => sum + i.valorIva, 0)
-    const total_retencao = itens.reduce((sum: number, i: any) => sum + i.retencao, 0)
-    const total_incidencia = itens.reduce((sum: number, i: any) => sum + i.incidencia, 0)
-    const Desconto = itens.reduce((sum: number, i: any) => sum + i.valorDesconto, 0)
+    const total_retencao = itens.reduce(
+      (sum: number, i: any) => sum + i.retencao,
+      0,
+    )
+    const total_incidencia = itens.reduce(
+      (sum: number, i: any) => sum + i.incidencia,
+      0,
+    )
+    const Desconto = itens.reduce(
+      (sum: number, i: any) => sum + i.valorDesconto,
+      0,
+    )
     const ValorAPagar = TotalPreco - total_retencao
 
     return {
@@ -150,10 +166,10 @@ export function AcademicServices() {
   const totalCost = payload?.TotalPreco || 0
 
   const handleServiceToggle = (codigo: string) => {
-    setSelectedServices(prev =>
+    setSelectedServices((prev) =>
       prev.includes(codigo)
-        ? prev.filter(c => c !== codigo)
-        : [...prev, codigo]
+        ? prev.filter((c) => c !== codigo)
+        : [...prev, codigo],
     )
   }
 
@@ -178,7 +194,9 @@ export function AcademicServices() {
   }
 
   if (errorProfile || errorServices || !servicesData) {
-    return <ErrorState message="Não foi possível carregar os serviços. Tente novamente mais tarde." />
+    return (
+      <ErrorState message="Não foi possível carregar os serviços. Tente novamente mais tarde." />
+    )
   }
 
   if (servicesData.servicos.length === 0) {
@@ -190,8 +208,12 @@ export function AcademicServices() {
     <>
       <div className="space-y-6">
         <header>
-          <h1 className="text-3xl font-bold tracking-tight">Serviços Acadêmicos</h1>
-          <p className="text-muted-foreground">Selecione os serviços que deseja incluir na Nota de Pagamento.</p>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Serviços Acadêmicos
+          </h1>
+          <p className="text-muted-foreground">
+            Selecione os serviços que deseja incluir na Nota de Pagamento.
+          </p>
         </header>
 
         <Card>
@@ -222,17 +244,28 @@ export function AcademicServices() {
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="h-5 w-5 text-primary" />
-                    <span className="font-medium">{payload.itens.length} serviço(s) selecionado(s)</span>
+                    <span className="font-medium">
+                      {payload.itens.length} serviço(s) selecionado(s)
+                    </span>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm text-muted-foreground">Total a pagar</p>
+                    <p className="text-sm text-muted-foreground">
+                      Total a pagar
+                    </p>
                     <p className="text-2xl font-bold text-primary">
-                      {totalCost.toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })}
+                      {totalCost.toLocaleString('pt-AO', {
+                        style: 'currency',
+                        currency: 'AOA',
+                      })}
                     </p>
                   </div>
                 </div>
-                <Button onClick={handleGenerateInvoice} size="lg" className="w-full">
-                  Solicitar  serviço(s)
+                <Button
+                  onClick={handleGenerateInvoice}
+                  size="lg"
+                  className="w-full"
+                >
+                  Solicitar serviço(s)
                 </Button>
               </div>
             )}
@@ -249,11 +282,18 @@ export function AcademicServices() {
               Solicitação feita com sucesso!
             </DialogTitle>
             <DialogDescription className="pt-2">
-              Acesse a <span className="font-semibold text-primary">área financeira</span> para liquidar a nota de pagamento.
+              Acesse a{' '}
+              <span className="font-semibold text-primary">
+                área financeira
+              </span>{' '}
+              para liquidar a nota de pagamento.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="outline" onClick={() => setShowSuccessDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowSuccessDialog(false)}
+            >
               Fechar
             </Button>
             <Button
@@ -297,13 +337,18 @@ function ServiceItemRow({
             <span className="font-medium">{service.descricao}</span>
             <Badge variant="outline">{service.tipo_servico}</Badge>
           </div>
-          <p className="text-sm text-muted-foreground">Código: {service.codigo}</p>
+          <p className="text-sm text-muted-foreground">
+            Código: {service.codigo}
+          </p>
         </label>
       </div>
       <div className="text-right">
         <p className="text-sm text-muted-foreground">Preço</p>
         <p className="font-medium">
-          {preco.toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })}
+          {preco.toLocaleString('pt-AO', {
+            style: 'currency',
+            currency: 'AOA',
+          })}
         </p>
       </div>
     </div>
@@ -320,7 +365,10 @@ function ServicesSkeleton() {
       <CardContent>
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="flex items-center justify-between p-4 border rounded-lg">
+            <div
+              key={i}
+              className="flex items-center justify-between p-4 border rounded-lg"
+            >
               <div className="flex items-center gap-4">
                 <Skeleton className="h-5 w-5 rounded" />
                 <div>
@@ -354,7 +402,9 @@ function EmptyState() {
         <CardTitle>Serviços Acadêmicos</CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="text-muted-foreground">Nenhum serviço disponível no momento.</p>
+        <p className="text-muted-foreground">
+          Nenhum serviço disponível no momento.
+        </p>
       </CardContent>
     </Card>
   )

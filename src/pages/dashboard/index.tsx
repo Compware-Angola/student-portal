@@ -18,7 +18,6 @@ import { formatCurrency } from '@/utils'
 import { useQueryStudentDashboardStatistics } from '@/hooks/statics/use-query-student-dashboard-statistics'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
-import { PaymentAlert } from '@/components/payment-alert'
 import {
   useQueryAnnouncement,
   useQueryMessage,
@@ -26,6 +25,7 @@ import {
 import { AuthStorage } from '@/storage/auth-storage'
 import { useQueryAcademicActivity } from '@/hooks/academic/use-query-academic-activity'
 import { useQueryAcademicTestSchedule } from '@/hooks/schedule/use-query-academic-test-schedule'
+import { useQueryGetDebit } from '@/hooks/renegotiation/use-query-renegotiation'
 
 // === Tipos ===
 interface Notification {
@@ -74,6 +74,22 @@ export const Dashboard = () => {
   }, [statistics])
 
   // === Loading & Erros ===
+  // const result = await queryClient.fetchQuery<DebtNegotiationResponse>({
+  //   queryKey: ['renegotiation-debit', data.enrollmentCode],
+  //   queryFn: () =>
+  //     getDebit({
+  //       enrollmentCode: data.enrollmentCode,
+  //       preinscricao: profileData?.codigo_preinscricao,
+  //       type: '1',
+  //     }),
+  // })
+  //
+  // data: debit, isLoading: loadingDebit
+  const { data: debit, isLoading: loadingDebit } = useQueryGetDebit({
+    type: '1',
+    enrollmentCode: profileData?.enrollmentCode,
+    preinscricao: profileData?.codigo_preinscricao,
+  })
 
   const greeting = `${profileData?.sexo === 'Feminino' ? 'Bem-vinda' : 'Bem-vindo'}, ${profileData?.firstName} ${profileData?.lastName}`
 
@@ -163,8 +179,8 @@ export const Dashboard = () => {
       month: 'short',
       year: 'numeric',
     })
-  if (!profileData || loadingStats) return <DashboardSkeleton />
-  if ((statistics?.valor_divida ?? 0) > 0) return <PaymentAlert />
+  if (!profileData || loadingStats || loadingDebit) return <DashboardSkeleton />
+
   return (
     <div className="space-y-6">
       {/* Saudação */}
@@ -200,7 +216,7 @@ export const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-destructive">
-              {formatCurrency(statistics?.valor_divida ?? 0)}
+              {formatCurrency(debit?.totalDivida ?? 0)}
             </div>
             <p className="text-xs text-muted-foreground">
               Clique para ver detalhes

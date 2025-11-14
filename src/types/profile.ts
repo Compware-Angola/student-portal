@@ -17,4 +17,5 @@ export type ProfileData = {
   curso: string
   enrollmentCode: string
   preEnrollmentCode: string
+  curso_duracao?: string
 } & StudentProfile
