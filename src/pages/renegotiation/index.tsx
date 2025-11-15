@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { AlertCircle, Calculator, CheckCircle2, Mail } from 'lucide-react'
+import { AlertCircle, Calculator, CheckCircle2, Loader2, Mail } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -70,7 +70,7 @@ export const Renegociation = () => {
   const [debtData, setDebtData] = useState<DebtNegotiationResponse | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [simulationData, setSimulationData] = useState<SimulateNegotiationFormData | null>(null);
-
+  const [isLoading, setIsLoading] = useState(false);
   const searchForm = useForm<SearchDebtFormData>({
     resolver: zodResolver(searchDebtSchema),
     defaultValues: {
@@ -153,7 +153,7 @@ export const Renegociation = () => {
   // === CONFIRMAR ===
   const onConfirmNegotiation = async () => {
     if (!debtData || !simulationData) return
-
+    setIsLoading(true);
     try {
       const payload = {
         totalDivida: debtData.totalDivida,
@@ -180,12 +180,12 @@ export const Renegociation = () => {
           ano_lectivo: m.ano_lectivo || '',
           taxa_multa: Number(m.taxa_multa) || 0,
           taxa_desconto: Number(m.taxa_desconto) || 0,
-          codigo_propina:Number( m.codigo_propina )|| 0,
+          codigo_propina: Number(m.codigo_propina) || 0,
           codigo_anoLectivo: Number(m.codigo_anoLectivo) || 0,
           desconto: Number(m.desconto) || 0,
-          incidencia:Number( m.incidencia) || 0,
+          incidencia: Number(m.incidencia) || 0,
           valor_iva: Number(m.valor_iva) || 0,
-          tipo_taxas: Number( m.tipo_taxas )|| 0,
+          tipo_taxas: Number(m.tipo_taxas) || 0,
           taxa_descricao: m.taxa_descricao || '',
         })),
         fatura_item_servicos: debtData.dividaOutrosServicos as any[],
@@ -196,7 +196,6 @@ export const Renegociation = () => {
         somaValorDividaRecurso: debtData.somaValorDividaRecurso || 0,
       }
 
-      console.log('Payload enviado:', payload)
       await createRenegotiationAsync({
         payload,
         enrollmentCode: profileData?.codigo_matricula ?? '',
@@ -213,6 +212,8 @@ export const Renegociation = () => {
       } else {
         toast.error('Erro de conexão. Tente novamente.')
       }
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -293,7 +294,7 @@ export const Renegociation = () => {
                       </p>
 
                       {debtData.mesesDividas &&
-                      debtData.mesesDividas.length > 0 ? (
+                        debtData.mesesDividas.length > 0 ? (
                         debtData.mesesDividas.map((m: any) => (
                           <div
                             key={
@@ -322,7 +323,7 @@ export const Renegociation = () => {
                       </p>
 
                       {debtData.dividaOutrosServicos &&
-                      debtData.dividaOutrosServicos.length > 0 ? (
+                        debtData.dividaOutrosServicos.length > 0 ? (
                         debtData.dividaOutrosServicos.map((m: any) => (
                           <div
                             key={m.servico}
@@ -417,7 +418,7 @@ export const Renegociation = () => {
                             <FormLabel>Pagamento Inicial</FormLabel>
                             <FormControl>
                               <Input
-                              disabled
+                                disabled
                                 type="number"
                                 placeholder="Ex: 30000"
                                 {...field}
@@ -530,9 +531,22 @@ export const Renegociation = () => {
               >
                 Voltar
               </Button>
-              <Button onClick={onConfirmNegotiation} className="flex-1">
-                <CheckCircle2 className="mr-2 h-4 w-4" />
-                Confirmar
+              <Button
+                onClick={onConfirmNegotiation}
+                disabled={isLoading}
+                className="flex-1"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Carregando...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                    Confirmar
+                  </>
+                )}
               </Button>
             </div>
           </CardContent>
