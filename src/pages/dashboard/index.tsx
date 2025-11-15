@@ -67,11 +67,6 @@ export const Dashboard = () => {
     })
 
   // === Efeitos ===
-  useEffect(() => {
-    if ((statistics?.valor_divida ?? 0) > 0) {
-      toast.error('Você possui uma dívida pendente!')
-    }
-  }, [statistics])
 
   // === Loading & Erros ===
   // const result = await queryClient.fetchQuery<DebtNegotiationResponse>({

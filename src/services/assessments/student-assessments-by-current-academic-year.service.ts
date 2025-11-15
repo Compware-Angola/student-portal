@@ -1,6 +1,7 @@
 import { apexApi } from '@/lib/apex-api'
 
 export type StudentAssessment = {
+  media_final: string
   grade_aluno_id: string
   matricula_id: string
   turma_aluno: string | null

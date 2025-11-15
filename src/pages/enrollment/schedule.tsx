@@ -25,6 +25,7 @@ import { useEffect, useState } from 'react'
 import { useEnrollment } from './hooks/use-enrollment'
 import { toast } from 'sonner'
 import type { Grade } from '@/types/grade'
+import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 
 interface ScheduleSelectionDialogProps {
   subject: Grade
@@ -126,17 +127,19 @@ export const ScheduleSelectionDialog = ({
     return grouped
   }
 
-  const { profileData } = useQueryProfile()
+  const { profileData, isLoading: isLoadingProfile } = useQueryProfile()
+  const { data: currentAcademicYear, isLoading: isLoadingAcademicYear } =
+    useQueryCurrentAcademicYear()
   const {
     data: horarios = [],
-    isLoading,
+    isLoading: isLoadingSchedules,
     isError,
     refetch,
   } = useQueryCurriculumSchedule(
     {
-      academicYear: profileData?.confirmacoes[0]?.ano_lectivo!,
+      academicYear: currentAcademicYear?.codigo,
       gradeCurricular: subject?.codigoGrade,
-      preocidade: profileData?.periodoId!,
+      preocidade: profileData?.periodoId,
     },
     open && !!profileData,
   )
@@ -162,7 +165,8 @@ export const ScheduleSelectionDialog = ({
   const handleRetry = () => {
     refetch()
   }
-
+  const isLoading =
+    isLoadingSchedules || isLoadingAcademicYear || isLoadingProfile
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -175,7 +179,7 @@ export const ScheduleSelectionDialog = ({
           {title ? title : 'Selecionar Horário'}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-5xl w-full max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl">
             Selecionar Horário - {subject.disciplina}

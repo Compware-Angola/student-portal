@@ -1,6 +1,5 @@
 import { useState, type ReactNode, useMemo, useEffect } from 'react'
 import { EnrollmentContext } from './enrollment.context'
-
 import { toast } from 'sonner'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useMutationConfirmNewStudentEnrollment } from '@/hooks/enrollment/use-mutation-confirm-new-student-enrollment'
@@ -63,7 +62,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     useQueryStudentDashboardStatistics(profileData?.enrollmentCode)
   const shouldFecthCurriculumPlanPendents =
     StudentSituation.OLD_WITHOUT_CURRENT_CONFIRMATION ===
-    Number(studentSituation?.codigo_status)
+      Number(studentSituation?.codigo_status) && Number(debit?.totalDivida) > 0
   const {
     data: pendentsGrades,
     isLoading: isLoadingStudentCurriculumPlanPendents,
@@ -78,8 +77,9 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
   const shouldFetchAcademicConfirmationNewStudent =
     StudentSituation.NEW_WITHOUT_ENROLLMENT ===
       Number(studentSituation?.codigo_status) ||
-    StudentSituation.NEW_WITH_CURRENT_CONFIRMATION ===
-      Number(studentSituation?.codigo_status)
+    (StudentSituation.NEW_WITH_CURRENT_CONFIRMATION ===
+      Number(studentSituation?.codigo_status) &&
+      Number(debit?.totalDivida) > 0)
   const { data: confirmationNewStudent } =
     useQueryActivityAcademicConfirmationStudent(
       {
