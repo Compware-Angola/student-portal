@@ -77,9 +77,9 @@ export function AcademicServices() {
       return null
     }
 
-    const TAXA_IVA = 14
-    const TAXA_RETENCAO = 6.5
-    const DESCONTO_PORCENTAGEM = 5
+    const TAXA_IVA = 0
+    const TAXA_RETENCAO = 0
+    const DESCONTO_PORCENTAGEM = 0
     const QUANTIDADE = 1
     const MAX_OBS_LENGTH = 45
 

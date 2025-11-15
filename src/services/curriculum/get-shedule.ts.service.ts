@@ -9,7 +9,6 @@ type ScheduleParams = {
 export async function getCurriculumSchedule(
   params: ScheduleParams,
 ): Promise<ScheduleResponse> {
-  console.log('curriculum/curriculum-plan-schedule/1/18/586')
   const response = await apexApi
     .get(
       `curriculum/curriculum-plan-schedule/${params.preocidade}/${params.academicYear}/${params.gradeCurricular}`,

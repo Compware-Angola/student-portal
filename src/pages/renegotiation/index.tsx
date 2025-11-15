@@ -52,7 +52,7 @@ const simulateNegotiationSchema = z.object({
   enrollmentCode: z.string().min(1, 'Código de matrícula é obrigatório'),
   totalAmount: z.number().min(0, 'Valor total é obrigatório'),
   initialPayment: z.number().min(0, 'Pagamento inicial obrigatório'),
-  negotiationType: z.enum(['Total', 'Parcial']).refine((val) => val != null, {
+  negotiationType: z.enum(['TOTAL', 'PARCELADO']).refine((val) => val != null, {
     message: 'Selecione o tipo de renegociação',
   }),
 })
@@ -98,12 +98,12 @@ export const Renegociation = () => {
     const subscription = simulateForm.watch((value, { name }) => {
       if (name === 'negotiationType' && value.totalAmount != null) {
         const total = value.totalAmount as number
-        const type = value.negotiationType as 'Total' | 'Parcial' | undefined
+        const type = value.negotiationType as 'TOTAL' | 'PARCELADO' | undefined
 
-        if (type === 'Total') {
+        if (type === 'TOTAL') {
           simulateForm.setValue('initialPayment', total)
-        } else if (type === 'Parcial') {
-          simulateForm.setValue('initialPayment', Math.round(total / 2))
+        } else if (type === 'PARCELADO') {
+          simulateForm.setValue('initialPayment', total / 2)
         }
       }
     })
@@ -398,10 +398,10 @@ export const Renegociation = () => {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="Total">
+                                <SelectItem value="TOTAL">
                                   Total (pagar tudo)
                                 </SelectItem>
-                                <SelectItem value="Parcial">
+                                <SelectItem value="PARCELADO">
                                   Parcial (50% inicial)
                                 </SelectItem>
                               </SelectContent>
