@@ -5,15 +5,16 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-
-import { BookOpen, Calendar } from 'lucide-react'
+import { BookOpen, Calendar, AlertCircle } from 'lucide-react'
 import { useQueryCurriculumPlanCurrentYear } from '@/hooks/curriculum/use-query-curriculum-plan'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 import type { ProfileData } from '@/types/profile'
 import { StatusBadge } from './status-badge'
+
 type CurrentYearProps = {
   profileData?: ProfileData
 }
+
 export const CurrentYear = ({ profileData }: CurrentYearProps) => {
   const { data: academicYear } = useQueryCurrentAcademicYear()
   const {
@@ -28,14 +29,60 @@ export const CurrentYear = ({ profileData }: CurrentYearProps) => {
     true,
   )
 
+  // Verifica se o aluno está inscrito no ano letivo atual
+  const isConfirmed = profileData?.confirmacoes?.[0]?.ano_lectivo === academicYear?.codigo
+
+  // Carregando
   if (isLoading) {
-    return <p>Carregando disciplinas...</p>
+    return (
+      <Card>
+        <CardContent className="py-8 text-center">
+          <p className="text-muted-foreground">Carregando disciplinas...</p>
+        </CardContent>
+      </Card>
+    )
   }
 
+  // Erro
   if (isError) {
-    return <p>Erro ao carregar disciplinas do ano atual.</p>
+    return (
+      <Card className="border-destructive/20">
+        <CardContent className="py-8 text-center">
+          <p className="text-destructive">Erro ao carregar disciplinas do ano atual.</p>
+        </CardContent>
+      </Card>
+    )
   }
 
+  // NÃO ESTÁ INSCRITO NO ANO LETIVO
+  if (!isConfirmed) {
+    return (
+      <div className="space-y-6 mt-6">
+        <Card className="border-warning/20 bg-warning/5">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <AlertCircle className="h-6 w-6 text-warning" />
+              <CardTitle className="text-lg">
+                Ainda não está inscrito no ano letivo
+              </CardTitle>
+            </div>
+            <CardDescription>
+              Ano letivo atual: <strong>{academicYear?.designacao}</strong>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Para visualizar as disciplinas, é necessário confirmar a sua inscrição no ano letivo atual.
+              <br />
+              Vá até a área de <strong>Matrículas</strong> ou contacte a secretaria.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  // ESTÁ INSCRITO → MOSTRA DISCIPLINAS
   return (
     <div className="space-y-6 mt-6">
       <Card>

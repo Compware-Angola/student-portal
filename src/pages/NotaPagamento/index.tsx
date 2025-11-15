@@ -288,9 +288,9 @@ export const NotaPagamento = () => {
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-3xl font-bold">Pagamento</h1>
+                <h1 className="text-3xl font-bold">Pagamento Concluídos</h1>
                 <p className="text-muted-foreground mt-2">
-                    Consulte e gerencie os  pagamento
+                    Consulte e gerencie os  pagamento Concluídos
                 </p>
             </div>
 
@@ -335,7 +335,7 @@ export const NotaPagamento = () => {
                 <CardHeader>
                     <CardTitle>Histórico de Notas</CardTitle>
                     <CardDescription>
-                        Lista completa das suas notas de pagamento
+                        Lista completa das suas notas de pagamento Concluídos
                     </CardDescription>
                 </CardHeader>
                 <CardContent>

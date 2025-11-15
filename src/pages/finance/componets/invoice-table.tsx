@@ -514,7 +514,7 @@ function useColumnsInvoiceTable({
           .sort((a, b) => new Date(b.END_DATE).getTime() - new Date(a.END_DATE).getTime())[0]
           || refs[0]
 
-        const validade = new Date(ref.END_DATE).toLocaleDateString('pt-PT')
+        const validade = new Date(ref.END_DATE).toISOString()
 
         return (
           <Tooltip>
@@ -590,7 +590,7 @@ function useColumnsInvoiceTable({
         const refs = invoice.referencias_pagamento || []
         const temReferencia = refs.length > 0
         const estaPendente = invoice.estado === 0
-        const isPolling = usePollPendingTasks(invoice.Codigo, enrollmentCode)
+        const isPolling = usePollPendingTasks(Number(invoice.Codigo), enrollmentCode)
 
        return (
   <div className="flex items-center justify-end gap-2">
