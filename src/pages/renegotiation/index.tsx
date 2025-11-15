@@ -1,5 +1,11 @@
 'use client'
-
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog'
 import {
   Card,
   CardContent,
@@ -9,7 +15,7 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { AlertCircle, Calculator, CheckCircle2, Loader2, Mail } from 'lucide-react'
+import { AlertCircle, Calculator, CheckCircle2, Eye, Loader2, Mail } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -40,6 +46,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import {
   getDebit,
   type DebtNegotiationResponse,
+  type MesDivida,
 } from '@/services/renegotiation/renegotiation.service'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 import { useNavigate } from 'react-router-dom'
@@ -69,6 +76,8 @@ export const Renegociation = () => {
   const [step, setStep] = useState<'search' | 'simulate' | 'confirm' | 'complete'>('search');
   const [debtData, setDebtData] = useState<DebtNegotiationResponse | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedMesDivida, setSelectedMesDivida] = useState<MesDivida | null>(null)
   const [simulationData, setSimulationData] = useState<SimulateNegotiationFormData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const searchForm = useForm<SearchDebtFormData>({
@@ -89,6 +98,12 @@ export const Renegociation = () => {
       negotiationType: undefined,
     },
   })
+  const openMesDividaModal = (item: MesDivida) => {
+    setSelectedMesDivida(item)
+    setIsModalOpen(true)
+  }
+
+
 
   // === ATUALIZA PAGAMENTO INICIAL AO MUDAR TIPO ===
   useEffect(() => {
@@ -288,35 +303,44 @@ export const Renegociation = () => {
                         {formatCurrency(debtData.totalDivida)}
                       </p>
                     </div>
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">
-                        Mensalidade(s)
-                      </p>
+ <div className="space-y-2">
+  <p className="text-sm text-muted-foreground">Mensalidade(s)</p>
+  {debtData.mesesDividas && debtData.mesesDividas.length > 0 ? (
+    debtData.mesesDividas.map((m: MesDivida) => (
+      <div
+        key={m.codigo_propina || m.mes_propina}
+        className="flex items-center justify-between p-3 bg-muted rounded-lg hover:bg-muted/80 transition-colors"
+      >
+        {/* Esquerda: Descrição */}
+        <div className="flex-1 min-w-0 pr-2">
+          <span className="text-sm truncate block">
+            {m.servico || 'Mensalidade'} - {m.mes_propina || 'Mês não informado'}
+          </span>
+        </div>
 
-                      {debtData.mesesDividas &&
-                        debtData.mesesDividas.length > 0 ? (
-                        debtData.mesesDividas.map((m: any) => (
-                          <div
-                            key={
-                              m.codigo_propina || m.reference || m.mes_propina
-                            }
-                            className="flex justify-between items-center p-3 bg-muted rounded-lg hover:bg-muted/80 transition-colors"
-                          >
-                            <span className="text-sm">
-                              {m.servico || 'Mensalidade'} -{' '}
-                              {m.mes_propina || 'Mês não informado'}
-                            </span>
-                            <span className="font-semibold text-primary">
-                              {formatCurrency(m.total)}
-                            </span>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="flex justify-center items-center p-4 bg-muted/50 rounded-lg text-muted-foreground text-sm italic">
-                          Sem mensalidades em dívida
-                        </div>
-                      )}
-                    </div>
+        {/* Centro: Valor */}
+        <span className="font-semibold text-primary mx-2">
+          {formatCurrency(m.total)}
+        </span>
+
+        {/* Direita: Botão sempre visível */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => openMesDividaModal(m)}
+          className="h-8 px-2 text-xs"
+        >
+          <Eye className="h-4 w-4" />
+          <span className="ml-1 hidden sm:inline">Detalhes</span>
+        </Button>
+      </div>
+    ))
+  ) : (
+    <div className="flex justify-center items-center p-4 bg-muted/50 rounded-lg text-muted-foreground text-sm italic">
+      Sem mensalidades em dívida
+    </div>
+  )}
+</div>
                     <div className="space-y-2">
                       <p className="text-sm text-muted-foreground">
                         Outros Serviço(s)
@@ -553,6 +577,7 @@ export const Renegociation = () => {
         </Card>
       )}
 
+
       {/* PASSO 4: COMPLETO */}
       {step === 'complete' && (
         <Card className="border-success/20 bg-success/5">
@@ -603,6 +628,74 @@ export const Renegociation = () => {
           </CardContent>
         </Card>
       )}
+      {/* Modal de Detalhes da Mensalidade */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Detalhes da Mensalidade</DialogTitle>
+            <DialogDescription>
+              Informações detalhadas da mensalidade em dívida.
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedMesDivida && (
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between">
+                <span className="font-medium">Serviço:</span>
+                <span className="text-muted-foreground">{selectedMesDivida.servico}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="font-medium">Mês:</span>
+                <span className="text-muted-foreground">{selectedMesDivida.mes_propina}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="font-medium">Ano Letivo:</span>
+                <span className="text-muted-foreground">{selectedMesDivida.ano_lectivo}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="font-medium">Prestação:</span>
+                <span className="text-muted-foreground">Nº {selectedMesDivida.n_prestacao}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="font-medium">Valor Base:</span>
+                <span className="text-muted-foreground">
+                  {formatCurrency(parseFloat(selectedMesDivida.valor || '0'))}
+                </span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="font-medium">Multa:</span>
+                <span className="text-warning font-medium">
+                  {formatCurrency(selectedMesDivida.multa)}
+                </span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="font-medium">Taxa de Multa:</span>
+                <span className="text-muted-foreground">{selectedMesDivida.taxa_multa}%</span>
+              </div>
+
+              <div className="flex justify-between border-t pt-2">
+                <span className="font-bold">Total a Pagar:</span>
+                <span className="font-bold text-primary">
+                  {formatCurrency(selectedMesDivida.total)}
+                </span>
+              </div>
+
+              {selectedMesDivida.mes_temp_id && (
+                <div className="text-xs text-muted-foreground mt-2">
+                  ID Interno: <code>{selectedMesDivida.mes_temp_id}</code>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
+
   )
 }
