@@ -137,7 +137,8 @@ export function EnrollmentSummaryCards() {
                       <br />
                       <CardDescription>
                         <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                          {profileData.confirmacoes[0]?.classe ?? '—'}º Ano Ativo
+                          {profileData.confirmacoes[0]?.classe ?? '—'}º Ano
+                          Ativo
                         </Badge>{' '}
                         - {profileData?.curso ?? '—'}
                       </CardDescription>
@@ -166,7 +167,9 @@ export function EnrollmentSummaryCards() {
                       <p className="text-2xl font-bold text-primary">
                         {profileData?.polo ?? '—'}
                       </p>
-                      <p className="text-xs text-muted-foreground">A decorrer</p>
+                      <p className="text-xs text-muted-foreground">
+                        A decorrer
+                      </p>
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
