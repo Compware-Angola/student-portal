@@ -163,7 +163,7 @@ function InvoiceDetailsDialog({
   findAcademicYearDesignation: (codigo: number) => string
 }) {
   const totalMultas = invoice.itens.reduce((sum, i) => sum + i.Multa, 0)
-  const totalPago = invoice.itens.reduce((sum, i) => sum + i.valor_pago, 0)
+  const totalPago = invoice.itens.reduce((sum, i) => Number(sum) + Number(i.Total), 0)
 
   return (
 
@@ -183,6 +183,7 @@ function InvoiceDetailsDialog({
             Data: {new Date(invoice.DataFactura).toLocaleDateString('pt-PT')} |
             Referência Doc*: {invoice.Referencia || '—'}
           </DialogDescription>
+          {invoice.Descricao}
         </DialogHeader>
 
         <div className="space-y-6 mt-4">
@@ -514,7 +515,7 @@ function useColumnsInvoiceTable({
           .sort((a, b) => new Date(b.END_DATE).getTime() - new Date(a.END_DATE).getTime())[0]
           || refs[0]
 
-        const validade = new Date(ref.END_DATE).toISOString()
+        const validade = new Date(ref.END_DATE).toLocaleDateString('pt-PT')
 
         return (
           <Tooltip>
