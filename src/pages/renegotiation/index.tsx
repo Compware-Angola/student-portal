@@ -216,7 +216,7 @@ export const Renegociation = () => {
         enrollmentCode: profileData?.codigo_matricula ?? '',
       })
 
-      toast.success('Renegociação confirmada com sucesso!')
+      toast.success('Negociação confirmada com sucesso!')
       setStep('complete')
     } catch (error: any) {
       console.error('Erro ao criar renegociação:', error)
@@ -251,7 +251,7 @@ export const Renegociation = () => {
       {/* Cabeçalho */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
-          Renegociação de Dívida
+          Negociação de Dívida
         </h1>
         <p className="text-muted-foreground">
           Regularize sua situação financeira com condições especiais
@@ -593,10 +593,10 @@ export const Renegociation = () => {
             {/* Título */}
             <div>
               <h3 className="text-2xl font-bold text-foreground">
-                Renegociação Confirmada!
+                Negociação Confirmada!
               </h3>
               <p className="text-muted-foreground mt-1">
-                Sua renegociação foi processada com sucesso.
+                Sua Negociação foi processada com sucesso.
               </p>
             </div>
 

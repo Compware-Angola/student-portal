@@ -178,12 +178,24 @@ function InvoiceDetailsDialog({
       {/* MODAL GIGANTE */}
       <DialogContent className="!max-w-5xl !w-[95vw] !max-h-[92vh] p-6 overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">Nota de Pagamento #{invoice.Codigo}</DialogTitle>
-          <DialogDescription className="text-base">
-            Data: {new Date(invoice.DataFactura).toLocaleDateString('pt-PT')} |
-            Referência Doc*: {invoice.Referencia || '—'}
+          <DialogTitle className="text-2xl font-bold">
+            Nota de Pagamento #{invoice.Codigo}
+          </DialogTitle>
+          <DialogDescription className="text-base text-gray-600 space-y-1">
+            <div>
+              <span className="font-semibold">Data:</span> {new Date(invoice.DataFactura).toLocaleDateString('pt-PT')}
+            </div>
+            <div>
+              <span className="font-semibold">Referência Doc*:</span> {invoice.Referencia || '—'}
+            </div>
+            {invoice.Descricao && (
+              <div className="mt-2 p-2 bg-gray-100 rounded-md text-gray-800 border border-gray-200">
+                <span className="font-semibold">Descrição:</span> {invoice.Descricao}
+              </div>
+            )}
           </DialogDescription>
         </DialogHeader>
+
 
         <div className="space-y-6 mt-4">
           {/* Resumo */}
@@ -220,7 +232,7 @@ function InvoiceDetailsDialog({
                 <Card key={item.codigo} className="p-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div>
-                     
+
                       <p className="font-medium">
                         {`${idx + 1} -`}{item.OBS || item.DescricaoServico || 'Sem descrição'}
                       </p>
@@ -295,10 +307,10 @@ function InvoiceDetailsDialog({
                 // Conteúdo 2: FATURA PENDENTE (Seu objetivo)
                 <>
 
-                     <PaymentReceipt2
-                  invoice={invoice}
-                  academicYear={findAcademicYearDesignation(invoice.ano_lectivo)}
-                />
+                  <PaymentReceipt2
+                    invoice={invoice}
+                    academicYear={findAcademicYearDesignation(invoice.ano_lectivo)}
+                  />
                 </>
               )}
             </>
@@ -330,7 +342,7 @@ export function InvoicesTable({
     enrollmentCode,
     page,
     limit,
-    academicYear: selectedAcademicYear 
+    academicYear: selectedAcademicYear
   })
 
   const gerarRefMutation = useGenerateReference()
@@ -373,7 +385,7 @@ export function InvoicesTable({
 
           <Select
             value={selectedAcademicYear}
-            onValueChange={handleYearChange} 
+            onValueChange={handleYearChange}
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Selecione o Ano Lectivo" />
@@ -514,7 +526,7 @@ function useColumnsInvoiceTable({
           .sort((a, b) => new Date(b.END_DATE).getTime() - new Date(a.END_DATE).getTime())[0]
           || refs[0]
 
-        const validade = new Date(ref.END_DATE).toISOString()
+        const validade = ref.END_DATE //new Date(ref.END_DATE).toISOString()
 
         return (
           <Tooltip>
@@ -561,7 +573,7 @@ function useColumnsInvoiceTable({
       header: 'Valor a Pagar',
       cell: ({ row }) => {
         const totalPreco = row.getValue('TotalPreco') as number | undefined;
-        const valorAPagar = row.original.ValorAPagar as number | undefined; 
+        const valorAPagar = row.original.ValorAPagar as number | undefined;
         const valorFinal = valorAPagar || totalPreco;
 
         if (valorFinal === null || valorFinal === undefined || valorFinal === 0) {
@@ -592,76 +604,76 @@ function useColumnsInvoiceTable({
         const estaPendente = invoice.estado === 0
         const isPolling = usePollPendingTasks(Number(invoice.Codigo), enrollmentCode)
 
-       return (
-  <div className="flex items-center justify-end gap-2">
-    {/* Gerar Referência */}
-    {(!temReferencia && estaPendente) ? (
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button
-            size="sm"
-            variant="outline"
-            className="h-8 text-xs"
-            disabled={gerarRefMutation.isPending || isPolling}
-          >
-            {gerarRefMutation.isPending || isPolling ? (
-              <>
-                <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                Gerando...
-              </>
+        return (
+          <div className="flex items-center justify-end gap-2">
+            {/* Gerar Referência */}
+            {(!temReferencia && estaPendente) ? (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 text-xs"
+                    disabled={gerarRefMutation.isPending || isPolling}
+                  >
+                    {gerarRefMutation.isPending || isPolling ? (
+                      <>
+                        <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                        Gerando...
+                      </>
+                    ) : (
+                      "Gerar Referência"
+                    )}
+                  </Button>
+                </AlertDialogTrigger>
+
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Gerar nova referência de pagamento?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta ação irá gerar uma nova referência Multibanco/ MB Way para a Nota de Pagamento{" "}
+                      <span className="font-medium">{invoice.Codigo}</span>.
+                      <br />
+
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() =>
+                        gerarRefMutation.mutate({ codigoFactura: invoice.Codigo })
+                      }
+                      disabled={gerarRefMutation.isPending || isPolling}
+                    >
+                      {gerarRefMutation.isPending || isPolling ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          A gerar...
+                        </>
+                      ) : (
+                        "Gerar"
+                      )}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             ) : (
-              "Gerar Referência"
+              <PaymentReceipt
+                invoice={invoice}
+                academicYear={findAcademicYearDesignation(invoice.ano_lectivo)}
+                showDownloadButton={false}
+                showPrintButton={true}
+              />
             )}
-          </Button>
-        </AlertDialogTrigger>
 
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Gerar nova referência de pagamento?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta ação irá gerar uma nova referência Multibanco/ MB Way para a Nota de Pagamento{" "}
-              <span className="font-medium">{invoice.Codigo}</span>.
-              <br />
-             
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() =>
-                gerarRefMutation.mutate({ codigoFactura: invoice.Codigo })
-              }
-              disabled={gerarRefMutation.isPending || isPolling}
-            >
-              {gerarRefMutation.isPending || isPolling ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  A gerar...
-                </>
-              ) : (
-                "Gerar"
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    ) : (
-      <PaymentReceipt
-        invoice={invoice}
-        academicYear={findAcademicYearDesignation(invoice.ano_lectivo)}
-        showDownloadButton={false}
-        showPrintButton={true}
-      />
-    )}
-
-    {/* Ver Detalhes */}
-    <InvoiceDetailsDialog
-      invoice={invoice}
-      findAcademicYearDesignation={findAcademicYearDesignation}
-    />
-  </div>
-)
+            {/* Ver Detalhes */}
+            <InvoiceDetailsDialog
+              invoice={invoice}
+              findAcademicYearDesignation={findAcademicYearDesignation}
+            />
+          </div>
+        )
       },
     },
   ]
