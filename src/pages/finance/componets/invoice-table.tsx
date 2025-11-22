@@ -189,12 +189,24 @@ function InvoiceDetailsDialog({
       {/* MODAL GIGANTE */}
       <DialogContent className="!max-w-5xl !w-[95vw] !max-h-[92vh] p-6 overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">Nota de Pagamento #{invoice.Codigo}</DialogTitle>
-          <DialogDescription className="text-base">
-            Data: {new Date(invoice.DataFactura).toLocaleDateString('pt-PT')} |
-            Referência Doc*: {invoice.Referencia || '—'}
-          </DialogDescription>
-        </DialogHeader>
+  <DialogTitle className="text-2xl font-bold">
+    Nota de Pagamento #{invoice.Codigo}
+  </DialogTitle>
+  <DialogDescription className="text-base text-gray-600 space-y-1">
+    <div>
+      <span className="font-semibold">Data:</span> {new Date(invoice.DataFactura).toLocaleDateString('pt-PT')}
+    </div>
+    <div>
+      <span className="font-semibold">Referência Doc*:</span> {invoice.Referencia || '—'}
+    </div>
+    {invoice.Descricao && (
+      <div className="mt-2 p-2 bg-gray-100 rounded-md text-gray-800 border border-gray-200">
+        <span className="font-semibold">Descrição:</span> {invoice.Descricao}
+      </div>
+    )}
+  </DialogDescription>
+</DialogHeader>
+
 
 
         <div className="space-y-6 mt-4">
