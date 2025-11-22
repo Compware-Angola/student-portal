@@ -69,7 +69,7 @@ export function Schedule() {
     academicYear,
     preEnrollmentCode,
   })
-
+  console.log({ scheduleData })
   // 🧩 Função para organizar as aulas por dia da semana
   const organizarPorDia = (): Record<DiaSemana, AulaHorario[]> => {
     const diasSemana: Record<DiaSemana, AulaHorario[]> = {
@@ -132,8 +132,8 @@ export function Schedule() {
   if (isLoadingProfile || isLoadingSchedule) {
     return <ScheduleSkeleton />
   }
+  console.log({ diasParaMostrar, temAulas })
 
-  // ❌ Erro na consulta
   if (isErrorProfile || isErrorSchedule) {
     return (
       <div className="space-y-6 p-6">
@@ -180,6 +180,7 @@ export function Schedule() {
       </div>
     )
   }
+  console.log(scheduleData.length)
 
   // 📅 Sem horário disponível
   if (!scheduleData || scheduleData.length === 0) {

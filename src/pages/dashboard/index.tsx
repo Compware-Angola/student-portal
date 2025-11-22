@@ -16,8 +16,6 @@ import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { DashboardSkeleton } from './components/dashboard-skeleton'
 import { formatCurrency } from '@/utils'
 import { useQueryStudentDashboardStatistics } from '@/hooks/statics/use-query-student-dashboard-statistics'
-import { useEffect } from 'react'
-import { toast } from 'sonner'
 import {
   useQueryAnnouncement,
   useQueryMessage,

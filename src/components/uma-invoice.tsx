@@ -1,4 +1,3 @@
-
 import {
   Page,
   Text,
@@ -127,6 +126,30 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   totalText: { fontSize: 12, fontWeight: 'bold', color: '#0d1b48' },
+  nonFiscalBox: {
+    marginTop: 15,
+    padding: 10,
+    borderWidth: 1.5,
+    borderColor: '#b71c1c',
+    borderRadius: 6,
+    backgroundColor: '#fdf3f4',
+  },
+
+  nonFiscalTitle: {
+    textAlign: 'center',
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#b71c1c',
+    marginBottom: 3,
+    textTransform: 'uppercase',
+  },
+
+  nonFiscalText: {
+    fontSize: 9,
+    textAlign: 'center',
+    color: '#444',
+  },
+
   footer: {
     position: 'absolute',
     bottom: 30,
@@ -157,7 +180,9 @@ function PaymentReceiptDocument({
             </Text>
             Informações opcionais da empresa
             <Text style={styles.companyDetails}></Text>
-            <Text style={styles.companyDetails}>Nome: MUTUE- SOLUÇOES TECNOLOGIA INTELIGENTES, LDA</Text>
+            <Text style={styles.companyDetails}>
+              Nome: MUTUE- SOLUÇOES TECNOLOGIA INTELIGENTES, LDA
+            </Text>
             <Text style={styles.companyDetails}>NIF: 5000977381</Text>
             <Text style={styles.companyDetails}>Cidade: Luanda - Angola</Text>
             <Text style={styles.companyDetails}>Tel: +244 922969192 </Text>
@@ -213,8 +238,14 @@ function PaymentReceiptDocument({
         <View style={styles.paymentBox}>
           <Text style={styles.paymentTitle}>DADOS PARA PAGAMENTO</Text>
           <View style={styles.paymentInfo}>
-            <Text>Entidade: {invoice.referencias_pagamento[0]?.ENTITY_ID || '10065'}</Text>
-            <Text>Referência: {invoice.referencias_pagamento[0]?.REFERENCE || invoice.Referencia}</Text>
+            <Text>
+              Entidade: {invoice.referencias_pagamento[0]?.ENTITY_ID || '10065'}
+            </Text>
+            <Text>
+              Referência:{' '}
+              {invoice.referencias_pagamento[0]?.REFERENCE ||
+                invoice.Referencia}
+            </Text>
           </View>
         </View>
 
@@ -254,9 +285,7 @@ function PaymentReceiptDocument({
               </Text>
             </View>
           ))}
-
         </View>
-
 
         {/* ---------- Totais ---------- */}
         <View style={styles.totalSection}>
@@ -273,16 +302,21 @@ function PaymentReceiptDocument({
               ? `Total a pagar: ${Number(invoice.TotalPreco).toFixed(2)} Kz`
               : invoice.estado === 1
                 ? `Total pago: ${Number(invoice.TotalPreco).toFixed(2)} Kz`
-                : `Valor: ${Number(invoice.TotalPreco).toFixed(2)} Kz`
-            }
+                : `Valor: ${Number(invoice.TotalPreco).toFixed(2)} Kz`}
           </Text>
           <Text>({invoice.ValorAPagarExtenso})</Text>
         </View>
-
+        <View style={styles.nonFiscalBox}>
+          <Text style={styles.nonFiscalTitle}>Documento Não Fiscal</Text>
+          <Text style={styles.nonFiscalText}>
+            Este documento serve apenas como comprovativo informativo. Não
+            possui validade fiscal para efeitos contabilísticos.
+          </Text>
+        </View>
         {/* ---------- Rodapé ---------- */}
         <Text style={styles.footer}>
-          Documento emitido automaticamente — Universidade Metodista de Angola ©{' '}
-          {new Date().getFullYear()}
+          Documento emitido automaticamente — Universidade Metodista de Angola
+          © {new Date().getFullYear()}
         </Text>
       </Page>
     </Document>
@@ -294,7 +328,6 @@ export function PaymentReceipt({
   academicYear,
   showDownloadButton = true,
   showPrintButton = true,
-
 }: {
   invoice: Invoice
   academicYear: string
@@ -336,7 +369,11 @@ export function PaymentReceipt({
           fileName={`Nota_de_pagamento_UMA_${invoice.Codigo}.pdf`}
         >
           {({ loading }) => (
-            <Button className="flex-1" disabled={loading} aria-label="Descarregar PDF">
+            <Button
+              className="flex-1"
+              disabled={loading}
+              aria-label="Descarregar PDF"
+            >
               <Download className="mr-2 h-4 w-4" />
               Descarregar PDF
             </Button>
@@ -345,7 +382,11 @@ export function PaymentReceipt({
       )}
 
       {showPrintButton && (
-        <Button variant="outline" onClick={handlePrint} aria-label="Imprimir recibo">
+        <Button
+          variant="outline"
+          onClick={handlePrint}
+          aria-label="Imprimir recibo"
+        >
           <Printer className="h-4 w-4" />
         </Button>
       )}

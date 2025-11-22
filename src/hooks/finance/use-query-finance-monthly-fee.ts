@@ -49,7 +49,7 @@ export function useQueryFinanceMonthlyFee({
       return getmonthlyFee(params)
     },
     enabled: isEnabled, // Habilita/desabilita a query
-    staleTime: Infinity, // Depende da sua estratégia de cache, Infinity é incomum
+    staleTime: 1000 * 60 * 5, // Depende da sua estratégia de cache, Infinity é incomum
     retry: 0,
   })
 

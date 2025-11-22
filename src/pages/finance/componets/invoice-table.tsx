@@ -59,7 +59,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from '@/components/ui/alert-dialog'
 
 // --- Chave do localStorage ---
 const PENDING_TASKS_KEY = 'pending_payment_tasks'
@@ -83,12 +83,16 @@ function usePollPendingTasks(invoiceId: number, enrollmentCode: string) {
       queryKey: ['invoices'],
       refetchType: 'all',
     })
-    console.log(`[Polling] Invalidação de queries para ${enrollmentCode} solicitada.`)
+    console.log(
+      `[Polling] Invalidação de queries para ${enrollmentCode} solicitada.`,
+    )
   }, [enrollmentCode, queryClient])
 
   React.useEffect(() => {
-    const pendingTasks: PendingTask[] = JSON.parse(localStorage.getItem(PENDING_TASKS_KEY) || '[]')
-    const task = pendingTasks.find(t => t.invoiceId === invoiceId)
+    const pendingTasks: PendingTask[] = JSON.parse(
+      localStorage.getItem(PENDING_TASKS_KEY) || '[]',
+    )
+    const task = pendingTasks.find((t) => t.invoiceId === invoiceId)
     if (!task) return
 
     setIsPolling(true)
@@ -114,12 +118,16 @@ function usePollPendingTasks(invoiceId: number, enrollmentCode: string) {
         } else if (status === 'error') {
           finishPolling(false)
         }
-
       } catch (error) {
         // Assume que qualquer erro de rede ou na resposta significa que o processo
         // foi finalizado ou a task não existe mais no backend.
-        console.error('[Polling] Erro de API ou task finalizada no backend:', error)
-        toast.info('Processo finalizado ou erro de comunicação. Atualizando a lista de faturas.')
+        console.error(
+          '[Polling] Erro de API ou task finalizada no backend:',
+          error,
+        )
+        toast.info(
+          'Processo finalizado ou erro de comunicação. Atualizando a lista de faturas.',
+        )
         removePendingTask(invoiceId)
         refetchInvoices()
         setIsPolling(false)
@@ -136,8 +144,10 @@ function usePollPendingTasks(invoiceId: number, enrollmentCode: string) {
 // --- Remove task do localStorage (Melhorada para logging) ---
 function removePendingTask(invoiceId: number) {
   try {
-    const pendingTasks: PendingTask[] = JSON.parse(localStorage.getItem(PENDING_TASKS_KEY) || '[]')
-    const updated = pendingTasks.filter(t => t.invoiceId !== invoiceId)
+    const pendingTasks: PendingTask[] = JSON.parse(
+      localStorage.getItem(PENDING_TASKS_KEY) || '[]',
+    )
+    const updated = pendingTasks.filter((t) => t.invoiceId !== invoiceId)
     localStorage.setItem(PENDING_TASKS_KEY, JSON.stringify(updated))
     console.log(`[LocalStorage] Task ${invoiceId} removida com sucesso.`)
   } catch (e) {
@@ -149,7 +159,9 @@ function removePendingTask(invoiceId: number) {
 function useFindAcademicYearDesignation(academicYear: AdemicsYear | undefined) {
   return (codigo: number) => {
     // Garantir que a comparação de código (number) seja correta
-    const year = academicYear?.anolectivos?.find((y) => y.codigo === String(codigo))
+    const year = academicYear?.anolectivos?.find(
+      (y) => y.codigo === String(codigo),
+    )
     return year ? year.designacao : 'Unknown'
   }
 }
@@ -166,7 +178,6 @@ function InvoiceDetailsDialog({
   const totalPago = invoice.itens.reduce((sum, i) => sum + i.valor_pago, 0)
 
   return (
-
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
@@ -178,21 +189,10 @@ function InvoiceDetailsDialog({
       {/* MODAL GIGANTE */}
       <DialogContent className="!max-w-5xl !w-[95vw] !max-h-[92vh] p-6 overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">
-            Nota de Pagamento #{invoice.Codigo}
-          </DialogTitle>
-          <DialogDescription className="text-base text-gray-600 space-y-1">
-            <div>
-              <span className="font-semibold">Data:</span> {new Date(invoice.DataFactura).toLocaleDateString('pt-PT')}
-            </div>
-            <div>
-              <span className="font-semibold">Referência Doc*:</span> {invoice.Referencia || '—'}
-            </div>
-            {invoice.Descricao && (
-              <div className="mt-2 p-2 bg-gray-100 rounded-md text-gray-800 border border-gray-200">
-                <span className="font-semibold">Descrição:</span> {invoice.Descricao}
-              </div>
-            )}
+          <DialogTitle className="text-2xl font-bold">Nota de Pagamento #{invoice.Codigo}</DialogTitle>
+          <DialogDescription className="text-base">
+            Data: {new Date(invoice.DataFactura).toLocaleDateString('pt-PT')} |
+            Referência Doc*: {invoice.Referencia || '—'}
           </DialogDescription>
         </DialogHeader>
 
@@ -203,7 +203,10 @@ function InvoiceDetailsDialog({
             <div>
               <p className="font-semibold">Valor Total</p>
               <p className="text-xl font-bold text-primary">
-                {new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'AOA' }).format(invoice.TotalPreco)}
+                {new Intl.NumberFormat('pt-PT', {
+                  style: 'currency',
+                  currency: 'AOA',
+                }).format(invoice.TotalPreco)}
               </p>
             </div>
             <div>
@@ -213,13 +216,19 @@ function InvoiceDetailsDialog({
             <div>
               <p className="font-semibold">Multas</p>
               <p className="text-xl font-bold text-orange-600">
-                {new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'AOA' }).format(totalMultas)}
+                {new Intl.NumberFormat('pt-PT', {
+                  style: 'currency',
+                  currency: 'AOA',
+                }).format(totalMultas)}
               </p>
             </div>
             <div>
               <p className="font-semibold">Pago</p>
               <p className="text-xl font-bold text-green-600">
-                {new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'AOA' }).format(totalPago)}
+                {new Intl.NumberFormat('pt-PT', {
+                  style: 'currency',
+                  currency: 'AOA',
+                }).format(totalPago)}
               </p>
             </div>
           </div>
@@ -232,16 +241,20 @@ function InvoiceDetailsDialog({
                 <Card key={item.codigo} className="p-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div>
-
+                     
                       <p className="font-medium">
-                        {`${idx + 1} -`}{item.OBS || item.DescricaoServico || 'Sem descrição'}
+                        {`${idx + 1} -`}
+                        {item.OBS || item.DescricaoServico || 'Sem descrição'}
                       </p>
                     </div>
                     <div className="space-y-1">
                       <div className="flex justify-between">
                         <span>Preço Unitário:</span>
                         <span className="font-mono">
-                          {new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'AOA' }).format(item.preco)}
+                          {new Intl.NumberFormat('pt-PT', {
+                            style: 'currency',
+                            currency: 'AOA',
+                          }).format(item.preco)}
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -251,7 +264,10 @@ function InvoiceDetailsDialog({
                       <div className="flex justify-between">
                         <span>Subtotal:</span>
                         <span className="font-mono font-semibold">
-                          {new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'AOA' }).format(item.Total)}
+                          {new Intl.NumberFormat('pt-PT', {
+                            style: 'currency',
+                            currency: 'AOA',
+                          }).format(item.Total)}
                         </span>
                       </div>
                     </div>
@@ -260,7 +276,10 @@ function InvoiceDetailsDialog({
                         <div className="flex justify-between">
                           <span>IVA ({item.taxa_iva}%):</span>
                           <span className="font-mono">
-                            {new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'AOA' }).format(item.valor_iva)}
+                            {new Intl.NumberFormat('pt-PT', {
+                              style: 'currency',
+                              currency: 'AOA',
+                            }).format(item.valor_iva)}
                           </span>
                         </div>
                       )}
@@ -268,7 +287,10 @@ function InvoiceDetailsDialog({
                         <div className="flex justify-between text-orange-600">
                           <span>Multa:</span>
                           <span className="font-mono">
-                            {new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'AOA' }).format(item.Multa)}
+                            {new Intl.NumberFormat('pt-PT', {
+                              style: 'currency',
+                              currency: 'AOA',
+                            }).format(item.Multa)}
                           </span>
                         </div>
                       )}
@@ -276,7 +298,11 @@ function InvoiceDetailsDialog({
                         <div className="flex justify-between text-green-600">
                           <span>Desconto ({item.descontoProduto}%):</span>
                           <span className="font-mono">
-                            -{new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'AOA' }).format(item.valor_desconto)}
+                            -
+                            {new Intl.NumberFormat('pt-PT', {
+                              style: 'currency',
+                              currency: 'AOA',
+                            }).format(item.valor_desconto)}
                           </span>
                         </div>
                       )}
@@ -284,7 +310,10 @@ function InvoiceDetailsDialog({
                         <div className="flex justify-between text-green-700 font-medium">
                           <span>Pago:</span>
                           <span className="font-mono">
-                            {new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'AOA' }).format(item.valor_pago)}
+                            {new Intl.NumberFormat('pt-PT', {
+                              style: 'currency',
+                              currency: 'AOA',
+                            }).format(item.valor_pago)}
                           </span>
                         </div>
                       )}
@@ -301,25 +330,25 @@ function InvoiceDetailsDialog({
               {invoice.estado === 1 ? (
                 <PaymentReceipt
                   invoice={invoice}
-                  academicYear={findAcademicYearDesignation(invoice.ano_lectivo)}
+                  academicYear={findAcademicYearDesignation(
+                    invoice.ano_lectivo,
+                  )}
                 />
               ) : (
                 // Conteúdo 2: FATURA PENDENTE (Seu objetivo)
                 <>
 
-                  <PaymentReceipt2
-                    invoice={invoice}
-                    academicYear={findAcademicYearDesignation(invoice.ano_lectivo)}
-                  />
+                     <PaymentReceipt2
+                  invoice={invoice}
+                  academicYear={findAcademicYearDesignation(invoice.ano_lectivo)}
+                />
                 </>
               )}
             </>
-
           </div>
         </div>
       </DialogContent>
     </Dialog>
-
   )
 }
 
@@ -328,26 +357,30 @@ export function InvoicesTable({
   enrollmentCode,
   academicYears,
 }: {
-  academicYear: string;
-  enrollmentCode: string;
-  academicYears: AdemicsYear;
+  academicYear: string
+  enrollmentCode: string
+  academicYears: AdemicsYear
 }) {
-  const { data: academicYear, isLoading: isLoadingAcademicYear } = useQueryAcademicYear()
-  const [selectedAcademicYear, setSelectedAcademicYear] = React.useState(String(defaultAcademicYear));
+  const { data: academicYear, isLoading: isLoadingAcademicYear } =
+    useQueryAcademicYear()
+  const [selectedAcademicYear, setSelectedAcademicYear] = React.useState(
+    String(defaultAcademicYear),
+  )
 
-  const [page, setPage] = React.useState(1);
-  const limit = 10;
+  const [page, setPage] = React.useState(1)
+  const limit = 10
 
   const { data, isLoading, isError } = useQueryInvoices({
     enrollmentCode,
     page,
     limit,
-    academicYear: selectedAcademicYear
+    academicYear: selectedAcademicYear 
   })
 
   const gerarRefMutation = useGenerateReference()
 
-  const findAcademicYearDesignation = useFindAcademicYearDesignation(academicYear)
+  const findAcademicYearDesignation =
+    useFindAcademicYearDesignation(academicYear)
 
   React.useEffect(() => {
     if (isError) toast.error('Erro ao carregar faturas.')
@@ -385,7 +418,7 @@ export function InvoicesTable({
 
           <Select
             value={selectedAcademicYear}
-            onValueChange={handleYearChange}
+            onValueChange={handleYearChange} 
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Selecione o Ano Lectivo" />
@@ -409,7 +442,8 @@ export function InvoicesTable({
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header, index) => {
-                      const isLastColumn = index === headerGroup.headers.length - 1
+                      const isLastColumn =
+                        index === headerGroup.headers.length - 1
                       const isValueColumn = header.column.id === 'ValorAPagar'
 
                       return (
@@ -421,7 +455,10 @@ export function InvoicesTable({
                           align-middle py-3 font-semibold text-gray-300 uppercase tracking-wide text-xs
                         `}
                         >
-                          {flexRender(header.column.columnDef.header, header.getContext())}
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                         </TableHead>
                       )
                     })}
@@ -434,7 +471,8 @@ export function InvoicesTable({
                   table.getRowModel().rows.map((row) => (
                     <TableRow key={row.id} className="hover:bg-muted/5">
                       {row.getVisibleCells().map((cell, index) => {
-                        const isLastColumn = index === row.getVisibleCells().length - 1
+                        const isLastColumn =
+                          index === row.getVisibleCells().length - 1
                         const isValueColumn = cell.column.id === 'ValorAPagar'
 
                         return (
@@ -446,7 +484,10 @@ export function InvoicesTable({
                             align-middle py-3 text-sm
                           `}
                           >
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext(),
+                            )}
                           </TableCell>
                         )
                       })}
@@ -454,7 +495,10 @@ export function InvoicesTable({
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={columns.length} className="text-center h-24 text-gray-400">
+                    <TableCell
+                      colSpan={columns.length}
+                      className="text-center h-24 text-gray-400"
+                    >
                       Nenhuma fatura encontrada.
                     </TableCell>
                   </TableRow>
@@ -508,23 +552,28 @@ function useColumnsInvoiceTable({
     {
       accessorKey: 'DataFactura',
       header: 'Data',
-      cell: ({ row }) => new Date(row.getValue('DataFactura')).toLocaleDateString('pt-PT'),
+      cell: ({ row }) =>
+        new Date(row.getValue('DataFactura')).toLocaleDateString('pt-PT'),
     },
     {
       accessorKey: 'Referencia',
-      header: 'Referência Doc*',
+      header: 'Número Doc*',
     },
     {
       id: 'referencia_pagamento',
       header: 'Referência de Pagamento',
       cell: ({ row }) => {
         const refs = row.original.referencias_pagamento || []
-        if (refs.length === 0) return <span className="text-muted-foreground">—</span>
+        if (refs.length === 0)
+          return <span className="text-muted-foreground">—</span>
 
-        const ref = refs
-          .filter((r) => r.Status === 'Pending')
-          .sort((a, b) => new Date(b.END_DATE).getTime() - new Date(a.END_DATE).getTime())[0]
-          || refs[0]
+        const ref =
+          refs
+            .filter((r) => r.Status === 'Pending')
+            .sort(
+              (a, b) =>
+                new Date(b.END_DATE).getTime() - new Date(a.END_DATE).getTime(),
+            )[0] || refs[0]
 
         const validade = ref.END_DATE //new Date(ref.END_DATE).toISOString()
 
@@ -554,12 +603,18 @@ function useColumnsInvoiceTable({
         return (
           <div className="flex justify-center">
             {estado === 0 ? (
-              <Badge variant="secondary" className="bg-amber-100 text-amber-700">
+              <Badge
+                variant="secondary"
+                className="bg-amber-100 text-amber-700"
+              >
                 <span className="size-1.5 rounded-full bg-amber-600 mr-1.5" />
                 Pendente
               </Badge>
             ) : (
-              <Badge variant="secondary" className="bg-green-100 text-green-700">
+              <Badge
+                variant="secondary"
+                className="bg-green-100 text-green-700"
+              >
                 <span className="size-1.5 rounded-full bg-green-600 mr-1.5" />
                 Pago
               </Badge>
@@ -573,15 +628,15 @@ function useColumnsInvoiceTable({
       header: 'Valor a Pagar',
       cell: ({ row }) => {
         const totalPreco = row.getValue('TotalPreco') as number | undefined;
-        const valorAPagar = row.original.ValorAPagar as number | undefined;
+        const valorAPagar = row.original.ValorAPagar as number | undefined; 
         const valorFinal = valorAPagar || totalPreco;
 
-        if (valorFinal === null || valorFinal === undefined || valorFinal === 0) {
-          return (
-            <div className="text-right font-medium text-gray-400">
-              N/A
-            </div>
-          );
+        if (
+          valorFinal === null ||
+          valorFinal === undefined ||
+          valorFinal === 0
+        ) {
+          return <div className="text-right font-medium text-gray-400">N/A</div>
         }
 
         return (
@@ -591,7 +646,7 @@ function useColumnsInvoiceTable({
               currency: 'AOA',
             }).format(valorFinal)}
           </div>
-        );
+        )
       },
     },
     {
@@ -602,70 +657,73 @@ function useColumnsInvoiceTable({
         const refs = invoice.referencias_pagamento || []
         const temReferencia = refs.length > 0
         const estaPendente = invoice.estado === 0
-        const isPolling = usePollPendingTasks(Number(invoice.Codigo), enrollmentCode)
+        const isPolling = usePollPendingTasks(
+          Number(invoice.Codigo),
+          enrollmentCode,
+        )
 
-        return (
-          <div className="flex items-center justify-end gap-2">
-            {/* Gerar Referência */}
-            {(!temReferencia && estaPendente) ? (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-8 text-xs"
-                    disabled={gerarRefMutation.isPending || isPolling}
-                  >
-                    {gerarRefMutation.isPending || isPolling ? (
-                      <>
-                        <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                        Gerando...
-                      </>
-                    ) : (
-                      "Gerar Referência"
-                    )}
-                  </Button>
-                </AlertDialogTrigger>
-
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Gerar nova referência de pagamento?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Esta ação irá gerar uma nova referência Multibanco/ MB Way para a Nota de Pagamento{" "}
-                      <span className="font-medium">{invoice.Codigo}</span>.
-                      <br />
-
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() =>
-                        gerarRefMutation.mutate({ codigoFactura: invoice.Codigo })
-                      }
-                      disabled={gerarRefMutation.isPending || isPolling}
-                    >
-                      {gerarRefMutation.isPending || isPolling ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          A gerar...
-                        </>
-                      ) : (
-                        "Gerar"
-                      )}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+       return (
+  <div className="flex items-center justify-end gap-2">
+    {/* Gerar Referência */}
+    {(!temReferencia && estaPendente) ? (
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8 text-xs"
+            disabled={gerarRefMutation.isPending || isPolling}
+          >
+            {gerarRefMutation.isPending || isPolling ? (
+              <>
+                <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                Gerando...
+              </>
             ) : (
-              <PaymentReceipt
-                invoice={invoice}
-                academicYear={findAcademicYearDesignation(invoice.ano_lectivo)}
-                showDownloadButton={false}
-                showPrintButton={true}
-              />
+              "Gerar Referência"
             )}
+          </Button>
+        </AlertDialogTrigger>
+
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Gerar nova referência de pagamento?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação irá gerar uma nova referência Multibanco/ MB Way para a Nota de Pagamento{" "}
+              <span className="font-medium">{invoice.Codigo}</span>.
+              <br />
+             
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() =>
+                gerarRefMutation.mutate({ codigoFactura: invoice.Codigo })
+              }
+              disabled={gerarRefMutation.isPending || isPolling}
+            >
+              {gerarRefMutation.isPending || isPolling ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  A gerar...
+                </>
+              ) : (
+                "Gerar"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    ) : (
+      <PaymentReceipt
+        invoice={invoice}
+        academicYear={findAcademicYearDesignation(invoice.ano_lectivo)}
+        showDownloadButton={false}
+        showPrintButton={true}
+      />
+    )}
 
             {/* Ver Detalhes */}
             <InvoiceDetailsDialog

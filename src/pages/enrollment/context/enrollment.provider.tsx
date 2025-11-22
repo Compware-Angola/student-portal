@@ -62,7 +62,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     useQueryStudentDashboardStatistics(profileData?.enrollmentCode)
   const shouldFecthCurriculumPlanPendents =
     StudentSituation.OLD_WITHOUT_CURRENT_CONFIRMATION ===
-      Number(studentSituation?.codigo_status) && Number(debit?.totalDivida) > 0
+    Number(studentSituation?.codigo_status)
   const {
     data: pendentsGrades,
     isLoading: isLoadingStudentCurriculumPlanPendents,

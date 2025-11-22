@@ -30,7 +30,8 @@ export const CurrentYear = ({ profileData }: CurrentYearProps) => {
   )
 
   // Verifica se o aluno está inscrito no ano letivo atual
-  const isConfirmed = profileData?.confirmacoes?.[0]?.ano_lectivo === academicYear?.codigo
+  const isConfirmed =
+    profileData?.confirmacoes?.[0]?.ano_lectivo === academicYear?.codigo
 
   // Carregando
   if (isLoading) {
@@ -48,7 +49,9 @@ export const CurrentYear = ({ profileData }: CurrentYearProps) => {
     return (
       <Card className="border-destructive/20">
         <CardContent className="py-8 text-center">
-          <p className="text-destructive">Erro ao carregar disciplinas do ano atual.</p>
+          <p className="text-destructive">
+            Erro ao carregar disciplinas do ano atual.
+          </p>
         </CardContent>
       </Card>
     )
@@ -72,9 +75,11 @@ export const CurrentYear = ({ profileData }: CurrentYearProps) => {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Para visualizar as disciplinas, é necessário confirmar a sua inscrição no ano letivo atual.
+              Para visualizar as disciplinas, é necessário confirmar a sua
+              inscrição no ano letivo atual.
               <br />
-              Vá até a área de <strong>Matrículas</strong> ou contacte a secretaria.
+              Vá até a área de <strong>Matrículas</strong> ou contacte a
+              secretaria.
             </p>
           </CardContent>
         </Card>
