@@ -186,7 +186,7 @@ export const Dashboard = () => {
       <div className="grid gap-6 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">MUTEU Cash</CardTitle>
+            <CardTitle className="text-sm font-medium">Carteira Digital</CardTitle>
             <Wallet className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>

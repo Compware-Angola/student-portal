@@ -153,7 +153,7 @@ export const NotaPagamento = () => {
             case 'CASH':
                 return 'pagamento a cash'
 
-            case 'MUTEU_CASH':
+            case 'MUTUE_CASH':
                 return 'muteu cash'
 
             default:
