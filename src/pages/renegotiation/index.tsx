@@ -15,7 +15,14 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { AlertCircle, Calculator, CheckCircle2, Eye, Loader2, Mail } from 'lucide-react'
+import {
+  AlertCircle,
+  Calculator,
+  CheckCircle2,
+  Eye,
+  Loader2,
+  Mail,
+} from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -73,17 +80,22 @@ export const Renegociation = () => {
   const { isLoading: isLoadingProfile, profileData } = useQueryProfile()
   const { data: academicYear } = useQueryCurrentAcademicYear()
   const { createRenegotiationAsync } = useMutationNegotiation()
-  const [step, setStep] = useState<'search' | 'simulate' | 'confirm' | 'complete'>('search');
-  const [debtData, setDebtData] = useState<DebtNegotiationResponse | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
+  const [step, setStep] = useState<
+    'search' | 'simulate' | 'confirm' | 'complete'
+  >('search')
+  const [debtData, setDebtData] = useState<DebtNegotiationResponse | null>(null)
+  const [isSearching, setIsSearching] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedMesDivida, setSelectedMesDivida] = useState<MesDivida | null>(null)
-  const [simulationData, setSimulationData] = useState<SimulateNegotiationFormData | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [selectedMesDivida, setSelectedMesDivida] = useState<MesDivida | null>(
+    null,
+  )
+  const [simulationData, setSimulationData] =
+    useState<SimulateNegotiationFormData | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
   const searchForm = useForm<SearchDebtFormData>({
     resolver: zodResolver(searchDebtSchema),
     defaultValues: {
-      enrollmentCode: profileData?.codigo_matricula ?? '',
+      enrollmentCode: `${profileData?.codigo_matricula ?? ''}`,
       academicYear: academicYear?.designacao ?? '',
     },
   })
@@ -102,8 +114,6 @@ export const Renegociation = () => {
     setSelectedMesDivida(item)
     setIsModalOpen(true)
   }
-
-
 
   // === ATUALIZA PAGAMENTO INICIAL AO MUDAR TIPO ===
   useEffect(() => {
@@ -168,7 +178,7 @@ export const Renegociation = () => {
   // === CONFIRMAR ===
   const onConfirmNegotiation = async () => {
     if (!debtData || !simulationData) return
-    setIsLoading(true);
+    setIsLoading(true)
     try {
       const payload = {
         totalDivida: debtData.totalDivida,
@@ -228,7 +238,7 @@ export const Renegociation = () => {
         toast.error('Erro de conexão. Tente novamente.')
       }
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
   }
 
@@ -303,51 +313,57 @@ export const Renegociation = () => {
                         {formatCurrency(debtData.totalDivida)}
                       </p>
                     </div>
- <div className="space-y-2">
-  <p className="text-sm text-muted-foreground">Mensalidade(s)</p>
-  {debtData.mesesDividas && debtData.mesesDividas.length > 0 ? (
-    debtData.mesesDividas.map((m: MesDivida) => (
-      <div
-        key={m.codigo_propina || m.mes_propina}
-        className="flex items-center justify-between p-3 bg-muted rounded-lg hover:bg-muted/80 transition-colors"
-      >
-        {/* Esquerda: Descrição */}
-        <div className="flex-1 min-w-0 pr-2">
-          <span className="text-sm truncate block">
-            {m.servico || 'Mensalidade'} - {m.mes_propina || 'Mês não informado'}
-          </span>
-        </div>
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground">
+                        Mensalidade(s)
+                      </p>
+                      {debtData.mesesDividas &&
+                      debtData.mesesDividas.length > 0 ? (
+                        debtData.mesesDividas.map((m: MesDivida) => (
+                          <div
+                            key={m.codigo_propina || m.mes_propina}
+                            className="flex items-center justify-between p-3 bg-muted rounded-lg hover:bg-muted/80 transition-colors"
+                          >
+                            {/* Esquerda: Descrição */}
+                            <div className="flex-1 min-w-0 pr-2">
+                              <span className="text-sm truncate block">
+                                {m.servico || 'Mensalidade'} -{' '}
+                                {m.mes_propina || 'Mês não informado'}
+                              </span>
+                            </div>
 
-        {/* Centro: Valor */}
-        <span className="font-semibold text-primary mx-2">
-          {formatCurrency(m.total)}
-        </span>
+                            {/* Centro: Valor */}
+                            <span className="font-semibold text-primary mx-2">
+                              {formatCurrency(m.total)}
+                            </span>
 
-        {/* Direita: Botão sempre visível */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => openMesDividaModal(m)}
-          className="h-8 px-2 text-xs"
-        >
-          <Eye className="h-4 w-4" />
-          <span className="ml-1 hidden sm:inline">Detalhes</span>
-        </Button>
-      </div>
-    ))
-  ) : (
-    <div className="flex justify-center items-center p-4 bg-muted/50 rounded-lg text-muted-foreground text-sm italic">
-      Sem mensalidades em dívida
-    </div>
-  )}
-</div>
+                            {/* Direita: Botão sempre visível */}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => openMesDividaModal(m)}
+                              className="h-8 px-2 text-xs"
+                            >
+                              <Eye className="h-4 w-4" />
+                              <span className="ml-1 hidden sm:inline">
+                                Detalhes
+                              </span>
+                            </Button>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="flex justify-center items-center p-4 bg-muted/50 rounded-lg text-muted-foreground text-sm italic">
+                          Sem mensalidades em dívida
+                        </div>
+                      )}
+                    </div>
                     <div className="space-y-2">
                       <p className="text-sm text-muted-foreground">
                         Outros Serviço(s)
                       </p>
 
                       {debtData.dividaOutrosServicos &&
-                        debtData.dividaOutrosServicos.length > 0 ? (
+                      debtData.dividaOutrosServicos.length > 0 ? (
                         debtData.dividaOutrosServicos.map((m: any) => (
                           <div
                             key={m.servico}
@@ -577,7 +593,6 @@ export const Renegociation = () => {
         </Card>
       )}
 
-
       {/* PASSO 4: COMPLETO */}
       {step === 'complete' && (
         <Card className="border-success/20 bg-success/5">
@@ -642,22 +657,30 @@ export const Renegociation = () => {
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="font-medium">Serviço:</span>
-                <span className="text-muted-foreground">{selectedMesDivida.servico}</span>
+                <span className="text-muted-foreground">
+                  {selectedMesDivida.servico}
+                </span>
               </div>
 
               <div className="flex justify-between">
                 <span className="font-medium">Mês:</span>
-                <span className="text-muted-foreground">{selectedMesDivida.mes_propina}</span>
+                <span className="text-muted-foreground">
+                  {selectedMesDivida.mes_propina}
+                </span>
               </div>
 
               <div className="flex justify-between">
                 <span className="font-medium">Ano Letivo:</span>
-                <span className="text-muted-foreground">{selectedMesDivida.ano_lectivo}</span>
+                <span className="text-muted-foreground">
+                  {selectedMesDivida.ano_lectivo}
+                </span>
               </div>
 
               <div className="flex justify-between">
                 <span className="font-medium">Prestação:</span>
-                <span className="text-muted-foreground">Nº {selectedMesDivida.n_prestacao}</span>
+                <span className="text-muted-foreground">
+                  Nº {selectedMesDivida.n_prestacao}
+                </span>
               </div>
 
               <div className="flex justify-between">
@@ -676,7 +699,9 @@ export const Renegociation = () => {
 
               <div className="flex justify-between">
                 <span className="font-medium">Taxa de Multa:</span>
-                <span className="text-muted-foreground">{selectedMesDivida.taxa_multa}%</span>
+                <span className="text-muted-foreground">
+                  {selectedMesDivida.taxa_multa}%
+                </span>
               </div>
 
               <div className="flex justify-between border-t pt-2">
@@ -696,6 +721,5 @@ export const Renegociation = () => {
         </DialogContent>
       </Dialog>
     </div>
-
   )
 }
