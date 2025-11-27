@@ -50,7 +50,10 @@ export function Assessments() {
         </TabsContent>
 
         <TabsContent value="all" className="space-y-4">
-          <CurriculumCard preEnrollmentCode={preEnrollmentCode} />
+          <CurriculumCard
+            preEnrollmentCode={preEnrollmentCode}
+            enrollmentCode={enrollmentCode}
+          />
         </TabsContent>
       </Tabs>
     </div>

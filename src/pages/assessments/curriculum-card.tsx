@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Table,
@@ -17,15 +17,15 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-import { useQueryAcademicYear } from '@/hooks/academic-year/use-query-academic-year'
 import { cn } from '@/lib/utils'
 import { useQueryCurrentCurriculumPlanSudent } from '@/hooks/curriculum/use-query-current-curriculum-plan-student'
+import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-academic-year-student'
 
 /* =======================
    Componente Select de Ano
 ======================= */
 function YearSelect({
-  academicYears,
+  academicYears = [],
   selectedYear,
   onChange,
 }: {
@@ -33,20 +33,18 @@ function YearSelect({
   selectedYear?: string
   onChange: (value: string) => void
 }) {
-  const notTosShow = [20, 19]
+  console.log(academicYears)
   return (
     <Select value={selectedYear} onValueChange={onChange}>
       <SelectTrigger className="min-w-60">
         <SelectValue placeholder="Selecione o ano letivo" />
       </SelectTrigger>
       <SelectContent>
-        {academicYears
-          ?.filter((year) => !notTosShow.includes(Number(year.codigo)))
-          .map((year) => (
-            <SelectItem key={year.codigo} value={year.codigo}>
-              {year.designacao}
-            </SelectItem>
-          ))}
+        {academicYears.map((year) => (
+          <SelectItem key={year.codigo} value={String(year.codigo)}>
+            {year.designacao}
+          </SelectItem>
+        ))}
       </SelectContent>
     </Select>
   )
@@ -111,8 +109,10 @@ function CurriculumRow({
 ======================= */
 export function CurriculumCard({
   preEnrollmentCode,
+  enrollmentCode,
 }: {
   preEnrollmentCode: string
+  enrollmentCode: string
 }) {
   const [selectedYear, setSelectedYear] = useState<string | undefined>(
     undefined,
@@ -126,7 +126,18 @@ export function CurriculumCard({
     preEnrollmentCode,
   })
 
-  const { data: academicYearData } = useQueryAcademicYear()
+  const { data: academicYearData } = useQueryAcademicYearStudent(enrollmentCode)
+  const academicYears = dedupeAcademicYears(academicYearData?.anolectivos)
+  useEffect(() => {
+    if (!academicYears) return
+
+    // Encontrar o ano ativo
+    const active = academicYears.find((y) => y.estado === 'Activo')
+
+    if (active && !selectedYear) {
+      setSelectedYear(String(active.codigo))
+    }
+  }, [academicYears, setSelectedYear])
 
   return (
     <Card>
@@ -134,7 +145,7 @@ export function CurriculumCard({
         <CardTitle>Notas Finais</CardTitle>
         <div className="mt-4">
           <YearSelect
-            academicYears={academicYearData?.anolectivos}
+            academicYears={academicYears}
             selectedYear={selectedYear}
             onChange={setSelectedYear}
           />
@@ -168,4 +179,17 @@ export function CurriculumCard({
       </CardContent>
     </Card>
   )
+}
+
+function dedupeAcademicYears(
+  list?: { codigo: string | number; designacao: string; estado: string }[],
+) {
+  if (!list) return []
+  const map = new Map()
+
+  list.forEach((item) => {
+    map.set(item.codigo, item) // se tiver repetido, sobrescreve e fica só 1
+  })
+
+  return Array.from(map.values())
 }
