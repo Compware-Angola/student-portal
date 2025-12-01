@@ -5,22 +5,29 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-
 import { ModeToggle } from '@/components/mode-toggle'
 import { LoginForm } from './components/login-form'
 import { LogoBackground } from './components/logo-background'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { RegisterForm } from './components/register-form'
+import { Button } from '@/components/ui/button'
+import { ArrowLeft } from 'lucide-react'
+import { useState } from 'react'
+import { ForgotPasswordFlow } from './components/forgot-password-flow' // ← o componente que criamos
 
 export function Login() {
+  const [activeTab, setActiveTab] = useState<'login' | 'forgot'>('login')
+
   return (
-    <div className="flex min-h-screen items-center relative justify-center bg-gradient-to-br from-background to-muted p-4">
+    <div className="flex min-h-screen items-center justify-center relative bg-gradient-to-br from-background to-muted p-4">
       <LogoBackground top="2.5rem" right="2.5rem" />
       <LogoBackground bottom="2.5rem" left="2.5rem" />
-      <Card className="w-full max-w-md  relative z-10">
+
+      <Card className="w-full max-w-md relative z-10">
+        {/* Botão de tema */}
         <div className="absolute right-4 top-4 z-10">
           <ModeToggle />
         </div>
+
+        {/* Header */}
         <CardHeader className="space-y-4 text-center">
           <div className="flex justify-center">
             <img
@@ -29,25 +36,45 @@ export function Login() {
               className="h-24 w-auto"
             />
           </div>
-          <CardTitle className="text-2xl">Portal Universitário</CardTitle>
-          <CardDescription>Acesse sua conta acadêmica</CardDescription>
+
+          <CardTitle className="text-2xl">
+            {activeTab === 'forgot' ? 'Recuperar Senha' : 'Portal Universitário'}
+          </CardTitle>
+
+          <CardDescription>
+            {activeTab === 'forgot'
+              ? 'Informe seu e-mail institucional para continuar'
+              : 'Acesse sua conta acadêmica'}
+          </CardDescription>
         </CardHeader>
+
+        {/* Conteúdo */}
         <CardContent>
-          <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger className="min-w-full" value="login">
-                Entrar
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="login" className="mt-4">
+          {/* TELA DE LOGIN */}
+          {activeTab === 'login' ? (
+            <>
               <LoginForm />
-            </TabsContent>
 
-            <TabsContent value="register" className="mt-4">
-              <RegisterForm />
-            </TabsContent>
-          </Tabs>
+              {/* Link para recuperar senha - bem visível */}
+              <div className="mt-8 text-center">
+                <Button
+                  variant="link"
+                  className="text-primary font-medium text-base hover:underline"
+                  onClick={() => setActiveTab('forgot')}
+                >
+                  Esqueceu sua senha?
+                </Button>
+              </div>
+            </>
+          ) : (
+            /* TELA DE RECUPERAÇÃO DE SENHA */
+            <div className="space-y-6">
+             
+
+              {/* Aqui entra todo o fluxo inteligente que criamos */}
+              <ForgotPasswordFlow onBack={() => setActiveTab('login')} />
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
