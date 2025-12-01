@@ -26,16 +26,35 @@ export function checkEmail(email: string): Promise<{ exists: boolean }> {
     .json<{ email:string,exists: boolean }>()
 }
 
-export function requestPasswordReset(email: string): Promise<void> {
-  return authApi
+export async function requestPasswordReset(email: string): Promise<void> {
+  await authApi
     .post('auth/send-change-password', { json: { email, platform: 'PORTAL' } })
-    .then(() => {})
 }
 
-export function resetPassword(token: string, newPassword: string): Promise<void> {
-  return authApi
+export async function resetPassword(token: string, newPassword: string): Promise<void> {
+  await authApi
     .post('auth/reset-password', {
       json: { token, newPassword, platform: 'PORTAL' },
     })
-    .then(() => {})
+}
+export interface RequestDataUpdate {
+  /** E-mail que o usuário quer usar/corrigir */
+  email: string;
+
+  /** Número de matrícula do estudante (obrigatório para identificação) */
+  enrrolment: string;
+
+  /** Telefone de contato com código de Angola */
+  phone: string;
+
+  /** Explicação detalhada do motivo da solicitação */
+  details: string;
+
+  /** Plataforma de origem */
+  platform: 'GA'  | 'PORTAL'; 
+}
+export async function sendrenewDataRequest(peload: RequestDataUpdate){
+  await authApi
+    .post('auth/send-renew-data', { json: peload })
+
 }

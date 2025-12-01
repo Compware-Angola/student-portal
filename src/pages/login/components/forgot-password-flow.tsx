@@ -7,8 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ArrowLeft, CheckCircle, AlertCircle, Key, Search, Mail } from "lucide-react";
 import { toast } from "sonner";
-import { Textarea } from "@/components/ui/textarea";
+
 import { checkEmail, requestPasswordReset } from "@/services/auth/login.service";
+import { AtualizacaoDadosSimples } from "./update-data";
 
 
 type Step = "email" | "found" | "not-found";
@@ -35,7 +36,7 @@ const handleCheckEmail = async (e: React.FormEvent) => {
  
 
     // API retorna { exists: true, status: 'found' } ou { exists: false, status: 'not-found' }
-    if (data.exists === true) {
+    if (data.exists === true ) {
       setStep('found');
       toast.success('E-mail encontrado!', {
         description: 'Vamos enviar o link de recuperação',
@@ -226,42 +227,3 @@ const handleResetPassword = async () => {
     );
 }
 
-function AtualizacaoDadosSimples({ emailInicial }: { emailInicial: string }) {
-    const [motivo, setMotivo] = useState("");
-    const [newEmail, setNewEmail] = useState("");
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        toast.success("Solicitação enviada com sucesso!", {
-            description: "A secretaria irá analisar e entrará em contato em breve.",
-        });
-    };
-
-    return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-                <Label>E-mail que você usa atualmente</Label>
-                <Input value={emailInicial} disabled className="mt-2" />
-            </div>
-            <div>
-                <Label>Novo Email*</Label>
-                <Input value={newEmail} className="mt-2" onChange={(e) => setNewEmail(e.target.value)} />
-            </div>
-            <div>
-                <Label htmlFor="motivo">Motivo da solicitação *</Label>
-                <Textarea
-                    id="motivo"
-                    placeholder="Ex: mudei de e-mail, não recebo notificações, etc."
-                    value={motivo}
-                    onChange={(e) => setMotivo(e.target.value)}
-                    required
-                    rows={3}
-                    className="mt-2"
-                />
-            </div>
-            <Button type="submit" className="w-full">
-                Enviar Solicitação à Secretaria
-            </Button>
-        </form>
-    );
-}
