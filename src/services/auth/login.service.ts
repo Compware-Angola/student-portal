@@ -28,7 +28,7 @@ export function checkEmail(email: string): Promise<{ exists: boolean }> {
 
 export function requestPasswordReset(email: string): Promise<void> {
   return authApi
-    .post('auth/request-password-reset', { json: { email, platform: 'PORTAL' } })
+    .post('auth/send-change-password', { json: { email, platform: 'PORTAL' } })
     .then(() => {})
 }
 
