@@ -56,7 +56,9 @@ export default function RenovarSenha() {
     setLoading(true);
 
     try {
-     await resetPassword(token!, formData.novaSenha);
+   await resetPassword(token!, formData.novaSenha);
+        toast.success("Senha renovada com sucesso!", {  });
+        navigate("/login");
     } catch (err: any) {
       toast.error("Erro ao renovar senha", {
         description: err.message || "Tente solicitar um novo link de recuperação",
