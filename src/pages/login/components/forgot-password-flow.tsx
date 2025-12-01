@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { checkEmail, requestPasswordReset } from "@/services/auth/login.service";
 
+
 type Step = "email" | "found" | "not-found";
 
 export function ForgotPasswordFlow({ onBack }: { onBack: () => void }) {
@@ -60,6 +61,7 @@ const handleResetPassword = async () => {
 
   try {
    
+  setIsLoading(true);
    await requestPasswordReset(email.toLowerCase().trim())
 
     toast.success('Link enviado com sucesso!', {
@@ -76,6 +78,8 @@ const handleResetPassword = async () => {
     toast.error('Falha ao enviar', {
       description: err.message || 'Tente novamente em alguns minutos',
     });
+  }finally{
+    setIsLoading(false);
   }
 };
     return (
@@ -161,9 +165,17 @@ const handleResetPassword = async () => {
                             </div>
                         </div>
 
-                        <Button onClick={handleResetPassword} size="lg" className="w-full">
+                        <Button onClick={handleResetPassword} size="lg" className="w-full" disabled={isLoading}>
                             <Key className="mr-2 h-4 w-4" />
-                            Enviar Link de Recuperação
+                            Enviando ...
+                            {isLoading ? (
+                                    <>Verificando...</>
+                                ) : (
+                                    <>
+                                        <Search className="mr-2 h-4 w-4" />
+                                        Enviar Link de Recuperação
+                                    </>
+                                )}
                         </Button>
 
                         <Button variant="outline" onClick={() => setStep("email")} className="w-full">
