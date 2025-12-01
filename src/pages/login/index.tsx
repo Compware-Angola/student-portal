@@ -9,9 +9,9 @@ import { ModeToggle } from '@/components/mode-toggle'
 import { LoginForm } from './components/login-form'
 import { LogoBackground } from './components/logo-background'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft } from 'lucide-react'
+
 import { useState } from 'react'
-import { ForgotPasswordFlow } from './components/forgot-password-flow' // ← o componente que criamos
+import { ForgotPasswordFlow } from './components/forgot-password-flow'
 
 export function Login() {
   const [activeTab, setActiveTab] = useState<'login' | 'forgot'>('login')
@@ -28,7 +28,7 @@ export function Login() {
         </div>
 
         {/* Header */}
-        <CardHeader className="space-y-4 text-center">
+        <CardHeader className="space-y-4 text-center pb-8">
           <div className="flex justify-center">
             <img
               src="/logo_uma.webp"
@@ -50,12 +50,11 @@ export function Login() {
 
         {/* Conteúdo */}
         <CardContent>
-          {/* TELA DE LOGIN */}
           {activeTab === 'login' ? (
             <>
               <LoginForm />
 
-              {/* Link para recuperar senha - bem visível */}
+              {/* Link destacado para recuperar senha */}
               <div className="mt-8 text-center">
                 <Button
                   variant="link"
@@ -71,7 +70,7 @@ export function Login() {
             <div className="space-y-6">
              
 
-              {/* Aqui entra todo o fluxo inteligente que criamos */}
+              {/* Fluxo completo de recuperação */}
               <ForgotPasswordFlow onBack={() => setActiveTab('login')} />
             </div>
           )}

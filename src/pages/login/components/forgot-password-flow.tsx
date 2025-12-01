@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ArrowLeft, CheckCircle, AlertCircle, Key, Search, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
+import { checkEmail, requestPasswordReset } from "@/services/auth/login.service";
 
 type Step = "email" | "found" | "not-found";
 
@@ -16,40 +17,67 @@ export function ForgotPasswordFlow({ onBack }: { onBack: () => void }) {
     const [email, setEmail] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
-    // Simulação de busca no banco (substituir por chamada real à API)
-    const handleCheckEmail = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!email || !email.includes("@")) return;
+const handleCheckEmail = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-        setIsLoading(true);
-        // Simulação de delay de API
-        await new Promise(resolve => setTimeout(resolve, 1200));
+  if (!email || !email.includes('@')) {
+    toast.error('E-mail inválido', {
+      description: 'Por favor, insira um e-mail institucional válido',
+    });
+    return;
+  }
 
-        // EXEMPLO: emails que existem no sistema
-        const emailsExistentes = [
-            "joao.silva@estudante.uma.ao",
-            "maria.fernandes@uma.ao",
-            "pedro.santos@estudante.uma.ao"
-        ];
+  setIsLoading(true);
 
-        setIsLoading(false);
+  try {
+  const data= await checkEmail(email.toLowerCase().trim())
+ 
 
-        if (emailsExistentes.includes(email.toLowerCase())) {
-            setStep("found");
-        } else {
-            setStep("not-found");
-        }
-    };
+    // API retorna { exists: true, status: 'found' } ou { exists: false, status: 'not-found' }
+    if (data.exists === true) {
+      setStep('found');
+      toast.success('E-mail encontrado!', {
+        description: 'Vamos enviar o link de recuperação',
+      });
+    } else {
+      setStep('not-found');
+      toast.info('E-mail não encontrado', {
+        description: 'Pode estar desatualizado no sistema',
+      });
+    }
+  } catch (err: any) {
+    console.error('Erro ao verificar e-mail:', err);
+    toast.error('Erro de conexão', {
+      description: err.message || 'Não foi possível conectar ao servidor',
+    });
+    setStep('email'); // volta ao início em caso de erro
+  } finally {
+    setIsLoading(false);
+  }
+};
+const handleResetPassword = async () => {
+  if (!email) return;
 
-    const handleResetPassword = () => {
-        toast.success("Link de recuperação enviado!", {
-            description: `Verifique seu e-mail: ${email}`,
-            icon: <Mail className="h-5 w-5" />,
-        });
-        setStep("email");
-        setEmail("");
-    };
+  try {
+   
+   await requestPasswordReset(email.toLowerCase().trim())
 
+    toast.success('Link enviado com sucesso!', {
+      description: `Verifique sua caixa de entrada: ${email}`,
+      icon: <Mail className="h-5 w-5" />,
+      duration: 6000,
+    });
+
+    // Volta para o início
+    setStep('email');
+    setEmail('');
+  } catch (err: any) {
+    console.error('Erro ao enviar link:', err);
+    toast.error('Falha ao enviar', {
+      description: err.message || 'Tente novamente em alguns minutos',
+    });
+  }
+};
     return (
         <div className="space-y-6">
             {/* Botão Voltar */}
@@ -186,7 +214,6 @@ export function ForgotPasswordFlow({ onBack }: { onBack: () => void }) {
     );
 }
 
-// Componente simplificado só para este fluxo (evita carregar tudo)
 function AtualizacaoDadosSimples({ emailInicial }: { emailInicial: string }) {
     const [motivo, setMotivo] = useState("");
     const [newEmail, setNewEmail] = useState("");
