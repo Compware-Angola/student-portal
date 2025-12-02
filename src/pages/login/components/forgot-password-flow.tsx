@@ -167,10 +167,10 @@ const handleResetPassword = async () => {
                         </div>
 
                         <Button onClick={handleResetPassword} size="lg" className="w-full" disabled={isLoading}>
-                            <Key className="mr-2 h-4 w-4" />
-                            Enviando ...
+                           
+                        
                             {isLoading ? (
-                                    <>Verificando...</>
+                                    <>    Enviando ...</>
                                 ) : (
                                     <>
                                         <Search className="mr-2 h-4 w-4" />
