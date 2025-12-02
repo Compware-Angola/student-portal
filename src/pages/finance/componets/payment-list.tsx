@@ -2,32 +2,19 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Calendar, Receipt } from 'lucide-react'
 import { useFinance } from '../hooks/use-finance'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { useCallback, useState } from 'react'
 import { useQueryFinanceMonthlyFee } from '@/hooks/finance/use-query-finance-monthly-fee'
-import type { AdemicsYear } from '@/services/academic-year/get-acamedic-year.service'
+
 import type { Mensalidade } from '@/types/finance-api-response'
-
+import { YearSelect, type YearSelectProps } from '@/components/year-select'
+type PaymentListProps = { enrollmentCode: string } & YearSelectProps
 export function PaymentList({
-  academicYear: defaultAcademicYear,
   enrollmentCode,
+  onChange,
+  selectedYear,
   academicYears,
-}: {
-  academicYear: string
-  enrollmentCode: string
-  academicYears: AdemicsYear
-}) {
+}: PaymentListProps) {
   const { getStatusBadge, handleGenerateReference } = useFinance()
-
-  const [selectedAcademicYear, setSelectedAcademicYear] = useState(
-    String(defaultAcademicYear),
-  )
 
   const [page, setPage] = useState(1)
   const limit = 10
@@ -37,7 +24,7 @@ export function PaymentList({
     isLoading,
     isError,
   } = useQueryFinanceMonthlyFee({
-    academicYear: selectedAcademicYear,
+    academicYear: selectedYear,
     enrollmentCode,
     page,
     limit,
@@ -66,7 +53,10 @@ export function PaymentList({
         return 'pending'
     }
   }
-
+  const handleYearChange = (value: string) => {
+    onChange(value)
+    setPage(1)
+  }
   if (isLoading) {
     return (
       <Card>
@@ -98,25 +88,11 @@ export function PaymentList({
 
         <div className="flex items-center gap-2">
           <Calendar className="h-5 w-5 text-muted-foreground" />
-          <Select
-            value={selectedAcademicYear}
-            onValueChange={(value) => {
-              setSelectedAcademicYear(value)
-              setPage(1)
-            }}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Selecione o Ano Lectivo" />
-            </SelectTrigger>
-
-            <SelectContent>
-              {academicYears.anolectivos.map((year) => (
-                <SelectItem key={year.codigo} value={year.codigo}>
-                  {year.designacao}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <YearSelect
+            academicYears={academicYears}
+            selectedYear={selectedYear}
+            onChange={handleYearChange}
+          />
         </div>
       </CardHeader>
 

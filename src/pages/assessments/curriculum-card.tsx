@@ -9,46 +9,11 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 
 import { cn } from '@/lib/utils'
 import { useQueryCurrentCurriculumPlanSudent } from '@/hooks/curriculum/use-query-current-curriculum-plan-student'
 import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-academic-year-student'
-
-/* =======================
-   Componente Select de Ano
-======================= */
-function YearSelect({
-  academicYears = [],
-  selectedYear,
-  onChange,
-}: {
-  academicYears?: { codigo: string; designacao: string }[]
-  selectedYear?: string
-  onChange: (value: string) => void
-}) {
-  console.log(academicYears)
-  return (
-    <Select value={selectedYear} onValueChange={onChange}>
-      <SelectTrigger className="min-w-60">
-        <SelectValue placeholder="Selecione o ano letivo" />
-      </SelectTrigger>
-      <SelectContent>
-        {academicYears.map((year) => (
-          <SelectItem key={year.codigo} value={String(year.codigo)}>
-            {year.designacao}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  )
-}
+import { YearSelect } from '@/components/year-select'
 
 /* =======================
    Componente Badge de Estado

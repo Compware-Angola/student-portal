@@ -6,14 +6,32 @@ import { InvoicesTable } from './componets/invoice-table'
 import { useFinance } from './hooks/use-finance'
 import { toast } from 'sonner'
 import { FinanceSkeleton } from './componets/finance-skeleton'
-import { useQueryAcademicYear } from '@/hooks/academic-year/use-query-academic-year'
+
 import { PaymentList } from './componets/payment-list'
+import { useEffect, useState } from 'react'
+import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-academic-year-student'
 
 function Content() {
-  const { isLoading: isAcademicYearLoading, data: academicYearData } =
-    useQueryAcademicYear()
   const { isLoadingProfileData, isProfileError, profileError, profileData } =
     useFinance()
+  const [selectedYear, setSelectedYear] = useState<string | undefined>(
+    undefined,
+  )
+
+  const { data: academicYearData, isLoading: isAcademicYearLoading } =
+    useQueryAcademicYearStudent(profileData?.enrollmentCode)
+  const academicYears = dedupeAcademicYears(academicYearData?.anolectivos)
+  useEffect(() => {
+    if (!academicYears) return
+
+    // Encontrar o ano ativo
+    const active = academicYears.find((y) => y.estado === 'Activo')
+
+    if (active && !selectedYear) {
+      setSelectedYear(String(active.codigo))
+    }
+  }, [academicYears, setSelectedYear])
+
   if (
     isLoadingProfileData ||
     isProfileError ||
@@ -25,6 +43,7 @@ function Content() {
     }
     return <FinanceSkeleton />
   }
+
   if (!academicYearData) return <FinanceSkeleton />
   return (
     <div className="space-y-6">
@@ -78,17 +97,19 @@ function Content() {
 
         <TabsContent value="payments" className="mt-6">
           <PaymentList
-            academicYear={academicYearData?.anolectivos[0].codigo}
             enrollmentCode={profileData.enrollmentCode}
-            academicYears={academicYearData || []}
+            onChange={setSelectedYear}
+            academicYears={academicYears}
+            selectedYear={selectedYear}
           />
         </TabsContent>
 
         <TabsContent value="invoices" className="mt-6">
           <InvoicesTable
-            academicYear={academicYearData?.anolectivos[0].codigo}
             enrollmentCode={profileData.enrollmentCode}
-            academicYears={academicYearData || []}
+            onChange={setSelectedYear}
+            academicYears={academicYears}
+            selectedYear={selectedYear}
           />
         </TabsContent>
       </Tabs>
@@ -102,4 +123,16 @@ export function Finance() {
       <Content />
     </FinanceProvider>
   )
+}
+function dedupeAcademicYears(
+  list?: { codigo: string | number; designacao: string; estado: string }[],
+) {
+  if (!list) return []
+  const map = new Map()
+
+  list.forEach((item) => {
+    map.set(item.codigo, item) // se tiver repetido, sobrescreve e fica só 1
+  })
+
+  return Array.from(map.values())
 }
