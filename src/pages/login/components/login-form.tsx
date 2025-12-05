@@ -7,7 +7,6 @@ import { Form } from '@/components/ui/form'
 import { InputFormField } from '@/components/input-form-field'
 import { useLoginForm } from '../use-login-form'
 import { Spinner } from '@/components/ui/spinner'
-import { FormFooter } from './form-footer'
 
 export function LoginForm({
   className,
@@ -19,14 +18,14 @@ export function LoginForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className={cn('flex flex-col gap-6', className)}
+        className={cn('flex flex-col gap-6 pb-20', className)}
         {...props}
       >
         <FieldGroup>
           <InputFormField
             control={form.control}
             name="username"
-            placeholder="example"
+            placeholder="Digite nome do usuário"
             label="Nome de usuário"
             type="text"
           />
@@ -44,7 +43,7 @@ export function LoginForm({
               Entrar
             </Button>
           </Field>
-          <FormFooter />
+          {/* <FormFooter /> */}
         </FieldGroup>
       </form>
     </Form>

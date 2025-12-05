@@ -1,3 +1,4 @@
+'use client'
 import {
   Card,
   CardContent,
@@ -11,8 +12,17 @@ import { LoginForm } from './components/login-form'
 import { LogoBackground } from './components/logo-background'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { RegisterForm } from './components/register-form'
+import { useEffect } from 'react'
+import { useTheme } from 'next-themes'
 
 export function Login() {
+  const { theme, setTheme } = useTheme()
+  const toggleTheme = () => {
+    setTheme('light')
+  }
+  useEffect(() => {
+    toggleTheme()
+  }, [theme])
   return (
     <div className="flex min-h-screen items-center relative justify-center bg-gradient-to-br from-background to-muted p-4">
       <LogoBackground top="2.5rem" right="2.5rem" />
