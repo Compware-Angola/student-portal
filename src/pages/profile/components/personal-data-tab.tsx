@@ -57,7 +57,7 @@ export function PersonalDataTab({
   const [loading, setLoading] = useState(false)
 
   const handleSaveClick = async () => {
-    const data = form.getValues() // pega os valores atuais do form
+    const data = form.getValues()
     try {
       setLoading(true)
       await mutateAsync({
@@ -65,7 +65,7 @@ export function PersonalDataTab({
         email: data.email,
         telefone: data.phone,
       })
-      toast.success('Dados atualizados com sucesso!')
+     
       form.reset(data)
     } catch (error: any) {
       toast.error('Falha ao atualizar dados', {

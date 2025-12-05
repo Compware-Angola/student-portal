@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+
 
 type ProfileAvatarProps = {
   firstName: string
@@ -18,8 +18,7 @@ export function ProfileAvatar({
   curriculumYear,
   enrollmentState,
   curso,
-  polo,
-  isEditing,
+  polo
 }: ProfileAvatarProps) {
   const displayText = curriculumYear || enrollmentState
 
@@ -45,10 +44,11 @@ export function ProfileAvatar({
             <p className="text-sm text-muted-foreground">{displayText}</p>
           )}
         </div>
-
+ {/*
         <Button className="w-full" disabled = {!isEditing} variant="outline">
           Alterar Foto
         </Button>
+        */}
       </CardContent>
     </Card>
   )

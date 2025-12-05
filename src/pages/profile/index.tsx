@@ -37,13 +37,14 @@ export function Profile() {
   }
 
   const {
-    birthDate,
+ 
     enrollmentState,
     firstName,
     fullName,
     lastName,
     email,
-    phone,
+    telefone,
+    numero_documento,
     address,
     curso,
     polo,
@@ -85,8 +86,8 @@ export function Profile() {
           studentId={codigo_matricula}
           name={fullName}
           email={email}
-          phone={phone}
-          documento={"0000000"}
+          phone={telefone}
+          documento={numero_documento}
           address={address}
           course={curso}
           isEditing={isEditing}
