@@ -9,6 +9,7 @@ type ProfileAvatarProps = {
   enrollmentState?: string
   curso?: string
   polo?: string
+  isEditing:boolean
 }
 
 export function ProfileAvatar({
@@ -18,6 +19,7 @@ export function ProfileAvatar({
   enrollmentState,
   curso,
   polo,
+  isEditing,
 }: ProfileAvatarProps) {
   const displayText = curriculumYear || enrollmentState
 
@@ -44,7 +46,7 @@ export function ProfileAvatar({
           )}
         </div>
 
-        <Button className="w-full" variant="outline">
+        <Button className="w-full" disabled = {!isEditing} variant="outline">
           Alterar Foto
         </Button>
       </CardContent>

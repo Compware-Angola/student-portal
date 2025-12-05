@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { InputFormField } from '@/components/input-form-field'
 import { Button } from '@/components/ui/button'
 import { FieldGroup } from '@/components/ui/field'
@@ -8,30 +9,37 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import z from 'zod'
 
+import { toast } from 'sonner'
+import { useUpdateUser } from '@/hooks/student/use-query-mutation-update-users-data'
+
 type PersonalDataTabProps = {
   name: string
   email: string
   phone: string
-  dateOfBirth: string
+  documento: string
   address: string
+  userId: string
+  isEditing: boolean
 }
+
 export const FormSchema = z.object({
   name: z.string().min(1, { message: 'Nome é obrigatório' }),
   email: z.email('Insira um email válido'),
   phone: z.string().min(1, { message: 'Telefone é obrigatório' }),
-  dateOfBirth: z
-    .string()
-    .min(1, { message: 'Data de nascimento é obrigatória' }),
+  documento: z.string().min(1, { message: 'Documento é obrigatório' }),
   address: z.string().min(1, { message: 'Endereço é obrigatório' }),
 })
 
 export type LoginFormData = z.infer<typeof FormSchema>
+
 export function PersonalDataTab({
   email,
   phone,
-  dateOfBirth,
+  documento,
   address,
   name,
+  userId,
+  isEditing,
 }: PersonalDataTabProps) {
   const form = useForm<LoginFormData>({
     resolver: zodResolver(FormSchema),
@@ -39,22 +47,39 @@ export function PersonalDataTab({
       name,
       email,
       phone,
-      dateOfBirth,
+      documento,
       address,
     },
   })
 
-  async function onSubmit(data: LoginFormData) {
-    // Add your logic here to update the student's personal data
-    return Promise.resolve(data)
+  // Hook para atualizar dados
+  const { mutateAsync } = useUpdateUser(userId)
+  const [loading, setLoading] = useState(false)
+
+  const handleSaveClick = async () => {
+    const data = form.getValues() // pega os valores atuais do form
+    try {
+      setLoading(true)
+      await mutateAsync({
+        name: data.name,
+        email: data.email,
+        telefone: data.phone,
+      })
+      toast.success('Dados atualizados com sucesso!')
+      form.reset(data)
+    } catch (error: any) {
+      toast.error('Falha ao atualizar dados', {
+        description: error?.message || 'Erro desconhecido',
+      })
+    } finally {
+      setLoading(false)
+    }
   }
+
   return (
     <TabsContent value="personal" className="space-y-4 pt-4">
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className={cn('flex flex-col gap-6')}
-        >
+        <div className={cn('flex flex-col gap-6')}>
           <FieldGroup className="grid gap-4 md:grid-cols-2">
             <InputFormField
               control={form.control}
@@ -62,7 +87,7 @@ export function PersonalDataTab({
               placeholder="Nome Completo"
               label="Nome Completo"
               type="text"
-              disabled
+              disabled={!isEditing}
             />
             <InputFormField
               control={form.control}
@@ -70,7 +95,7 @@ export function PersonalDataTab({
               placeholder="email@example.com"
               label="Email"
               type="email"
-              disabled
+              disabled={!isEditing}
             />
             <InputFormField
               control={form.control}
@@ -78,31 +103,26 @@ export function PersonalDataTab({
               placeholder="+244999999999"
               label="Número de Telefone"
               type="tel"
-              disabled
+              disabled={!isEditing}
             />
             <InputFormField
               control={form.control}
-              name="dateOfBirth"
-              placeholder="dd/mm/yyyy"
-              label="Data de Nascimento"
-              type="date"
-              disabled
-            />
-          </FieldGroup>
-          <FieldGroup>
-            <InputFormField
-              control={form.control}
-              name="address"
-              placeholder="Rua, Bairro, Cidade"
-              label="Endereço"
+              name="documento"
+              placeholder="000000"
+              label="Documento"
               type="text"
               disabled
             />
           </FieldGroup>
-          <Button disabled className="w-full">
-            Salvar Alterações
+
+          <Button
+            disabled={!isEditing || loading}
+            className="w-full"
+            onClick={handleSaveClick} 
+          >
+            {loading ? 'Salvando...' : 'Salvar Alterações'}
           </Button>
-        </form>
+        </div>
       </Form>
     </TabsContent>
   )
