@@ -110,7 +110,7 @@ const handleResetPassword = async () => {
                                 <Input
                                     id="email"
                                     type="email"
-                                    placeholder="seunome@estudante.uma.ao"
+                                    placeholder="example@gmail.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
