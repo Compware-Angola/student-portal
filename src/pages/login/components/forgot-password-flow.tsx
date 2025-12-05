@@ -100,13 +100,13 @@ const handleResetPassword = async () => {
                         </div>
                         <CardTitle className="text-2xl">Recuperar Senha</CardTitle>
                         <CardDescription>
-                            Digite seu e-mail institucional para continuar
+                            Digite seu e-mail  para continuar
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleCheckEmail} className="space-y-6">
                             <div className="space-y-2">
-                                <Label htmlFor="email">E-mail institucional</Label>
+                                <Label htmlFor="email">E-mail </Label>
                                 <Input
                                     id="email"
                                     type="email"
