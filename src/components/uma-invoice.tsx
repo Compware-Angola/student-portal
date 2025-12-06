@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
 
 function PaymentReceiptDocument({
   invoice,
-  academicYear,
+
 }: {
   invoice: Invoice
   academicYear: string
@@ -222,7 +222,7 @@ function PaymentReceiptDocument({
             </Text>
             <Text>
               <Text style={styles.label}>Polo:</Text>{' '}
-              {invoice.polo_id === '1' ? 'Sede Luanda' : invoice.polo_id}
+              {invoice.polo}
             </Text>
           </View>
         </View>
