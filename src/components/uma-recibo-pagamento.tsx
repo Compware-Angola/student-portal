@@ -176,8 +176,7 @@ const styles = StyleSheet.create({
 })
 
 function PaymentReceiptDocument({
-  invoice,
-  academicYear,
+  invoice
 }: {
   invoice: Invoice
   academicYear: string
@@ -239,7 +238,7 @@ function PaymentReceiptDocument({
 
           <View style={styles.infoRow}>
             <Text>
-              <Text style={styles.label}>Ano Lectivo:</Text> {academicYear}
+              <Text style={styles.label}>Ano Lectivo:</Text> {invoice.ano_lectivo}
             </Text>
             <Text>
               <Text style={styles.label}>Polo:</Text>{' '}

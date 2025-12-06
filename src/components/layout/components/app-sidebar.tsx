@@ -60,7 +60,7 @@ const data = {
 
   
 
-    { title: 'Renegociação', url: '/renegociacao', icon: HandCoins },
+    { title: 'Negociação de Dívida', url: '/renegociacao', icon: HandCoins },
   ],
 }
 

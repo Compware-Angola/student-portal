@@ -67,7 +67,7 @@ const simulateNegotiationSchema = z.object({
   totalAmount: z.number().min(0, 'Valor total é obrigatório'),
   initialPayment: z.number().min(0, 'Pagamento inicial obrigatório'),
   negotiationType: z.enum(['TOTAL', 'PARCELADO']).refine((val) => val != null, {
-    message: 'Selecione o tipo de renegociação',
+    message: 'Selecione o tipo de Negociação de Dívida',
   }),
 })
 
@@ -229,7 +229,7 @@ export const Renegociation = () => {
       toast.success('Negociação confirmada com sucesso!')
       setStep('complete')
     } catch (error: any) {
-      console.error('Erro ao criar renegociação:', error)
+      console.error('Erro ao criar Negociação de Dívida:', error)
       if (error instanceof ApiError) {
         // Remove as aspas quebradas que o backend manda
         //  const cleanMessage = error.message.replace(/"/g, '').trim()
@@ -390,7 +390,7 @@ export const Renegociation = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Calculator className="h-5 w-5" />
-                    Renegociar Dívida
+                    Negociação  Dívida
                   </CardTitle>
                   <CardDescription>
                     Escolha o tipo e ajuste o pagamento inicial
