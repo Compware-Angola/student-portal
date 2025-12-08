@@ -124,7 +124,7 @@ export function Finance() {
     </FinanceProvider>
   )
 }
-function dedupeAcademicYears(
+ export function dedupeAcademicYears(
   list?: { codigo: string | number; designacao: string; estado: string }[],
 ) {
   if (!list) return []

@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { FileText, Download, Eye } from 'lucide-react'
+import { FileText, Download, Eye, Calendar } from 'lucide-react'
 import {
     Dialog,
     DialogContent,
@@ -20,7 +20,12 @@ import {
 import { useQueryPayments } from '@/hooks/finance/use-query-finance-payments'
 import { Loader2 } from 'lucide-react'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
-import { useNavigate } from 'react-router-dom'
+import { Select, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { SelectContent } from '@radix-ui/react-select'
+import { useEffect, useState } from 'react'
+import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-academic-year-student'
+import { dedupeAcademicYears } from '../finance'
+
 interface NotaPagamento {
     id: string
     numero: string
@@ -60,7 +65,7 @@ const mapApiToNotaPagamento = (apiData: any[]): NotaPagamento[] => {
             numero: item.f_Referencia || `FAT-${item.CodigoFactura}`,
             tipo: tipo,
 
-           
+
             descricao: [item.Descricao_produto, item.Descricao_factura]
                 .map(v => (v ?? '').toString().trim())
                 .find(s => s && !['', 'None', 'null'].includes(s))
@@ -83,7 +88,6 @@ const mapApiToNotaPagamento = (apiData: any[]): NotaPagamento[] => {
 export const NotaPagamento = () => {
     const { profileData } = useQueryProfile()
 
-    const navigate = useNavigate()
 
 
 
@@ -96,7 +100,7 @@ export const NotaPagamento = () => {
         preRegistrationCode: profileData?.codigo_preinscricao,
         // Adicione page e limit se for paginar
         page: 1,
-        limit: 50
+        limit: 100
     })
 
     // Mapear dados da API para o formato do componente
@@ -105,7 +109,23 @@ export const NotaPagamento = () => {
         : []
 
 
+  const [selectedYear, setSelectedYear] = useState<string | undefined>(
+    undefined,
+  )
 
+  const { data: academicYearData, isLoading: isAcademicYearLoading } =
+    useQueryAcademicYearStudent(profileData?.enrollmentCode)
+  const academicYears = dedupeAcademicYears(academicYearData?.anolectivos)
+  useEffect(() => {
+    if (!academicYears) return
+
+    // Encontrar o ano ativo
+    const active = academicYears.find((y) => y.estado === 'Activo')
+
+    if (active && !selectedYear) {
+      setSelectedYear(String(active.codigo))
+    }
+  }, [academicYears, setSelectedYear])
 
     const getStatusBadge = (status: string) => {
         switch (status) {
@@ -253,10 +273,7 @@ export const NotaPagamento = () => {
         </Dialog>
     )
 
-    // Cálculo dos Totais usando os dados reais
-    const totalPendente = notas
-        .filter((n) => n.status === 'pendente' || n.status === 'vencida')
-        .reduce((sum, n) => sum + n.valor, 0)
+
 
     const totalPago = notas
         .filter((n) => n.status == 'concluido')
@@ -287,49 +304,72 @@ export const NotaPagamento = () => {
     // --- Renderização Principal ---
     return (
         <div className="space-y-6">
-            <div>
-                <h1 className="text-3xl font-bold">Pagamento Concluídos</h1>
-                <p className="text-muted-foreground mt-2">
-                    Consulte e gerencie os  pagamento Concluídos
-                </p>
-            </div>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+  <div>
+    <h1 className="text-3xl font-bold">Pagamentos Concluídos</h1>
+    <p className="text-muted-foreground mt-2">
+      Consulte e gerencie os pagamentos concluídos
+    </p>
+  </div>
 
-            <div className="grid gap-4 md:grid-cols-3">
-                <Card onClick={() => navigate('/financas')}>
-                    <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium">
-                            Total Pendente
+  <div className="flex items-center gap-3">
+    <Calendar className="h-5 w-5 text-muted-foreground" />
+    
+    <Select>
+      <SelectTrigger className="w-[180px]">
+        <SelectValue placeholder="Ano Letivo" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="2024-2025">2024-2025</SelectItem>
+        <SelectItem value="2023-2024">2023-2024</SelectItem>
+        <SelectItem value="2022-2023">2022-2023</SelectItem>
+      </SelectContent>
+    </Select>
+  </div>
+</div>
+
+
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Total Pago */}
+                <Card className="border rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <CardHeader className="pb-2 flex items-center justify-between">
+                        <CardTitle className="text-sm font-semibold text-gray-700">
+                            Total Pago
                         </CardTitle>
+                        <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
+                            Resolução Anual
+                        </span>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-destructive">
-                            {totalPendente.toLocaleString('pt-PT')} Kz
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium">Total Pago</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-green-600">
+                        <div className="text-3xl font-bold text-green-600">
                             {totalPago.toLocaleString('pt-PT')} Kz
                         </div>
+                        <p className="text-sm text-gray-500 mt-1">
+                            Valor total pago ao longo do ano
+                        </p>
                     </CardContent>
                 </Card>
 
-                <Card>
-                    <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium">
+                {/* Total de Notas */}
+                <Card className="border rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <CardHeader className="pb-2 flex items-center justify-between">
+                        <CardTitle className="text-sm font-semibold text-gray-700">
                             Total de Notas
                         </CardTitle>
+                        <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
+                            Resolução Anual
+                        </span>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{notas.length}</div>
+                        <div className="text-3xl font-bold text-blue-600">{notas.length}</div>
+                        <p className="text-sm text-gray-500 mt-1">
+                            Número total de notas registadas neste ano
+                        </p>
                     </CardContent>
                 </Card>
             </div>
+
 
             <Card>
                 <CardHeader>
@@ -337,7 +377,9 @@ export const NotaPagamento = () => {
                     <CardDescription>
                         Lista completa das suas notas de pagamento Concluídos
                     </CardDescription>
+
                 </CardHeader>
+
                 <CardContent>
                     <div className="space-y-4">
                         {notas.length === 0 ? (
