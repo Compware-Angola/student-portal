@@ -163,7 +163,7 @@ export function PaymentList({
 
                   <div className="flex items-center gap-8">
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-primary">
+                      <p className="text-1xl font-bold ">
                         {Number(p.total_preco).toLocaleString('pt-AO')} Kz
                       </p>
                       <div className="mt-3">

@@ -10,7 +10,7 @@ import {
   Table,
   TableBody,
   TableCell,
-  
+  TableHead,
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
@@ -122,7 +122,6 @@ function useFindAcademicYearDesignation(academicYear: AdemicsYear | undefined) {
   }
 }
 
-
 function InvoiceDetailsDialog({ invoice, findAcademicYearDesignation }: { invoice: Invoice; findAcademicYearDesignation: (c: number) => string }) {
   const totalMultas = invoice.itens.reduce((s, i) => s + i.Multa, 0)
   const totalPago = invoice.itens.reduce((s, i) => s + i.valor_pago, 0)
@@ -203,10 +202,9 @@ export function InvoicesTable({
 
   const [page, setPage] = React.useState(1)
   const [statusFilter, setStatusFilter] = React.useState<'all' | 'paid' | 'pending'>('all')
-
   const limit = 10
 
-  // PAGINAÇÃO + FILTRO DE ESTADO NO BACKEND
+  // FILTRO DE ESTADO NO BACKEND + PAGINAÇÃO
   const { data, isLoading, isError } = useQueryInvoices({
     enrollmentCode,
     page,
@@ -228,11 +226,11 @@ export function InvoicesTable({
     findAcademicYearDesignation,
   })
 
-const table = useReactTable({
-  data: data?.data || [],
-  columns,
-  getCoreRowModel: getCoreRowModel(),
-})
+  const table = useReactTable({
+    data: data?.data || [],
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  })
 
   const handleYearChange = (value: string) => {
     onChange(value)
@@ -258,13 +256,15 @@ const table = useReactTable({
 
           <div className="flex items-center gap-3">
             <Calendar className="h-5 w-5 text-muted-foreground" />
-            <YearSelect academicYears={academicYears} selectedYear={selectedYear} onChange={handleYearChange} />
+            <YearSelect
+              academicYears={academicYears}
+              selectedYear={selectedYear}
+              onChange={handleYearChange}
+            />
 
-        
-
-                 <Select value={statusFilter} onValueChange={handleStatusChange}>
+            <Select value={statusFilter} onValueChange={handleStatusChange}>
               <SelectTrigger className="w-48">
-                <SelectValue placeholder="Estado " />
+                <SelectValue placeholder="Estado" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">
@@ -279,10 +279,10 @@ const table = useReactTable({
                     Pagas
                   </div>
                 </SelectItem>
-                <SelectItem value="unpaid">
+                <SelectItem value="pending">
                   <div className="flex items-center gap-2">
                     <XCircle className="h-4 w-4 text-red-600" />
-                    Não pagas
+                    Pendentes
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -295,18 +295,47 @@ const table = useReactTable({
         <TooltipProvider>
           <div className="rounded-md border">
             <Table>
-              {/* Cabeçalho da tabela (100% como tinhas) */}
-              <TableHeader>{/* ... teu código de header ... */}</TableHeader>
+              <TableHeader>
+                {table.getHeaderGroups().map(headerGroup => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header, index) => {
+                      const isLastColumn = index === headerGroup.headers.length - 1
+                      const isValueColumn = header.column.id === 'ValorAPagar'
+
+                      return (
+                        <TableHead
+                          key={header.id}
+                          className={`
+                            ${isLastColumn ? 'text-right pr-6' : 'text-center'}
+                            ${isValueColumn ? 'text-right pr-8' : ''}
+                            align-middle py-3 font-semibold text-gray-300 uppercase tracking-wide text-xs
+                          `}
+                        >
+                          {flexRender(header.column.columnDef.header, header.getContext())}
+                        </TableHead>
+                      )
+                    })}
+                  </TableRow>
+                ))}
+              </TableHeader>
 
               <TableBody>
                 {table.getRowModel().rows.length > 0 ? (
                   table.getRowModel().rows.map(row => (
                     <TableRow key={row.id} className="hover:bg-muted/50">
-                      {row.getVisibleCells().map((cell, i, arr) => {
-                        const isLast = i === arr.length - 1
-                        const isValue = cell.column.id === 'ValorAPagar'
+                      {row.getVisibleCells().map((cell, index) => {
+                        const isLastColumn = index === row.getVisibleCells().length - 1
+                        const isValueColumn = cell.column.id === 'ValorAPagar'
+
                         return (
-                          <TableCell key={cell.id} className={`${isLast ? 'text-right pr-6' : 'text-center'} ${isValue ? 'text-right pr-8 font-medium' : ''} py-3 text-sm`}>
+                          <TableCell
+                            key={cell.id}
+                            className={`
+                              ${isLastColumn ? 'text-right pr-6' : 'text-center'}
+                              ${isValueColumn ? 'text-right pr-8 font-medium' : ''}
+                              align-middle py-3 text-sm
+                            `}
+                          >
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </TableCell>
                         )
@@ -316,7 +345,7 @@ const table = useReactTable({
                 ) : (
                   <TableRow>
                     <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
-                      <p className="text-lg font-medium">Nenhuma fatura encontrada</p>
+                      <p className="text-lg font-medium">Nenhuma Nota encontrada</p>
                     </TableCell>
                   </TableRow>
                 )}
