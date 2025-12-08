@@ -1,24 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import {
-  
-  BookOpen,
-  Calendar,
- 
-  CreditCard,
-  FileText,
-  GraduationCap,
-  HandCoins,
-  HelpCircle,
-  LayoutDashboard,
-  Library,
-  LogOut,
-  MessageSquare,
-  Receipt,
-  User,
-
-} from 'lucide-react'
+import { LogOut } from 'lucide-react'
 
 import { NavMain } from '@/components/layout/components/nav-main'
 import { TeamSwitcher } from '@/components/layout/components/team-switcher'
@@ -32,39 +15,10 @@ import {
 } from '@/components/ui/sidebar'
 import { AuthStorage } from '@/storage/auth-storage'
 
-const data = {
-  navMain: [
-    { title: 'Dashboard', url: '/', icon: LayoutDashboard },
-    { title: 'Finanças', url: '/financas', icon: CreditCard },
-    { title: 'Pagamento', url: '/notas-pagamento', icon: Receipt },
-    { title: 'Matrícula', url: '/matricula', icon: GraduationCap },
-    { title: 'Horário', url: '/horario', icon: Calendar },
-    { title: 'Avaliações', url: '/avaliacoes', icon: FileText },
-    {
-      title: 'Serviços Acadêmicos',
-      url: '/servicos-academicos',
-      icon: BookOpen,
-    },
-  //  { title: 'Pré-Inscrição', url: '/pre-inscricao', icon: ClipboardList },
-    { title: 'Perfil', url: '/perfil', icon: User },
-  
-    /* {
-      title: 'Pagamento Antecipado',
-      url: '/pagamento-antecipado',
-      icon: Wallet,
-    }, */
-    { title: 'Disciplinas', url: '/disciplinas', icon: Library },
-
-    { title: 'Mensagens & Comunicados', url: '/mensagens', icon: MessageSquare },
-    { title: 'Suporte', url: '/suporte', icon: HelpCircle },
-
-  
-
-    { title: 'Negociação de Dívida', url: '/renegociacao', icon: HandCoins },
-  ],
-}
+import { useMenuNavigation } from '@/hooks/use-Menu-navigation'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const data = useMenuNavigation()
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>

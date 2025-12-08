@@ -4,3 +4,5 @@ export const StudentSituation = {
   OLD_WITHOUT_CURRENT_CONFIRMATION: 3, // Antigo estudante sem confirmação atual
   OLD_WITH_CURRENT_CONFIRMATION: 4, // Antigo estudante com confirmação atual
 } as const
+export type StudentSituationType =
+  (typeof StudentSituation)[keyof typeof StudentSituation]

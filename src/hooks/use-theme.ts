@@ -1,4 +1,3 @@
-
 import { ThemeProviderContext } from '@/context/theme-context'
 import { useContext } from 'react'
 
