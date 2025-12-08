@@ -63,7 +63,7 @@ export function useQueryProfile() {
       course: data.curso ?? data.curso_candidatura_designacao,
       polo: data.polo,
       email: data.email,
-      phone: '',
+      phone: data.telefone,
       address: '',
       curso: data.curso ?? data.curso_candidatura_designacao,
       codigo_curso: data.codigo_curso ?? data.curso_candidatura,

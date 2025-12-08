@@ -371,7 +371,7 @@ export const NotaPagamento = () => {
                                                         {nota.valor.toLocaleString('pt-PT')} Kz
                                                     </p>
                                                     <p className="text-sm text-muted-foreground">
-                                                        Data Nota Pagamento:{' '}
+                                                        Data de Pagamento:{' '}
                                                         {new Date(nota.dataFactura).toLocaleDateString(
                                                             'pt-PT',
                                                         )}

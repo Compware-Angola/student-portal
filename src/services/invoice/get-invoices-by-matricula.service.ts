@@ -46,12 +46,13 @@ interface ItemFatura {
 
 export type Invoice =  {
   Codigo: number;
-  DataFactura: string; // ISO string
+  DataFactura: string;
   TotalPreco: number;
   CodigoMatricula: number;
   Referencia: string;
   Desconto: number;
   Troco: number;
+  polo:string;
   totalIVA: number;
   TotalMulta: number;
   total_incidencia: number;
@@ -65,7 +66,7 @@ export type Invoice =  {
   NextFactura: string;
   next: string;
   texto_hash: string;
-  dataVencimento: string; // ISO string
+  dataVencimento: string; 
   polo_id: string;
   obs: string | null;
   hashValor: string;

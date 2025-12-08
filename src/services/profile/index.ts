@@ -13,7 +13,8 @@ export interface StudentProfile {
   data_nascimento: string
   email: string
   bilhete_identidade: string
-  contactos: string
+  telefone: string
+  numero_documento:string
   codigo_admissao: string
   data_admissao: string
   codigo_matricula: string

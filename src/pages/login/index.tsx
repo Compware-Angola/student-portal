@@ -45,7 +45,7 @@ export function Login() {
 
           <CardDescription>
             {activeTab === 'forgot'
-              ? 'Informe seu e-mail institucional para continuar'
+              ? 'Informe seu e-mail  para continuar'
               : 'Acesse sua conta acadêmica'}
           </CardDescription>
         </CardHeader>

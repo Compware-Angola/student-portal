@@ -55,7 +55,7 @@ export function useMutationNegotiation() {
       createDebitNegotation(enrollmentCode, payload),
 
     onSuccess: () => {
-      toast.success('Renegociação criada com sucesso!')
+      toast.success('Negociação criada com sucesso!')
       queryClient.invalidateQueries({
         queryKey: ['create-renegotiation-debit'],
       })
@@ -63,7 +63,7 @@ export function useMutationNegotiation() {
 
     onError: (error: unknown) => {
       const message =
-        error instanceof Error ? error.message : 'Erro ao criar Renegociação.'
+        error instanceof Error ? error.message : 'Erro ao criar Negociação de Dívida.'
       toast.error(message)
     },
   })
