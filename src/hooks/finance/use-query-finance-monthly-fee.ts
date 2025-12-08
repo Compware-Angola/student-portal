@@ -10,7 +10,7 @@ import type { MonthlyFeeQueryParams } from '@/services/finance/get-finance.servi
 interface UseQueryFinanceMonthlyFeeParams {
   academicYear?: string
   enrollmentCode?: string
-  // Adicione parâmetros de paginação se for usá-los no futuro (padrão é 1 e 10)
+ status:string
   page?: number
   limit?: number
 }
@@ -18,6 +18,7 @@ interface UseQueryFinanceMonthlyFeeParams {
 export function useQueryFinanceMonthlyFee({
   academicYear,
   enrollmentCode,
+  status,
   page = 1, // Definindo valor padrão aqui
   limit = 10, // Definindo valor padrão aqui
 }: UseQueryFinanceMonthlyFeeParams) {
@@ -27,7 +28,8 @@ export function useQueryFinanceMonthlyFee({
   // 1. Constrói o objeto de parâmetros que será passado para getmonthlyFee
   const params: MonthlyFeeQueryParams = {
     academicYear: academicYear as string, // Cast seguro devido ao isEnabled
-    enrollmentCode: enrollmentCode as string, // Cast seguro devido ao isEnabled
+    enrollmentCode: enrollmentCode as string, 
+    status:status,
     page,
     limit,
   }
