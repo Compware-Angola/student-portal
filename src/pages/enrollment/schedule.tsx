@@ -300,8 +300,8 @@ export const ScheduleSelectionDialog = ({
                                     <div className="flex items-center gap-2 min-w-[140px]">
                                       <Clock className="h-4 w-4 text-primary" />
                                       <span className="text-sm font-medium">
-                                        {aula.hora_inicio.slice(0, 5)} -{' '}
-                                        {aula.hora_termino.slice(0, 5)}
+                                        {aula.hora_inicio?.slice(0, 5)} -{' '}
+                                        {aula.hora_termino?.slice(0, 5)}
                                       </span>
                                     </div>
                                     <div className="flex items-center gap-2 min-w-[120px]">
