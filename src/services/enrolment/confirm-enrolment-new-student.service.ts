@@ -5,11 +5,11 @@ type ConfirmEnrolmentNewStudentBody = {
 }
 
 type EnrollmentResponse = {
-  Codigo_Matricula: number;
-  Numero_Aluno: number;
-  codresposta: number;
-  msgresposta: string;
-};
+  Codigo_Matricula: number
+  Numero_Aluno: number
+  codresposta: number
+  msgresposta: string
+}
 
 export function confirmEnrolmentNewStudent(
   params: ConfirmEnrolmentNewStudentBody,
