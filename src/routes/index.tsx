@@ -9,7 +9,6 @@ export function AppRoutes() {
       <Routes>
         {AuthRoutes()}
         {MainRoutes()}
-
         <Route path="*" element={<FallbackRoute />} />
       </Routes>
     </BrowserRouter>

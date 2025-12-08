@@ -7,6 +7,7 @@ import {
 import { useQueryStudentSituation } from '@/hooks/student/use-query-student-situation'
 import { AuthStorage } from '@/storage/auth-storage'
 import { mapStudentSituation } from '@/utils/map-student-situation'
+import { useState } from 'react'
 
 type StudentSituationProviderProps = {
   children: React.ReactNode
@@ -15,9 +16,13 @@ type StudentSituationProviderProps = {
 export function StudentSituationProvider({
   children,
 }: StudentSituationProviderProps) {
+  const [preEnrollmentCode, setPreEnrollmentCode] = useState(
+    AuthStorage.get()?.codigoPreinscricao,
+  )
+
   const { isLoading, isFetching, isError, data, error, refetch } =
     useQueryStudentSituation({
-      preErrolmentCode: AuthStorage.get()?.codigoPreinscricao,
+      preErrolmentCode: preEnrollmentCode,
     })
 
   const isProcessing = isLoading || isFetching
@@ -29,6 +34,7 @@ export function StudentSituationProvider({
     isLoading: isLoading || isFetching,
     hasError: isError,
     refetch,
+    setPreEnrollmentCode,
   }
 
   return (
