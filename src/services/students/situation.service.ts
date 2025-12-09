@@ -1,7 +1,7 @@
 import { apexApi } from '@/lib/apex-api'
 
 export type StudentSituationResponse = {
-  codigo_status: string | number
+  codigo_status: number
   codigo_matricula: string
 }
 

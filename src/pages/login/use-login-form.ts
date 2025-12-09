@@ -6,6 +6,7 @@ import { login } from '@/services/auth/login.service'
 import { AuthStorage } from '@/storage/auth-storage'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { authApi } from '@/lib/auth-api'
+import { useStudentSituation } from '@/hooks/use-student-stitiation'
 
 export const FormSchema = z.object({
   username: z.string().min(1, { message: 'Nome de usuário é obrigatório' }),
@@ -15,6 +16,7 @@ export const FormSchema = z.object({
 export type LoginFormData = z.infer<typeof FormSchema>
 
 export function useLoginForm() {
+  const { setPreEnrollmentCode } = useStudentSituation()
   const navigate = useNavigate()
 
   const form = useForm<LoginFormData>({
@@ -41,6 +43,7 @@ export function useLoginForm() {
         user_id: response.user_id,
         user_name: response.user_name,
       })
+      setPreEnrollmentCode(response.codigoPreinscricao)
       toast.success('Autenticado com sucesso!')
 
       navigate('/')

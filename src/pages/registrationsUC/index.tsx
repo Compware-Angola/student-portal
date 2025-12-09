@@ -3,7 +3,7 @@ import { EnrollmentHeader } from './components/enrollment-header'
 import { EnrollmentResume } from './components/enrollment-resume'
 import { EnrollmentSection } from './components/enrollment-section'
 import { EnrollmentSummaryCards } from './components/enrollment-summary-cards'
-import { EnrollmentProvider } from './context/enrollment.provider'
+import { RegistrationsUCProvider } from './context/registrations-uc.provider'
 import { useEnrollment } from './hooks/use-enrollment'
 import { EnrollmentSkeleton } from './components/enrollment-skeleton'
 
@@ -11,7 +11,7 @@ import { useEffect } from 'react'
 import { StudentSituation } from '@/constants/student-situation'
 import { PaymentAlert } from '@/components/payment-alert'
 
-function EnrollmentContent() {
+function RegistrationsUCContent() {
   const {
     subject,
     isLoadingProfileData,
@@ -19,6 +19,8 @@ function EnrollmentContent() {
     isLoadingStudentCurriculumPlanPendents,
     isErrorProfileData,
     isErrorStudentCurriculumPlan,
+    isErrorStudentCurriculumPlanPendents,
+    pendingSubjects,
     isLoadingAcademmicYear,
     studentSituation,
     isLoadingStudenttatistics,
@@ -33,7 +35,14 @@ function EnrollmentContent() {
     if (isErrorStudentCurriculumPlan) {
       toast.error('Erro ao carregar as grades curriculares')
     }
-  }, [isErrorProfileData, isErrorStudentCurriculumPlan])
+    if (isErrorStudentCurriculumPlanPendents) {
+      toast.error('Erro ao carregar as grandes curriculares pendentes')
+    }
+  }, [
+    isErrorProfileData,
+    isErrorStudentCurriculumPlan,
+    isErrorStudentCurriculumPlanPendents,
+  ])
   const enrollmentState =
     StudentSituation.NEW_WITH_CURRENT_CONFIRMATION ===
       Number(studentSituation?.codigo_status) ||
@@ -67,6 +76,11 @@ function EnrollmentContent() {
             </div>
             <div className="space-y-6">
               <EnrollmentSection
+                label="Pendentes"
+                subjects={pendingSubjects}
+                secktionKey="pendents"
+              />
+              <EnrollmentSection
                 label="Novas"
                 subjects={subject}
                 secktionKey="new"
@@ -81,10 +95,10 @@ function EnrollmentContent() {
   )
 }
 
-export function Enrollment() {
+export function RegistrationsUC() {
   return (
-    <EnrollmentProvider>
-      <EnrollmentContent />
-    </EnrollmentProvider>
+    <RegistrationsUCProvider>
+      <RegistrationsUCContent />
+    </RegistrationsUCProvider>
   )
 }

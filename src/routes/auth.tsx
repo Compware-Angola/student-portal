@@ -11,20 +11,16 @@ export function AuthRoutes() {
     <Route path="/auth">
       <Route index element={<Navigate to="/auth/login" replace />} />
       <Route
-          path="renovar-senha/:token"
-          element={
-            isAuthenticated ? (
-              <Navigate to="/" replace />
-            ) : (
-              <RenovarSenha />
-            )
-          }
-        />
+        path="renovar-senha/:token"
+        element={
+          isAuthenticated ? <Navigate to="/" replace /> : <RenovarSenha />
+        }
+      />
       <Route
         path="login"
         element={isAuthenticated ? <Navigate to="/" replace /> : <Login />}
       />
-        <Route
+      <Route
         path="login"
         element={isAuthenticated ? <Navigate to="/" replace /> : <Login />}
       />

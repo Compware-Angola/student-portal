@@ -1,28 +1,32 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { useState } from 'react'
 
 interface PaginationProps {
   last: boolean
-  totalPages: number;
-  onPageChange: (page: number) => void;
+  totalPages: number
+  onPageChange: (page: number) => void
 }
 
-export const Pagination = ({ totalPages, onPageChange, last }: PaginationProps) => {
-  const [currentPage,setCurrentPage] = useState(1)
+export const Pagination = ({
+  totalPages,
+  onPageChange,
+  last,
+}: PaginationProps) => {
+  const [currentPage, setCurrentPage] = useState(1)
   const handlePrevious = () => {
     if (currentPage > 1) {
-      onPageChange(currentPage - 1);
+      onPageChange(currentPage - 1)
       setCurrentPage(currentPage - 1)
     }
-  };
+  }
 
   const handleNext = () => {
     if (currentPage < totalPages) {
-      onPageChange(currentPage + 1);
+      onPageChange(currentPage + 1)
       setCurrentPage(currentPage + 1)
     }
-  };
+  }
 
   return (
     <div className="flex items-center justify-center gap-4">
@@ -50,5 +54,5 @@ export const Pagination = ({ totalPages, onPageChange, last }: PaginationProps) 
         <ChevronRight className="h-5 w-5" />
       </Button>
     </div>
-  );
-};
+  )
+}
