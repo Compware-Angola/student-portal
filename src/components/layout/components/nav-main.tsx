@@ -14,7 +14,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from '@/components/ui/sidebar'
-import { useNavigate, useLocation, matchPath } from 'react-router-dom'
+import { useNavigate, useLocation, matchPath, Link } from 'react-router-dom'
 import clsx from 'clsx'
 
 export function NavMain({
@@ -28,6 +28,7 @@ export function NavMain({
     items?: {
       title: string
       url: string
+      icon?: LucideIcon
       isActive?: boolean
     }[]
   }[]
@@ -46,7 +47,7 @@ export function NavMain({
             location.pathname,
           )
 
-          // ✅ ITEM COM SUBMENU
+          // ITEM COM SUBMENU
           if (hasSubItems) {
             return (
               <Collapsible
@@ -62,7 +63,7 @@ export function NavMain({
                       className={clsx(
                         'transition-colors',
                         isActive &&
-                          'bg-primary text-primary-foreground hover:bg-primary/90',
+                        'bg-primary text-primary-foreground hover:bg-primary/90',
                       )}
                     >
                       {item.icon && <item.icon />}
@@ -76,18 +77,23 @@ export function NavMain({
                       {item.items?.map((subItem) => {
                         const subActive =
                           subItem.isActive || location.pathname === subItem.url
+
                         return (
                           <SidebarMenuSubItem key={subItem.title}>
                             <SidebarMenuSubButton
                               asChild
                               className={clsx(
                                 subActive &&
-                                  'bg-primary text-primary-foreground hover:bg-primary/90',
+                                'bg-primary text-primary-foreground hover:bg-primary/90',
                               )}
                             >
-                              <a href={subItem.url}>
+                              <Link to={subItem.url}>
+                                {subItem.icon && (
+                                  <subItem.icon className="mr-2 h-4 w-4" />
+                                )}
                                 <span>{subItem.title}</span>
-                              </a>
+                              </Link>
+
                             </SidebarMenuSubButton>
                           </SidebarMenuSubItem>
                         )
@@ -99,7 +105,7 @@ export function NavMain({
             )
           }
 
-          // ✅ ITEM SEM SUBMENU
+          // ITEM SEM SUBMENU
           return (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
@@ -108,7 +114,7 @@ export function NavMain({
                 className={clsx(
                   'transition-colors',
                   isActive &&
-                    'bg-primary text-primary-foreground hover:bg-primary/90',
+                  'bg-primary text-primary-foreground hover:bg-primary/90',
                 )}
               >
                 {item.icon && <item.icon />}
