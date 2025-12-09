@@ -6,6 +6,7 @@ import { useStudentSituation } from './use-student-stitiation'
 import {
   BookOpen,
   Calendar,
+  ClipboardList,
   CreditCard,
   FileText,
   GraduationCap,
@@ -63,6 +64,7 @@ export function useMenuNavigation() {
         url: '/mensagens',
         icon: MessageSquare,
       },
+      { title: 'Calendário Acadêmico', url: '/calendario-academico', icon: ClipboardList },
       { title: 'Suporte', url: '/suporte', icon: HelpCircle },
       {
         title: 'Negociação de Dívida',
