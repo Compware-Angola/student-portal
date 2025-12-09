@@ -7,6 +7,7 @@ import type { MonthlyFeeDataResponse } from '@/types/finance-api-response'
 export interface MonthlyFeeQueryParams {
     academicYear: string; // Vai como codAnoLectivo
     enrollmentCode: string; // Vai como codigo_matricula
+    status:string
     page?: number;
     limit?: number;
 }
@@ -22,6 +23,7 @@ export interface MonthlyFeeQueryParams {
 export async function getmonthlyFee({
     academicYear,
     enrollmentCode,
+    status,
     page = 1, // Valores padrão para paginação
     limit = 10,
 }: MonthlyFeeQueryParams): Promise<MonthlyFeeDataResponse> {
@@ -31,7 +33,8 @@ export async function getmonthlyFee({
         page: page.toString(),
         limit: limit.toString(),
         codigo_matricula: enrollmentCode, // Mapeamento correto
-        codAnoLectivo: academicYear,      // Mapeamento correto
+        codAnoLectivo: academicYear,  
+        status:status    // Mapeamento correto
     });
     
     // 2. Constrói a URL final: /financial/monthly-fees?codigo_matricula=...&codAnoLectivo=...

@@ -99,6 +99,7 @@ export type InvoiceResponse = {
 export type InvoiceSearchParams = {
   page?: number
   limit?: number
+  status?:number
   enrollmentCode: string
   academicYear:string
 }
@@ -106,12 +107,13 @@ export type InvoiceSearchParams = {
 export async function getInvoicesByMatricula(
   searchParams: InvoiceSearchParams,
 ): Promise<InvoiceResponse> {
-  console.log('getInvoicesByMatricula', searchParams)
+
   const response = await invoiceApi
     .get('invoices/by-matricula', {
       searchParams: {
         codigoMatricula: searchParams.enrollmentCode,
         academicYear: searchParams.academicYear,
+        status:searchParams.status,
         page: searchParams.page,
         limit: searchParams.limit,
       },
