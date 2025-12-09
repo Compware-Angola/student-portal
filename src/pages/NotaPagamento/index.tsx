@@ -20,11 +20,10 @@ import {
 import { useQueryPayments } from '@/hooks/finance/use-query-finance-payments'
 import { Loader2 } from 'lucide-react'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
-import { Select, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { SelectContent } from '@radix-ui/react-select'
 import { useEffect, useState } from 'react'
 import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-academic-year-student'
 import { dedupeAcademicYears } from '../finance'
+import { YearSelect } from '@/components/year-select'
 
 interface NotaPagamento {
     id: string
@@ -91,29 +90,31 @@ export const NotaPagamento = () => {
 
 
 
-    const {
-        data: pagamentosData,
-        isLoading,
-        isError
-    } = useQueryPayments({
-        academicYear: profileData?.confirmacoes[0]?.ano_lectivo,
-        preRegistrationCode: profileData?.codigo_preinscricao,
-        // Adicione page e limit se for paginar
-        page: 1,
-        limit: 100
-    })
 
-    // Mapear dados da API para o formato do componente
-    const notas: NotaPagamento[] = pagamentosData?.data
-        ? mapApiToNotaPagamento(pagamentosData.data)
-        : []
+  
 
 
   const [selectedYear, setSelectedYear] = useState<string | undefined>(
     undefined,
   )
 
-  const { data: academicYearData, isLoading: isAcademicYearLoading } =
+    const {
+        data: pagamentosData,
+        isLoading,
+        isError
+    } = useQueryPayments({
+        academicYear: selectedYear,
+        preRegistrationCode: profileData?.codigo_preinscricao,
+     
+        page: 1,
+        limit: 10
+    })
+      // Mapear dados da API para o formato do componente
+    const notas: NotaPagamento[] = pagamentosData?.data
+        ? mapApiToNotaPagamento(pagamentosData.data)
+        : []
+
+  const { data: academicYearData } =
     useQueryAcademicYearStudent(profileData?.enrollmentCode)
   const academicYears = dedupeAcademicYears(academicYearData?.anolectivos)
   useEffect(() => {
@@ -315,16 +316,11 @@ export const NotaPagamento = () => {
   <div className="flex items-center gap-3">
     <Calendar className="h-5 w-5 text-muted-foreground" />
     
-    <Select>
-      <SelectTrigger className="w-[180px]">
-        <SelectValue placeholder="Ano Letivo" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="2024-2025">2024-2025</SelectItem>
-        <SelectItem value="2023-2024">2023-2024</SelectItem>
-        <SelectItem value="2022-2023">2022-2023</SelectItem>
-      </SelectContent>
-    </Select>
+    <YearSelect
+              academicYears={academicYears}
+              selectedYear={selectedYear}
+              onChange={setSelectedYear}
+            />
   </div>
 </div>
 
