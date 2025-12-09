@@ -31,7 +31,18 @@ export function useMenuNavigation() {
   return {
     navMain: [
       { title: 'Dashboard', url: '/', icon: LayoutDashboard },
-      { title: 'Finanças', url: '/financas', icon: CreditCard },
+      {
+        title: 'Finanças',
+        url: '/financas',
+        icon: CreditCard,
+        items: [
+          {
+            title: 'Histórico de Pagamento',
+            url: '/notas-pagamento',
+            icon: Receipt,
+          },
+        ],
+      },
       { title: 'Pagamento', url: '/notas-pagamento', icon: Receipt },
       {
         title: enrollmentTitle,
