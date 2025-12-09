@@ -100,7 +100,7 @@ function Content() {
             enrollmentCode={profileData.enrollmentCode}
             onYearChange={setSelectedYear}
             academicYears={academicYears}
-            selectedYear={selectedYear as any  }
+            selectedYear={selectedYear as any}
           />
         </TabsContent>
 
@@ -124,7 +124,7 @@ export function Finance() {
     </FinanceProvider>
   )
 }
- export function dedupeAcademicYears(
+export function dedupeAcademicYears(
   list?: { codigo: string | number; designacao: string; estado: string }[],
 ) {
   if (!list) return []

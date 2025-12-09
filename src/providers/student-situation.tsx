@@ -20,18 +20,19 @@ export function StudentSituationProvider({
     AuthStorage.get()?.codigoPreinscricao,
   )
 
-  const { isLoading, isFetching, isError, data, error, refetch } =
-    useQueryStudentSituation({
+  const { isLoading, isError, data, error, refetch } = useQueryStudentSituation(
+    {
       preErrolmentCode: preEnrollmentCode,
-    })
+    },
+  )
 
-  const isProcessing = isLoading || isFetching
+  const isProcessing = isLoading
   const mapped = mapStudentSituation(data?.codigo_status)
 
   const value: StudentSituationValue = {
     situation: mapped?.situation ?? null,
     studentType: mapped?.studentType ?? null,
-    isLoading: isLoading || isFetching,
+    isLoading: isLoading,
     hasError: isError,
     refetch,
     setPreEnrollmentCode,
