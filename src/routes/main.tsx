@@ -64,7 +64,7 @@ export function MainRoutes() {
       <Route path="/mensagens" element={<MensagensNotificacoes />} />
       <Route path="/suporte" element={<Suporte />} />
       <Route path="/disciplinas" element={<DisciplinasMatriculadas />} />
-      <Route path="/notas-pagamento" element={<NotaPagamento />} />
+      <Route path="/financas/notas-pagamento" element={<NotaPagamento />} />
     </Route>
   )
 }

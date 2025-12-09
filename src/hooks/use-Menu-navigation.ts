@@ -38,12 +38,12 @@ export function useMenuNavigation() {
         items: [
           {
             title: 'Histórico de Pagamento',
-            url: '/notas-pagamento',
+            url: '/financas/notas-pagamento',
             icon: Receipt,
           },
         ],
       },
-      { title: 'Pagamento', url: '/notas-pagamento', icon: Receipt },
+
       {
         title: enrollmentTitle,
         url: enrollmentPath,
