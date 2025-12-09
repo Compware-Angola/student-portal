@@ -163,7 +163,6 @@ const styles = StyleSheet.create({
 
 function PaymentReceiptDocument({
   invoice,
-
 }: {
   invoice: Invoice
   academicYear: string
@@ -172,34 +171,32 @@ function PaymentReceiptDocument({
     <Document>
       <Page size="A4" style={styles.page}>
         {/* ---------- Cabeçalho ---------- */}
-       <View style={styles.header}>
-  <Image style={styles.logo} src="/logo_uma.png" />
+        <View style={styles.header}>
+          <Image style={styles.logo} src="/logo_uma.png" />
 
-  <View style={styles.companyInfo}>
-    <Text style={styles.companyName}>
-      Universidade Metodista de Angola
-    </Text>
+          <View style={styles.companyInfo}>
+            <Text style={styles.companyName}>
+              Universidade Metodista de Angola
+            </Text>
 
-    <Text style={[styles.companyDetails, { marginTop: 4 }]}>
-      Luanda - Luanda.
-    </Text>
-   <Text style={[styles.companyDetails, { marginTop: 4 }]}>
-      Rua Nossa Senhora da Muxima Nº 10, Bairro Kinaxixi, Luanda.
-    </Text>
-    <Text style={[styles.companyDetails, { marginTop: 4 }]}>
-      NIF: 5401150865
-    </Text>
-    <Text style={[styles.companyDetails, { marginTop: 4 }]}>
-      Tel: +244 912131138 / +244 947716133 / +244 942364667
-    </Text>
+            <Text style={[styles.companyDetails, { marginTop: 4 }]}>
+              Luanda - Luanda.
+            </Text>
+            <Text style={[styles.companyDetails, { marginTop: 4 }]}>
+              Rua Nossa Senhora da Muxima Nº 10, Bairro Kinaxixi, Luanda.
+            </Text>
+            <Text style={[styles.companyDetails, { marginTop: 4 }]}>
+              NIF: 5401150865
+            </Text>
+            <Text style={[styles.companyDetails, { marginTop: 4 }]}>
+              Tel: +244 912131138 / +244 947716133 / +244 942364667
+            </Text>
 
-    <Text style={[styles.companyDetails, { marginTop: 4 }]}>
-      Email: geral@uma.co.ao
-    </Text>
-  </View>
-</View>
-
-
+            <Text style={[styles.companyDetails, { marginTop: 4 }]}>
+              Email: geral@uma.co.ao
+            </Text>
+          </View>
+        </View>
 
         {/* ---------- Título ---------- */}
         <Text style={styles.title}>Nota de Pagamento</Text>
@@ -228,11 +225,11 @@ function PaymentReceiptDocument({
 
           <View style={styles.infoRow}>
             <Text>
-              <Text style={styles.label}>Ano Lectivo:</Text> {invoice.ano_lectivo}
+              <Text style={styles.label}>Ano Lectivo:</Text>{' '}
+              {invoice.ano_lectivo}
             </Text>
             <Text>
-              <Text style={styles.label}>Polo:</Text>{' '}
-              {invoice.polo}
+              <Text style={styles.label}>Polo:</Text> {invoice.polo}
             </Text>
           </View>
         </View>

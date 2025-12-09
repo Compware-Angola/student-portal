@@ -1,4 +1,3 @@
-
 import {
   Page,
   Text,
@@ -62,7 +61,11 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   section: { marginBottom: 16 },
-  row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
   label: { fontWeight: 'bold', color: '#222' },
   badge: {
     paddingHorizontal: 8,
@@ -101,7 +104,12 @@ const styles = StyleSheet.create({
     borderColor: '#0d1b48',
     borderRadius: 6,
   },
-  totalText: { fontSize: 14, fontWeight: 'bold', color: '#0d1b48', textAlign: 'right' },
+  totalText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#0d1b48',
+    textAlign: 'right',
+  },
   footer: {
     position: 'absolute',
     bottom: 30,
@@ -115,7 +123,9 @@ const styles = StyleSheet.create({
 
 // --------------------------------------------------------------------- Helper
 const formatCurrency = (value: number) =>
-  new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA' }).format(value)
+  new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA' }).format(
+    value,
+  )
 
 const metodoLabel = (metodo?: string) => {
   const map: Record<string, string> = {
@@ -127,7 +137,7 @@ const metodoLabel = (metodo?: string) => {
     por_referencia: 'Referência Multicaixa',
     tpa: 'TPA',
   }
-  return metodo ? map[metodo] ?? metodo : '—'
+  return metodo ? (map[metodo] ?? metodo) : '—'
 }
 
 const statusBadgeStyle = (status: string) => {
@@ -144,17 +154,27 @@ const statusBadgeStyle = (status: string) => {
 }
 
 // --------------------------------------------------------------------- Documento PDF
- const ComprovantePagamentoDocument = ({ payment }: { payment: NotaPagamento }) => (
+const ComprovantePagamentoDocument = ({
+  payment,
+}: {
+  payment: NotaPagamento
+}) => (
   <Document>
     <Page size="A4" style={styles.page}>
       {/* Cabeçalho */}
       <View style={styles.header}>
         <Image style={styles.logo} src="/logo_uma.png" />
         <View style={styles.companyInfo}>
-          <Text style={styles.companyName}>Universidade Metodista de Angola</Text>
-          <Text style={styles.companyDetails}>Rua Nossa Senhora da Muxima Nº 10, Kinaxixi, Luanda</Text>
+          <Text style={styles.companyName}>
+            Universidade Metodista de Angola
+          </Text>
+          <Text style={styles.companyDetails}>
+            Rua Nossa Senhora da Muxima Nº 10, Kinaxixi, Luanda
+          </Text>
           <Text style={styles.companyDetails}>NIF: 5401150865</Text>
-          <Text style={styles.companyDetails}>Tel: +244 912 131 138 | Email: geral@uma.co.ao</Text>
+          <Text style={styles.companyDetails}>
+            Tel: +244 912 131 138 | Email: geral@uma.co.ao
+          </Text>
         </View>
       </View>
 
@@ -174,19 +194,18 @@ const statusBadgeStyle = (status: string) => {
         </View>
 
         <View style={styles.row}>
-         <View style={styles.row}>
-  <Text>
-    <Text style={styles.label}>Data de Pagamento:</Text>{' '}
-    {formatDate(payment.dataEmissao)}
-  </Text>
-
-</View>
+          <View style={styles.row}>
+            <Text>
+              <Text style={styles.label}>Data de Pagamento:</Text>{' '}
+              {formatDate(payment.dataEmissao)}
+            </Text>
+          </View>
         </View>
 
         <View style={styles.row}>
           <Text>
             <Text style={styles.label}>Estado:</Text>{' '}
-            <View style={[styles.badge, statusBadgeStyle("concluido")]}>
+            <View style={[styles.badge, statusBadgeStyle('concluido')]}>
               {payment.status === 'concluido'
                 ? 'Concluído'
                 : payment.status === 'pendente'
@@ -197,7 +216,8 @@ const statusBadgeStyle = (status: string) => {
             </View>
           </Text>
           <Text>
-            <Text style={styles.label}>Método:</Text> {metodoLabel(payment.metodoPagamento)}
+            <Text style={styles.label}>Método:</Text>{' '}
+            {metodoLabel(payment.metodoPagamento)}
           </Text>
         </View>
       </View>
@@ -206,14 +226,20 @@ const statusBadgeStyle = (status: string) => {
       {payment.descricao && (
         <View style={styles.section}>
           <Text style={styles.label}>Descrição</Text>
-          <Text style={{ marginTop: 4, fontSize: 11 }}>{payment.descricao}</Text>
+          <Text style={{ marginTop: 4, fontSize: 11 }}>
+            {payment.descricao}
+          </Text>
         </View>
       )}
 
       {/* Tabela de valores */}
       <View style={styles.table}>
         <View style={[styles.tableRow, styles.tableHeader]}>
-          <Text style={[styles.cellHeader, { width: '70%', textAlign: 'left' }]}>Descrição</Text>
+          <Text
+            style={[styles.cellHeader, { width: '70%', textAlign: 'left' }]}
+          >
+            Descrição
+          </Text>
           <Text style={[styles.cellHeader, { width: '30%' }]}>Valor</Text>
         </View>
         <View style={styles.tableRow}>
@@ -228,19 +254,30 @@ const statusBadgeStyle = (status: string) => {
 
       {/* Total */}
       <View style={styles.totalBox}>
-        <Text style={styles.totalText}>Total Pago: {formatCurrency(payment.valor)}</Text>
+        <Text style={styles.totalText}>
+          Total Pago: {formatCurrency(payment.valor)}
+        </Text>
       </View>
 
       {/* Aviso */}
-      <View style={{ marginTop: 30, padding: 12, backgroundColor: '#fef3c7', borderRadius: 6 }}>
+      <View
+        style={{
+          marginTop: 30,
+          padding: 12,
+          backgroundColor: '#fef3c7',
+          borderRadius: 6,
+        }}
+      >
         <Text style={{ fontSize: 10, textAlign: 'center', color: '#92400e' }}>
-          Este documento serve apenas como comprovativo de pagamento. Não possui validade fiscal para efeitos contabilísticos.
+          Este documento serve apenas como comprovativo de pagamento. Não possui
+          validade fiscal para efeitos contabilísticos.
         </Text>
       </View>
 
       {/* Rodapé */}
       <Text style={styles.footer}>
-        Emitido automaticamente pela Universidade Metodista de Angola © {new Date().getFullYear()}
+        Emitido automaticamente pela Universidade Metodista de Angola ©{' '}
+        {new Date().getFullYear()}
       </Text>
     </Page>
   </Document>
@@ -278,19 +315,24 @@ export function ComprovantePagamento({
           fileName={`Comprovativo_Pagamento_UMA_${payment.numero}.pdf`}
         >
           {({ loading }) => (
-           <Button disabled={loading} size="sm" className="w-full sm:w-auto" variant={loading ? "secondary" : "default"}>
-  {loading ? (
-    <>
-      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-      A gerar PDF...
-    </>
-  ) : (
-    <>
-      <Download className="mr-2 h-4 w-4" />
-      Descarregar Comprovativo
-    </>
-  )}
-</Button>
+            <Button
+              disabled={loading}
+              size="sm"
+              className="w-full sm:w-auto"
+              variant={loading ? 'secondary' : 'default'}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />A gerar
+                  PDF...
+                </>
+              ) : (
+                <>
+                  <Download className="mr-2 h-4 w-4" />
+                  Descarregar Comprovativo
+                </>
+              )}
+            </Button>
           )}
         </PDFDownloadLink>
       )}
