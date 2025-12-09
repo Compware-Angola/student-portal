@@ -2,10 +2,10 @@
 
 import * as React from 'react'
 import {
-  
+
   BookOpen,
   Calendar,
- 
+
   CreditCard,
   FileText,
   GraduationCap,
@@ -17,6 +17,7 @@ import {
   MessageSquare,
   Receipt,
   User,
+  ClipboardList
 
 } from 'lucide-react'
 
@@ -47,18 +48,19 @@ const data = {
     },
   //  { title: 'Pré-Inscrição', url: '/pre-inscricao', icon: ClipboardList },
     { title: 'Perfil', url: '/perfil', icon: User },
-  
+
     /* {
       title: 'Pagamento Antecipado',
       url: '/pagamento-antecipado',
       icon: Wallet,
     }, */
     { title: 'Disciplinas', url: '/disciplinas', icon: Library },
+    { title: 'Calendário Acadêmico', url: '/calendario-academico', icon: ClipboardList },
 
     { title: 'Mensagens & Comunicados', url: '/mensagens', icon: MessageSquare },
     { title: 'Suporte', url: '/suporte', icon: HelpCircle },
 
-  
+
 
     { title: 'Renegociação', url: '/renegociacao', icon: HandCoins },
   ],

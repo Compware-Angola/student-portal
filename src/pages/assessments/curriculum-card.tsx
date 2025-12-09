@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Table,
@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils'
 import { useQueryCurrentCurriculumPlanSudent } from '@/hooks/curriculum/use-query-current-curriculum-plan-student'
 import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-academic-year-student'
 import { YearSelect } from '@/components/year-select'
+import { SemesterSelect } from '@/components/SemesterSelect'
 
 /* =======================
    Componente Badge de Estado
@@ -82,6 +83,7 @@ export function CurriculumCard({
   const [selectedYear, setSelectedYear] = useState<string | undefined>(
     undefined,
   )
+  const [selectedSemester, setSelectedSemester] = useState<string | undefined>(undefined)
 
   const {
     data: studentCurriculumPlanData,
@@ -89,6 +91,8 @@ export function CurriculumCard({
   } = useQueryCurrentCurriculumPlanSudent({
     academicYearCode: selectedYear,
     preEnrollmentCode,
+    semester:selectedSemester
+
   })
 
   const { data: academicYearData } = useQueryAcademicYearStudent(enrollmentCode)
@@ -104,16 +108,30 @@ export function CurriculumCard({
     }
   }, [academicYears, setSelectedYear])
 
+  const onSelectSemester = useCallback((codeSemester: string | undefined) => {
+    if (codeSemester == '3') {
+      setSelectedSemester(undefined)
+    }
+    else {
+      setSelectedSemester(codeSemester)
+    }
+  },[selectedSemester])
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Notas Finais</CardTitle>
-        <div className="mt-4">
-          <YearSelect
-            academicYears={academicYears}
-            selectedYear={selectedYear}
-            onChange={setSelectedYear}
-          />
+        <div className="flex items-center justify-between">
+          <CardTitle>Notas Finais</CardTitle>
+          <div className="flex items-center ">
+            <div className='mr-1'>
+              <YearSelect
+                academicYears={academicYears}
+                selectedYear={selectedYear}
+                onChange={setSelectedYear}
+              />
+            </div>
+            <SemesterSelect onChange={onSelectSemester} />
+          </div>
         </div>
       </CardHeader>
 
@@ -146,7 +164,7 @@ export function CurriculumCard({
   )
 }
 
-function dedupeAcademicYears(
+export function dedupeAcademicYears(
   list?: { codigo: string | number; designacao: string; estado: string }[],
 ) {
   if (!list) return []

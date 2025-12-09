@@ -25,7 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-
+import { Input } from '@/components/ui/input'
 interface ServiceItem {
   codigo: string
   descricao: string
@@ -36,6 +36,9 @@ interface ServiceItem {
 export function AcademicServices() {
   const [selectedServices, setSelectedServices] = useState<string[]>([])
   const [showSuccessDialog, setShowSuccessDialog] = useState(false)
+  const [searchService, setSearchService] = useState<string | undefined>(
+    undefined,
+  )
 
   const { data: academicYearData } = useQueryCurrentAcademicYear()
   const {
@@ -187,6 +190,17 @@ export function AcademicServices() {
       alert('Erro ao gerar a fatura. Tente novamente.')
     }
   }
+    // === Filtros para fazer um find ===
+  const filteredServices = useMemo(() => {
+    if (!servicesData?.servicos) return []
+    if (!searchService || searchService.trim() === '') {
+      return servicesData.servicos
+    }
+    const query = searchService.toLowerCase()
+    return servicesData.servicos.filter((service: ServiceItem) =>
+      service.descricao.toLowerCase().includes(query),
+    )
+  }, [servicesData, searchService])
 
   // === Estados de Loading / Erro ===
   if (loadingProfile || loadingServices) {
@@ -203,6 +217,7 @@ export function AcademicServices() {
     return <EmptyState />
   }
 
+
   // === Renderização Principal ===
   return (
     <>
@@ -218,17 +233,29 @@ export function AcademicServices() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5" />
-              Serviços Disponíveis
-            </CardTitle>
-            <CardDescription>
-              Marque os itens que deseja faturar.
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <BookOpen className="h-5 w-5" />
+                  Serviços Disponíveis
+                </CardTitle>
+                <CardDescription>
+                  Marque os itens que deseja faturar.
+                </CardDescription>
+              </div>
+              <div>
+                <Input
+                  id="servico"
+                  placeholder="Pesquisar por Serviço"
+                  value={searchService}
+                  onChange={(e) => setSearchService(e.target.value)}
+                />
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {servicesData.servicos.map((service) => (
+              {filteredServices.map((service) => (
                 <ServiceItemRow
                   key={service.codigo}
                   service={service}
