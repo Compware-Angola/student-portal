@@ -59,18 +59,18 @@ export function NavMain({
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton
+                      onClick={() => navigate(item.url)}
                       tooltip={item.title}
                       className={clsx(
                         'transition-colors',
                         isActive &&
-                        'bg-primary text-primary-foreground hover:bg-primary/90',
+                          'bg-primary text-primary-foreground hover:bg-primary/90',
                       )}
                     >
                       {item.icon && <item.icon />}
-                      <Link to={item.url}>
-
+                      <span>
                         <span>{item.title}</span>
-                      </Link>
+                      </span>
                       <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
@@ -87,7 +87,7 @@ export function NavMain({
                               asChild
                               className={clsx(
                                 subActive &&
-                                'bg-primary text-primary-foreground hover:bg-primary/90',
+                                  'bg-primary text-primary-foreground hover:bg-primary/90',
                               )}
                             >
                               <Link to={subItem.url}>
@@ -96,7 +96,6 @@ export function NavMain({
                                 )}
                                 <span>{subItem.title}</span>
                               </Link>
-
                             </SidebarMenuSubButton>
                           </SidebarMenuSubItem>
                         )
@@ -117,7 +116,7 @@ export function NavMain({
                 className={clsx(
                   'transition-colors',
                   isActive &&
-                  'bg-primary text-primary-foreground hover:bg-primary/90',
+                    'bg-primary text-primary-foreground hover:bg-primary/90',
                 )}
               >
                 {item.icon && <item.icon />}
