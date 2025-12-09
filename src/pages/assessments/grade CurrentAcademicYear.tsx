@@ -6,6 +6,7 @@ import {
   getExpandedRowModel,
   flexRender,
   type ColumnDef,
+  type ExpandedState,
 } from '@tanstack/react-table'
 import {
   Table,
@@ -21,7 +22,11 @@ import { format } from 'date-fns'
 import { pt } from 'date-fns/locale'
 import { useQueryStudentAssessmentsByCurrentAcademicYear } from '@/hooks/assessments/use-query-student-assessments-by-current-academic-year'
 import type { StudentAssessment } from '@/services/assessments/student-assessments-by-current-academic-year.service'
-import React from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
+import { SemesterSelect } from '@/components/SemesterSelect'
+import { dedupeAcademicYears } from './curriculum-card'
+import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-academic-year-student'
+import { YearSelect } from '@/components/year-select'
 
 type Avaliacao = {
   id: string
@@ -196,19 +201,36 @@ type GradeCurrentAcademicYearProps = {
 export function GradeCurrentAcademicYear({
   enrollmentCode,
   classe,
-  academicYear,
 }: GradeCurrentAcademicYearProps) {
+  const [selectedSemester, setSelectedSemester] = useState<string | undefined>(
+    undefined,
+  )
+  const [selectedYear, setSelectedYear] = useState<string | undefined>(
+    undefined,
+  )
+  const { data: academicYearData } = useQueryAcademicYearStudent(enrollmentCode)
+  const academicYears = dedupeAcademicYears(academicYearData?.anolectivos)
+  const [expanded, setExpanded] = React.useState<ExpandedState>({})
   const { data: assessments = [] } =
     useQueryStudentAssessmentsByCurrentAcademicYear({
-      anoLetivo: academicYear,
+      anoLetivo: selectedYear, //academicYear
       classe,
       matricula: enrollmentCode,
+      semestre: selectedSemester,
     })
 
   const data = React.useMemo(
     () => agruparAvaliacoesPorDisciplina(assessments),
     [assessments],
   )
+  const onSelectSemester = useCallback((codeSemester: string | undefined) => {
+    if (codeSemester == '3') {
+      setSelectedSemester(undefined)
+    } else {
+      setSelectedSemester(codeSemester)
+    }
+    setExpanded({})
+  }, [])
 
   const table = useReactTable({
     data,
@@ -217,17 +239,46 @@ export function GradeCurrentAcademicYear({
     getPaginationRowModel: getPaginationRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getSubRows: (row) => row.subRows,
+    state: {
+      expanded,
+    },
     initialState: {
       pagination: {
         pageSize: 20,
       },
     },
+    onExpandedChange: setExpanded,
+    autoResetPageIndex: false,
+    autoResetExpanded: false,
   })
+
+  useEffect(() => {
+    if (!academicYears) return
+
+    // Encontrar o ano ativo
+    const active = academicYears.find((y) => y.estado === 'Activo')
+
+    if (active && !selectedYear) {
+      setSelectedYear(String(active.codigo))
+    }
+  }, [academicYears, setSelectedYear])
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Notas do Ano Letivo Atual</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle>Notas do Ano Letivo Atual</CardTitle>
+          <div className="flex items-center">
+            <div className='mr-1'>
+              <YearSelect
+                academicYears={academicYears}
+                selectedYear={selectedYear}
+                onChange={setSelectedYear}
+              />
+            </div>
+            <SemesterSelect onChange={onSelectSemester} />
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <Table>

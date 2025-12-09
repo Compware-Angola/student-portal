@@ -41,6 +41,7 @@ type StudentAssessmentParams = {
   classe: string
   anoLetivo: string
   matricula: string
+  semestre? : string
 }
 
 /**
@@ -49,6 +50,8 @@ type StudentAssessmentParams = {
 export async function getStudentAssessmentsByCurrentAcademicYear(
   params: StudentAssessmentParams,
 ): Promise<StudentAssessmentResponse> {
-  const endpoint = `assessment/students/${params.classe}/${params.anoLetivo}/${params.matricula}`
+  const semester = params.semestre
+  const semesterParam = !semester ? '':`?semestre=${semester}`;
+  const endpoint = `assessment/students/${params.classe}/${params.anoLetivo}/${params.matricula}${semesterParam}`
   return apexApi.get(endpoint).json<StudentAssessmentResponse>()
 }

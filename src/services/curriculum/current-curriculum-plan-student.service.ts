@@ -18,14 +18,17 @@ export type StudentCurriculumPlan = {
 type Params = {
   academicYearCode: string
   preEnrollmentCode: string
+  semester?:string
 }
 
 export async function currentCurriculumPlanStudentService(
   params: Params,
 ): Promise<StudentCurriculumPlan> {
+  const semester = params.semester
+  const semesterParam = !semester ? '':`?semestre=${semester}`;
   return apexApi
     .get(
-      `curriculum/curriculum-plan-student/${params.academicYearCode}/${params.preEnrollmentCode}`,
+      `curriculum/curriculum-plan-student/${params.academicYearCode}/${params.preEnrollmentCode}${semesterParam}`,
     )
     .json<StudentCurriculumPlan>()
 }

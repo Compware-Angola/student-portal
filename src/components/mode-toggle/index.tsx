@@ -5,7 +5,7 @@ import { useTheme } from '@/hooks/use-theme'
 export function ModeToggle() {
   const { theme, setTheme } = useTheme()
 
-  const toggleTheme = () => {
+   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark')
   }
 
