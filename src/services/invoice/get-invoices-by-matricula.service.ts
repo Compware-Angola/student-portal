@@ -46,12 +46,13 @@ interface ItemFatura {
 
 export type Invoice =  {
   Codigo: number;
-  DataFactura: string; // ISO string
+  DataFactura: string;
   TotalPreco: number;
   CodigoMatricula: number;
   Referencia: string;
   Desconto: number;
   Troco: number;
+  polo:string;
   totalIVA: number;
   TotalMulta: number;
   total_incidencia: number;
@@ -65,7 +66,7 @@ export type Invoice =  {
   NextFactura: string;
   next: string;
   texto_hash: string;
-  dataVencimento: string; // ISO string
+  dataVencimento: string; 
   polo_id: string;
   obs: string | null;
   hashValor: string;
@@ -98,6 +99,7 @@ export type InvoiceResponse = {
 export type InvoiceSearchParams = {
   page?: number
   limit?: number
+  status?:number
   enrollmentCode: string
   academicYear:string
 }
@@ -105,12 +107,13 @@ export type InvoiceSearchParams = {
 export async function getInvoicesByMatricula(
   searchParams: InvoiceSearchParams,
 ): Promise<InvoiceResponse> {
-  console.log('getInvoicesByMatricula', searchParams)
+
   const response = await invoiceApi
     .get('invoices/by-matricula', {
       searchParams: {
         codigoMatricula: searchParams.enrollmentCode,
         academicYear: searchParams.academicYear,
+        status:searchParams.status,
         page: searchParams.page,
         limit: searchParams.limit,
       },

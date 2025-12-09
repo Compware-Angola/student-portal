@@ -23,7 +23,7 @@ export function Login() {
   },[])
 
   return (
-    <div className="flex min-h-screen items-center justify-center relative bg-gradient-to-br from-background to-muted p-4">
+    <div className="flex min-h-screen items-center justify-center relative bg-gradient-to-br from-background to-muted p-4 ">
       <LogoBackground top="2.5rem" right="2.5rem" />
       <LogoBackground bottom="2.5rem" left="2.5rem" />
 
@@ -44,12 +44,14 @@ export function Login() {
           </div>
 
           <CardTitle className="text-2xl">
-            {activeTab === 'forgot' ? 'Recuperar Senha' : 'Portal Universitário'}
+            {activeTab === 'forgot'
+              ? 'Recuperar Senha'
+              : 'Portal Universitário'}
           </CardTitle>
 
           <CardDescription>
             {activeTab === 'forgot'
-              ? 'Informe seu e-mail institucional para continuar'
+              ? 'Informe seu e-mail  para continuar'
               : 'Acesse sua conta acadêmica'}
           </CardDescription>
         </CardHeader>
@@ -74,8 +76,6 @@ export function Login() {
           ) : (
             /* TELA DE RECUPERAÇÃO DE SENHA */
             <div className="space-y-6">
-
-
               {/* Fluxo completo de recuperação */}
               <ForgotPasswordFlow onBack={() => setActiveTab('login')} />
             </div>

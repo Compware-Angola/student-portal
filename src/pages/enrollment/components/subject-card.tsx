@@ -4,13 +4,16 @@ import { Checkbox } from '@/components/ui/checkbox'
 
 import { ScheduleSelectionDialog } from '../schedule'
 import { useEnrollment } from '../hooks/use-enrollment'
+import { cn } from '@/lib/utils'
 type SubjectCardProps = {
+  state?: 'enrollment' | 'registrationUC'
   subject: Grade
   isSelected: (subject: Grade) => boolean
   toggleSubject: (subject: Grade) => void
 }
 
 export function SubjectCard({
+  state = 'enrollment',
   subject,
   isSelected,
   toggleSubject,
@@ -25,13 +28,18 @@ export function SubjectCard({
 
         <div className="flex-1 space-y-3">
           <div>
-            <label
+            <button
+              disabled={state === 'enrollment'}
               onClick={() => toggleSubject(subject)}
-              htmlFor={`subject-${subject.codigoGrade}`}
-              className="cursor-pointer font-semibold"
+              className={cn(
+                'font-semibold',
+                state === 'enrollment'
+                  ? 'cursor-not-allowed '
+                  : 'cursor-pointer',
+              )}
             >
               {subject.disciplina}
-            </label>
+            </button>
             <p className="flex items-center gap-1">
               <span className="font-medium text-sm">Duração:</span>
               {subject.duracaoDisciplina}

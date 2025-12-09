@@ -98,9 +98,9 @@ function Content() {
         <TabsContent value="payments" className="mt-6">
           <PaymentList
             enrollmentCode={profileData.enrollmentCode}
-            onChange={setSelectedYear}
+            onYearChange={setSelectedYear}
             academicYears={academicYears}
-            selectedYear={selectedYear}
+            selectedYear={selectedYear as any}
           />
         </TabsContent>
 
@@ -124,14 +124,14 @@ export function Finance() {
     </FinanceProvider>
   )
 }
-function dedupeAcademicYears(
+export function dedupeAcademicYears(
   list?: { codigo: string | number; designacao: string; estado: string }[],
 ) {
   if (!list) return []
   const map = new Map()
 
   list.forEach((item) => {
-    map.set(item.codigo, item) // se tiver repetido, sobrescreve e fica só 1
+    map.set(item.codigo, item)
   })
 
   return Array.from(map.values())

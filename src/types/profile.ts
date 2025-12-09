@@ -12,7 +12,8 @@ export type ProfileData = {
   course: string
   polo: string
   email: string
-  phone: string
+  numero_documento:string
+  telefone: string
   address: string
   curso: string
   enrollmentCode: string

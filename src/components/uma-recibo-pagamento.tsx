@@ -4,7 +4,6 @@ import {
   View,
   Document,
   StyleSheet,
-  Image,
   PDFDownloadLink,
 } from '@react-pdf/renderer'
 import { Button } from '@/components/ui/button'
@@ -177,7 +176,6 @@ const styles = StyleSheet.create({
 
 function PaymentReceiptDocument({
   invoice,
-  academicYear,
 }: {
   invoice: Invoice
   academicYear: string
@@ -186,23 +184,27 @@ function PaymentReceiptDocument({
     <Document>
       <Page size="A4" style={styles.page}>
         {/* ---------- Cabeçalho ---------- */}
-        <View style={styles.header}>
-          <Image style={styles.logo} src="/logo_uma.png" />
-          <View style={styles.companyInfo}>
-            <Text style={styles.companyName}>
-              Universidade Metodista de Angola
-            </Text>
-            Informações opcionais da empresa
-            <Text style={styles.companyDetails}></Text>
-            <Text style={styles.companyDetails}>
-              Nome: MUTUE- SOLUÇOES TECNOLOGIA INTELIGENTES, LDA
-            </Text>
-            <Text style={styles.companyDetails}>NIF: 5000977381</Text>
-            <Text style={styles.companyDetails}>Cidade: Luanda - Angola</Text>
-            <Text style={styles.companyDetails}>Tel: +244 922969192 </Text>
-            <Text style={styles.companyDetails}>Email: geral@mutue.net</Text>
-            <Text style={styles.companyDetails}>Web-site: www.mutue.net</Text>
-          </View>
+        <View style={styles.companyInfo}>
+          <Text style={styles.companyName}>
+            Universidade Metodista de Angola
+          </Text>
+
+          <Text style={[styles.companyDetails, { marginTop: 4 }]}>
+            Luanda - Luanda.
+          </Text>
+          <Text style={[styles.companyDetails, { marginTop: 4 }]}>
+            Rua Nossa Senhora da Muxima Nº 10, Bairro Kinaxixi, Luanda.
+          </Text>
+          <Text style={[styles.companyDetails, { marginTop: 4 }]}>
+            NIF: 5401150865
+          </Text>
+          <Text style={[styles.companyDetails, { marginTop: 4 }]}>
+            Tel: +244 912131138 / +244 947716133 / +244 942364667
+          </Text>
+
+          <Text style={[styles.companyDetails, { marginTop: 4 }]}>
+            Email: geral@uma.co.ao
+          </Text>
         </View>
 
         {/* ---------- Título ---------- */}
@@ -239,11 +241,11 @@ function PaymentReceiptDocument({
 
           <View style={styles.infoRow}>
             <Text>
-              <Text style={styles.label}>Ano Lectivo:</Text> {academicYear}
+              <Text style={styles.label}>Ano Lectivo:</Text>{' '}
+              {invoice.ano_lectivo}
             </Text>
             <Text>
-              <Text style={styles.label}>Polo:</Text>{' '}
-              {invoice.polo_id === '1' ? 'Sede Luanda' : invoice.polo_id}
+              <Text style={styles.label}>Polo:</Text> {invoice.polo}
             </Text>
           </View>
         </View>

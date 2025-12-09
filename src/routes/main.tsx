@@ -17,8 +17,25 @@ import { MensagensNotificacoes } from '@/pages/MensagensNotificacoes'
 import { Suporte } from '@/pages/Suporte'
 import { DisciplinasMatriculadas } from '@/pages/DisciplinasMatriculadas'
 import { NotaPagamento } from '@/pages/NotaPagamento'
+import { useStudentSituation } from '@/hooks/use-student-stitiation'
+import { getEnrollmentRoute } from '@/utils/map-student-situation'
+import { RegistrationsUC } from '@/pages/registrationsUC'
+import { useMemo, type JSX } from 'react'
 
 export function MainRoutes() {
+  const { studentType, isLoading } = useStudentSituation()
+  const enrollmentComponents: Record<string, JSX.Element> = useMemo(
+    () => ({
+      '/inscricao-uc': <RegistrationsUC />,
+      '/matricula': <Enrollment />,
+    }),
+    [],
+  )
+  if (isLoading) return null
+  if (!studentType) return null
+
+  const enrollmentPath = getEnrollmentRoute(studentType)
+
   return (
     <Route
       path="/"
@@ -31,7 +48,10 @@ export function MainRoutes() {
       <Route index element={<Dashboard />} />
       <Route path="/calendario-academico" element={<AcademicCalendar />} />
       <Route path="/calendario-exames" element={<ExamCalendar />} />
-      <Route path="/matricula" element={<Enrollment />} />
+      <Route
+        path={enrollmentPath.slice(1)}
+        element={enrollmentComponents[enrollmentPath]}
+      />
       <Route path="/perfil" element={<Profile />} />
       <Route path="/horario" element={<Schedule />} />
       <Route path="/pagamento-antecipado" element={<AdvancePayment />} />
@@ -44,7 +64,7 @@ export function MainRoutes() {
       <Route path="/mensagens" element={<MensagensNotificacoes />} />
       <Route path="/suporte" element={<Suporte />} />
       <Route path="/disciplinas" element={<DisciplinasMatriculadas />} />
-      <Route path="/notas-pagamento" element={<NotaPagamento />} />
+      <Route path="/financas/notas-pagamento" element={<NotaPagamento />} />
     </Route>
   )
 }
