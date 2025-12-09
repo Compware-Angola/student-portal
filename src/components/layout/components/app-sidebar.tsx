@@ -35,7 +35,7 @@ import { AuthStorage } from '@/storage/auth-storage'
 const data = {
   navMain: [
     { title: 'Dashboard', url: '/', icon: LayoutDashboard },
-    { title: 'Finanças', url: '/financas', icon: CreditCard ,items: [  { title: 'Histórico de Pagamento', url: '/notas-pagamento', icon: Receipt }]},
+    { title: 'Finanças', url: '/financas', icon: CreditCard ,items: [{ title: 'Histórico de Pagamento', url: '/notas-pagamento', icon: Receipt }]},
   
     { title: 'Matrícula', url: '/matricula', icon: GraduationCap },
     { title: 'Horário', url: '/horario', icon: Calendar },
