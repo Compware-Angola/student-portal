@@ -24,11 +24,12 @@ import { useEffect, useState } from 'react'
 import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-academic-year-student'
 import { dedupeAcademicYears } from '../finance'
 import { YearSelect } from '@/components/year-select'
+import ComprovantePagamento from '@/components/comprovante-pagamento'
 
 interface NotaPagamento {
     id: string
     numero: string
-    tipo: 'propina' | 'servico' | 'melhoria' | 'inscricao' | string
+    tipo: 'Mesalidade' | 'servico' | 'melhoria' | 'inscricao' | string
     descricao: string
     valor: number
     dataEmissao: string
@@ -56,8 +57,8 @@ const mapApiToNotaPagamento = (apiData: any[]): NotaPagamento[] => {
 
         // Simples regra de tipo
         let tipo: string = 'servico'
-        if (item.Descricao_produto && item.Descricao_produto.toLowerCase().includes('propina')) {
-            tipo = 'propina'
+        if (item.Descricao_produto && item.Descricao_produto.toLowerCase().includes('Mensalidade')) {
+            tipo = 'Mensalidade'
         }
         return {
             id: String(item.CodigoPagamento || item.CodigoFactura),
@@ -143,8 +144,8 @@ export const NotaPagamento = () => {
 
     const getTipoBadge = (tipo: string) => {
         switch (tipo) {
-            case 'propina':
-                return <Badge variant="outline">Propina</Badge>
+            case 'Mensalidade':
+                return <Badge variant="outline">Mensalidade</Badge>
             case 'servico':
                 return <Badge variant="outline">Serviço</Badge>
             case 'melhoria':
@@ -247,27 +248,14 @@ export const NotaPagamento = () => {
                                     {getMetodoPagamento(nota.metodoPagamento)}
                                 </p>
                             </div>
-                            {/* O comprovante virá da API, mas por enquanto, manteremos a lógica 
-                            {nota.comprovante && (
-                                <div>
-                                    <p className="text-sm font-semibold mb-2">Comprovante</p>
-                                    <Button variant="outline" size="sm">
-                                        <Download className="mr-2 h-4 w-4" />
-                                        Descarregar Comprovante
-                                    </Button>
-                                </div>
-                            )}*/}
+                           
+                          
                         </div>
                     )}
-                    {/*  <div className="flex gap-3 pt-4">
-                        <Button className="flex-1">
-                            <Download className="mr-2 h-4 w-4" />
-                            Descarregar PDF
-                        </Button>
-                        <Button variant="outline">
-                            <Printer className="h-4 w-4" />
-                        </Button>
-                    </div>*/}
+                  <div className="flex gap-3 pt-4">
+                       <ComprovantePagamento payment={nota} />
+                      
+                    </div>
 
                 </div>
             </DialogContent>
@@ -307,9 +295,9 @@ export const NotaPagamento = () => {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
   <div>
-    <h1 className="text-3xl font-bold">Pagamentos Concluídos</h1>
+    <h1 className="text-3xl font-bold"> Histórico de Pagamentos</h1>
     <p className="text-muted-foreground mt-2">
-      Consulte e gerencie os pagamentos concluídos
+      Consulte  os Históricos de Pagamentos concluídos
     </p>
   </div>
 
@@ -351,7 +339,7 @@ export const NotaPagamento = () => {
                 <Card className="border rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
                     <CardHeader className="pb-2 flex items-center justify-between">
                         <CardTitle className="text-sm font-semibold text-gray-700">
-                            Total de Notas
+                            Total de Notas Liquidadas
                         </CardTitle>
                         <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
                             Resolução Anual
@@ -369,7 +357,7 @@ export const NotaPagamento = () => {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Histórico de Notas</CardTitle>
+                    <CardTitle>Histórico de Notas de Pagamento</CardTitle>
                     <CardDescription>
                         Lista completa das suas notas de pagamento Concluídos
                     </CardDescription>
