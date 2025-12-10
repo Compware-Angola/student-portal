@@ -29,6 +29,8 @@ import { useQueryClass } from '@/hooks/class/use-query-class'
 
 import type { ProfileData } from '@/types/profile'
 import type { Grade } from '@/types/grade'
+import { GradeCurricularPDF } from '@/components/academic-grade-cocument'
+import { useQueryStudentCurriculumByCourse } from '@/hooks/curriculum/use-query-student-curriculum-by-course'
 
 const anoPorExtenso = (codigo: string | number): string => {
   const mapa: Record<string, string> = {
@@ -63,7 +65,9 @@ export const FilteredByClass = ({ profileData }: CurrentYearProps) => {
   const [initialized, setInitialized] = useState(false)
 
   const { data: classData, isLoading: isLoadingClasses } = useQueryClass()
-
+  const { data: allGrades } = useQueryStudentCurriculumByCourse({
+    course: profileData?.codigo_curso,
+  })
   const anosFiltrados = useMemo(() => {
     if (!classData?.classes) return []
 
@@ -252,6 +256,10 @@ export const FilteredByClass = ({ profileData }: CurrentYearProps) => {
               onChange={handleSearchChange}
               disabled={!selectedClass || isLoading}
             />
+            <GradeCurricularPDF
+              disciplinas={allGrades}
+              curso={profileData?.curso ?? ''}
+            />
           </div>
         </CardHeader>
       </Card>
@@ -268,7 +276,7 @@ export const FilteredByClass = ({ profileData }: CurrentYearProps) => {
 
         {isLoading && !isError && (
           <CardContent className="py-8 text-center">
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col -center gap-2">
               <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
               <p className="text-sm text-muted-foreground">
                 Carregando disciplinas...
@@ -303,7 +311,7 @@ export const FilteredByClass = ({ profileData }: CurrentYearProps) => {
                             <div
                               className={
                                 header.column.getCanSort()
-                                  ? 'cursor-pointer select-none flex items-center justify-center gap-1'
+                                  ? 'cursor-pointer select-none flex -center justify-center gap-1'
                                   : ''
                               }
                               onClick={header.column.getToggleSortingHandler()}

@@ -1,3 +1,4 @@
+'use client'
 import {
   Card,
   CardContent,
@@ -5,16 +6,21 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { ModeToggle } from '@/components/mode-toggle'
+//import { ModeToggle } from '@/components/mode-toggle'
 import { LoginForm } from './components/login-form'
 import { LogoBackground } from './components/logo-background'
 import { Button } from '@/components/ui/button'
+import { useTheme } from '@/hooks/use-theme'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ForgotPasswordFlow } from './components/forgot-password-flow'
 
 export function Login() {
+  const {setTheme} = useTheme()
   const [activeTab, setActiveTab] = useState<'login' | 'forgot'>('login')
+  useEffect(() => {
+    setTheme('light')
+  },[])
 
   return (
     <div className="flex min-h-screen items-center justify-center relative bg-gradient-to-br from-background to-muted p-4 ">
@@ -23,9 +29,9 @@ export function Login() {
 
       <Card className="w-full max-w-md relative z-10">
         {/* Botão de tema */}
-        <div className="absolute right-4 top-4 z-10">
+        {/* <div className="absolute right-4 top-4 z-10">
           <ModeToggle />
-        </div>
+        </div> */}
 
         {/* Header */}
         <CardHeader className="space-y-4 text-center pb-8">
