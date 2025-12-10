@@ -69,6 +69,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { ReferenciasDialog } from './referencie-dialog'
 
 // --- LocalStorage & Polling (100% como tinhas) ---
 const PENDING_TASKS_KEY = 'pending_payment_tasks'
@@ -564,40 +565,20 @@ function useColumnsInvoiceTable({
         new Date(row.getValue('DataFactura')).toLocaleDateString('pt-PT'),
     },
     { accessorKey: 'Referencia', header: 'Número Doc*' },
-    {
-      id: 'referencia_pagamento',
-      header: 'Referência de Pagamento',
-      cell: ({ row }) => {
-        const refs = row.original.referencias_pagamento || []
-        if (refs.length === 0)
-          return <span className="text-muted-foreground">—</span>
+  {
+  id: 'referencia_pagamento',
+  header: 'Referência de Pagamento',
+  cell: ({ row }) => {
+    const refs = row.original.referencias_pagamento || []
+      const estado = row.getValue('estado') as number
 
-        const ref =
-          refs
-            .filter((r) => r.Status === 'Pending')
-            .sort(
-              (a, b) =>
-                new Date(b.END_DATE).getTime() - new Date(a.END_DATE).getTime(),
-            )[0] || refs[0]
+    if (refs.length === 0) {
+      return <span className="text-muted-foreground">—</span>
+    }
 
-        return (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className="font-mono text-sm font-semibold cursor-help hover:underline">
-                {ref.REFERENCE}
-              </span>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="text-xs">
-                Expira em: <strong>{ref.END_DATE}</strong>
-                <br />
-                Entidade: <strong>{ref.ENTITY_ID}</strong>
-              </p>
-            </TooltipContent>
-          </Tooltip>
-        )
-      },
-    },
+    return <ReferenciasDialog referencias={refs} estado={estado} />
+  },
+},
     {
       accessorKey: 'estado',
       header: 'Estado',
