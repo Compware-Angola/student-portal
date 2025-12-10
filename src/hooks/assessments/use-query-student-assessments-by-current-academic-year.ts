@@ -8,6 +8,7 @@ type Params = {
   classe?: string
   anoLetivo?: string
   matricula?: string
+  semestre?: string
 }
 
 /**
@@ -22,6 +23,7 @@ export function useQueryStudentAssessmentsByCurrentAcademicYear(
     params?.classe,
     params?.anoLetivo,
     params?.matricula,
+    params?.semestre
   ]
 
   const { data, isLoading, isFetching, isError, error, refetch } =
@@ -36,6 +38,7 @@ export function useQueryStudentAssessmentsByCurrentAcademicYear(
           classe: params.classe,
           anoLetivo: params.anoLetivo,
           matricula: params.matricula,
+          semestre: params.semestre
         })
       },
       enabled: Boolean(

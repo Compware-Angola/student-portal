@@ -8,7 +8,6 @@ import { Form } from '@/components/ui/form'
 import { InputFormField } from '@/components/input-form-field'
 import { Spinner } from '@/components/ui/spinner'
 import { useRegisterForm } from '../use-register-form'
-import { FormFooter } from './form-footer'
 
 export function RegisterForm({
   className,
@@ -90,7 +89,7 @@ export function RegisterForm({
               Criar sua Conta
             </Button>
           </Field>
-          <FormFooter />
+          {/* <FormFooter /> */}
         </FieldGroup>
       </form>
     </Form>

@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query'
 type Params = {
   academicYearCode?: string
   preEnrollmentCode?: string
+  semester?:string
 }
 export function useQueryCurrentCurriculumPlanSudent(params: Params) {
   const { data, isLoading, error, isError } = useQuery<StudentCurriculumPlan>({
@@ -14,6 +15,8 @@ export function useQueryCurrentCurriculumPlanSudent(params: Params) {
       'current-student-curriculum-plan',
       params.academicYearCode,
       params.preEnrollmentCode,
+      params.semester
+
     ],
     queryFn: async () => {
       if (!params.academicYearCode || !params.academicYearCode) {
@@ -22,6 +25,7 @@ export function useQueryCurrentCurriculumPlanSudent(params: Params) {
       return currentCurriculumPlanStudentService({
         academicYearCode: params.academicYearCode!,
         preEnrollmentCode: params.preEnrollmentCode!,
+        semester: params.semester
       })
     },
     retry: 0,
