@@ -50,11 +50,7 @@ export function useMenuNavigation() {
         url: enrollmentPath,
         icon: GraduationCap,
       },
-      {
-        title: 'Calendário Acadêmico',
-        url: '/calendario-academico',
-        icon: Calendar,
-      },
+
       { title: 'Horário', url: '/horario', icon: Calendar },
       { title: 'Avaliações', url: '/avaliacoes', icon: FileText },
       {
@@ -69,7 +65,11 @@ export function useMenuNavigation() {
         url: '/mensagens',
         icon: MessageSquare,
       },
-      { title: 'Calendário Acadêmico', url: '/calendario-academico', icon: ClipboardList },
+      {
+        title: 'Calendário Acadêmico',
+        url: '/calendario-academico',
+        icon: ClipboardList,
+      },
       { title: 'Suporte', url: '/suporte', icon: HelpCircle },
       {
         title: 'Negociação de Dívida',
