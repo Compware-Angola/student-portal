@@ -80,7 +80,7 @@ export function EnrollmentSummaryCards() {
             : 'bg-green-100 text-green-700'
       }
     >
-      {enrollmentState ? 'Matriculado' : 'Matrícula Aberta'}{' '}
+      {enrollmentState ? 'Inscrito' : 'Inscrição Aberta'}{' '}
       {!enrollmentState && (
         <>
           {enrollmentStatus === 'closed' && '- Fora de Época'}
@@ -106,7 +106,7 @@ export function EnrollmentSummaryCards() {
     },
     {
       icon: LibraryBig,
-      title: 'Estado da Matrícula',
+      title: 'Estado',
       value: enrollmentBadge,
       description: 'Situação da inscrição atual',
     },
