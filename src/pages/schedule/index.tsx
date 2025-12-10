@@ -180,7 +180,6 @@ export function Schedule() {
       </div>
     )
   }
-  console.log(scheduleData.length)
 
   // 📅 Sem horário disponível
   if (!scheduleData || scheduleData.length === 0) {
