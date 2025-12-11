@@ -192,18 +192,26 @@ export function ProfileAvatar({
         <CardContent className="space-y-4">
           <div className="flex justify-center">
             <div className="relative">
-              <Avatar className="h-32 w-32">
-                {croppedImageUrl ? (
-                  <AvatarImage
-                    src={croppedImageUrl}
-                    alt={`${firstName} ${lastName}`}
-                  />
-                ) : (
-                  <AvatarFallback className="text-3xl">
-                    {`${firstName[0]}${lastName[0]}`}
-                  </AvatarFallback>
-                )}
-              </Avatar>
+            <Avatar className="h-32 w-32">
+  {croppedImageUrl ? (
+    <AvatarImage
+      src={croppedImageUrl}
+      alt={`${firstName ?? ""} ${lastName ?? ""}`.trim()}
+    />
+  ) : (
+    <AvatarFallback className="text-3xl font-semibold uppercase">
+      {(() => {
+        // fallback seguro mesmo se firstName/lastName forem undefined
+        const f = (firstName ?? "").trim()[0] ?? "";
+        const l = (lastName ?? "").trim()[0] ?? "";
+        const initials = `${f}${l}`.toUpperCase();
+
+        return initials || "?";
+      })()}
+    </AvatarFallback>
+  )}
+</Avatar>
+
             </div>
           </div>
 
@@ -273,7 +281,7 @@ export function ProfileAvatar({
               <label className="text-sm font-medium">Zoom</label>
               <Slider
                 value={[zoom]}
-                onValueChange={(value) => setZoom(value[0])}
+                onValueChange={(value:any) => setZoom(value[0])}
                 min={1}
                 max={3}
                 step={0.1}
