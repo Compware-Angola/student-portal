@@ -65,6 +65,7 @@ export function useQueryProfile() {
       email: data.email,
       phone: data.telefone,
       address: '',
+      
       curso: data.curso ?? data.curso_candidatura_designacao,
       codigo_curso: data.codigo_curso ?? data.curso_candidatura,
       enrollmentCode: data.codigo_matricula,

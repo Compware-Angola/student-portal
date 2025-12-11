@@ -12,6 +12,7 @@ export type ProfileData = {
   course: string
   polo: string
   email: string
+  foto:string
   numero_documento:string
   telefone: string
   address: string
