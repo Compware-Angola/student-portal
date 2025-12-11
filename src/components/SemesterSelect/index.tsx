@@ -6,15 +6,12 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useQuerySemesters } from '@/hooks/semester/use-query-semester'
-import { useEffect, useState } from 'react'
-import { toast } from 'sonner'
-
 export type SemesterSelectProps = {
   onChange: (value: string) => void
 }
 
 export function SemesterSelect({onChange}: SemesterSelectProps) {
-  const { data, error, isError } = useQuerySemesters()
+  const { data } = useQuerySemesters()
 
   return (
     <>
