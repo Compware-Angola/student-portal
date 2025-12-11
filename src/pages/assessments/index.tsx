@@ -5,20 +5,27 @@ import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { toast } from 'sonner'
 import { CurriculumCard } from './curriculum-card'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
+import { PaymentAlert } from '@/components/payment-alert'
+import { useQueryGetDebit } from '@/hooks/renegotiation/use-query-renegotiation'
 
 export function Assessments() {
   const { profileData, isError, isLoading } = useQueryProfile()
   const { data: academicYearData } = useQueryCurrentAcademicYear()
-
+  const { data: debit, isLoading: isLoadingDebit } = useQueryGetDebit({
+    type: '1',
+    enrollmentCode: profileData?.enrollmentCode,
+    preinscricao: profileData?.codigo_preinscricao,
+  })
   useEffect(() => {
     if (isError) {
       toast.error('Error fetching profile data:')
     }
   }, [isError])
 
-  if (isLoading || !profileData) {
+  if (isLoading || !profileData || isLoadingDebit) {
     return <div>Loading...</div>
   }
+  if (debit && (debit?.totalDivida ?? 0) > 0) return <PaymentAlert />
 
   const enrollmentCode = profileData?.codigo_matricula
   const classe = profileData?.confirmacoes[0]?.classe

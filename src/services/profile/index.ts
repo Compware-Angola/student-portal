@@ -14,7 +14,7 @@ export interface StudentProfile {
   email: string
   bilhete_identidade: string
   telefone: string
-  numero_documento:string
+  numero_documento: string
   codigo_admissao: string
   data_admissao: string
   codigo_matricula: string
@@ -35,6 +35,7 @@ export interface StudentProfile {
   poloId: string
   codigo_tipo_candidatura: string
   curso_candidatura_designacao: string
+  foto: string
 }
 
 export interface Confirmac {

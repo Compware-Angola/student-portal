@@ -11,7 +11,7 @@ interface AcademicDataTabProps {
 }
 
 // Função utilitária para garantir que um valor seja exibido ou 'N/A'
-const formatValue = (value:any) => value || 'N/A'
+const formatValue = (value: any) => value || 'N/A'
 
 export function AcademicDataTab({
   studentId,
@@ -19,7 +19,6 @@ export function AcademicDataTab({
   semester,
   enrollmentDate,
 }: AcademicDataTabProps) {
-  
   // Formata a data de matrícula (assumindo que enrollmentDate é uma string ISO-8601)
   const formattedEnrollmentDate = enrollmentDate
     ? new Date(enrollmentDate).toLocaleDateString('pt-AO')
@@ -31,12 +30,12 @@ export function AcademicDataTab({
         <FieldGroup className="grid gap-4 md:grid-cols-2">
           <Field>
             <FieldLabel htmlFor="student-id">Número de Estudante</FieldLabel>
-            <Input 
-              disabled 
-              id="student-id" 
-              type="text" 
+            <Input
+              disabled
+              id="student-id"
+              type="text"
               // Usa a prop studentId com fallback 'N/A'
-              value={formatValue(studentId)} 
+              value={formatValue(studentId)}
             />
           </Field>
           <Field>

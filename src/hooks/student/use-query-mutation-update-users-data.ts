@@ -1,4 +1,7 @@
-import { updateUser, type UpdateUserParams } from '@/services/students/update-users-data.service'
+import {
+  updateUser,
+  type UpdateUserParams,
+} from '@/services/students/update-users-data.service'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
@@ -20,8 +23,7 @@ export function useUpdateUser(userId: string) {
         description: data.message || 'Dados atualizados com sucesso!',
       })
 
- queryClient.invalidateQueries({ queryKey: ['profile'] })
-
+      queryClient.invalidateQueries({ queryKey: ['profile'] })
     },
     onError: (error) => {
       toast.error('Falha ao atualizar', {

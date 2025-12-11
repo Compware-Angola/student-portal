@@ -1,13 +1,14 @@
-import { updateStudentPassword, type UpdatePasswordParams } from '@/services/students/resete-password.service'
+import {
+  updateStudentPassword,
+  type UpdatePasswordParams,
+} from '@/services/students/resete-password.service'
 import { useMutation, type UseMutationResult } from '@tanstack/react-query'
 
 import { toast } from 'sonner'
 
-export function useUpdateStudentPassword(userId: string): UseMutationResult<
-  { message: string },
-  Error,
-  UpdatePasswordParams
-> {
+export function useUpdateStudentPassword(
+  userId: string,
+): UseMutationResult<{ message: string }, Error, UpdatePasswordParams> {
   return useMutation({
     mutationFn: (params: UpdatePasswordParams) => {
       if (!userId) throw new Error('UserId é obrigatório')
