@@ -8,6 +8,7 @@ import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { Button } from '@/components/ui/button'
 import { Edit } from 'lucide-react'
 import { useState } from 'react'
+import { buildImageAssets } from '@/utils/build-image-assets'
 
 export function Profile() {
   const {
@@ -16,12 +17,13 @@ export function Profile() {
     error: profileError,
     profileData,
   } = useQueryProfile()
- const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false)
 
   if (isProfileLoading || isProfileError || !profileData) {
     if (profileError) {
       toast.error(profileError.message)
     }
+
     return (
       <div className="space-y-6">
         <div>
@@ -37,7 +39,6 @@ export function Profile() {
   }
 
   const {
- 
     enrollmentState,
     firstName,
     fullName,
@@ -49,28 +50,25 @@ export function Profile() {
     curso,
     polo,
     codigo_matricula,
-    userId
-    
-    
+    userId,
+    foto,
   } = profileData
-
-
+  const currentPhotoUrl = buildImageAssets(foto)
   return (
     <div className="space-y-6">
-         <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Perfil</h1>
           <p className="text-muted-foreground">Gerencie as suas informações</p>
         </div>
-      
+
         <Button
-          variant={isEditing ? "default" : "outline"}
+          variant={isEditing ? 'default' : 'outline'}
           onClick={() => setIsEditing(!isEditing)}
         >
           <Edit className="mr-2 h-4 w-4" />
-          {isEditing ? "Cancelar" : "Editar Dados"}
+          {isEditing ? 'Cancelar' : 'Editar Dados'}
         </Button>
-        
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -80,7 +78,9 @@ export function Profile() {
           enrollmentState={enrollmentState}
           curso={curso}
           polo={polo}
-           isEditing={isEditing}
+          userId={String(userId)}
+          isEditing={isEditing}
+          currentPhotoUrl={currentPhotoUrl}
         />
         <InformationCard
           studentId={codigo_matricula}
@@ -92,7 +92,6 @@ export function Profile() {
           course={curso}
           isEditing={isEditing}
           userId={userId}
-
         />
       </div>
     </div>
