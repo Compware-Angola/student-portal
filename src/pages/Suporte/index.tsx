@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import {
   Card,
   CardContent,
@@ -19,9 +19,12 @@ import {
 } from '@/components/ui/select'
 import { Upload, Send, HelpCircle } from 'lucide-react'
 import { toast } from 'sonner'
-import { useQueryCreateSupport, useQuerySupportTypes } from '@/hooks/support/use-query-support'
+import {
+  useQueryCreateSupport,
+  useQuerySupportTypes,
+} from '@/hooks/support/use-query-support'
 import type { SupportPayload } from '@/services/support/support.service'
-
+import { useUploadSingle } from '@/hooks/upload/use-upload-single'
 
 export const Suporte = () => {
   const [formData, setFormData] = useState({
@@ -30,10 +33,13 @@ export const Suporte = () => {
     mensagem: '',
     arquivo: null as File | null,
   })
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
-  // Hooks para API
-  const { data: supportTypes, isLoading: isTypesLoading } = useQuerySupportTypes()
-  const { mutate, isPending: isSubmitting } = useQueryCreateSupport()
+  const { data: supportTypes, isLoading: isTypesLoading } =
+    useQuerySupportTypes()
+  const { mutate: supportMutate, isPending: isSubmitting } =
+    useQueryCreateSupport()
+  const uploadMutation = useUploadSingle()
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -41,7 +47,7 @@ export const Suporte = () => {
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!formData.tipoSuporte || !formData.assunto || !formData.mensagem) {
@@ -49,22 +55,35 @@ export const Suporte = () => {
       return
     }
 
-    const payload: SupportPayload = {
-      descricao: formData.mensagem,
-      assunto: formData.assunto,
-      tipo_suporte: Number(formData.tipoSuporte),
+    try {
+      let uploadedFileName: string | null = null
+
+      if (formData.arquivo) {
+        const result = await uploadMutation.mutateAsync(formData.arquivo)
+        uploadedFileName = result.file.filename
+      }
+
+      const payload: SupportPayload = {
+        descricao: formData.mensagem,
+        assunto: formData.assunto,
+        tipo_suporte: Number(formData.tipoSuporte),
+        file_name1: uploadedFileName,
+      }
+
+      supportMutate(payload)
+
+      setFormData({
+        tipoSuporte: '',
+        assunto: '',
+        mensagem: '',
+        arquivo: null,
+      })
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    } catch (error) {
+      toast.error('Erro ao enviar o pedido.')
     }
-
-    // Chamada à API
-    mutate(payload)
-
-    // Limpar formulário
-    setFormData({
-      tipoSuporte: '',
-      assunto: '',
-      mensagem: '',
-      arquivo: null,
-    })
   }
 
   return (
@@ -107,7 +126,7 @@ export const Suporte = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {supportTypes?.map((type) => (
-                    <SelectItem key={type.codigo} value={type.codigo}>
+                    <SelectItem key={type.codigo} value={String(type.codigo)}>
                       {type.designacao}
                     </SelectItem>
                   ))}
@@ -148,11 +167,10 @@ export const Suporte = () => {
               <Label htmlFor="arquivo">Anexar Arquivo (Opcional)</Label>
               <div className="flex items-center gap-3">
                 <Input
-                  disabled
                   id="arquivo"
                   type="file"
+                  ref={fileInputRef}
                   onChange={handleFileChange}
-                  className="cursor-not-allowed"
                   accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                 />
                 <Upload className="h-5 w-5 text-muted-foreground" />
@@ -173,7 +191,6 @@ export const Suporte = () => {
               </p>
             </div>
 
-
             <div className="flex gap-3">
               <Button type="submit" className="flex-1" disabled={isSubmitting}>
                 <Send className="mr-2 h-4 w-4" />
@@ -182,14 +199,17 @@ export const Suporte = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() =>
+                onClick={() => {
                   setFormData({
                     tipoSuporte: '',
                     assunto: '',
                     mensagem: '',
                     arquivo: null,
                   })
-                }
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = ''
+                  }
+                }}
               >
                 Limpar
               </Button>

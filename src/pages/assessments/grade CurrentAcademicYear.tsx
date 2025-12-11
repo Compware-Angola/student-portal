@@ -17,7 +17,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
-import { ChevronDown, ChevronRight } from 'lucide-react'
+import { ChevronDown, ChevronRight, Lock } from 'lucide-react'
 import { format } from 'date-fns'
 import { pt } from 'date-fns/locale'
 import { useQueryStudentAssessmentsByCurrentAcademicYear } from '@/hooks/assessments/use-query-student-assessments-by-current-academic-year'
@@ -35,6 +35,7 @@ type Avaliacao = {
   nota: number
   data: string
   subRows?: []
+  bloqueado: boolean
 }
 
 type DisciplinaResumo = {
@@ -75,6 +76,7 @@ function agruparAvaliacoesPorDisciplina(
       nota: Number(item.nota_final),
       data: item.data_criacao_avaliacao,
       subRows: [],
+      bloqueado: item.blockeado,
     })
   }
 
@@ -153,15 +155,28 @@ const columns: ColumnDef<DisciplinaResumo | Avaliacao>[] = [
     header: 'Nota',
     cell: ({ row, getValue }) => {
       const isAvaliacao = 'nota' in row.original
-      if (isAvaliacao) {
-        const nota = getValue() as number
+
+      if (!isAvaliacao) return null
+
+      const avaliacao = row.original as Avaliacao
+
+      // 🔒 Se estiver bloqueado
+      if (avaliacao.bloqueado) {
         return (
-          <span className="font-semibold text-base">{nota.toFixed(1)}</span>
+          <div className="flex items-center gap-2 text-destructive">
+            <Lock className="h-4 w-4" />
+            <span className="text-sm italic">Indisponível</span>
+          </div>
         )
       }
-      return null
+
+      // ✅ Se estiver liberado
+      const nota = getValue() as number
+
+      return <span className="font-semibold text-base">{nota.toFixed(1)}</span>
     },
   },
+
   {
     accessorKey: 'media_final',
     header: 'Media Final',
@@ -269,7 +284,7 @@ export function GradeCurrentAcademicYear({
         <div className="flex items-center justify-between">
           <CardTitle>Notas do Ano Letivo Atual</CardTitle>
           <div className="flex items-center">
-            <div className='mr-1'>
+            <div className="mr-1">
               <YearSelect
                 academicYears={academicYears}
                 selectedYear={selectedYear}

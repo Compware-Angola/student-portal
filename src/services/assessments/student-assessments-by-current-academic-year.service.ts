@@ -31,6 +31,7 @@ export type StudentAssessment = {
   status_grade_curricular: string
   disciplina_nome: string
   disciplina_sigla: string
+  blockeado: boolean
 }
 
 export type StudentAssessmentResponse = {
@@ -41,7 +42,7 @@ type StudentAssessmentParams = {
   classe: string
   anoLetivo: string
   matricula: string
-  semestre? : string
+  semestre?: string
 }
 
 /**
@@ -51,7 +52,7 @@ export async function getStudentAssessmentsByCurrentAcademicYear(
   params: StudentAssessmentParams,
 ): Promise<StudentAssessmentResponse> {
   const semester = params.semestre
-  const semesterParam = !semester ? '':`?semestre=${semester}`;
+  const semesterParam = !semester ? '' : `?semestre=${semester}`
   const endpoint = `assessment/students/${params.classe}/${params.anoLetivo}/${params.matricula}${semesterParam}`
   return apexApi.get(endpoint).json<StudentAssessmentResponse>()
 }

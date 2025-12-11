@@ -63,7 +63,9 @@ export function useMutationNegotiation() {
 
     onError: (error: unknown) => {
       const message =
-        error instanceof Error ? error.message : 'Erro ao criar Negociação de Dívida.'
+        error instanceof Error
+          ? error.message
+          : 'Erro ao criar Negociação de Dívida.'
       toast.error(message)
     },
   })

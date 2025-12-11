@@ -4,6 +4,7 @@ export type SupportPayload = {
   descricao: string
   assunto: string
   tipo_suporte: number
+  file_name1: string | null
 }
 
 export type RespostaMensagens = {

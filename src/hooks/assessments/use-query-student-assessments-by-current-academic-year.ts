@@ -11,10 +11,6 @@ type Params = {
   semestre?: string
 }
 
-/**
- * Hook React Query para listar as avaliações do aluno.
- * Refresca automaticamente a cada 10 minutos.
- */
 export function useQueryStudentAssessmentsByCurrentAcademicYear(
   params?: Params,
 ) {
@@ -23,7 +19,7 @@ export function useQueryStudentAssessmentsByCurrentAcademicYear(
     params?.classe,
     params?.anoLetivo,
     params?.matricula,
-    params?.semestre
+    params?.semestre,
   ]
 
   const { data, isLoading, isFetching, isError, error, refetch } =
@@ -38,7 +34,7 @@ export function useQueryStudentAssessmentsByCurrentAcademicYear(
           classe: params.classe,
           anoLetivo: params.anoLetivo,
           matricula: params.matricula,
-          semestre: params.semestre
+          semestre: params.semestre,
         })
       },
       enabled: Boolean(
