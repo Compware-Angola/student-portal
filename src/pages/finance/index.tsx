@@ -1,6 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { FinanceProvider } from './context/finance.provider'
-//import { FinanceStats } from './componets/finance-stats'
 
 import { InvoicesTable } from './componets/invoice-table'
 import { useFinance } from './hooks/use-finance'
@@ -10,6 +9,7 @@ import { FinanceSkeleton } from './componets/finance-skeleton'
 import { PaymentList } from './componets/payment-list'
 import { useEffect, useState } from 'react'
 import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-academic-year-student'
+import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 
 function Content() {
   const { isLoadingProfileData, isProfileError, profileError, profileData } =
@@ -17,20 +17,45 @@ function Content() {
   const [selectedYear, setSelectedYear] = useState<string | undefined>(
     undefined,
   )
-
+ const {data:currentAcademicYear}=useQueryCurrentAcademicYear()
   const { data: academicYearData, isLoading: isAcademicYearLoading } =
     useQueryAcademicYearStudent(profileData?.enrollmentCode)
+
+if (currentAcademicYear && academicYearData?.anolectivos) {
+  const currentId = Number(currentAcademicYear.codigo);
+
+  const exists = academicYearData.anolectivos.some(
+    (ano) => Number(ano.codigo) === currentId
+  );
+
+  if (!exists) {
+    academicYearData.anolectivos.push({
+      codigo: String(currentId),
+      designacao: currentAcademicYear.designacao,
+      estado: "Activo",
+    });
+  }
+
+ academicYearData.anolectivos.sort(
+    (a, b) => Number(b.codigo) - Number(a.codigo)
+  );
+}
+
+
+   
+     
   const academicYears = dedupeAcademicYears(academicYearData?.anolectivos)
   useEffect(() => {
     if (!academicYears) return
 
-    // Encontrar o ano ativo
-    const active = academicYears.find((y) => y.estado === 'Activo')
+ 
+    const active = academicYears.find((y) => y?.estado === 'Activo')
 
     if (active && !selectedYear) {
       setSelectedYear(String(active.codigo))
     }
   }, [academicYears, setSelectedYear])
+ 
 
   if (
     isLoadingProfileData ||
