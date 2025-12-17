@@ -397,7 +397,7 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     const payload = getOldStudentEnrollmentPayload()
     await confirmOldStudentEnrollmentAsync(payload.selectedGrades)
     await createInvoiceWithPayload(
-      'Inscrição de Confirmação da Matrícula',
+      'Inscrição na UC',
       11478,
       parseInt(profileData?.codigo_matricula!),
     )

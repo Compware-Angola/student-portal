@@ -18,14 +18,14 @@ import {
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import type { LessonDetail, Schedule } from '@/types/schedule'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
-import { useQueryCurriculumSchedule } from '@/hooks/curriculum/use-query-curriculum-schedule'
 import { useEffect, useState } from 'react'
 import { useEnrollment } from './hooks/use-enrollment'
 import { toast } from 'sonner'
 import type { Grade } from '@/types/grade'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
+import { useSchedulesByPeriod } from '@/hooks/schedule/use-get-schedules-by-period'
+import type { ScheduleByPeriodDto } from '@/services/schedule/get-schedules-by-period.service'
 
 interface ScheduleSelectionDialogProps {
   subject: Grade
@@ -116,33 +116,38 @@ export const ScheduleSelectionDialog = ({
   const { selectScheduleForSubject, selectedSchedules, toggleSubject } =
     useEnrollment()
 
-  const groupAulasByDay = (aulas: LessonDetail[]) => {
-    const grouped: Record<string, LessonDetail[]> = {}
-    aulas.forEach((aula) => {
-      if (!grouped[aula.designacao]) {
-        grouped[aula.designacao] = []
-      }
-      grouped[aula.designacao].push(aula)
-    })
-    return grouped
-  }
+ const groupAulasByDay = (aulas: ScheduleByPeriodDto["aulas"]) => {
+   const grouped: Record<string, ScheduleByPeriodDto['aulas']> = {}
+
+   aulas.forEach((aula) => {
+     if (!grouped[aula.diaSemana]) {
+       grouped[aula.diaSemana] = []
+     }
+     grouped[aula.diaSemana].push(aula)
+   })
+
+   return grouped
+ }
 
   const { profileData, isLoading: isLoadingProfile } = useQueryProfile()
   const { data: currentAcademicYear, isLoading: isLoadingAcademicYear } =
     useQueryCurrentAcademicYear()
+
   const {
     data: horarios = [],
     isLoading: isLoadingSchedules,
     isError,
     refetch,
-  } = useQueryCurriculumSchedule(
-    {
-      academicYear: currentAcademicYear?.codigo,
-      gradeCurricular: subject?.codigoGrade,
-      preocidade: profileData?.periodoId,
-    },
-    open && !!profileData,
-  )
+  } = useSchedulesByPeriod({
+    anoLectivo: currentAcademicYear?.codigo
+      ? Number(currentAcademicYear?.codigo)
+      : undefined,
+
+    gradeCurricular: subject?.codigoGrade
+      ? Number(subject?.codigoGrade)
+      : undefined,
+    periodo: profileData?.periodoId ? Number(profileData.periodoId) : undefined,
+  })
 
   useEffect(() => {
     if (isError) {
@@ -152,12 +157,13 @@ export const ScheduleSelectionDialog = ({
 
   const selectedSchedule = selectedSchedules[subject.codigoGrade]
 
-  const handleSelectHorario = (schedule: Schedule) => {
+  const handleSelectHorario = (schedule: ScheduleByPeriodDto) => {
     selectScheduleForSubject(subject.codigoGrade, {
-      codigoHorario: schedule.codigo_horario,
-      descHorario: schedule.nome_horario,
+      codigoHorario: schedule.codigo.toString(),
+      descHorario: schedule.designacao,
     })
-    setTitle(schedule.nome_horario)
+
+    setTitle(schedule.designacao)
     toggleSubject(subject)
     setOpen(false)
   }
@@ -195,49 +201,31 @@ export const ScheduleSelectionDialog = ({
         ) : (
           <div className="space-y-4">
             {horarios.map((horario) => {
-              const groupedAulas = groupAulasByDay(horario.detalhes_aulas)
-              const isSelectedThis =
-                selectedSchedule?.codigoHorario === horario.codigo_horario
+              const groupedAulas = groupAulasByDay(horario.aulas)
 
               return (
                 <Card
-                  key={horario.codigo_horario}
-                  className={`cursor-pointer transition-all hover:shadow-md ${
-                    isSelectedThis
-                      ? 'border-primary ring-2 ring-primary shadow-sm'
-                      : 'hover:border-primary/50'
-                  }`}
+                  key={horario.codigo}
+                  className="cursor-pointer transition-all hover:shadow-md hover:border-primary/50"
                   onClick={() => handleSelectHorario(horario)}
                 >
                   <CardContent className="p-6 space-y-4">
+                    {/* Cabeçalho */}
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <h3 className="font-semibold text-xl mb-1">
-                          {horario.nome_horario}
+                          {horario.designacao}
                         </h3>
                         <p className="text-sm text-muted-foreground">
-                          {horario.nome_gradecurricular}
+                          {horario.disciplina}
                         </p>
                       </div>
-                      <div className="flex flex-col gap-2 items-end">
-                        <Badge
-                          variant={
-                            horario.periodo_turno === 'Diurno'
-                              ? 'default'
-                              : 'secondary'
-                          }
-                          className="text-sm px-3 py-1"
-                        >
-                          {horario.periodo_turno}
-                        </Badge>
-                        {isSelectedThis && (
-                          <Badge className="bg-primary text-sm px-3 py-1">
-                            ✓ Selecionado
-                          </Badge>
-                        )}
-                      </div>
+                      <Badge className="text-sm px-3 py-1">
+                        {horario.disponibilidade}
+                      </Badge>
                     </div>
 
+                    {/* Infos */}
                     <div className="flex flex-wrap gap-3">
                       <div className="flex items-center gap-2 bg-muted/50 px-3 py-2 rounded-md">
                         <User className="h-4 w-4 text-muted-foreground" />
@@ -248,29 +236,21 @@ export const ScheduleSelectionDialog = ({
                           </span>
                         </span>
                       </div>
+
                       <Badge variant="outline" className="px-3 py-2 text-sm">
-                        {horario.semestre}
-                      </Badge>
-                      <Badge
-                        variant={
-                          horario.status_disponibilidade === 'disponível'
-                            ? 'default'
-                            : 'destructive'
-                        }
-                        className="px-3 py-2 text-sm"
-                      >
-                        {horario.status_disponibilidade}
+                        {horario.anoLectivo}
                       </Badge>
                     </div>
 
-                    {horario.observacao && (
-                      <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-md p-3">
-                        <p className="text-sm text-amber-900 dark:text-amber-200 italic">
-                          📌 {horario.observacao}
+                    {/* {horario?.observacao && (
+                      <div className="bg-amber-50 border border-amber-200 rounded-md p-3">
+                        <p className="text-sm italic">
+                          📌 {horario?.observacao}
                         </p>
                       </div>
-                    )}
+                    )} */}
 
+                    {/* Aulas */}
                     <div className="space-y-3 pt-3 border-t">
                       <div className="flex items-center gap-2">
                         <Clock className="h-5 w-5 text-primary" />
@@ -278,8 +258,13 @@ export const ScheduleSelectionDialog = ({
                           Horário das Aulas
                         </p>
                       </div>
-                      <div className="space-y-4">
-                        {Object.entries(groupedAulas).map(([dia, aulas]) => (
+
+                      {Object.keys(groupedAulas).length === 0 ? (
+                        <p className="text-sm text-muted-foreground italic">
+                          Nenhuma aula definida
+                        </p>
+                      ) : (
+                        Object.entries(groupedAulas).map(([dia, aulas]) => (
                           <div key={dia} className="space-y-2">
                             <div className="flex items-center gap-2 bg-primary/10 px-3 py-1.5 rounded-md">
                               <CalendarDays className="h-4 w-4 text-primary" />
@@ -287,49 +272,46 @@ export const ScheduleSelectionDialog = ({
                                 {dia}
                               </p>
                             </div>
+
                             <div className="grid gap-2 pl-2">
-                              {aulas
-                                .sort((a, b) =>
-                                  a.hora_inicio.localeCompare(b.hora_inicio),
-                                )
-                                .map((aula, index) => (
-                                  <div
-                                    key={index}
-                                    className="flex flex-wrap items-center gap-4 bg-muted/30 hover:bg-muted/50 p-3 rounded-lg border border-transparent hover:border-muted-foreground/20 transition-colors"
-                                  >
-                                    <div className="flex items-center gap-2 min-w-[140px]">
-                                      <Clock className="h-4 w-4 text-primary" />
-                                      <span className="text-sm font-medium">
-                                        {aula.hora_inicio?.slice(0, 5)} -{' '}
-                                        {aula.hora_termino?.slice(0, 5)}
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center gap-2 min-w-[120px]">
-                                      <MapPin className="h-4 w-4 text-muted-foreground" />
-                                      <span className="text-sm">
-                                        {aula.sala}
-                                      </span>
-                                    </div>
-                                    <Badge
-                                      variant="secondary"
-                                      className="text-xs font-semibold"
-                                    >
-                                      {aula.tipo.toUpperCase()}
-                                    </Badge>
-                                    {aula.docente !== 'n/a' && (
-                                      <div className="flex items-center gap-2">
-                                        <User className="h-4 w-4 text-muted-foreground" />
-                                        <span className="text-sm text-muted-foreground">
-                                          {aula.docente}
-                                        </span>
-                                      </div>
-                                    )}
+                              {aulas.map((aula, index) => (
+                                <div
+                                  key={index}
+                                  className="flex flex-wrap items-center gap-4 bg-muted/30 p-3 rounded-lg"
+                                >
+                                  <div className="flex items-center gap-2 min-w-[160px]">
+                                    <Clock className="h-4 w-4 text-primary" />
+                                    <span className="text-sm font-medium">
+                                      {aula.horaInicio && aula.horaTermino
+                                        ? `${aula.horaInicio} - ${aula.horaTermino}`
+                                        : 'Horário por definir'}
+                                    </span>
                                   </div>
-                                ))}
+
+                                  <div className="flex items-center gap-2 min-w-[120px]">
+                                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-sm">{aula.sala}</span>
+                                  </div>
+
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs font-semibold"
+                                  >
+                                    {aula.tipoAula}
+                                  </Badge>
+
+                                  <div className="flex items-center gap-2">
+                                    <User className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-sm text-muted-foreground">
+                                      {aula.docenteNome}
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
                             </div>
                           </div>
-                        ))}
-                      </div>
+                        ))
+                      )}
                     </div>
                   </CardContent>
                 </Card>
