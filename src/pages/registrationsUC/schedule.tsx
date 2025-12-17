@@ -202,11 +202,16 @@ export const ScheduleSelectionDialog = ({
           <div className="space-y-4">
             {horarios.map((horario) => {
               const groupedAulas = groupAulasByDay(horario.aulas)
-
+const isSelectedThis =
+  selectedSchedule?.codigoHorario === horario.codigo.toString()
               return (
                 <Card
                   key={horario.codigo}
-                  className="cursor-pointer transition-all hover:shadow-md hover:border-primary/50"
+                  className={`cursor-pointer transition-all hover:shadow-md ${
+                    isSelectedThis
+                      ? 'border-primary ring-2 ring-primary shadow-sm'
+                      : 'hover:border-primary/50'
+                  }`}
                   onClick={() => handleSelectHorario(horario)}
                 >
                   <CardContent className="p-6 space-y-4">
