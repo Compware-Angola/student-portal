@@ -257,7 +257,6 @@ function PaymentReceiptDocument({
         </View>
 
         {/* ---------- Tabela de itens ---------- */}
-        {/* ---------- Tabela de itens ---------- */}
         <View style={styles.table}>
           <View style={[styles.tableRow, styles.tableHeader]}>
             <Text style={[styles.tableCellHeader, { width: '60%' }]}>
