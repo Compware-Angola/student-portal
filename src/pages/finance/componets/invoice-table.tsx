@@ -637,7 +637,10 @@ function useColumnsInvoiceTable({
       cell: ({ row }) => {
         const invoice = row.original
         const refs = invoice.referencias_pagamento || []
-        const temReferencia = refs.length > 0
+        const podeCriarNovaReferencia = 
+  refs.length === 0 || refs.every(ref => ref.Status === 'Expired');
+
+        const temReferencia = refs.length > 0 && !podeCriarNovaReferencia;
         const estaPendente = invoice.estado === 0
         const isPolling = usePollPendingTasks(
           Number(invoice.Codigo),
