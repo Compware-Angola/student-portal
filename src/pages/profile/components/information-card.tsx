@@ -4,7 +4,6 @@ import { PersonalDataTab } from './personal-data-tab'
 import { AcademicDataTab } from './academic-data-tab'
 import { SecurityDataTab } from './security-data-tab'
 
-
 type InformationCardProps = {
   email?: string
   phone?: string
@@ -21,8 +20,8 @@ type InformationCardProps = {
   lastLogin?: string | null
   twoFactorEnabled?: boolean
   updatedAt?: string | null
-  isEditing:boolean
-  userId:string
+  isEditing: boolean
+  userId: string
 }
 
 export function InformationCard({
@@ -37,7 +36,6 @@ export function InformationCard({
   enrollmentDate,
   userId,
 
-
   isEditing,
 }: InformationCardProps) {
   return (
@@ -47,7 +45,6 @@ export function InformationCard({
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="personal" className="w-full">
-          
           {/* ---- TABS ---- */}
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="personal">Dados Pessoais</TabsTrigger>
@@ -62,7 +59,7 @@ export function InformationCard({
             phone={phone ?? ''}
             documento={documento}
             address={address ?? ''}
-            isEditing ={isEditing}
+            isEditing={isEditing}
             userId={userId}
           />
 
@@ -74,13 +71,7 @@ export function InformationCard({
           />
 
           {/* ---- SEGURANÇA ---- */}
-          <SecurityDataTab
-            
-            
-             isEditing ={isEditing}
-             userId={userId}
-          />
-
+          <SecurityDataTab isEditing={isEditing} userId={userId} />
         </Tabs>
       </CardContent>
     </Card>

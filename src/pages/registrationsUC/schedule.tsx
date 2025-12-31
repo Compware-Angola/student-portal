@@ -116,18 +116,18 @@ export const ScheduleSelectionDialog = ({
   const { selectScheduleForSubject, selectedSchedules, toggleSubject } =
     useEnrollment()
 
- const groupAulasByDay = (aulas: ScheduleByPeriodDto["aulas"]) => {
-   const grouped: Record<string, ScheduleByPeriodDto['aulas']> = {}
+  const groupAulasByDay = (aulas: ScheduleByPeriodDto['aulas']) => {
+    const grouped: Record<string, ScheduleByPeriodDto['aulas']> = {}
 
-   aulas.forEach((aula) => {
-     if (!grouped[aula.diaSemana]) {
-       grouped[aula.diaSemana] = []
-     }
-     grouped[aula.diaSemana].push(aula)
-   })
+    aulas.forEach((aula) => {
+      if (!grouped[aula.diaSemana]) {
+        grouped[aula.diaSemana] = []
+      }
+      grouped[aula.diaSemana].push(aula)
+    })
 
-   return grouped
- }
+    return grouped
+  }
 
   const { profileData, isLoading: isLoadingProfile } = useQueryProfile()
   const { data: currentAcademicYear, isLoading: isLoadingAcademicYear } =
@@ -202,8 +202,8 @@ export const ScheduleSelectionDialog = ({
           <div className="space-y-4">
             {horarios.map((horario) => {
               const groupedAulas = groupAulasByDay(horario.aulas)
-const isSelectedThis =
-  selectedSchedule?.codigoHorario === horario.codigo.toString()
+              const isSelectedThis =
+                selectedSchedule?.codigoHorario === horario.codigo.toString()
               return (
                 <Card
                   key={horario.codigo}

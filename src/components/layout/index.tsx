@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/sidebar'
 import { Outlet } from 'react-router-dom'
 import { ModeToggle } from '../mode-toggle'
+import { StudentInfo } from './components/student-info'
 
 export default function Layout() {
   return (
@@ -40,8 +41,10 @@ export default function Layout() {
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
-
-            <ModeToggle />
+            <div className="flex gap-10 items-center">
+              <StudentInfo />
+              <ModeToggle />
+            </div>
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 py-10">

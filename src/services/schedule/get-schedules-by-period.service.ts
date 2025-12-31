@@ -38,7 +38,6 @@ export type GetSchedulesByPeriodParams = {
   gradeCurricular?: number
 }
 
-
 export async function getSchedulesByPeriod(
   params?: GetSchedulesByPeriodParams,
 ): Promise<ScheduleByPeriodDto[]> {

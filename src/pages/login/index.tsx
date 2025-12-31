@@ -16,11 +16,11 @@ import { useEffect, useState } from 'react'
 import { ForgotPasswordFlow } from './components/forgot-password-flow'
 
 export function Login() {
-  const {setTheme} = useTheme()
+  const { setTheme } = useTheme()
   const [activeTab, setActiveTab] = useState<'login' | 'forgot'>('login')
   useEffect(() => {
     setTheme('light')
-  },[])
+  }, [])
 
   return (
     <div className="flex min-h-screen items-center justify-center relative bg-gradient-to-br from-background to-muted p-4 ">
