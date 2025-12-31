@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ModeToggle } from '@/components/mode-toggle'
-import { Key, Lock, ArrowLeft } from 'lucide-react'
+import { Key, ArrowLeft } from 'lucide-react'
 import { LogoBackground } from './logo-background'
 import { Form } from '@/components/ui/form'
 import { InputFormField } from '@/components/input-form-field'
