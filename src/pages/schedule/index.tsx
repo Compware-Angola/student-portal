@@ -150,37 +150,6 @@ export function Schedule() {
     )
   }
 
-  // ⚠️ Confirmação pendente
-  if (!profileData?.confirmacoes || profileData.confirmacoes.length === 0) {
-    return (
-      <div className="space-y-6 p-6">
-        <h1 className="text-3xl font-bold">Meu Horário</h1>
-
-        <Card className="border border-red-200  overflow-hidden shadow-sm">
-          <CardContent className="flex flex-col items-center justify-center py-16 px-6 text-center">
-            <div className="relative mb-6">
-              <div className="absolute inset-0 animate-ping rounded-full bg-red-400 opacity-75 w-24 h-24 mx-auto" />
-              <div className="relative animate-bounce-slow">
-                <AlertCircle className="h-20 w-20 text-red-600 drop-shadow-lg" />
-              </div>
-            </div>
-
-            <h3 className="text-xl font-bold text-red-900 mb-2">
-              Confirmação Pendente
-            </h3>
-
-            <p className="text-red-700 max-w-md leading-relaxed">
-              A sua confirmação{' '}
-              <strong>não está validada pelo setor das finanças</strong>.<br />
-              Por favor, dirija-se à <strong>secretaria</strong> para
-              regularizar a situação e acessar o seu horário.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
   // 📅 Sem horário disponível
   if (!scheduleData || scheduleData.length === 0) {
     return (
