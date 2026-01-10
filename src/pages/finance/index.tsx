@@ -17,45 +17,40 @@ function Content() {
   const [selectedYear, setSelectedYear] = useState<string | undefined>(
     undefined,
   )
- const {data:currentAcademicYear}=useQueryCurrentAcademicYear()
+  const { data: currentAcademicYear } = useQueryCurrentAcademicYear()
   const { data: academicYearData, isLoading: isAcademicYearLoading } =
     useQueryAcademicYearStudent(profileData?.enrollmentCode)
 
-if (currentAcademicYear && academicYearData?.anolectivos) {
-  const currentId = Number(currentAcademicYear.codigo);
+  if (currentAcademicYear && academicYearData?.anolectivos) {
+    const currentId = Number(currentAcademicYear.codigo)
 
-  const exists = academicYearData.anolectivos.some(
-    (ano) => Number(ano.codigo) === currentId
-  );
+    const exists = academicYearData.anolectivos.some(
+      (ano) => Number(ano.codigo) === currentId,
+    )
 
-  if (!exists) {
-    academicYearData.anolectivos.push({
-      codigo: String(currentId),
-      designacao: currentAcademicYear.designacao,
-      estado: "Activo",
-    });
+    if (!exists) {
+      academicYearData.anolectivos.push({
+        codigo: String(currentId),
+        designacao: currentAcademicYear.designacao,
+        estado: 'Activo',
+      })
+    }
+
+    academicYearData.anolectivos.sort(
+      (a, b) => Number(b.codigo) - Number(a.codigo),
+    )
   }
 
- academicYearData.anolectivos.sort(
-    (a, b) => Number(b.codigo) - Number(a.codigo)
-  );
-}
-
-
-   
-     
   const academicYears = dedupeAcademicYears(academicYearData?.anolectivos)
   useEffect(() => {
     if (!academicYears) return
 
- 
     const active = academicYears.find((y) => y?.estado === 'Activo')
 
     if (active && !selectedYear) {
       setSelectedYear(String(active.codigo))
     }
   }, [academicYears, setSelectedYear])
- 
 
   if (
     isLoadingProfileData ||
