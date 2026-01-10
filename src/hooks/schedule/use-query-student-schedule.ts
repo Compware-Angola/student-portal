@@ -9,7 +9,7 @@ type Params = {
   preEnrollmentCode?: string
 }
 
-export function useQueryStudentSchedule(params?: Params) {
+export function useQueryStudentSchedule(params?: Params, enabled = true) {
   const queryKey = [
     'student-schedule',
     params?.academicYear,
@@ -25,7 +25,9 @@ export function useQueryStudentSchedule(params?: Params) {
         }
         return getStudentSchedule(params.academicYear, params.preEnrollmentCode)
       },
-      enabled: Boolean(params?.academicYear && params?.preEnrollmentCode),
+      enabled: Boolean(
+        params?.academicYear && params?.preEnrollmentCode && enabled,
+      ),
       staleTime: Infinity,
       retry: 0,
     })

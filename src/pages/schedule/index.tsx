@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useQueryStudentSchedule } from '@/hooks/schedule/use-query-student-schedule'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { ScheduleHeader } from './components/schedule-header'
@@ -32,18 +32,22 @@ export function Schedule() {
     academicYear: selectedYear,
     preEnrollmentCode,
   })
-
+  useEffect(() => {
+    if (defaultYear) {
+      setSelectedYear(defaultYear)
+    }
+  }, [defaultYear])
   const schedule = useMemo(() => organizarPorDia(scheduleData), [scheduleData])
   return (
     <div className="space-y-6 p-6">
       <ScheduleHeader
         academicYears={academicYears}
-        selectedYear={selectedYear ?? defaultYear}
+        selectedYear={selectedYear}
         onYearChange={setSelectedYear}
       />
 
       <ScheduleBody
-        isLoading={isLoadingProfile || isLoadingSchedule}
+        isLoading={isLoadingProfile || isLoadingSchedule || !defaultYear}
         isError={isErrorProfile || isErrorSchedule}
         errorMessage={errorProfile?.message}
         schedule={schedule}
