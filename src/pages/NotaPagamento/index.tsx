@@ -135,7 +135,9 @@ export const NotaPagamento = () => {
   }, [academicYears, selectedYear, setSelectedYear])
 
   const getStatusBadge = (status: string) => {
+     /*
     switch (status) {
+     
       case 'concluido':
         return <Badge variant="secondary">Paga</Badge>
       case 'pendente':
@@ -144,7 +146,11 @@ export const NotaPagamento = () => {
         return <Badge variant="destructive">Vencida</Badge>
       default:
         return <Badge>Desconhecido</Badge>
+      
+       
     }
+          */
+     return <Badge variant="secondary">Paga</Badge>
   }
 
   const getTipoBadge = (tipo: string) => {
