@@ -3,7 +3,7 @@ import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-cur
 import { dedupeAcademicYears } from '@/utils/dedupe-academic-years'
 import { useMemo } from 'react'
 
-export function useScheduleYears(enrollmentCode?: string) {
+export function useYearSelect(enrollmentCode?: string) {
   const { data: academicYearData } = useQueryAcademicYearStudent(enrollmentCode)
 
   const { data: currentAcademicYear } = useQueryCurrentAcademicYear()

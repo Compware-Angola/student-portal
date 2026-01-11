@@ -8,14 +8,15 @@ import {
 import { useQuerySemesters } from '@/hooks/semester/use-query-semester'
 export type SemesterSelectProps = {
   onChange: (value: string) => void
+  value:string
 }
 
-export function SemesterSelect({onChange}: SemesterSelectProps) {
+export function SemesterSelect({onChange,}: SemesterSelectProps) {
   const { data } = useQuerySemesters()
 
   return (
     <>
-      <Select  onValueChange={(e) => onChange(e)}>
+      <Select value='' onValueChange={(e) => onChange(e)}>
         <SelectTrigger className="min-w-60">
           <SelectValue placeholder="Selecione o semestre" />
         </SelectTrigger>

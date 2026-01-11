@@ -7,6 +7,7 @@ export type DiaSemana =
   | 'Quinta-Feira'
   | 'Sexta-Feira'
   | 'Sábado'
+  | "Domingo"
 
 export type AulaHorario = {
   hora_inicio: string
@@ -38,6 +39,7 @@ export const organizarPorDia = (
     'Quinta-Feira': [],
     'Sexta-Feira': [],
     'Sábado': [],
+    "Domingo":[]
   }
 
   if (!scheduleData?.length) return diasSemana

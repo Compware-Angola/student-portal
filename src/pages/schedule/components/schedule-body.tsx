@@ -55,10 +55,6 @@ function ScheduleSkeleton() {
         <Skeleton className="h-9 w-48" />
       </div>
 
-      <div className="max-w-xs">
-        <Skeleton className="h-10 w-full" />
-      </div>
-
       <div className="grid gap-4">
         {[1, 2, 3].map((day) => (
           <Card key={day}>
