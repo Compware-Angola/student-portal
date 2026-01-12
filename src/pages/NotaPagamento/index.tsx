@@ -150,6 +150,7 @@ export const NotaPagamento = () => {
        
     }
           */
+         
      return <Badge variant="secondary">Paga</Badge>
   }
 

@@ -31,7 +31,7 @@ export const CurrentYear = ({ profileData }: CurrentYearProps) => {
 
   // Verifica se o aluno está inscrito no ano letivo atual
   const isConfirmed =
-    profileData?.confirmacoes?.[0]?.ano_lectivo === academicYear?.codigo
+    profileData?.confirmacoes?.[0]?.ano_lectivo == academicYear?.codigo
 
   // Carregando
   if (isLoading) {
