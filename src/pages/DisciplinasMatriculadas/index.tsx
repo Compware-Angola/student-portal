@@ -4,9 +4,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useQueryCurriculumPlan } from '@/hooks/curriculum/use-query-curriculum-plan'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 
-import { CurrentYear } from './current-year'
+
 import { FilteredByClass } from './filterd-by-class'
 import { Spinner } from '@/components/ui/spinner'
+import { StudentCurriculum } from './student-curriculum'
 
 export const DisciplinasMatriculadas = () => {
   const {
@@ -52,7 +53,7 @@ export const DisciplinasMatriculadas = () => {
         </TabsList>
 
         <TabsContent value="atual" className="space-y-6 mt-6">
-          <CurrentYear profileData={profileData ?? undefined} />
+          <StudentCurriculum profileData={profileData!} />
         </TabsContent>
 
         <TabsContent value="class" className="space-y-6 mt-6">

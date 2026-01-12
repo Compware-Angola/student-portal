@@ -3,8 +3,9 @@ import { useQueryStudentSchedule } from '@/hooks/schedule/use-query-student-sche
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { ScheduleHeader } from './components/schedule-header'
 import { ScheduleBody } from './components/schedule-body'
-import { useScheduleYears } from './use-schedule-years'
+
 import { obterDiaAtual, organizarPorDia } from './utils'
+import { useYearSelect } from '@/components/year-select/use-year-select'
 
 export function Schedule() {
   const [diaSelecionado, setDiaSelecionado] = useState(obterDiaAtual())
@@ -22,7 +23,7 @@ export function Schedule() {
   const preEnrollmentCode = profileData?.preEnrollmentCode
   const enrollmentCode = profileData?.enrollmentCode
 
-  const { academicYears, defaultYear } = useScheduleYears(enrollmentCode)
+  const { academicYears, defaultYear } = useYearSelect(enrollmentCode)
 
   const {
     data: scheduleData,
