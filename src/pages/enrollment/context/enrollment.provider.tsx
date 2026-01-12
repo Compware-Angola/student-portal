@@ -478,6 +478,7 @@ function delay(ms: number): Promise<void> {
       11478,
       parseInt(profileData?.codigo_matricula!),
     )
+     await delay(4000);
    await createMonthlyPayments(parseInt(profileData?.codigo_matricula!))
   }
 
