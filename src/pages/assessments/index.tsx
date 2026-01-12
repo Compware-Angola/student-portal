@@ -30,7 +30,7 @@ export function Assessments() {
   const enrollmentCode = profileData?.codigo_matricula
   const classe = profileData?.confirmacoes[0]?.classe
   const academicYear =
-    academicYearData?.codigo || profileData?.confirmacoes[0]??.ano_lectivo
+    academicYearData?.codigo || profileData?.confirmacoes[0]?.ano_lectivo
   const preEnrollmentCode = profileData?.preEnrollmentCode
 
   return (

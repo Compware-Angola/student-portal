@@ -11,7 +11,7 @@ export type SemesterSelectProps = {
   value:string
 }
 
-export function SemesterSelect({onChange,}: SemesterSelectProps) {
+export function SemesterSelect({onChange}: SemesterSelectProps) {
   const { data } = useQuerySemesters()
 
   return (

@@ -291,7 +291,7 @@ export function GradeCurrentAcademicYear({
                 onChange={setSelectedYear}
               />
             </div>
-            <SemesterSelect onChange={onSelectSemester} />
+            <SemesterSelect onChange={onSelectSemester}/>
           </div>
         </div>
       </CardHeader>
