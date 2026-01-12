@@ -323,7 +323,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
       Desconto: 0,
       totalIVA: 0,
       TotalMulta: 0,
-      Descricao: description,
+      Descricao:  description?.substring(0, 45),
       tipo_documento_factura_id: 1,
       canal: 3,
       itens: [
@@ -333,7 +333,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
           preco: totalValue + valorAcrescer + 19300,
           Total: totalValue + valorAcrescer + 19300,
           valor_pago: totalValue + valorAcrescer + 19300,
-          obs: description,
+         obs: description?.substring(0, 45),
           taxaIva: 0,
           valorIva: 0,
           retencao: 0,
