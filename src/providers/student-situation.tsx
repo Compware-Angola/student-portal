@@ -4,10 +4,10 @@ import {
   StudentSituationContext,
   type StudentSituationValue,
 } from '@/context/student-situation'
+import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useQueryStudentSituation } from '@/hooks/student/use-query-student-situation'
-import { AuthStorage } from '@/storage/auth-storage'
 import { mapStudentSituation } from '@/utils/map-student-situation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 type StudentSituationProviderProps = {
   children: React.ReactNode
@@ -16,24 +16,34 @@ type StudentSituationProviderProps = {
 export function StudentSituationProvider({
   children,
 }: StudentSituationProviderProps) {
-  const [preEnrollmentCode, setPreEnrollmentCode] = useState(
-    AuthStorage.get()?.codigoPreinscricao,
+  const [preEnrollmentCode, setPreEnrollmentCode] = useState<string|  undefined>(
+    undefined
   )
+  const {
+    profileData,
+    isLoading: isLoadingProfileLoading,
+    isError: isErrorProfileData,
+  } = useQueryProfile()
 
   const { isLoading, isError, data, error, refetch } = useQueryStudentSituation(
     {
       preErrolmentCode: preEnrollmentCode,
     },
   )
-
+  useEffect(() => {
+    if (
+      !isLoadingProfileLoading && profileData) {
+          setPreEnrollmentCode(profileData.preEnrollmentCode)
+      }
+  }, [profileData])
   const isProcessing = isLoading
   const mapped = mapStudentSituation(data?.codigo_status)
 
   const value: StudentSituationValue = {
     situation: mapped?.situation ?? null,
     studentType: mapped?.studentType ?? null,
-    isLoading: isLoading,
-    hasError: isError,
+    isLoading: isLoading && isLoadingProfileLoading,
+    hasError: isError && isErrorProfileData,
     refetch,
     setPreEnrollmentCode,
   }

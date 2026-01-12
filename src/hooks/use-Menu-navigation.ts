@@ -29,53 +29,85 @@ export function useMenuNavigation() {
   const enrollmentPath = getEnrollmentRoute(studentType)
   const enrollmentTitle = getEnrollmentLabel(studentType)
 
+  const navMain = [
+    { title: 'Dashboard', url: '/', icon: LayoutDashboard },
+
+    {
+      title: 'Finanças',
+      url: '/financas',
+      icon: CreditCard,
+      items: [
+        {
+          title: 'Histórico de Pagamento',
+          url: '/financas/notas-pagamento',
+          icon: Receipt,
+        },
+      ],
+    },
+
+    {
+      title: enrollmentTitle,
+      url: enrollmentPath,
+      icon: GraduationCap,
+    },
+
+    { title: 'Horário', url: '/horario', icon: Calendar },
+    { title: 'Avaliações', url: '/avaliacoes', icon: FileText },
+    {
+      title: 'Serviços Acadêmicos',
+      url: '/servicos-academicos',
+      icon: BookOpen,
+    },
+    { title: 'Perfil', url: '/perfil', icon: User },
+    { title: 'Disciplinas', url: '/disciplinas', icon: Library },
+    {
+      title: 'Mensagens & Comunicados',
+      url: '/mensagens',
+      icon: MessageSquare,
+    },
+    {
+      title: 'Calendário Acadêmico',
+      url: '/calendario-academico',
+      icon: ClipboardList,
+    },
+    { title: 'Suporte', url: '/suporte', icon: HelpCircle },
+    {
+      title: 'Negociação de Dívida',
+      url: '/renegociacao',
+      icon: HandCoins,
+    },
+  ]
+
+  // 👉 URLs exclusivas para OLD
+  const oldOnlyRoutes = [
+    '/financas',
+    '/horario',
+    '/avaliacoes',
+    '/servicos-academicos',
+    '/disciplinas',
+    '/mensagens',
+    '/renegociacao',
+    '/calendario-academico',
+    '/suporte',
+  ]
+
+  const filteredNavMain =
+    studentType === 'NEW'
+      ? navMain
+          .filter((item) => !oldOnlyRoutes.includes(item.url))
+          .map((item) =>
+            item.items
+              ? {
+                  ...item,
+                  items: item.items.filter(
+                    (sub) => !oldOnlyRoutes.includes(sub.url),
+                  ),
+                }
+              : item,
+          )
+      : navMain
+
   return {
-    navMain: [
-      { title: 'Dashboard', url: '/', icon: LayoutDashboard },
-      {
-        title: 'Finanças',
-        url: '/financas',
-        icon: CreditCard,
-        items: [
-          {
-            title: 'Histórico de Pagamento',
-            url: '/financas/notas-pagamento',
-            icon: Receipt,
-          },
-        ],
-      },
-
-      {
-        title: enrollmentTitle,
-        url: enrollmentPath,
-        icon: GraduationCap,
-      },
-
-      { title: 'Horário', url: '/horario', icon: Calendar },
-      { title: 'Avaliações', url: '/avaliacoes', icon: FileText },
-      {
-        title: 'Serviços Acadêmicos',
-        url: '/servicos-academicos',
-        icon: BookOpen,
-      },
-      { title: 'Perfil', url: '/perfil', icon: User },
-      { title: 'Disciplinas', url: '/disciplinas', icon: Library },
-      {
-        title: 'Mensagens & Comunicados',
-        url: '/mensagens',
-        icon: MessageSquare,
-      },
-      {
-        title: 'Calendário Acadêmico',
-        url: '/calendario-academico',
-        icon: ClipboardList,
-      },
-      { title: 'Suporte', url: '/suporte', icon: HelpCircle },
-      {
-        title: 'Negociação de Dívida',
-        url: '/renegociacao',
-        icon: HandCoins,
-      },
-    ],
+    navMain: filteredNavMain,
   }
 }

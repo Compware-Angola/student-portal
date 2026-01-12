@@ -1,6 +1,6 @@
 import Layout from '@/components/layout'
 import { Dashboard } from '@/pages/dashboard'
-import { Route } from 'react-router-dom'
+import { Navigate, Route } from 'react-router-dom'
 import { RequireAuth } from './require-auth'
 import { Enrollment } from '@/pages/enrollment'
 import { Profile } from '@/pages/profile'
@@ -46,25 +46,120 @@ export function MainRoutes() {
       }
     >
       <Route index element={<Dashboard />} />
-      <Route path="/calendario-academico" element={<AcademicCalendar />} />
-      <Route path="/calendario-exames" element={<ExamCalendar />} />
+
+      <Route
+        path="/calendario-academico"
+        element={
+          <RequireOldStudent>
+            <AcademicCalendar />
+          </RequireOldStudent>
+        }
+      />
+      <Route
+        path="/calendario-exames"
+        element={
+          <RequireOldStudent>
+            <ExamCalendar />
+          </RequireOldStudent>
+        }
+      />
       <Route
         path={enrollmentPath.slice(1)}
         element={enrollmentComponents[enrollmentPath]}
       />
-      <Route path="/perfil" element={<Profile />} />
-      <Route path="/horario" element={<Schedule />} />
-      <Route path="/pagamento-antecipado" element={<AdvancePayment />} />
-      <Route path="/avaliacoes" element={<Assessments />} />
-      <Route path="/servicos-academicos" element={<AcademicServices />} />
-      <Route path="/financas" element={<Finance />} />
-      <Route path="/renegociacao" element={<Renegociation />} />
-      <Route path="/pre-inscricao" element={<PreSubscription />} />
+      <Route
+        path="/horario"
+        element={
+          <RequireOldStudent>
+            <Schedule />
+          </RequireOldStudent>
+        }
+      />
+      <Route
+        path="/pagamento-antecipado"
+        element={
+          <RequireOldStudent>
+            <AdvancePayment />
+          </RequireOldStudent>
+        }
+      />
+      <Route
+        path="/avaliacoes"
+        element={
+          <RequireOldStudent>
+            <Assessments />
+          </RequireOldStudent>
+        }
+      />
+      <Route
+        path="/servicos-academicos"
+        element={
+          <RequireOldStudent>
+            <AcademicServices />
+          </RequireOldStudent>
+        }
+      />
+      <Route
+        path="/financas"
+        element={
+          <RequireOldStudent>
+            <Finance />
+          </RequireOldStudent>
+        }
+      />
+      <Route
+        path="/renegociacao"
+        element={
+          <RequireOldStudent>
+            <Renegociation />
+          </RequireOldStudent>
+        }
+      />
 
-      <Route path="/mensagens" element={<MensagensNotificacoes />} />
-      <Route path="/suporte" element={<Suporte />} />
-      <Route path="/disciplinas" element={<DisciplinasMatriculadas />} />
+      <Route
+        path="/mensagens"
+        element={
+          <RequireOldStudent>
+            <MensagensNotificacoes />
+          </RequireOldStudent>
+        }
+      />
+      <Route
+        path="/suporte"
+        element={
+          <RequireOldStudent>
+            <Suporte />
+          </RequireOldStudent>
+        }
+      />
+      <Route
+        path="/disciplinas"
+        element={
+          <RequireOldStudent>
+            <DisciplinasMatriculadas />
+          </RequireOldStudent>
+        }
+      />
       <Route path="/financas/notas-pagamento" element={<NotaPagamento />} />
+
+      <Route path="/pre-inscricao" element={<PreSubscription />} />
+      <Route path="/perfil" element={<Profile />} />
     </Route>
   )
+}
+
+type RequireOldStudentProps = {
+  children: JSX.Element
+}
+
+export function RequireOldStudent({ children }: RequireOldStudentProps) {
+  const { studentType, isLoading } = useStudentSituation()
+
+  if (isLoading) return null
+
+  if (studentType !== 'OLD') {
+    return <Navigate to="/" replace />
+  }
+
+  return children
 }
