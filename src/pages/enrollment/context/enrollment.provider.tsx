@@ -395,6 +395,9 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     }
     createPaymentReference(invoiceData)
   }
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
   const confirmNewStudentEnrollment = async (
     newStudentCurriculumPlan: Grade[],
@@ -414,7 +417,8 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
       11511,
       enrollmentCode,
     )
-    createMonthlyPayments(enrollmentCode)
+    await delay(4000);
+   await createMonthlyPayments(enrollmentCode)
   }
   const confirmStudentEnrollment = async () => {
     // ====== 📚 NOVO ESTUDANTE ======
@@ -474,7 +478,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
       11478,
       parseInt(profileData?.codigo_matricula!),
     )
-    createMonthlyPayments(parseInt(profileData?.codigo_matricula!))
+   await createMonthlyPayments(parseInt(profileData?.codigo_matricula!))
   }
 
   return (
