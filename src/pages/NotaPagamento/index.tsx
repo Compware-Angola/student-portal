@@ -150,6 +150,7 @@ export const NotaPagamento = () => {
        
     }
           */
+         console.log(status)
          
      return <Badge variant="secondary">Paga</Badge>
   }

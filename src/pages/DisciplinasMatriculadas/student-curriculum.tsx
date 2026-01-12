@@ -62,7 +62,7 @@ export const StudentCurriculum = ({ profileData }: StudentCurriculumProps) => {
   const { data: semestersResponse, isLoading: isLoadingSemesters } =
     useQuerySemesters()
 
-  const { data, isLoading, isError } = useFetchDisciplines({
+  const { data, isLoading } = useFetchDisciplines({
     anoLectivo: selectedYear!,
     semestre: selectedSemester ?? 1,
     matriculaId: profileData.enrollmentCode,
