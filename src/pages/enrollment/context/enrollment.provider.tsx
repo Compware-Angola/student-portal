@@ -80,6 +80,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     (StudentSituation.NEW_WITH_CURRENT_CONFIRMATION ===
       Number(studentSituation?.codigo_status) &&
       Number(debit?.totalDivida) > 0)
+
   const { data: confirmationNewStudent } =
     useQueryActivityAcademicConfirmationStudent(
       {
