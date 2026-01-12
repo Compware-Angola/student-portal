@@ -60,7 +60,7 @@ function CurriculumRow({
     <TableRow key={subject.CodigoGrade}>
       <TableCell className="font-medium">{subject.CodigoDisciplina}</TableCell>
       <TableCell>{subject.disciplina}</TableCell>
-      <TableCell>{subject.ano_lectivo}</TableCell>
+      <TableCell>{subject?.ano_lectivo}</TableCell>
       <TableCell>{subject.semestre}</TableCell>
       <TableCell>
         <StatusBadge estado={subject.estado} />

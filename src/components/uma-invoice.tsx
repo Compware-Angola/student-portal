@@ -226,7 +226,7 @@ function PaymentReceiptDocument({
           <View style={styles.infoRow}>
             <Text>
               <Text style={styles.label}>Ano Lectivo:</Text>{' '}
-              {invoice.ano_lectivo}
+              {invoice?.ano_lectivo}
             </Text>
             <Text>
               <Text style={styles.label}>Polo:</Text> {invoice.polo}

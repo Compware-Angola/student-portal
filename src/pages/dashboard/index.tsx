@@ -54,12 +54,12 @@ export const Dashboard = () => {
     useQueryStudentDashboardStatistics(profileData?.enrollmentCode)
   const { data: atividades = [], isLoading: loadingAtividades } =
     useQueryAcademicActivity({
-      academicYear: profileData?.confirmacoes[0]?.ano_lectivo,
+      academicYear: profileData?.confirmacoes[0]??.ano_lectivo,
       applicationType: profileData?.codigo_tipo_candidatura,
     })
   const { data: exams = [], isLoading: loadingExams } =
     useQueryAcademicTestSchedule({
-      academicYear: profileData?.confirmacoes[0]?.ano_lectivo,
+      academicYear: profileData?.confirmacoes[0]??.ano_lectivo,
       semester: '1',
       enrollmentCode: profileData?.enrollmentCode,
     })

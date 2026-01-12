@@ -202,7 +202,7 @@ export const Renegociation = () => {
           total: Number(m.total) || 0,
           servico: m.servico || '',
           mes_propina: m.mes_propina || '',
-          ano_lectivo: m.ano_lectivo || '',
+          ano_lectivo: m?.ano_lectivo || '',
           taxa_multa: Number(m.taxa_multa) || 0,
           taxa_desconto: Number(m.taxa_desconto) || 0,
           codigo_propina: Number(m.codigo_propina) || 0,
@@ -672,7 +672,7 @@ export const Renegociation = () => {
               <div className="flex justify-between">
                 <span className="font-medium">Ano Letivo:</span>
                 <span className="text-muted-foreground">
-                  {selectedMesDivida.ano_lectivo}
+                  {selectedMesDivida?.ano_lectivo}
                 </span>
               </div>
 
