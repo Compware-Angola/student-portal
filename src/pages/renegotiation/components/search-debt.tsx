@@ -15,13 +15,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+
 import { Search, Loader2 } from 'lucide-react'
 import z from 'zod'
 import type { searchDebtSchema } from '../schemas'
@@ -66,36 +60,6 @@ export function SearchDebt({
                   <FormControl>
                     <Input placeholder="Ex: 1" {...field} disabled />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={searchForm.control}
-              name="academicYear"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Ano Académico</FormLabel>
-                  <Select
-                    disabled
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o ano académico" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="2020-2021">2020-2021</SelectItem>
-                      <SelectItem value="2021-2022">2021-2022</SelectItem>
-                      <SelectItem value="2022-2023">2022-2023</SelectItem>
-                      <SelectItem value="2023-2024">2023-2024</SelectItem>
-                      <SelectItem value="2024-2025">2024-2025</SelectItem>
-                      <SelectItem value="2025-2026">2025-2026</SelectItem>
-                    </SelectContent>
-                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
