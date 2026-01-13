@@ -15,7 +15,7 @@ import { useNavigate } from 'react-router-dom'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { DashboardSkeleton } from './components/dashboard-skeleton'
 import { formatCurrency } from '@/utils'
-import { useQueryStudentDashboardStatistics } from '@/hooks/statics/use-query-student-dashboard-statistics'
+
 import {
   useQueryAnnouncement,
   useQueryMessage,
@@ -25,6 +25,7 @@ import { useQueryAcademicActivity } from '@/hooks/academic/use-query-academic-ac
 import { useQueryAcademicTestSchedule } from '@/hooks/schedule/use-query-academic-test-schedule'
 
 import { DebtCard } from './components/debt-card'
+import { CompletedSubjectsCard } from './components/completed-subjects-card'
 
 // === Tipos ===
 interface Notification {
@@ -51,8 +52,7 @@ export const Dashboard = () => {
   })
   const { data: comunicados, isLoading: loadingComunicados } =
     useQueryAnnouncement({ pre_inscricao })
-  const { data: statistics, isLoading: loadingStats } =
-    useQueryStudentDashboardStatistics(profileData?.enrollmentCode)
+
   const { data: atividades = [], isLoading: loadingAtividades } =
     useQueryAcademicActivity({
       academicYear: profileData?.confirmacoes[0]?.ano_lectivo,
@@ -168,7 +168,7 @@ export const Dashboard = () => {
       month: 'short',
       year: 'numeric',
     })
-  if (!profileData || loadingStats) return <DashboardSkeleton />
+  if (!profileData) return <DashboardSkeleton />
 
   return (
     <div className="space-y-6">
@@ -200,20 +200,7 @@ export const Dashboard = () => {
           enrollmentCode={profileData.enrollmentCode}
           preinscricao={profileData.codigo_preinscricao}
         />
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Disciplinas Concluídas
-            </CardTitle>
-            <GraduationCap className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {statistics?.quantidade_disciplinas_aprovadas || 0}
-            </div>
-          </CardContent>
-        </Card>
+        <CompletedSubjectsCard enrollmentCode={profileData.enrollmentCode} />
       </div>
 
       {/* Mensagens + Calendários */}
