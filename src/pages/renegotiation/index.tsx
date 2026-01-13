@@ -131,6 +131,14 @@ export const Renegociation = () => {
     })
     return () => subscription.unsubscribe()
   }, [simulateForm])
+  useEffect(() => {
+    if (profileData && academicYear) {
+      searchForm.reset({
+        enrollmentCode: String(profileData.codigo_matricula),
+        academicYear: academicYear.designacao,
+      })
+    }
+  }, [profileData, academicYear, searchForm])
 
   // === LOADING ===
   if (isLoadingProfile || !profileData) {
