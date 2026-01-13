@@ -390,7 +390,7 @@ export const Renegociation = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Calculator className="h-5 w-5" />
-                    Negociação  Dívida
+                    Negociação Dívida
                   </CardTitle>
                   <CardDescription>
                     Escolha o tipo e ajuste o pagamento inicial
