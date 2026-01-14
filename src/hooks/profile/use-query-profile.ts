@@ -69,6 +69,7 @@ export function useQueryProfile() {
       codigo_curso: data.codigo_curso ?? data.curso_candidatura,
       enrollmentCode: data.codigo_matricula,
       preEnrollmentCode: data.codigo_preinscricao,
+      estado_matricula: data.estado_matricula,
     }
   }, [data])
 

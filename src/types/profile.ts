@@ -20,4 +20,5 @@ export type ProfileData = {
   enrollmentCode: string
   preEnrollmentCode: string
   curso_duracao?: string
+  estado_matricula?: string
 } & StudentProfile

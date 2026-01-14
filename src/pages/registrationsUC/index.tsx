@@ -10,6 +10,7 @@ import { EnrollmentSkeleton } from './components/enrollment-skeleton'
 import { useEffect } from 'react'
 import { StudentSituation } from '@/constants/student-situation'
 import { PaymentAlert } from '@/components/payment-alert'
+import { GraduatedBanner } from './components/graduated-banner'
 
 function RegistrationsUCContent() {
   const {
@@ -28,6 +29,8 @@ function RegistrationsUCContent() {
     debit,
     profileData,
   } = useEnrollment()
+  const isDiplomado = profileData?.estado_matricula === 'diplomado'
+
   useEffect(() => {
     if (isErrorProfileData) {
       toast.error('Erro ao carregar dados do estudante')
@@ -64,31 +67,37 @@ function RegistrationsUCContent() {
 
   return (
     <div className="space-y-6">
-      <EnrollmentHeader />
-      <EnrollmentSummaryCards />
-      {!enrollmentState && (
+      {isDiplomado ? (
+        <GraduatedBanner profile={profileData} />
+      ) : (
         <>
-          <div>
-            <div>
-              <div className="flex items-center justify-between my-2">
-                <p>Disciplinas Disponíveis</p>
+          <EnrollmentHeader />
+          <EnrollmentSummaryCards />
+          {!enrollmentState && (
+            <>
+              <div>
+                <div>
+                  <div className="flex items-center justify-between my-2">
+                    <p>Disciplinas Disponíveis</p>
+                  </div>
+                </div>
+                <div className="space-y-6">
+                  <EnrollmentSection
+                    label="Pendentes"
+                    subjects={pendingSubjects}
+                    secktionKey="pendents"
+                  />
+                  <EnrollmentSection
+                    label="Novas"
+                    subjects={subject}
+                    secktionKey="new"
+                  />
+                </div>
               </div>
-            </div>
-            <div className="space-y-6">
-              <EnrollmentSection
-                label="Pendentes"
-                subjects={pendingSubjects}
-                secktionKey="pendents"
-              />
-              <EnrollmentSection
-                label="Novas"
-                subjects={subject}
-                secktionKey="new"
-              />
-            </div>
-          </div>
 
-          <EnrollmentResume />
+              <EnrollmentResume />
+            </>
+          )}
         </>
       )}
     </div>
