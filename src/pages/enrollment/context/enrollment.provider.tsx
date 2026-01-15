@@ -6,8 +6,7 @@ import { useMutationConfirmNewStudentEnrollment } from '@/hooks/enrollment/use-m
 import type { Grade } from '@/types/grade'
 import { useQueryCurriculumPlan } from '@/hooks/curriculum/use-query-curriculum-plan'
 import type { SectionKey, SelectedSchedule } from '../types/enrollment'
-import { useQueryCurriculumPlanPendents } from '@/hooks/curriculum/use-query-curriculum-plan-pendents'
-import { useMutationConfirmOldStudentEnrollment } from '@/hooks/enrollment/use-mutation-confirm-old-student-enrollment'
+
 import { useMutationCreateInvoice } from '@/hooks/invoice/use-mutation-create-invoice'
 import type { CreateInvoiceBody } from '@/services/invoice/post-invoice.service'
 import { useMutationCreatePaymentReferenceMensalidades } from '@/hooks/invoice/use-mutation-payment-monthly'
@@ -19,7 +18,10 @@ import { useQueryActivityAcademicConfirmationStudent } from '@/hooks/academic/us
 import { getEnrollmentStatus } from '@/utils'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 import { useQueryStudentDashboardStatistics } from '@/hooks/statics/use-query-student-dashboard-statistics'
-import { useQueryGetDebit } from '@/hooks/renegotiation/use-query-renegotiation'
+import { useTypeServiceSingle } from '@/hooks/service/use-query-type-service'
+import { SERVICE_TYPES } from '@/constants/service-type'
+import type { TypeServiceResponse } from '@/services/type-service/type-service.service'
+
 type ToggleState = {
   new: boolean
   pendents: boolean
@@ -48,66 +50,52 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     isError: isErrorAcademicYear,
     isLoading: isLoadingAcademmicYear,
   } = useQueryCurrentAcademicYear()
-  const { data: debit, isLoading: isLoadingDebit } = useQueryGetDebit({
-    type: '1',
-    enrollmentCode: profileData?.enrollmentCode,
-    preinscricao: profileData?.codigo_preinscricao,
+
+  const { data: taxaMatricula } = useTypeServiceSingle({
+    currentYearCode: Number(currentAcademicYear?.codigo),
+    ...SERVICE_TYPES.TAXA_MATRICULA,
   })
-  const shouldFecthCurriculumPlan =
+
+  const { data: foraPrazo } = useTypeServiceSingle({
+    currentYearCode: Number(currentAcademicYear?.codigo),
+    ...SERVICE_TYPES.INSCRICAO_FORA_PRAZO,
+  })
+
+  const shouldFetchCurriculumPlan =
     StudentSituation.NEW_WITHOUT_ENROLLMENT ===
       Number(studentSituation?.codigo_status) ||
     StudentSituation.OLD_WITHOUT_CURRENT_CONFIRMATION ===
       Number(studentSituation?.codigo_status)
   const { isLoading: isLoadingStudenttatistics, data: studentStatistics } =
     useQueryStudentDashboardStatistics(profileData?.enrollmentCode)
-  const shouldFecthCurriculumPlanPendents =
-    StudentSituation.OLD_WITHOUT_CURRENT_CONFIRMATION ===
-    Number(studentSituation?.codigo_status)
-  const {
-    data: pendentsGrades,
-    isLoading: isLoadingStudentCurriculumPlanPendents,
-    isError: isErrorStudentCurriculumPlanPendents,
-  } = useQueryCurriculumPlanPendents(
-    profileData?.preEnrollmentCode,
-    shouldFecthCurriculumPlanPendents,
-  )
+
   const isNewStudentWithOutEnrollment =
     StudentSituation.NEW_WITHOUT_ENROLLMENT ===
     Number(studentSituation?.codigo_status)
   const shouldFetchAcademicConfirmationNewStudent =
     StudentSituation.NEW_WITHOUT_ENROLLMENT ===
-      Number(studentSituation?.codigo_status) ||
-    (StudentSituation.NEW_WITH_CURRENT_CONFIRMATION ===
-      Number(studentSituation?.codigo_status) &&
-      Number(debit?.totalDivida) > 0)
+    Number(studentSituation?.codigo_status)
 
   const { data: confirmationNewStudent } =
     useQueryActivityAcademicConfirmationStudent(
       {
-        academicYearCode: currentAcademicYear?.codigo ?? '23',
+        academicYearCode: currentAcademicYear?.codigo,
         candidacyType: profileData?.codigo_tipo_candidatura,
-        type: isNewStudentWithOutEnrollment ? 'new' : 'old',
+        type: 'new',
       },
       shouldFetchAcademicConfirmationNewStudent,
     )
-  const generateClasse = useMemo(() => {
-    const classe = profileData?.confirmacoes?.[0]?.classe
-    if (isNewStudentWithOutEnrollment) {
-      return classe ?? '1'
-    }
-    const newClass = Number(classe) + 1
-    return `${newClass > 5 ? classe : newClass}`
-  }, [profileData, isNewStudentWithOutEnrollment])
+
   const {
     data: grades,
     isLoading: isLoadingStudentCurriculumPlan,
     isError: isErrorStudentCurriculumPlan,
   } = useQueryCurriculumPlan(
     {
-      class: generateClasse,
+      class: '1',
       course: profileData?.codigo_curso,
     },
-    shouldFecthCurriculumPlan,
+    shouldFetchCurriculumPlan,
   )
 
   const enrollmentStatus = useMemo(
@@ -130,11 +118,6 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
   } = useMutationConfirmNewStudentEnrollment()
 
   const { createInvoiceAsync } = useMutationCreateInvoice()
-
-  const {
-    confirmOldStudentEnrollmentAsync,
-    confirmOldStudentEnrollmentPending,
-  } = useMutationConfirmOldStudentEnrollment()
 
   // Horários selecionados por disciplina (mapeados pelo código da grade)
   const [selectedSchedules, setSelectedSchedules] = useState<
@@ -167,7 +150,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     selectedSubjects.some((s) => s.codigoGrade === subject.codigoGrade)
 
   const isAllSelected = () => {
-    const all = [...grades, ...pendentsGrades]
+    const all = [...grades]
     return (
       all.length > 0 &&
       all.every((s) =>
@@ -233,22 +216,8 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
   // 📦 Gerar payload final
   // =====================
 
-  const getOldStudentEnrollmentPayload = () => {
-    const selectedGrades = selectedSubjects.map((subject) => {
-      const horario = selectedSchedules[subject.codigoGrade]
-      return {
-        codigoGrade: subject.codigoGrade,
-        codigoHorario: horario?.codigoHorario || null,
-        descHorario: horario?.descHorario || '',
-      }
-    })
-    if (!profileData?.enrollmentCode) {
-      throw new Error('Enrollment code is missing')
-    }
-    return { enrollmentCode: profileData?.enrollmentCode, selectedGrades }
-  }
   const selectAll = () => {
-    const allSubjects = [...grades, ...pendentsGrades]
+    const allSubjects = [...grades]
     const allSelected = isAllSelected()
 
     if (isNewStudentWithOutEnrollment) {
@@ -302,21 +271,29 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     0,
   )
 
-  const createInvoiceWithPayload = async (
-    description: string,
-    serviceTypeCode: number,
-    enrollmentCode: number,
-  ) => {
+  const taxaMatriculaValue = taxaMatricula?.preco ?? 0
+  const foraPrazoValue =
+    enrollmentStatus === 'closed' ? (foraPrazo?.preco ?? 0) : 0
+
+  const totalPagar = totalValue + taxaMatriculaValue + foraPrazoValue
+  const createInvoiceWithPayload = async (enrollmentCode: number) => {
     if (!profileData) {
       throw new Error('dados do perfil nao encontrado')
     }
     const now = new Date()
-    const valorAcrescer = enrollmentStatus === 'closed' ? 10200 : 0
+
+    const itens = [
+      ...(enrollmentStatus === 'closed' && foraPrazo
+        ? [createItem(foraPrazo)]
+        : []),
+      createItem(taxaMatricula!),
+      ...selectedSubjects.map(generateDisciplineItem),
+    ]
     const invoice: CreateInvoiceBody = {
       polo_id: parseInt(profileData?.poloId),
-      TotalPreco: totalValue + valorAcrescer + 19300,
+      TotalPreco: totalPagar,
       codigo_descricao: 101,
-      ValorAPagar: totalValue + valorAcrescer + 19300,
+      ValorAPagar: totalPagar,
       total_incidencia: 0,
       total_retencao: 0,
       CodigoMatricula: enrollmentCode,
@@ -324,35 +301,14 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
       Desconto: 0,
       totalIVA: 0,
       TotalMulta: 0,
-      Descricao:  description?.substring(0, 45) || 'Inscrição de matrícula',
+      Descricao: 'Matrícula + Inscrição em Disciplinas'.substring(0, 44),
       tipo_documento_factura_id: 1,
       canal: 3,
-      itens: [
-        {
-          CodigoProduto: serviceTypeCode,
-          Quantidade: 1,
-          preco: totalValue + valorAcrescer + 19300,
-          Total: totalValue + valorAcrescer + 19300,
-          valor_pago: totalValue + valorAcrescer + 19300,
-          obs: description?.substring(0, 45),
-          taxaIva: 0,
-          valorIva: 0,
-          retencao: 0,
-          incidencia: 0,
-          valorDesconto: 0,
-          descontoProduto: 0,
-          mes: 'Outubro',
-          multa: 0,
-          mesTempId: 3,
-          estado: 0,
-          valorPago: 0,
-          valorATransportar: 0,
-          codigoFactura: 1023,
-        },
-      ],
       DataFactura: now.toISOString(),
+      itens: itens,
     }
-    await createInvoiceAsync(invoice)
+
+    return createInvoiceAsync(invoice)
   }
   const createMonthlyPayments = async (enrollmentCode: number) => {
     if (isMonthlyFeeValueErro) {
@@ -396,16 +352,13 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     }
     createPaymentReference(invoiceData)
   }
-function delay(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
 
-  const confirmNewStudentEnrollment = async (
-    newStudentCurriculumPlan: Grade[],
-    selectedSubjects: Grade[],
-  ) => {
-    const isSelectedAllSubjects =
-      newStudentCurriculumPlan.length === selectedSubjects.length
+  function delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms))
+  }
+
+  const confirmStudentEnrollment = async () => {
+    const isSelectedAllSubjects = grades.length === selectedSubjects.length
 
     if (!isSelectedAllSubjects) {
       toast.warning('Selecione todas as disciplinas obrigatórias.')
@@ -413,89 +366,26 @@ function delay(ms: number): Promise<void> {
     }
     const response = await confirmNewStudentEnrollmentAsync(selectedSubjects)
     const enrollmentCode = response.Codigo_Matricula
-    await createInvoiceWithPayload(
-      'Inscrição de matrícula',
-      11511,
-      enrollmentCode,
-    )
-    await delay(4000);
-   await createMonthlyPayments(enrollmentCode)
-  }
-  const confirmStudentEnrollment = async () => {
-    // ====== 📚 NOVO ESTUDANTE ======
-    if (isNewStudentWithOutEnrollment) {
-      if (!grades) {
-        toast.error('Disciplinas obrigatórias não selecionadas.')
-        return
-      }
-      await confirmNewStudentEnrollment(grades, selectedSubjects)
-      return
+    await delay(6000)
+    const responseInvoice = await createInvoiceWithPayload(enrollmentCode)
+    if (responseInvoice) {
+      await createMonthlyPayments(enrollmentCode)
     }
-
-    if (selectedSubjects.length === 0) {
-      toast.warning('Nenhuma disciplina selecionada.')
-      return
-    }
-
-    if (selectedSubjects.length > maxCourseGrade) {
-      toast.error(`Não é permitido ultrapassar ${maxCourseGrade} disciplinas.`)
-      return
-    }
-
-    // 2️⃣ Verifica se há pendentes ainda não selecionadas
-    const unselectedPendents = (pendentsGrades ?? []).filter(
-      (p) => !selectedSubjects.some((s) => s.codigoGrade === p.codigoGrade),
-    )
-
-    const selectedNews = (grades ?? []).filter((g) =>
-      selectedSubjects.some((s) => s.codigoGrade === g.codigoGrade),
-    )
-
-    if (unselectedPendents.length > 0 && selectedNews.length > 0) {
-      toast.warning('Ainda há disciplinas pendentes não selecionadas.', {
-        description: 'Finalize as pendentes antes de adicionar novas cadeiras.',
-      })
-      return
-    }
-
-    // 3️⃣ Verifica se todas as disciplinas selecionadas têm horário
-    const missingSchedules = selectedSubjects.filter(
-      (subject) => !selectedSchedules[subject.codigoGrade]?.codigoHorario,
-    )
-
-    if (missingSchedules.length > 0) {
-      const missingNames = missingSchedules.map((s) => s.disciplina).join(', ')
-      toast.warning(`Selecione o horário para: ${missingNames}`, {
-        description:
-          'Cada disciplina precisa ter um horário definido antes de continuar.',
-      })
-      return
-    }
-
-    const payload = getOldStudentEnrollmentPayload()
-    await confirmOldStudentEnrollmentAsync(payload.selectedGrades)
-    await createInvoiceWithPayload(
-      'Inscrição de Confirmação da Matrícula',
-      11478,
-      parseInt(profileData?.codigo_matricula!),
-    )
-     await delay(4000);
-   await createMonthlyPayments(parseInt(profileData?.codigo_matricula!))
   }
 
   return (
     <EnrollmentContext.Provider
       value={{
+        taxaMatriculaValue,
+        foraPrazoValue,
+        totalPagar,
         selectedSubjects,
         isErrorProfileData,
         isErrorStudentCurriculumPlan,
-        isErrorStudentCurriculumPlanPendents,
         isLoadingProfileData,
         isLoadingStudentCurriculumPlan,
-        isLoadingStudentCurriculumPlanPendents,
         isExpanded,
         subject: grades ?? [],
-        pendingSubjects: pendentsGrades ?? [],
         totalValue,
         toggleSubject,
         isSelected,
@@ -505,9 +395,7 @@ function delay(ms: number): Promise<void> {
         remove,
         removeAll,
         confirmStudentEnrollment,
-        confirmStudentEnrollmentState:
-          confirmOldStudentEnrollmentPending ||
-          confirmNewStudentEnrollmentPending,
+        confirmStudentEnrollmentState: confirmNewStudentEnrollmentPending,
         removeScheduleForSubject,
         selectScheduleForSubject,
         selectedSchedules,
@@ -520,11 +408,70 @@ function delay(ms: number): Promise<void> {
         studentStatistics,
         profileData,
         maxCourseGrade,
-        isLoadingDebit,
-        debit,
       }}
     >
       {children}
     </EnrollmentContext.Provider>
   )
+}
+function generateDisciplineItem(grade: Grade) {
+  const MAX_OBS_LENGTH = 45
+  const nomeCompleto =
+    grade.disciplina || grade.codigoDisciplina || 'Disciplina'
+
+  const prefixo = 'Insc. '
+  let obs = prefixo + nomeCompleto
+
+  if (obs.length > MAX_OBS_LENGTH) {
+    const espacoParaNome = MAX_OBS_LENGTH - prefixo.length - 3 // -3 para ...
+    const nomeCortado = nomeCompleto.substring(0, espacoParaNome)
+    obs = prefixo + nomeCortado + '...'
+  }
+
+  // Garantia absoluta: nunca mais de 45
+  obs = obs.substring(0, MAX_OBS_LENGTH)
+
+  return {
+    CodigoProduto: 11476,
+    Quantidade: 1,
+    preco: Number(grade.valorInscricao),
+    Total: Number(grade.valorInscricao),
+    valor_pago: 0,
+    obs: obs,
+    taxaIva: 1,
+    valorIva: 0,
+    retencao: 0,
+    incidencia: 0,
+    valorDesconto: 0,
+    descontoProduto: 0,
+    mes: '',
+    multa: 0,
+    estado: 0,
+    valorPago: 0,
+    valorATransportar: 0,
+  }
+}
+function createItem(serviceType: TypeServiceResponse) {
+  const MAX_OBS_LENGTH = 45
+
+  return {
+    CodigoProduto: serviceType.codigo,
+    Quantidade: 1,
+    preco: serviceType.preco,
+    Total: serviceType.preco,
+    valor_pago: 0,
+    obs: serviceType?.descricao?.substring(0, MAX_OBS_LENGTH) ?? '',
+    taxaIva: 1,
+    valorIva: 0,
+    retencao: 0,
+    incidencia: 0,
+    valorDesconto: 0,
+    descontoProduto: 0,
+    mes: '',
+    multa: 0,
+    mesTempId: 3,
+    estado: 0,
+    valorPago: 0,
+    valorATransportar: 0,
+  }
 }

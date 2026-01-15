@@ -32,4 +32,3 @@ export const invoiceApi = ky.create({
     ],
   },
 })
-

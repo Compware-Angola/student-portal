@@ -68,7 +68,7 @@ function RegistrationsUCContent() {
   return (
     <div className="space-y-6">
       {isDiplomado ? (
-        <GraduatedBanner profile={profileData} />
+        <GraduatedBanner />
       ) : (
         <>
           <EnrollmentHeader />
