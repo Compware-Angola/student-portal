@@ -61,42 +61,28 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     ...SERVICE_TYPES.INSCRICAO_FORA_PRAZO,
   })
 
-  const shouldFetchCurriculumPlan =
-    StudentSituation.NEW_WITHOUT_ENROLLMENT ===
-      Number(studentSituation?.codigo_status) ||
-    StudentSituation.OLD_WITHOUT_CURRENT_CONFIRMATION ===
-      Number(studentSituation?.codigo_status)
   const { isLoading: isLoadingStudenttatistics, data: studentStatistics } =
     useQueryStudentDashboardStatistics(profileData?.enrollmentCode)
 
   const isNewStudentWithOutEnrollment =
     StudentSituation.NEW_WITHOUT_ENROLLMENT ===
     Number(studentSituation?.codigo_status)
-  const shouldFetchAcademicConfirmationNewStudent =
-    StudentSituation.NEW_WITHOUT_ENROLLMENT ===
-    Number(studentSituation?.codigo_status)
 
   const { data: confirmationNewStudent } =
-    useQueryActivityAcademicConfirmationStudent(
-      {
-        academicYearCode: currentAcademicYear?.codigo,
-        candidacyType: profileData?.codigo_tipo_candidatura,
-        type: 'new',
-      },
-      shouldFetchAcademicConfirmationNewStudent,
-    )
+    useQueryActivityAcademicConfirmationStudent({
+      academicYearCode: currentAcademicYear?.codigo,
+      candidacyType: profileData?.codigo_tipo_candidatura,
+      type: 'new',
+    })
 
   const {
     data: grades,
     isLoading: isLoadingStudentCurriculumPlan,
     isError: isErrorStudentCurriculumPlan,
-  } = useQueryCurriculumPlan(
-    {
-      class: '1',
-      course: profileData?.codigo_curso,
-    },
-    shouldFetchCurriculumPlan,
-  )
+  } = useQueryCurriculumPlan({
+    class: '1',
+    course: profileData?.codigo_curso,
+  })
 
   const enrollmentStatus = useMemo(
     () => getEnrollmentStatus(confirmationNewStudent[0]),
@@ -126,15 +112,10 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
 
   const [selectedSubjects, setSelectedSubjects] = useState<Grade[]>([])
   useEffect(() => {
-    if (
-      isNewStudentWithOutEnrollment &&
-      grades?.length > 0 &&
-      selectedSubjects.length === 0
-    ) {
+    if (grades?.length > 0 && selectedSubjects.length === 0) {
       setSelectedSubjects([...grades])
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isNewStudentWithOutEnrollment, grades])
+  }, [grades, selectedSubjects.length])
 
   const maxCourseGrade = Number(profileData?.max_cadeiras_curso)
 

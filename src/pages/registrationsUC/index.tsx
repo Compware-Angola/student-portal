@@ -1,16 +1,17 @@
 import { toast } from 'sonner'
-import { EnrollmentHeader } from './components/enrollment-header'
-import { EnrollmentResume } from './components/enrollment-resume'
-import { EnrollmentSection } from './components/enrollment-section'
-import { EnrollmentSummaryCards } from './components/enrollment-summary-cards'
+import { RegistrationsUCtHeader } from './components/header'
+import { RegistrationsUCResume } from './components/resume'
+import { RegistrationsUCSection } from './components/section'
+import { EnrollmentSummaryCards } from './components/summary-cards'
 import { RegistrationsUCProvider } from './context/registrations-uc.provider'
-import { useEnrollment } from './hooks/use-enrollment'
-import { EnrollmentSkeleton } from './components/enrollment-skeleton'
+
+import { RegistrationsUCSkeleton } from './components/skeleton'
 
 import { useEffect } from 'react'
 import { StudentSituation } from '@/constants/student-situation'
 import { PaymentAlert } from '@/components/payment-alert'
 import { GraduatedBanner } from './components/graduated-banner'
+import { useRegistrationsUC } from './hooks/use-registrations-uc'
 
 function RegistrationsUCContent() {
   const {
@@ -28,7 +29,7 @@ function RegistrationsUCContent() {
     isLoadingDebit,
     debit,
     profileData,
-  } = useEnrollment()
+  } = useRegistrationsUC()
   const isDiplomado = profileData?.estado_matricula === 'diplomado'
 
   useEffect(() => {
@@ -61,7 +62,7 @@ function RegistrationsUCContent() {
     !profileData ||
     isLoadingDebit
   ) {
-    return <EnrollmentSkeleton />
+    return <RegistrationsUCSkeleton />
   }
   if (debit && (debit?.totalDivida ?? 0) > 0) return <PaymentAlert />
 
@@ -71,7 +72,7 @@ function RegistrationsUCContent() {
         <GraduatedBanner />
       ) : (
         <>
-          <EnrollmentHeader />
+          <RegistrationsUCtHeader />
           <EnrollmentSummaryCards />
           {!enrollmentState && (
             <>
@@ -82,12 +83,12 @@ function RegistrationsUCContent() {
                   </div>
                 </div>
                 <div className="space-y-6">
-                  <EnrollmentSection
+                  <RegistrationsUCSection
                     label="Pendentes"
                     subjects={pendingSubjects}
                     secktionKey="pendents"
                   />
-                  <EnrollmentSection
+                  <RegistrationsUCSection
                     label="Novas"
                     subjects={subject}
                     secktionKey="new"
@@ -95,7 +96,7 @@ function RegistrationsUCContent() {
                 </div>
               </div>
 
-              <EnrollmentResume />
+              <RegistrationsUCResume />
             </>
           )}
         </>

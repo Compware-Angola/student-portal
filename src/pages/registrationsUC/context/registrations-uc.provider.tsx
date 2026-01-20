@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import type { Grade } from '@/types/grade'
 import { useQueryCurriculumPlan } from '@/hooks/curriculum/use-query-curriculum-plan'
-import type { SectionKey, SelectedSchedule } from '../types/enrollment'
+import type { SectionKey, SelectedSchedule } from '../types/registrations-uc'
 import { useQueryCurriculumPlanPendents } from '@/hooks/curriculum/use-query-curriculum-plan-pendents'
 import { useMutationConfirmOldStudentEnrollment } from '@/hooks/enrollment/use-mutation-confirm-old-student-enrollment'
 import { useMutationCreateInvoice } from '@/hooks/invoice/use-mutation-create-invoice'
@@ -13,13 +13,15 @@ import type { CreateInvoiceBody } from '@/services/invoice/post-invoice.service'
 import { useMutationCreatePaymentReferenceMensalidades } from '@/hooks/invoice/use-mutation-payment-monthly'
 import type { CreatePaymentReferenceBody } from '@/services/invoice/post-invoice-monthly.service'
 import { useQueryMonthlyFeesValue } from '@/hooks/finance/use-query-monthly-fee'
-import { useQueryStudentSituation } from '@/hooks/student/use-query-student-situation'
-import { StudentSituation } from '@/constants/student-situation'
 import { useQueryActivityAcademicConfirmationStudent } from '@/hooks/academic/use-quer-activity-academic-confirmation'
 import { getEnrollmentStatus } from '@/utils'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 import { useQueryStudentDashboardStatistics } from '@/hooks/statics/use-query-student-dashboard-statistics'
 import { useQueryGetDebit } from '@/hooks/renegotiation/use-query-renegotiation'
+import type { TypeServiceResponse } from '@/services/type-service/type-service.service'
+import { useTypeServiceSingle } from '@/hooks/service/use-query-type-service'
+import { SERVICE_TYPES } from '@/constants/service-type'
+import { useQueryStudentSituation } from '@/hooks/student/use-query-student-situation'
 type ToggleState = {
   new: boolean
   pendents: boolean
@@ -33,16 +35,13 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     new: true,
     pendents: true,
   })
-  // Busaca de dados
+
   const {
     profileData,
     isLoading: isLoadingProfileData,
     isError: isErrorProfileData,
   } = useQueryProfile()
 
-  const { data: studentSituation } = useQueryStudentSituation({
-    preErrolmentCode: profileData?.preEnrollmentCode,
-  })
   const {
     data: currentAcademicYear,
     isError: isErrorAcademicYear,
@@ -53,41 +52,26 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     enrollmentCode: profileData?.enrollmentCode,
     preinscricao: profileData?.codigo_preinscricao,
   })
-  const shouldFetchCurriculumPlan =
-    StudentSituation.OLD_WITHOUT_CURRENT_CONFIRMATION ===
-    Number(studentSituation?.codigo_status)
+
   const { isLoading: isLoadingStudenttatistics, data: studentStatistics } =
     useQueryStudentDashboardStatistics(profileData?.enrollmentCode)
-  const shouldFetchCurriculumPlanPendents =
-    StudentSituation.OLD_WITHOUT_CURRENT_CONFIRMATION ===
-    Number(studentSituation?.codigo_status)
+
   const {
     data: pendentsGrades,
     isLoading: isLoadingStudentCurriculumPlanPendents,
     isError: isErrorStudentCurriculumPlanPendents,
-  } = useQueryCurriculumPlanPendents(
-    profileData?.preEnrollmentCode,
-    shouldFetchCurriculumPlanPendents,
-  )
-
-  const shouldFetchAcademicConfirmationNewStudent =
-    StudentSituation.NEW_WITHOUT_ENROLLMENT ===
-      Number(studentSituation?.codigo_status) ||
-    (StudentSituation.NEW_WITH_CURRENT_CONFIRMATION ===
-      Number(studentSituation?.codigo_status) &&
-      Number(debit?.totalDivida) > 0)
+  } = useQueryCurriculumPlanPendents(profileData?.preEnrollmentCode)
+  const { data: studentSituation } = useQueryStudentSituation({
+    preErrolmentCode: profileData?.preEnrollmentCode,
+  })
   const { data: confirmationNewStudent } =
-    useQueryActivityAcademicConfirmationStudent(
-      {
-        academicYearCode: currentAcademicYear?.codigo ?? '23',
-        candidacyType: profileData?.codigo_tipo_candidatura,
-        type: 'old',
-      },
-      shouldFetchAcademicConfirmationNewStudent,
-    )
+    useQueryActivityAcademicConfirmationStudent({
+      academicYearCode: currentAcademicYear?.codigo ?? '23',
+      candidacyType: profileData?.codigo_tipo_candidatura,
+      type: 'old',
+    })
   const generateClasse = useMemo(() => {
     const classe = profileData?.confirmacoes?.[0]?.classe
-
     const newClass = Number(classe) + 1
     return `${newClass > 5 ? classe : newClass}`
   }, [profileData])
@@ -96,13 +80,14 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     data: grades,
     isLoading: isLoadingStudentCurriculumPlan,
     isError: isErrorStudentCurriculumPlan,
-  } = useQueryCurriculumPlan(
-    {
-      class: generateClasse,
-      course: profileData?.codigo_curso,
-    },
-    shouldFetchCurriculumPlan,
-  )
+  } = useQueryCurriculumPlan({
+    class: generateClasse,
+    course: profileData?.codigo_curso,
+  })
+  const { data: foraPrazo } = useTypeServiceSingle({
+    currentYearCode: Number(currentAcademicYear?.codigo),
+    ...SERVICE_TYPES.INSCRICAO_FORA_PRAZO,
+  })
 
   const enrollmentStatus = useMemo(
     () => getEnrollmentStatus(confirmationNewStudent[0]),
@@ -155,17 +140,14 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     )
   }
   const toggleSubject = (subject: Grade) => {
-    // 🔍 Verifica se já está selecionada
     const alreadySelected = selectedSubjects.some(
       (s) => s.codigoGrade === subject.codigoGrade,
     )
 
-    // ✅ Caso esteja selecionada → o usuário quer desmarcar
     if (alreadySelected) {
       // Remove o horário vinculado
       removeScheduleForSubject(subject.codigoGrade)
 
-      // Atualiza a lista removendo o item
       setSelectedSubjects((prev) =>
         prev.filter((s) => s.codigoGrade !== subject.codigoGrade),
       )
@@ -173,13 +155,11 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
       return
     }
 
-    // 🚫 Impede selecionar se já atingiu o máximo permitido
     if (selectedSubjects.length >= maxCourseGrade) {
       toast.error('Você já atingiu o número máximo de disciplinas permitidas.')
       return
     }
 
-    // ✅ Caso contrário, adiciona normalmente
     setSelectedSubjects((prev) => [...prev, subject])
   }
 
@@ -193,7 +173,6 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     }))
   }
 
-  // Remover o horário associado a uma disciplina
   const removeScheduleForSubject = (codigoGrade: string) => {
     setSelectedSchedules((prev) => {
       const updated = { ...prev }
@@ -239,7 +218,6 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
       return
     }
 
-    // ✅ Caso esteja dentro do limite → seleciona todas
     setSelectedSubjects(allSubjects)
     toast.success('Todas as disciplinas foram selecionadas.')
   }
@@ -257,22 +235,27 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     (sum, s) => sum + parseInt(s.valorInscricao),
     0,
   )
+  const foraPrazoValue =
+    enrollmentStatus === 'closed' ? (foraPrazo?.preco ?? 0) : 0
 
-  const createInvoiceWithPayload = async (
-    description: string,
-    serviceTypeCode: number,
-    enrollmentCode: number,
-  ) => {
+  const totalPagar = totalValue + foraPrazoValue
+  const createInvoiceWithPayload = async (enrollmentCode: number) => {
     if (!profileData) {
       throw new Error('dados do perfil nao encontrado')
     }
     const now = new Date()
-    const valorAcrescer = enrollmentStatus === 'closed' ? 10200 : 0
+    const itens = [
+      ...(enrollmentStatus === 'closed' && foraPrazo
+        ? [createItem(foraPrazo)]
+        : []),
+
+      ...selectedSubjects.map(generateDisciplineItem),
+    ]
     const invoice: CreateInvoiceBody = {
       polo_id: parseInt(profileData?.poloId),
-      TotalPreco: totalValue + valorAcrescer + 19300,
+      TotalPreco: totalPagar,
       codigo_descricao: 101,
-      ValorAPagar: totalValue + valorAcrescer + 19300,
+      ValorAPagar: totalPagar,
       total_incidencia: 0,
       total_retencao: 0,
       CodigoMatricula: enrollmentCode,
@@ -280,36 +263,15 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
       Desconto: 0,
       totalIVA: 0,
       TotalMulta: 0,
-      Descricao: description,
+      Descricao: 'Inscrição em uc + Inscrição em Disciplinas'.substring(0, 44),
       tipo_documento_factura_id: 1,
       canal: 3,
-      itens: [
-        {
-          CodigoProduto: serviceTypeCode,
-          Quantidade: 1,
-          preco: totalValue + valorAcrescer,
-          Total: totalValue + valorAcrescer,
-          valor_pago: totalValue + valorAcrescer,
-          obs: description,
-          taxaIva: 0,
-          valorIva: 0,
-          retencao: 0,
-          incidencia: 0,
-          valorDesconto: 0,
-          descontoProduto: 0,
-          mes: 'Outubro',
-          multa: 0,
-          mesTempId: 3,
-          estado: 0,
-          valorPago: 0,
-          valorATransportar: 0,
-          codigoFactura: 1023,
-        },
-      ],
       DataFactura: now.toISOString(),
+      itens: itens,
     }
     await createInvoiceAsync(invoice)
   }
+
   const createMonthlyPayments = async (enrollmentCode: number) => {
     if (isMonthlyFeeValueErro) {
       throw new Error('Erro ao gerar as mensalidades')
@@ -393,20 +355,21 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
       })
       return
     }
-
+    function delay(ms: number): Promise<void> {
+      return new Promise((resolve) => setTimeout(resolve, ms))
+    }
     const payload = getOldStudentEnrollmentPayload()
     await confirmOldStudentEnrollmentAsync(payload.selectedGrades)
-    await createInvoiceWithPayload(
-      'Inscrição na UC',
-      11478,
-      parseInt(profileData?.codigo_matricula!),
-    )
+    delay(6000)
+    await createInvoiceWithPayload(parseInt(profileData?.codigo_matricula!))
     createMonthlyPayments(parseInt(profileData?.codigo_matricula!))
   }
 
   return (
     <RegistrationsUCContext.Provider
       value={{
+        foraPrazoValue,
+        totalPagar,
         selectedSubjects,
         isErrorProfileData,
         isErrorStudentCurriculumPlan,
@@ -430,7 +393,6 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
         removeScheduleForSubject,
         selectScheduleForSubject,
         selectedSchedules,
-        studentSituation: studentSituation,
         enrollmentStatus,
         isLoadingAcademmicYear,
         isErrorAcademicYear,
@@ -439,10 +401,73 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
         profileData,
         maxCourseGrade,
         isLoadingDebit,
+        studentSituation,
         debit,
       }}
     >
       {children}
     </RegistrationsUCContext.Provider>
   )
+}
+
+function generateDisciplineItem(grade: Grade) {
+  const MAX_OBS_LENGTH = 45
+  const nomeCompleto =
+    grade.disciplina || grade.codigoDisciplina || 'Disciplina'
+
+  const prefixo = 'Insc. '
+  let obs = prefixo + nomeCompleto
+
+  if (obs.length > MAX_OBS_LENGTH) {
+    const espacoParaNome = MAX_OBS_LENGTH - prefixo.length - 3 // -3 para ...
+    const nomeCortado = nomeCompleto.substring(0, espacoParaNome)
+    obs = prefixo + nomeCortado + '...'
+  }
+
+  // Garantia absoluta: nunca mais de 45
+  obs = obs.substring(0, MAX_OBS_LENGTH)
+
+  return {
+    CodigoProduto: 11476,
+    Quantidade: 1,
+    preco: Number(grade.valorInscricao),
+    Total: Number(grade.valorInscricao),
+    valor_pago: 0,
+    obs: obs,
+    taxaIva: 1,
+    valorIva: 0,
+    retencao: 0,
+    incidencia: 0,
+    valorDesconto: 0,
+    descontoProduto: 0,
+    mes: '',
+    multa: 0,
+    estado: 0,
+    valorPago: 0,
+    valorATransportar: 0,
+  }
+}
+function createItem(serviceType: TypeServiceResponse) {
+  const MAX_OBS_LENGTH = 45
+
+  return {
+    CodigoProduto: serviceType.codigo,
+    Quantidade: 1,
+    preco: serviceType.preco,
+    Total: serviceType.preco,
+    valor_pago: 0,
+    obs: serviceType?.descricao?.substring(0, MAX_OBS_LENGTH) ?? '',
+    taxaIva: 1,
+    valorIva: 0,
+    retencao: 0,
+    incidencia: 0,
+    valorDesconto: 0,
+    descontoProduto: 0,
+    mes: '',
+    multa: 0,
+    mesTempId: 3,
+    estado: 0,
+    valorPago: 0,
+    valorATransportar: 0,
+  }
 }

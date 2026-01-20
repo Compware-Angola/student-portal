@@ -20,12 +20,13 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useEffect, useState } from 'react'
-import { useEnrollment } from './hooks/use-enrollment'
+
 import { toast } from 'sonner'
 import type { Grade } from '@/types/grade'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 import { useSchedulesByPeriod } from '@/hooks/schedule/use-get-schedules-by-period'
 import type { ScheduleByPeriodDto } from '@/services/schedule/get-schedules-by-period.service'
+import { useRegistrationsUC } from './hooks/use-registrations-uc'
 
 interface ScheduleSelectionDialogProps {
   subject: Grade
@@ -114,7 +115,7 @@ export const ScheduleSelectionDialog = ({
   const [title, setTitle] = useState<string | undefined>(undefined)
 
   const { selectScheduleForSubject, selectedSchedules, toggleSubject } =
-    useEnrollment()
+    useRegistrationsUC()
 
   const groupAulasByDay = (aulas: ScheduleByPeriodDto['aulas']) => {
     const grouped: Record<string, ScheduleByPeriodDto['aulas']> = {}
