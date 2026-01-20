@@ -85,21 +85,15 @@ export const FilteredByClass = ({ profileData }: CurrentYearProps) => {
   }, [initialized, anosFiltrados])
 
   /* ========= LOAD CURRICULUM ========= */
-  const shouldFetch = useMemo(() => {
-    return Boolean(selectedClass && profileData?.codigo_curso && initialized)
-  }, [selectedClass, profileData?.codigo_curso, initialized])
 
   const {
     data: rawCurriculumPlan = [],
     isLoading: isLoadingCurriculum,
     isError,
-  } = useQueryCurriculumPlan(
-    {
-      class: selectedClass,
-      course: profileData?.codigo_curso,
-    },
-    shouldFetch,
-  )
+  } = useQueryCurriculumPlan({
+    class: selectedClass,
+    course: profileData?.codigo_curso,
+  })
 
   /* ========= MEMOIZE DATA COM ESTABILIDADE ========= */
   // 🔑 CHAVE: Criar referência estável dos dados
