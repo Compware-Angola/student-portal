@@ -7,7 +7,7 @@ export type StudentSituationValue = {
   isLoading: boolean
   hasError: boolean
   refetch: () => void
-  setPreEnrollmentCode: Dispatch<SetStateAction<string | undefined>>
+  setPreEnrollmentCode: Dispatch<SetStateAction<number | undefined>>
 }
 export const StudentSituationContext =
   createContext<StudentSituationValue | null>(null)

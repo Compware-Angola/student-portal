@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom'
 import { login } from '@/services/auth/login.service'
 import { AuthStorage } from '@/storage/auth-storage'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { authApi } from '@/lib/auth-api'
 import { useStudentSituation } from '@/hooks/use-student-stitiation'
 
 export const FormSchema = z.object({
@@ -26,25 +25,25 @@ export function useLoginForm() {
       password: '',
     },
   })
-  type AuthResponse = {
-    access_token: string
-    expires_in: number
-  }
+
   async function onSubmit(data: LoginFormData) {
     try {
-      const response = await login(data)
-      const body = { texto: data.password, hash_da_bd: response.hash }
-      const authResponse = await authApi
-        .post<AuthResponse>('login', { json: body })
-        .json()
+        const credentials = {
+      ...data,
+      platform: 'PORTAL', 
+    }
+
+      const response = await login(credentials)
+     
+  
       AuthStorage.save({
-        codigoPreinscricao: response.codigoPreinscricao,
-        token: authResponse.access_token,
-        user_id: response.user_id,
-        user_name: response.user_name,
+        codigoPreinscricao: response.user.codigopreinscricao,
+        token: response.access_token,
+        user_id: response.user.id,
+        user_name: response.user.nomecompleto,
       })
-      setPreEnrollmentCode(response.codigoPreinscricao)
-      toast.success('Autenticado com sucesso!')
+      setPreEnrollmentCode(response.user.codigopreinscricao)
+      toast.success( response.mensagem ||'Autenticado com sucesso!')
 
       navigate('/')
     } catch (error) {
