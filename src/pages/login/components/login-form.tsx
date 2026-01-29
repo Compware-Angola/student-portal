@@ -1,8 +1,6 @@
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-
 import { Field, FieldGroup } from '@/components/ui/field'
-
 import { Form } from '@/components/ui/form'
 import { InputFormField } from '@/components/input-form-field'
 import { useLoginForm } from '../use-login-form'
@@ -25,8 +23,8 @@ export function LoginForm({
           <InputFormField
             control={form.control}
             name="username"
-            placeholder="Digite nome do usuário"
-            label="Nome de usuário"
+            placeholder="Digite nome do usuário, email ou BI"
+            label="Usuário, Email ou BI"
             type="text"
           />
           <InputFormField

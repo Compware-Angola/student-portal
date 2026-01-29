@@ -1,9 +1,9 @@
 // src/lib/storage/auth-storage.ts
 type AuthData = {
   token: string
-  user_id: string
+  user_id: number
   user_name: string
-  codigoPreinscricao: string
+  codigoPreinscricao: number
 }
 
 const STORAGE_KEY = '@academico:auth'

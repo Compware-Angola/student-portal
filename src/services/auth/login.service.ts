@@ -1,22 +1,47 @@
-import { apexApi } from '@/lib/apex-api'
+
 import { authApi } from '@/lib/auth-api'
 
+type User = {
+  id: number;
+  name: string;
+  telefone: string;
+  email: string;
+  tipo_de_documento: string | null;
+  numero_documento: string | null;
+  email_verified_at: string | null;
+  remember_token: string | null;
+  created_at: string;
+  updated_at: string;
+  canal: number;
+  username: string;
+  grauacademico: string | null;
+  faculdade: string | null;
+  estado: string | null;
+  foto: string | null;
+  motivo_bloqueio: string | null;
+  status_: number;
+  ano_lectivo_id: number;
+  codigopreinscricao: number;
+  nomecompleto: string;
+};
+
 type AuthResponse = {
-  token: string
-  user_id: string
-  user_name: string
-  codigoPreinscricao: string
-  hash: string
-}
+  access_token: string;
+  expires_in: number;
+  user: User;
+  mensagem: string;
+};
+
 
 type AuthCredentials = {
   username: string
   password: string
+  platform?: string
 }
 
 export function login(credentials: AuthCredentials): Promise<AuthResponse> {
-  return apexApi
-    .post('autentication/login', { json: credentials })
+  return authApi
+    .post('auth/login', { json: credentials })
     .json<AuthResponse>()
 }
 
