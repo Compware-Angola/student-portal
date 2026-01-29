@@ -1,11 +1,22 @@
 import { ApiError, type ApiErrorResponse } from '@/error'
+import { AuthStorage } from '@/storage/auth-storage'
 import ky from 'ky'
 
 const VITE_API_URL_GA = import.meta.env.VITE_API_URL_GA
 export const gaApi = ky.create({
   retry: 0,
   prefixUrl: VITE_API_URL_GA,
+
   hooks: {
+    beforeRequest: [
+      (request) => {
+        const token = AuthStorage.getToken()
+
+        if (token) {
+          request.headers.set('Authorization', `Bearer ${token}`)
+        }
+      },
+    ],
     afterResponse: [
       async (_request, _options, response) => {
         if (!response.ok) {
