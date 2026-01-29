@@ -465,7 +465,6 @@ function createItem(serviceType: TypeServiceResponse) {
     descontoProduto: 0,
     mes: '',
     multa: 0,
-    mesTempId: 3,
     estado: 0,
     valorPago: 0,
     valorATransportar: 0,
