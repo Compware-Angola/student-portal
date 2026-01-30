@@ -1,10 +1,6 @@
 // hooks/discipline/use-fetch-disciplines.ts
 import { useQuery } from '@tanstack/react-query'
-import {
-  fetchDisciplinesService,
-
-
-} from '@/services/discipline/fetch-disciplines.service'
+import { fetchDisciplinesService } from '@/services/discipline/fetch-disciplines.service'
 
 type Params = {
   anoLectivo: number | string
@@ -17,6 +13,6 @@ type Params = {
 export function useFetchDisciplines(params: Params) {
   return useQuery({
     queryKey: ['disciplines', params],
-    queryFn:()=> fetchDisciplinesService(params),
+    queryFn: () => fetchDisciplinesService(params),
   })
 }

@@ -19,6 +19,9 @@ export const gaApi = ky.create({
     ],
     afterResponse: [
       async (_request, _options, response) => {
+        // if (response.status === 401) {
+        //   console.lo
+        // }
         if (!response.ok) {
           let errorData: ApiErrorResponse | undefined
           let message = `Erro ${response.status}: ${response.statusText}`
@@ -28,7 +31,6 @@ export const gaApi = ky.create({
 
           if (text) {
             try {
-              // SEGUNDO: tenta parsear como JSON
               const json = JSON.parse(text) as ApiErrorResponse
               errorData = json
               message = json.message || json.error || message

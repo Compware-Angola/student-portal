@@ -1,0 +1,20 @@
+import {
+  getScheduleDetailsService,
+  type ScheduleDetailsResponse,
+} from '@/services/horario/get-schedule-by-id.service'
+import { useQuery } from '@tanstack/react-query'
+
+export const useQueryScheduleDetails = (
+  turmaId: number | null,
+  options?: { enabled?: boolean },
+) => {
+  console.log({ turmaId })
+  return useQuery<ScheduleDetailsResponse>({
+    queryKey: ['schedule-details', turmaId],
+    queryFn: () => getScheduleDetailsService(turmaId!),
+    enabled: !!turmaId && (options?.enabled ?? true),
+    staleTime: 1000 * 60 * 10,
+    retry: 2,
+    refetchOnWindowFocus: false,
+  })
+}
