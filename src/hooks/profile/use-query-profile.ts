@@ -36,7 +36,7 @@ export function useQueryProfile() {
     {
       queryKey: ['profile'],
       //eslint-disable-next-line
-      queryFn: () => getProfile(auth?.codigoPreinscricao!),
+      queryFn: () => getProfile(auth?.codigoPreinscricao.toString()!),
       staleTime: Infinity,
       retry: 0,
       enabled: !!auth,

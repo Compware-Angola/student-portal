@@ -33,7 +33,7 @@ export function StudentSituationProvider({
   useEffect(() => {
     if (
       !isLoadingProfileLoading && profileData) {
-          setPreEnrollmentCode(profileData.preEnrollmentCode)
+          setPreEnrollmentCode(profileData.preEnrollmentCode.toString())
       }
   }, [profileData])
   const isProcessing = isLoading

@@ -48,7 +48,7 @@ export const Dashboard = () => {
 
   // === Hooks com Loading ===
   const { data: mensagens, isLoading: loadingMensagens } = useQueryMessage({
-    userId,
+    userId: userId.toString(),
   })
   const { data: comunicados, isLoading: loadingComunicados } =
     useQueryAnnouncement({ pre_inscricao })

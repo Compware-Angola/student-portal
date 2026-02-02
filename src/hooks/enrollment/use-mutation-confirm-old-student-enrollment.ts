@@ -14,7 +14,7 @@ export function useMutationConfirmOldStudentEnrollment() {
       const pre = AuthStorage.get()?.codigoPreinscricao
       if (!pre) throw new Error('Código de pré-inscrição não encontrado.')
       return await confirmEnrolmentOldStudent({
-        enrollmentCode: pre,
+        enrollmentCode: pre.toString(),
         grades: selectedGrades,
       })
     },
