@@ -34,7 +34,7 @@ export function useQueryCreateSupport() {
       const user = AuthStorage.get()
       if (!user?.user_id) throw new Error('ID do utilizador não encontrado.')
 
-      return await createSupport(user.user_id, payload)
+      return await createSupport(user.user_id.toString(), payload)
     },
 
     onSuccess: (data) => {
