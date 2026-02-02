@@ -26,6 +26,7 @@ import { useQueryAcademicTestSchedule } from '@/hooks/schedule/use-query-academi
 
 import { DebtCard } from './components/debt-card'
 import { CompletedSubjectsCard } from './components/completed-subjects-card'
+import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 
 // === Tipos ===
 interface Notification {
@@ -52,15 +53,15 @@ export const Dashboard = () => {
   })
   const { data: comunicados, isLoading: loadingComunicados } =
     useQueryAnnouncement({ pre_inscricao })
-
+  const { data: academicYear } = useQueryCurrentAcademicYear()
   const { data: atividades = [], isLoading: loadingAtividades } =
     useQueryAcademicActivity({
-      academicYear: profileData?.confirmacoes[0]?.ano_lectivo,
+      academicYear: academicYear?.codigo,
       applicationType: profileData?.codigo_tipo_candidatura,
     })
   const { data: exams = [], isLoading: loadingExams } =
     useQueryAcademicTestSchedule({
-      academicYear: profileData?.confirmacoes[0]?.ano_lectivo,
+      academicYear: academicYear?.codigo,
       semester: '1',
       enrollmentCode: profileData?.enrollmentCode,
     })
@@ -212,7 +213,7 @@ export const Dashboard = () => {
               <Bell className="h-5 w-5" />
               Mensagens e Comunicados
             </CardTitle>
-            {hasNotifications && (
+            {/*TODO:REMOVER {hasNotifications && (
               <Button
                 size="sm"
                 variant="ghost"
@@ -220,7 +221,7 @@ export const Dashboard = () => {
               >
                 Ver mais
               </Button>
-            )}
+            )} */}
           </CardHeader>
           <CardContent>
             {loadingMensagens || loadingComunicados ? (
@@ -311,7 +312,7 @@ export const Dashboard = () => {
                 <CalendarDays className="h-5 w-5" />
                 Calendário Acadêmico
               </CardTitle>
-              {hasCalendar && (
+              {/*TODO:REMOVER {hasCalendar && (
                 <Button
                   size="sm"
                   variant="ghost"
@@ -319,7 +320,7 @@ export const Dashboard = () => {
                 >
                   Ver mais
                 </Button>
-              )}
+              )} */}
             </CardHeader>
             <CardContent>
               {loadingAtividades ? (
@@ -383,7 +384,7 @@ export const Dashboard = () => {
                 <Clock className="h-5 w-5" />
                 Calendário de Provas
               </CardTitle>
-              {hasExams && (
+              {/*TODO: REMOVER {hasExams && (
                 <Button
                   size="sm"
                   variant="ghost"
@@ -391,7 +392,7 @@ export const Dashboard = () => {
                 >
                   Ver mais
                 </Button>
-              )}
+              )} */}
             </CardHeader>
             <CardContent>
               {loadingExams ? (

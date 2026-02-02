@@ -15,11 +15,11 @@ import {
   LibraryBig,
   TrendingUp,
 } from 'lucide-react'
-import { useEnrollment } from '../hooks/use-enrollment'
 import { StudentSituation } from '@/constants/student-situation'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { cn } from '@/lib/utils'
+import { useRegistrationsUC } from '../hooks/use-registrations-uc'
 
 function SummaryCard({
   icon: Icon,
@@ -59,7 +59,7 @@ export function EnrollmentSummaryCards() {
     enrollmentStatus,
     studentSituation,
     maxCourseGrade,
-  } = useEnrollment()
+  } = useRegistrationsUC()
 
   const { data: academicYear } = useQueryCurrentAcademicYear()
   const { profileData } = useQueryProfile()

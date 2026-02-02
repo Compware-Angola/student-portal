@@ -7,10 +7,7 @@ type Params = {
   type: 'old' | 'new'
 }
 
-export function useQueryActivityAcademicConfirmationStudent(
-  params: Params,
-  enable?: boolean,
-) {
+export function useQueryActivityAcademicConfirmationStudent(params: Params) {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: [
       'academic-confirmation-new-student',
@@ -29,9 +26,7 @@ export function useQueryActivityAcademicConfirmationStudent(
       })
     },
     retry: 0,
-    enabled: Boolean(
-      (params.academicYearCode && params.candidacyType) || enable,
-    ),
+    enabled: Boolean(params.academicYearCode && params.candidacyType),
     refetchInterval: 30 * 60 * 1000,
     staleTime: 30 * 60 * 1000,
   })

@@ -1,4 +1,3 @@
-import type { DebtNegotiationResponse } from '@/services/renegotiation/renegotiation.service'
 import type { StudentDashboardStatistics } from '@/services/statistics/dashboard'
 import type { StudentSituationResponse } from '@/services/students/situation.service'
 import type { Grade } from '@/types/grade'
@@ -16,7 +15,6 @@ export type EnrollmentContextType = {
   isSelected: (subject: Grade) => boolean
   toggleSection: (section: SectionKey) => void
   selectAll: () => void
-  pendingSubjects: Grade[]
   isAllSelected: () => boolean
   remove: (codigoGrade: string) => void
   removeAll: () => void
@@ -31,8 +29,6 @@ export type EnrollmentContextType = {
   removeScheduleForSubject: (codigoGrade: string) => void
   isLoadingStudentCurriculumPlan: boolean
   isErrorStudentCurriculumPlan: boolean
-  isLoadingStudentCurriculumPlanPendents: boolean
-  isErrorStudentCurriculumPlanPendents: boolean
   isLoadingProfileData: boolean
   isErrorProfileData: boolean
   studentSituation: StudentSituationResponse | undefined
@@ -43,8 +39,9 @@ export type EnrollmentContextType = {
   isLoadingStudenttatistics: boolean
   profileData: ProfileData | null
   maxCourseGrade: number
-  isLoadingDebit: boolean
-  debit?: DebtNegotiationResponse
+  taxaMatriculaValue: number
+  foraPrazoValue: number
+  totalPagar: number
 }
 export type SectionKey = 'new' | 'pendents'
 

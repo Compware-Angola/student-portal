@@ -1,9 +1,6 @@
-import type { StudentSituationType } from '@/constants/student-situation'
-import type { StudentType } from '@/utils/map-student-situation'
 import { createContext, type Dispatch, type SetStateAction } from 'react'
 export type StudentSituationValue = {
-  situation: StudentSituationType | null
-  studentType: StudentType | null
+  hasEnrolmentCode: boolean
   isLoading: boolean
   hasError: boolean
   refetch: () => void

@@ -1,15 +1,15 @@
 import { Button } from '@/components/ui/button'
-import { useEnrollment } from '../hooks/use-enrollment'
 import { StudentSituation } from '@/constants/student-situation'
+import { useRegistrationsUC } from '../hooks/use-registrations-uc'
 
-export function EnrollmentHeader() {
+export function RegistrationsUCtHeader() {
   const {
     selectAll,
     isAllSelected,
     studentSituation,
 
     profileData,
-  } = useEnrollment()
+  } = useRegistrationsUC()
   const enrollmentState =
     StudentSituation.OLD_WITH_CURRENT_CONFIRMATION ===
     Number(studentSituation?.codigo_status)

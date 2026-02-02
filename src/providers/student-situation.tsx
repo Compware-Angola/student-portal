@@ -6,8 +6,6 @@ import {
 } from '@/context/student-situation'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useQueryStudentSituation } from '@/hooks/student/use-query-student-situation'
-import { mapStudentSituation } from '@/utils/map-student-situation'
-import { useEffect, useState } from 'react'
 
 type StudentSituationProviderProps = {
   children: React.ReactNode
@@ -16,13 +14,12 @@ type StudentSituationProviderProps = {
 export function StudentSituationProvider({
   children,
 }: StudentSituationProviderProps) {
-  const [preEnrollmentCode, setPreEnrollmentCode] = useState<string|  undefined>(
-    undefined
-  )
   const {
     profileData,
     isLoading: isLoadingProfileLoading,
-    isError: isErrorProfileData,
+    isError: isErrorProfile,
+    error: errorProfile,
+    refetch: refetchProfile,
   } = useQueryProfile()
 
   const { isLoading, isError, data, error, refetch } = useQueryStudentSituation(
@@ -40,18 +37,16 @@ export function StudentSituationProvider({
   const mapped = mapStudentSituation(data?.codigo_status)
 
   const value: StudentSituationValue = {
-    situation: mapped?.situation ?? null,
-    studentType: mapped?.studentType ?? null,
-    isLoading: isLoading && isLoadingProfileLoading,
-    hasError: isError && isErrorProfileData,
+    hasEnrolmentCode: Boolean(profileData?.enrollmentCode),
+    isLoading: isLoading,
+    hasError: isError,
     refetch,
-    setPreEnrollmentCode,
   }
 
   return (
     <StudentSituationContext.Provider value={value}>
       <>
-        {isProcessing && <LoadingOverlay />}
+        {isLoading && <LoadingOverlay />}
 
         {isError && (
           <ErrorOverlay
@@ -61,7 +56,7 @@ export function StudentSituationProvider({
           />
         )}
 
-        {!isProcessing && !isError && children}
+        {!isLoading && !isError && children}
       </>
     </StudentSituationContext.Provider>
   )

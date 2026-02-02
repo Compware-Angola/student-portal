@@ -1,11 +1,12 @@
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ChevronDown, ChevronUp } from 'lucide-react'
-import { useEnrollment } from '../hooks/use-enrollment'
+
 import { SubjectCard } from './subject-card'
 
-import type { SectionKey } from '../types/enrollment'
+import type { SectionKey } from '../types/registrations-uc'
 import type { Grade } from '@/types/grade'
+import { useRegistrationsUC } from '../hooks/use-registrations-uc'
 
 type SectionProps = {
   label: string
@@ -13,13 +14,13 @@ type SectionProps = {
   subjects: Grade[]
 }
 
-export function EnrollmentSection({
+export function RegistrationsUCSection({
   label,
   subjects,
   secktionKey,
 }: SectionProps) {
   const { toggleSection, isSelected, toggleSubject, isExpanded } =
-    useEnrollment()
+    useRegistrationsUC()
 
   if (subjects.length === 0) return null
 

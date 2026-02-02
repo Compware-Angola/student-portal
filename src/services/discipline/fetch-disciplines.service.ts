@@ -1,5 +1,4 @@
-import { invoiceApi } from "@/lib/invoice-api"
-
+import { gaApi } from '@/lib/ga-api'
 
 export type Discipline = {
   disciplina: string
@@ -8,7 +7,7 @@ export type Discipline = {
   duracao: string
   classe: string
   ano_lectivo: string
-  horario: string
+  codigo_horario: string
   sala: string
 }
 
@@ -35,7 +34,7 @@ export async function fetchDisciplinesService({
   page = 1,
   limit = 10,
 }: FetchDisciplinesParams): Promise<FetchDisciplinesResponse> {
-  return invoiceApi
+  return gaApi
     .get('discipline', {
       searchParams: {
         anoLectivo: String(anoLectivo),
@@ -44,7 +43,6 @@ export async function fetchDisciplinesService({
         page: String(page),
         limit: String(limit),
       },
-
     })
     .json<FetchDisciplinesResponse>()
 }

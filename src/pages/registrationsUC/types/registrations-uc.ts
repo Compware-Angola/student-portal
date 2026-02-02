@@ -4,13 +4,12 @@ import type { StudentSituationResponse } from '@/services/students/situation.ser
 import type { Grade } from '@/types/grade'
 import type { ProfileData } from '@/types/profile'
 
-export type EnrollmentContextType = {
+export type RegistrationsUCContextType = {
   selectedSubjects: Grade[]
   isExpanded: {
     new: boolean
     pendents: boolean
   }
-
   totalValue: number
   toggleSubject: (subject: Grade) => void
   isSelected: (subject: Grade) => boolean
@@ -35,7 +34,6 @@ export type EnrollmentContextType = {
   isErrorStudentCurriculumPlanPendents: boolean
   isLoadingProfileData: boolean
   isErrorProfileData: boolean
-  studentSituation: StudentSituationResponse | undefined
   enrollmentStatus: 'not_yet_open' | 'open' | 'closed'
   isLoadingAcademmicYear: boolean
   isErrorAcademicYear: boolean
@@ -45,6 +43,9 @@ export type EnrollmentContextType = {
   maxCourseGrade: number
   isLoadingDebit: boolean
   debit?: DebtNegotiationResponse
+  foraPrazoValue: number
+  totalPagar: number
+  studentSituation?: StudentSituationResponse
 }
 export type SectionKey = 'new' | 'pendents'
 
@@ -53,7 +54,7 @@ export type SelectedSchedule = {
   descHorario: string
 }
 
-export type EnrollmentPayloadItem = {
+export type RegistrationsUCPayloadItem = {
   codigoGrade: string
   codigoHorario: string | null
   descHorario: string

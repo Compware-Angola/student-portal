@@ -35,6 +35,7 @@ import { YearSelect } from '@/components/year-select'
 import { useYearSelect } from '@/components/year-select/use-year-select'
 import { useQuerySemesters } from '@/hooks/semester/use-query-semester'
 import type { ProfileData } from '@/types/profile'
+import ScheduleDetailsModal from './ScheduleDetailsModal'
 
 type Discipline = {
   disciplina: string
@@ -42,6 +43,7 @@ type Discipline = {
   duracao: string
   classe: string
   ano_lectivo: string
+  codigo_horario: null | string
 }
 
 type StudentCurriculumProps = {
@@ -52,13 +54,20 @@ export const StudentCurriculum = ({ profileData }: StudentCurriculumProps) => {
   const { academicYears, defaultYear } = useYearSelect(
     profileData.enrollmentCode,
   )
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
+  const [selectedHorarioId, setSelectedHorarioId] = useState<number | null>(
+    null,
+  )
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
   const [selectedSemester, setSelectedSemester] = useState<string>('1')
   const [selectedYear, setSelectedYear] = useState<string | undefined>(
     undefined,
   )
-
+  const openDetails = (horarioId: number) => {
+    setSelectedHorarioId(horarioId)
+    setIsDetailsModalOpen(true)
+  }
   const { data: semestersResponse, isLoading: isLoadingSemesters } =
     useQuerySemesters()
 
@@ -111,10 +120,33 @@ export const StudentCurriculum = ({ profileData }: StudentCurriculumProps) => {
         header: 'Ano Letivo',
         cell: (info) => <span className="text-center">{info.getValue()}</span>,
       }),
+      columnHelper.accessor('codigo_horario', {
+        header: 'Horário',
+        cell: (info) => {
+          if (!info.getValue()) {
+            return (
+              <span className="text-muted-foreground text-center block">
+                Não definido
+              </span>
+            )
+          }
+          return (
+            <div className="text-center">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => openDetails(Number(info.getValue()))}
+              >
+                Ver horário
+              </Button>
+            </div>
+          )
+        },
+      }),
     ],
     [columnHelper],
   )
-console.log(academicYears)
+  console.log(academicYears)
   const table = useReactTable({
     data: disciplines,
     columns,
@@ -127,8 +159,12 @@ console.log(academicYears)
         <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <CardTitle>
-              Disciplinas do Ano {" "} {" "}
-              {academicYears.find((a) =>  a.codigo.toString() === selectedYear?.toString())?.designacao}
+              Disciplinas do Ano{' '}
+              {
+                academicYears.find(
+                  (a) => a.codigo.toString() === selectedYear?.toString(),
+                )?.designacao
+              }
             </CardTitle>
             <CardDescription>
               Cadeiras pertencentes à sua grade curricular {}
@@ -269,6 +305,14 @@ console.log(academicYears)
           </div>
         </CardContent>
       </Card>
+      <ScheduleDetailsModal
+        horarioId={selectedHorarioId}
+        isOpen={isDetailsModalOpen}
+        onClose={() => {
+          setIsDetailsModalOpen(false)
+          setSelectedHorarioId(null)
+        }}
+      />
     </div>
   )
 }
