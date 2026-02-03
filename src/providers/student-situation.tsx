@@ -5,7 +5,6 @@ import {
   type StudentSituationValue,
 } from '@/context/student-situation'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
-import { useQueryStudentSituation } from '@/hooks/student/use-query-student-situation'
 
 type StudentSituationProviderProps = {
   children: React.ReactNode
@@ -16,25 +15,11 @@ export function StudentSituationProvider({
 }: StudentSituationProviderProps) {
   const {
     profileData,
-    isLoading: isLoadingProfileLoading,
-    isError: isErrorProfile,
-    error: errorProfile,
-    refetch: refetchProfile,
+    isLoading: isLoading,
+    isError: isError,
+    error,
+    refetch,
   } = useQueryProfile()
-
-  const { isLoading, isError, data, error, refetch } = useQueryStudentSituation(
-    {
-      preErrolmentCode: preEnrollmentCode,
-    },
-  )
-  useEffect(() => {
-    if (
-      !isLoadingProfileLoading && profileData) {
-          setPreEnrollmentCode(profileData.preEnrollmentCode.toString())
-      }
-  }, [profileData])
-  const isProcessing = isLoading
-  const mapped = mapStudentSituation(data?.codigo_status)
 
   const value: StudentSituationValue = {
     hasEnrolmentCode: Boolean(profileData?.enrollmentCode),

@@ -10,21 +10,12 @@ import {
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import { useQueryScheduleDetails } from '@/hooks/horario/use-query-schedule-details'
+import type { Aula } from '@/services/horario/get-schedule-by-id.service'
 
 type ScheduleDetailsModalProps = {
   horarioId: number | null // ID da turma/horário
   isOpen: boolean
   onClose: () => void
-}
-
-// Converte .NET ticks (100ns) → HH:mm
-const formatTime = (ticks: string): string => {
-  const totalSeconds = Number(ticks) / 10_000_000
-  const hours = Math.floor(totalSeconds / 3600)
-  const minutes = Math.floor((totalSeconds % 3600) / 60)
-  return `${hours.toString().padStart(2, '0')}:${minutes
-    .toString()
-    .padStart(2, '0')}`
 }
 
 export default function ScheduleDetailsModal({
@@ -57,21 +48,17 @@ export default function ScheduleDetailsModal({
   ]
 
   // Agrupa aulas por dia
-  const groupedByDay = daysOfWeek.reduce(
-    (acc, day) => {
-      const dayItems = (horario?.aulas || [])
-        .filter((aula) => {
-          const diaNome = aula.diaSemana.replace('-Feira', '')
-          return diaNome === day
-        })
-        .sort((a, b) => a.horaInicio.localeCompare(b.horaInicio))
+  const groupedByDay = daysOfWeek.reduce<Record<string, Aula[]>>((acc, day) => {
+    const dayItems = (horario?.aulas ?? [])
+      .filter((aula) => {
+        const diaNome = aula.diaSemana.replace('-Feira', '')
+        return diaNome === day
+      })
+      .sort((a, b) => a.horaInicio.localeCompare(b.horaInicio))
 
-      if (dayItems.length > 0) acc[day] = dayItems
-      return acc
-    },
-    {} as Record<string, typeof horario.aulas>,
-  )
-
+    if (dayItems.length > 0) acc[day] = dayItems
+    return acc
+  }, {})
   return (
     <Dialog open={isOpen} onOpenChange={closeModal}>
       <DialogContent className="w-full xl:max-w-[1200px] max-h-[90vh] flex flex-col">
