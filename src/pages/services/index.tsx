@@ -287,7 +287,21 @@ export function AcademicServices() {
                     </p>
                   </div>
                 </div>
-                
+                <Button
+                  onClick={handleGenerateInvoice}
+                  size="lg"
+                  className="w-full"
+                  disabled={createInvoicePending}
+                >
+                  {createInvoicePending ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Processando...
+                    </span>
+                  ) : (
+                    'Solicitar serviço(s)'
+                  )}
+                </Button>
 
               </div>
             )}
