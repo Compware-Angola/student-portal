@@ -46,6 +46,7 @@ export type RegistrationsUCContextType = {
   foraPrazoValue: number
   totalPagar: number
   studentSituation?: StudentSituationResponse
+  semestreActual : number | undefined
 }
 export type SectionKey = 'new' | 'pendents'
 

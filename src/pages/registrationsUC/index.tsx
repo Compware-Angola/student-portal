@@ -29,6 +29,7 @@ function RegistrationsUCContent() {
     isLoadingDebit,
     debit,
     profileData,
+
   } = useRegistrationsUC()
   const isDiplomado = profileData?.estado_matricula === 'diplomado'
 
