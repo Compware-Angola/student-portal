@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { BookOpen, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react'
+import { BookOpen, CheckCircle2, AlertCircle, ArrowRight, Loader2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useQueryAvailableServices } from '@/hooks/service/use-query-available-services'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
@@ -55,7 +55,7 @@ export function AcademicServices() {
     poloId: profileData?.poloId ?? '1',
   })
 
-  const { createInvoiceAsync } = useMutationCreateInvoice()
+  const { createInvoiceAsync,createInvoicePending, } = useMutationCreateInvoice()
 
   const poloId = profileData?.poloId ?? '1'
   const enrollmentCode = profileData?.codigo_matricula
@@ -291,9 +291,18 @@ export function AcademicServices() {
                   onClick={handleGenerateInvoice}
                   size="lg"
                   className="w-full"
+                  disabled={createInvoicePending}
                 >
-                  Solicitar serviço(s)
+                  {createInvoicePending ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Processando...
+                    </span>
+                  ) : (
+                    'Solicitar serviço(s)'
+                  )}
                 </Button>
+
               </div>
             )}
           </CardContent>
