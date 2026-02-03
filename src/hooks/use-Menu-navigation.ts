@@ -20,14 +20,14 @@ import {
 } from 'lucide-react'
 
 export function useMenuNavigation() {
-  const { studentType, isLoading } = useStudentSituation()
+  const { hasEnrolmentCode, isLoading } = useStudentSituation()
 
-  if (isLoading || !studentType) {
+  if (isLoading) {
     return { navMain: [] }
   }
 
-  const enrollmentPath = getEnrollmentRoute(studentType)
-  const enrollmentTitle = getEnrollmentLabel(studentType)
+  const enrollmentPath = getEnrollmentRoute(hasEnrolmentCode)
+  const enrollmentTitle = getEnrollmentLabel(hasEnrolmentCode)
 
   const navMain = [
     { title: 'Dashboard', url: '/', icon: LayoutDashboard },
@@ -91,21 +91,20 @@ export function useMenuNavigation() {
     '/suporte',
   ]
 
-  const filteredNavMain =
-    studentType === 'NEW'
-      ? navMain
-          .filter((item) => !oldOnlyRoutes.includes(item.url))
-          .map((item) =>
-            item.items
-              ? {
-                  ...item,
-                  items: item.items.filter(
-                    (sub) => !oldOnlyRoutes.includes(sub.url),
-                  ),
-                }
-              : item,
-          )
-      : navMain
+  const filteredNavMain = !hasEnrolmentCode
+    ? navMain
+        .filter((item) => !oldOnlyRoutes.includes(item.url))
+        .map((item) =>
+          item.items
+            ? {
+                ...item,
+                items: item.items.filter(
+                  (sub) => !oldOnlyRoutes.includes(sub.url),
+                ),
+              }
+            : item,
+        )
+    : navMain
 
   return {
     navMain: filteredNavMain,

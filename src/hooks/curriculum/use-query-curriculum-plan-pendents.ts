@@ -2,10 +2,7 @@ import { curriculumPlanPendentsService } from '@/services/curriculum/curriculum-
 import type { CurriculumPlan } from '@/types/curriculum-plan'
 import { useQuery } from '@tanstack/react-query'
 
-export function useQueryCurriculumPlanPendents(
-  preEnrollmentCode?: string,
-  enabled?: boolean,
-) {
+export function useQueryCurriculumPlanPendents(preEnrollmentCode?: string) {
   const { data, isLoading, error, isError } = useQuery<CurriculumPlan>({
     queryKey: ['student-curriculum-plan-pendents', preEnrollmentCode],
     queryFn: async () => {
@@ -15,7 +12,7 @@ export function useQueryCurriculumPlanPendents(
       return curriculumPlanPendentsService(preEnrollmentCode)
     },
     retry: 0,
-    enabled: !!preEnrollmentCode && enabled,
+    enabled: !!preEnrollmentCode,
     staleTime: Infinity,
   })
   const formatGrade = (grades: CurriculumPlan['grades']) => {

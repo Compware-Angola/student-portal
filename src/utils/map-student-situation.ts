@@ -28,10 +28,10 @@ export function mapStudentSituation(statusCode?: number) {
   }
 }
 
-export function getEnrollmentRoute(studentType: StudentType) {
-  return studentType === 'OLD' ? '/inscricao-uc' : '/matricula'
+export function getEnrollmentRoute(shasEnrolmentCode: boolean) {
+  return shasEnrolmentCode ? '/inscricao-uc' : '/matricula'
 }
 
-export function getEnrollmentLabel(studentType: StudentType) {
-  return studentType === 'OLD' ? 'Inscrição na UC' : 'Matrícula'
+export function getEnrollmentLabel(shasEnrolmentCode: boolean) {
+  return shasEnrolmentCode ? 'Inscrição na UC' : 'Matrícula'
 }

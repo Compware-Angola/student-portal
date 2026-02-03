@@ -22,7 +22,7 @@ import { useNavigate } from 'react-router-dom'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useQueryAcademicActivity } from '@/hooks/academic/use-query-academic-activity'
 import { toast } from 'sonner'
-
+import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 type StatusAtividade = 'agendada' | 'em curso' | 'encerrada' | 'todas'
 
 export function AcademicCalendar() {
@@ -48,13 +48,14 @@ export function AcademicCalendar() {
     isError: isProfileError,
     profileData,
   } = useQueryProfile()
+  const { data: academicYear } = useQueryCurrentAcademicYear()
 
   const {
     data: atividades,
     isLoading: isAtividadesLoading,
     error: atividadesError,
   } = useQueryAcademicActivity({
-    academicYear: profileData?.confirmacoes[0]?.ano_lectivo,
+    academicYear: academicYear?.codigo,
     applicationType: profileData?.codigo_tipo_candidatura,
   })
 

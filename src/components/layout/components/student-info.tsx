@@ -36,8 +36,16 @@ export function StudentInfo() {
       </Avatar>
 
       <div className="leading-tight text-center">
-        <div className="text-sm font-medium">
-          {profileData.firstName} {profileData.lastName}
+        <div className="text-sm font-medium flex items-center gap-2">
+          <strong>
+            {profileData.firstName} {profileData.lastName}
+          </strong>
+          {'-'}
+          {
+            <span>
+              {profileData.enrollmentCode ?? profileData.preEnrollmentCode}
+            </span>
+          }
         </div>
         <div className="text-xs text-muted-foreground">{profileData.curso}</div>
       </div>

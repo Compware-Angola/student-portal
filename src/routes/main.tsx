@@ -23,7 +23,7 @@ import { RegistrationsUC } from '@/pages/registrationsUC'
 import { useMemo, type JSX } from 'react'
 
 export function MainRoutes() {
-  const { studentType, isLoading } = useStudentSituation()
+  const { isLoading, hasEnrolmentCode } = useStudentSituation()
   const enrollmentComponents: Record<string, JSX.Element> = useMemo(
     () => ({
       '/inscricao-uc': <RegistrationsUC />,
@@ -32,9 +32,8 @@ export function MainRoutes() {
     [],
   )
   if (isLoading) return null
-  if (!studentType) return null
 
-  const enrollmentPath = getEnrollmentRoute(studentType)
+  const enrollmentPath = getEnrollmentRoute(hasEnrolmentCode)
 
   return (
     <Route
@@ -50,17 +49,17 @@ export function MainRoutes() {
       <Route
         path="/calendario-academico"
         element={
-          <RequireOldStudent>
+          <RequireStudentWithEnrolmentCode>
             <AcademicCalendar />
-          </RequireOldStudent>
+          </RequireStudentWithEnrolmentCode>
         }
       />
       <Route
         path="/calendario-exames"
         element={
-          <RequireOldStudent>
+          <RequireStudentWithEnrolmentCode>
             <ExamCalendar />
-          </RequireOldStudent>
+          </RequireStudentWithEnrolmentCode>
         }
       />
       <Route
@@ -70,74 +69,74 @@ export function MainRoutes() {
       <Route
         path="/horario"
         element={
-          <RequireOldStudent>
+          <RequireStudentWithEnrolmentCode>
             <Schedule />
-          </RequireOldStudent>
+          </RequireStudentWithEnrolmentCode>
         }
       />
       <Route
         path="/pagamento-antecipado"
         element={
-          <RequireOldStudent>
+          <RequireStudentWithEnrolmentCode>
             <AdvancePayment />
-          </RequireOldStudent>
+          </RequireStudentWithEnrolmentCode>
         }
       />
       <Route
         path="/avaliacoes"
         element={
-          <RequireOldStudent>
+          <RequireStudentWithEnrolmentCode>
             <Assessments />
-          </RequireOldStudent>
+          </RequireStudentWithEnrolmentCode>
         }
       />
       <Route
         path="/servicos-academicos"
         element={
-          <RequireOldStudent>
+          <RequireStudentWithEnrolmentCode>
             <AcademicServices />
-          </RequireOldStudent>
+          </RequireStudentWithEnrolmentCode>
         }
       />
       <Route
         path="/financas"
         element={
-          <RequireOldStudent>
+          <RequireStudentWithEnrolmentCode>
             <Finance />
-          </RequireOldStudent>
+          </RequireStudentWithEnrolmentCode>
         }
       />
       <Route
         path="/renegociacao"
         element={
-          <RequireOldStudent>
+          <RequireStudentWithEnrolmentCode>
             <Renegociation />
-          </RequireOldStudent>
+          </RequireStudentWithEnrolmentCode>
         }
       />
 
       <Route
         path="/mensagens"
         element={
-          <RequireOldStudent>
+          <RequireStudentWithEnrolmentCode>
             <MensagensNotificacoes />
-          </RequireOldStudent>
+          </RequireStudentWithEnrolmentCode>
         }
       />
       <Route
         path="/suporte"
         element={
-          <RequireOldStudent>
+          <RequireStudentWithEnrolmentCode>
             <Suporte />
-          </RequireOldStudent>
+          </RequireStudentWithEnrolmentCode>
         }
       />
       <Route
         path="/disciplinas"
         element={
-          <RequireOldStudent>
+          <RequireStudentWithEnrolmentCode>
             <DisciplinasMatriculadas />
-          </RequireOldStudent>
+          </RequireStudentWithEnrolmentCode>
         }
       />
       <Route path="/financas/notas-pagamento" element={<NotaPagamento />} />
@@ -148,16 +147,16 @@ export function MainRoutes() {
   )
 }
 
-type RequireOldStudentProps = {
+export function RequireStudentWithEnrolmentCode({
+  children,
+}: {
   children: JSX.Element
-}
-
-export function RequireOldStudent({ children }: RequireOldStudentProps) {
-  const { studentType, isLoading } = useStudentSituation()
+}) {
+  const { hasEnrolmentCode, isLoading } = useStudentSituation()
 
   if (isLoading) return null
 
-  if (studentType !== 'OLD') {
+  if (!hasEnrolmentCode) {
     return <Navigate to="/" replace />
   }
 

@@ -35,8 +35,13 @@ export function useQueryProfile() {
   const { data, isLoading, error, isError, refetch } = useQuery<StudentProfile>(
     {
       queryKey: ['profile'],
-      //eslint-disable-next-line
-      queryFn: () => getProfile(auth?.codigoPreinscricao!),
+
+      queryFn: () => {
+        if (!auth?.codigoPreinscricao?.toString()) {
+          throw new Error('código de pré-inscrição não fornecido')
+        }
+        return getProfile(auth?.codigoPreinscricao?.toString() ?? '')
+      },
       staleTime: Infinity,
       retry: 0,
       enabled: !!auth,
@@ -69,6 +74,7 @@ export function useQueryProfile() {
       codigo_curso: data.codigo_curso ?? data.curso_candidatura,
       enrollmentCode: data.codigo_matricula,
       preEnrollmentCode: data.codigo_preinscricao,
+      estado_matricula: data.estado_matricula,
     }
   }, [data])
 
