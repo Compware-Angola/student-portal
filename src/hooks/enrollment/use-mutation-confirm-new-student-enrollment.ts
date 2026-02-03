@@ -17,7 +17,10 @@ export function useMutationConfirmNewStudentEnrollment() {
       if (!pre) throw new Error('Código de pré-inscrição não encontrado.')
 
       const grades = selectedSubjects.map((s) => s.codigoGrade)
-      return await confirmEnrolmentNewStudent({ studentId: pre, grades })
+      return await confirmEnrolmentNewStudent({
+        studentId: pre.toString(),
+        grades,
+      })
     },
 
     onSuccess: async () => {

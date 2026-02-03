@@ -1,5 +1,5 @@
 import { createContext } from 'react'
-import type { EnrollmentContextType } from '../types/enrollment'
+import type { RegistrationsUCContextType } from '../types/registrations-uc'
 
 export const RegistrationsUCContext =
-  createContext<EnrollmentContextType | null>(null)
+  createContext<RegistrationsUCContextType | null>(null)

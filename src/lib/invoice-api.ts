@@ -1,5 +1,6 @@
 // src/api/invoiceApi.ts (ou onde estiver)
 import { ApiError, type ApiErrorResponse } from '@/error'
+import { AuthStorage } from '@/storage/auth-storage'
 import ky from 'ky'
 
 const VITE_API_URL_INVOICE = import.meta.env.VITE_API_URL_INVOICE
@@ -9,6 +10,15 @@ export const invoiceApi = ky.create({
   retry: 0,
   timeout: 70_000, // 60 segundos
   hooks: {
+    beforeRequest: [
+      (request) => {
+        const token = AuthStorage.getToken()
+
+        if (token) {
+          request.headers.set('Authorization', `Bearer ${token}`)
+        }
+      },
+    ],
     afterResponse: [
       async (_request, _options, response) => {
         if (!response.ok) {
@@ -32,4 +42,3 @@ export const invoiceApi = ky.create({
     ],
   },
 })
-

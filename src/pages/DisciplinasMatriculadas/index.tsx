@@ -4,7 +4,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useQueryCurriculumPlan } from '@/hooks/curriculum/use-query-curriculum-plan'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 
-
 import { FilteredByClass } from './filterd-by-class'
 import { Spinner } from '@/components/ui/spinner'
 import { StudentCurriculum } from './student-curriculum'
@@ -16,13 +15,10 @@ export const DisciplinasMatriculadas = () => {
     isError: errorProfileData,
   } = useQueryProfile()
 
-  const { isLoading, isError } = useQueryCurriculumPlan(
-    {
-      class: profileData?.confirmacoes?.[0]?.classe,
-      course: profileData?.codigo_curso,
-    },
-    true,
-  )
+  const { isLoading, isError } = useQueryCurriculumPlan({
+    class: profileData?.confirmacoes?.[0]?.classe,
+    course: profileData?.codigo_curso,
+  })
 
   if (isLoading || isLoandingProfileData) {
     return <Spinner className="mx-auto my-8" />

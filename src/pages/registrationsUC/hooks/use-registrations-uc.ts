@@ -1,7 +1,7 @@
 import { useContext } from 'react'
 import { RegistrationsUCContext } from '../context/registrations-uc.context'
 
-export const useEnrollment = () => {
+export const useRegistrationsUC = () => {
   const context = useContext(RegistrationsUCContext)
   if (!context)
     throw new Error(

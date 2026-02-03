@@ -9,14 +9,14 @@ import type { Grade } from '@/types/grade'
 
 type SectionProps = {
   label: string
-  secktionKey: SectionKey
+  sectionKey: SectionKey
   subjects: Grade[]
 }
 
 export function EnrollmentSection({
   label,
   subjects,
-  secktionKey,
+  sectionKey,
 }: SectionProps) {
   const { toggleSection, isSelected, toggleSubject, isExpanded } =
     useEnrollment()
@@ -34,9 +34,9 @@ export function EnrollmentSection({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => toggleSection(secktionKey)}
+            onClick={() => toggleSection(sectionKey)}
           >
-            {isExpanded[secktionKey] ? (
+            {isExpanded[sectionKey] ? (
               <ChevronUp className="h-4 w-4" />
             ) : (
               <ChevronDown className="h-4 w-4" />
@@ -45,7 +45,7 @@ export function EnrollmentSection({
         </div>
       </CardHeader>
 
-      {isExpanded[secktionKey] && (
+      {isExpanded[sectionKey] && (
         <CardContent className="space-y-3 pt-4">
           {subjects.map((subject) => (
             <SubjectCard

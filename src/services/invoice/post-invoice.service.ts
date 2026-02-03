@@ -41,9 +41,9 @@ export type CreateInvoiceBody = {
   itens: InvoiceItem[]
 }
 
-export async function createInvoice(params: CreateInvoiceBody): Promise<void> {
+export async function createInvoice(params: CreateInvoiceBody) {
   return invoiceApi
-    .post('invoices', {
+    .post('invoices/no-job', {
       json: params,
     })
     .json()

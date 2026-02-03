@@ -6,24 +6,19 @@ import { EnrollmentSummaryCards } from './components/enrollment-summary-cards'
 import { EnrollmentProvider } from './context/enrollment.provider'
 import { useEnrollment } from './hooks/use-enrollment'
 import { EnrollmentSkeleton } from './components/enrollment-skeleton'
-
 import { useEffect } from 'react'
 import { StudentSituation } from '@/constants/student-situation'
-import { PaymentAlert } from '@/components/payment-alert'
 
 function EnrollmentContent() {
   const {
     subject,
     isLoadingProfileData,
     isLoadingStudentCurriculumPlan,
-    isLoadingStudentCurriculumPlanPendents,
     isErrorProfileData,
     isErrorStudentCurriculumPlan,
     isLoadingAcademmicYear,
     studentSituation,
     isLoadingStudenttatistics,
-    isLoadingDebit,
-    debit,
     profileData,
   } = useEnrollment()
   useEffect(() => {
@@ -43,15 +38,12 @@ function EnrollmentContent() {
     isLoadingProfileData ||
     isErrorProfileData ||
     isLoadingStudentCurriculumPlan ||
-    isLoadingStudentCurriculumPlanPendents ||
     isLoadingAcademmicYear ||
     isLoadingStudenttatistics ||
-    !profileData ||
-    isLoadingDebit
+    !profileData
   ) {
     return <EnrollmentSkeleton />
   }
-  if (debit && (debit?.totalDivida ?? 0) > 0) return <PaymentAlert />
 
   return (
     <div className="space-y-6">
@@ -60,16 +52,11 @@ function EnrollmentContent() {
       {!enrollmentState && (
         <>
           <div>
-            <div>
-              <div className="flex items-center justify-between my-2">
-                <p>Disciplinas Disponíveis</p>
-              </div>
-            </div>
             <div className="space-y-6">
               <EnrollmentSection
-                label="Novas"
+                label="Disciplinas Disponíveis"
                 subjects={subject}
-                secktionKey="new"
+                sectionKey="new"
               />
             </div>
           </div>

@@ -6,7 +6,7 @@ type Params = {
   class?: string
   course?: string
 }
-export function useQueryCurriculumPlan(params: Params, enabled?: boolean) {
+export function useQueryCurriculumPlan(params: Params) {
   const { data, isLoading, error, isError } = useQuery<CurriculumPlan>({
     queryKey: ['student-curriculum-plan', params.class, params.class],
     queryFn: async () => {
@@ -19,7 +19,7 @@ export function useQueryCurriculumPlan(params: Params, enabled?: boolean) {
       })
     },
     retry: 0,
-    enabled: Boolean(params.class && params.course && enabled),
+    enabled: Boolean(params.class && params.course),
     staleTime: Infinity,
   })
   const formatGrade = (grades: CurriculumPlan['grades']) => {

@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
-export function EnrollmentSkeleton() {
+export function RegistrationsUCSkeleton() {
   return (
     <div className="space-y-6">
       <div className="mx-auto max-w-7xl space-y-6">
