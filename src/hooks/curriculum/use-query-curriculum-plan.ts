@@ -6,25 +6,32 @@ type Params = {
   class?: string
   course?: string
   semestre?: number
-  type: "old" | "new"
+  type?: 'old' | 'new'
 }
 
-export function useQueryCurriculumPlan({class: classes, type="new",semestre,course}: Params) {
-
+export function useQueryCurriculumPlan({
+  class: classes,
+  type = 'new',
+  semestre,
+  course,
+}: Params) {
   const { data, isLoading, error, isError } = useQuery<CurriculumPlan>({
-    queryKey: ['student-curriculum-plan', classes,course, semestre],
+    queryKey: ['student-curriculum-plan', classes, course, semestre],
     queryFn: async () => {
       if (!classes || !course) {
         throw new Error('Missing required parameters')
       }
       return curriculumPlanService({
-        class:classes!,
+        class: classes!,
         course: course!,
-        semestre: semestre
+        semestre: semestre,
       })
     },
     retry: 0,
-    enabled: type == "old" ? Boolean(classes && course && semestre) : Boolean(classes && course) ,
+    enabled:
+      type == 'old'
+        ? Boolean(classes && course && semestre)
+        : Boolean(classes && course),
     staleTime: Infinity,
   })
   const formatGrade = (grades: CurriculumPlan['grades']) => {
@@ -47,7 +54,7 @@ export function useQueryCurriculumPlan({class: classes, type="new",semestre,cour
 }
 
 export function useQueryCurriculumPlanCurrentYear(
-  params: Params,
+  params: Omit<Params, 'type' | 'semestre'>,
   enabled?: boolean,
 ) {
   const { data, isLoading, error, isError } = useQuery<CurriculumPlan>({
