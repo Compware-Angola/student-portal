@@ -6,6 +6,7 @@ const VITE_API_URL_GA = import.meta.env.VITE_API_URL_GA
 export const gaApi = ky.create({
   retry: 0,
   prefixUrl: VITE_API_URL_GA,
+timeout:false,
 
   hooks: {
     beforeRequest: [

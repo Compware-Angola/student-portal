@@ -4,12 +4,17 @@ import type { CurriculumPlan } from '@/types/curriculum-plan'
 type Params = {
   class: string
   course: string
+  semestre?: number
 }
 
 export async function curriculumPlanService(
   params: Params,
 ): Promise<CurriculumPlan> {
   return apexApi
-    .get(`curriculum/curriculum-plan/student/${params.class}/${params.course}`)
+    .get(`curriculum/curriculum-plan/student/${params.class}/${params.course}`, {
+      searchParams: {
+        semestre: params.semestre
+      }
+    })
     .json<CurriculumPlan>()
 }

@@ -6,4 +6,5 @@ export type Grade = {
   codigoDisciplina: string
   codigoGrade: string
   valorInscricao: string
+  semestreId: number
 }

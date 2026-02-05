@@ -82,6 +82,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
   } = useQueryCurriculumPlan({
     class: '1',
     course: profileData?.codigo_curso,
+    type:"new"
   })
 
   const enrollmentStatus = useMemo(
@@ -346,7 +347,8 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
       return
     }
     const response = await confirmNewStudentEnrollmentAsync(selectedSubjects)
-    const enrollmentCode = response.Codigo_Matricula
+    console.log(response.data.codMatricula)
+    const enrollmentCode =  response.data.codMatricula //response.Codigo_Matricula
     await delay(6000)
     const responseInvoice = await createInvoiceWithPayload(enrollmentCode)
     if (responseInvoice) {
