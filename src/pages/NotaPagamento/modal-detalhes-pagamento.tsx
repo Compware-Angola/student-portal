@@ -49,13 +49,13 @@ export const ModalDetalhesPagamento = ({
         <DialogHeader className=" p-4 ">
           <DialogTitle className="text-lg font-bold flex items-center gap-2">
             <CheckCircle2 className="text-emerald-400 h-5 w-5" />
-            Itens da Factura{' '}
+            Itens do pagamento{' '}
             {selectedInvoice?.CodigoFactura
               ? `#${selectedInvoice?.CodigoFactura}`
               : ''}
           </DialogTitle>
           <DialogDescription className="sr-only">
-            Detalhes da factura #{selectedInvoice?.CodigoFactura}
+            Detalhes do pagamento #{selectedInvoice?.CodigoFactura}
           </DialogDescription>
         </DialogHeader>
 
