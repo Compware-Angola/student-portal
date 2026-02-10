@@ -13,17 +13,13 @@ export const authApi = ky.create({
           let errorData: ApiErrorResponse | undefined
           let message = `Erro ${response.status}: ${response.statusText}`
 
-          // PRIMEIRO: tenta ler como text (sempre funciona)
           const text = await response.text()
-
           if (text) {
             try {
-              // SEGUNDO: tenta parsear como JSON
               const json = JSON.parse(text) as ApiErrorResponse
               errorData = json
               message = json.message || json.error || message
             } catch {
-              // Se não for JSON válido, usa o texto puro
               message = text.trim() || message
             }
           }
