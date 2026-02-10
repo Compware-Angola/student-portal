@@ -1,4 +1,7 @@
-import { getMonthlyFeesValue, type MonthlyFeeResponse } from '@/services/finance/get-monthly-fees-value.service'
+import {
+  getMonthlyFeesValue,
+  type MonthlyFeeResponse,
+} from '@/services/finance/get-monthly-fees-value.service'
 import { useQuery } from '@tanstack/react-query'
 
 type Params = {
@@ -6,7 +9,6 @@ type Params = {
   curso?: string
   polo?: string
 }
-
 
 export function useQueryMonthlyFeesValue(params?: Params) {
   const queryKey = [

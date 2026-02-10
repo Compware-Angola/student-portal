@@ -146,7 +146,7 @@ export const StudentCurriculum = ({ profileData }: StudentCurriculumProps) => {
     ],
     [columnHelper],
   )
-  console.log(academicYears)
+
   const table = useReactTable({
     data: disciplines,
     columns,
