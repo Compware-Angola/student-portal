@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Calendar, Clock, MapPin, FileText, ArrowLeft } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useQueryAcademicTestSchedule } from '@/hooks/schedule/use-query-academic-test-schedule'
@@ -22,28 +23,57 @@ import {
   differenceInDays,
 } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { useYearSelect } from '@/components/year-select/use-year-select.ts'
+import { YearSelect } from '@/components/year-select'
+import { useQuerySemesters } from '@/hooks/semester/use-query-semester'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 export const ExamCalendar = () => {
   const navigate = useNavigate()
   const [statusFilter, setStatusFilter] = useState<
     'all' | 'completed' | 'today' | 'upcoming'
   >('all')
+  const [selectedSemester, setSelectedSemester] = useState<string>('1')
+  const [selectedYear, setSelectedYear] = useState<string | undefined>(
+    undefined,
+  )
 
   const { isError: isProfileError, profileData } = useQueryProfile()
-  //TODO: POSSIBILIDADE DE TER FILTRO DE TRAZER TODOS OU DO ANO ATUAL
-  const { data: exams = [], isError: isExamError } =
-    useQueryAcademicTestSchedule({
-      academicYear: profileData?.confirmacoes[0]?.ano_lectivo,
-      semester: '1',
-      enrollmentCode: profileData?.enrollmentCode,
-    })
+
+  // Extraímos isLoading para controlar o estado de carregamento
+  const {
+    data: exams = [],
+    isError: isExamError,
+    isLoading: isLoadingExams,
+  } = useQueryAcademicTestSchedule({
+    academicYear: selectedYear,
+    semester: selectedSemester,
+    enrollmentCode: profileData?.enrollmentCode,
+  })
+
+  const { academicYears } = useYearSelect(profileData?.enrollmentCode)
+  const { data: semestersResponse, isLoading: isLoadingSemesters } =
+    useQuerySemesters()
+  const semesters = semestersResponse?.items ?? []
+
+  useEffect(() => {
+    if (academicYears && !selectedYear) {
+      const active = academicYears.find((y) => y.estado === 'Activo')
+      if (active) setSelectedYear(String(active.codigo))
+    }
+  }, [academicYears, selectedYear])
 
   useEffect(() => {
     if (isProfileError) toast.error('Erro ao carregar dados do perfil')
     if (isExamError) toast.error('Erro ao carregar Calendário Acadêmico')
   }, [isProfileError, isExamError])
 
-  /** 🔹 Format date using date-fns */
   const formatDate = (dateString: string) => {
     try {
       const date = parseISO(dateString)
@@ -56,21 +86,22 @@ export const ExamCalendar = () => {
       return { full: 'Data inválida', short: '-', weekDay: '-' }
     }
   }
+
   const filters = [
     { key: 'all', label: 'Todos' },
     { key: 'completed', label: 'Realizadas' },
     { key: 'today', label: 'Hoje' },
     { key: 'upcoming', label: 'Futuras' },
   ] as const
+
   const formatTime = (timeString?: string) => timeString?.slice(0, 5) || '--:--'
 
   const getExamStatus = (examDate: string, examTime: string) => {
     const cleanDate = examDate.trim()
-    const cleanTime = examTime.trim().slice(0, 5) // pega só HH:mm
+    const cleanTime = examTime.trim().slice(0, 5)
     const exam = parseISO(`${cleanDate}T${cleanTime}`)
 
     if (isNaN(exam.getTime())) {
-      console.warn('Invalid exam date:', cleanDate, cleanTime)
       return { label: 'Desconhecido', color: 'bg-gray-50 text-gray-500' }
     }
 
@@ -97,23 +128,16 @@ export const ExamCalendar = () => {
           label: `Em ${daysDiff} dia${daysDiff > 1 ? 's' : ''}`,
           color: 'bg-orange-100 text-orange-800 border-orange-200',
         }
-      } else if (daysDiff <= 7) {
-        return {
-          label: `Em ${daysDiff} dias`,
-          color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-        }
-      } else {
-        return {
-          label: `Em ${daysDiff} dias`,
-          color: 'bg-blue-100 text-blue-800 border-blue-200',
-        }
+      }
+      return {
+        label: `Em ${daysDiff} dias`,
+        color: 'bg-blue-100 text-blue-800 border-blue-200',
       }
     }
 
     return { label: 'Desconhecido', color: 'bg-gray-50 text-gray-500' }
   }
 
-  /** 🔹 Build and filter exams */
   const filteredExams = useMemo(() => {
     return exams
       .map((exam) => {
@@ -141,19 +165,13 @@ export const ExamCalendar = () => {
       .sort((a, b) => a.examDateObj.getTime() - b.examDateObj.getTime())
   }, [exams, statusFilter])
 
-  /** 🔹 Statistics */
   const stats = useMemo(() => {
     const total = exams.length
     const upcoming = exams.filter((p) =>
       isFuture(parseISO(p.data_prova)),
     ).length
     const completed = exams.filter((p) => isPast(parseISO(p.data_prova))).length
-    const written = exams.filter((p) => p.tipo_prova === 'Prova Escrita').length
-    const lab = exams.filter(
-      (p) => p.tipo_prova === 'Prova Laboratorial',
-    ).length
-
-    return { total, upcoming, completed, written, lab }
+    return { total, upcoming, completed }
   }, [exams])
 
   return (
@@ -173,38 +191,34 @@ export const ExamCalendar = () => {
         </h1>
       </div>
 
-      {/* Statistics */}
+      {/* Statistics Cards */}
       <div className="grid gap-6 md:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>Total</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Futuras</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-700">
-              {stats.upcoming}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Realizadas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-700">
-              {stats.completed}
-            </div>
-          </CardContent>
-        </Card>
+        {['Total', 'Futuras', 'Realizadas'].map((title, i) => (
+          <Card key={title}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                {title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoadingExams ? (
+                <Skeleton className="h-8 w-12" />
+              ) : (
+                <div
+                  className={`text-2xl font-bold ${
+                    i === 1 ? 'text-blue-700' : i === 2 ? 'text-gray-700' : ''
+                  }`}
+                >
+                  {i === 0
+                    ? stats.total
+                    : i === 1
+                      ? stats.upcoming
+                      : stats.completed}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       {/* Filters */}
@@ -218,59 +232,111 @@ export const ExamCalendar = () => {
               variant={statusFilter === filter.key ? 'default' : 'outline'}
               size="sm"
               onClick={() => setStatusFilter(filter.key)}
+              disabled={isLoadingExams}
             >
               {filter.label}
             </Button>
           ))}
         </div>
+
+        <YearSelect
+          academicYears={academicYears}
+          selectedYear={selectedYear}
+          onChange={(val) => setSelectedYear(val)}
+        />
+
+        <Select
+          value={selectedSemester}
+          onValueChange={setSelectedSemester}
+          disabled={isLoadingSemesters || isLoadingExams}
+        >
+          <SelectTrigger className="min-w-[120px]">
+            <SelectValue placeholder="Semestre" />
+          </SelectTrigger>
+          <SelectContent>
+            {semesters
+              .filter((s) => s.codigo !== 3)
+              .map((s) => (
+                <SelectItem key={s.codigo} value={String(s.codigo)}>
+                  {s.designacao}
+                </SelectItem>
+              ))}
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Exam list */}
+      {/* Exam list / Loading State */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {filteredExams.map((exam) => (
-          <Card
-            key={`${exam.codigo}-${exam.data_prova}-${exam.hora_prova}`}
-            className="hover:bg-muted"
-          >
-            <CardHeader>
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <CardTitle>{exam.disciplina}</CardTitle>
-                  <CardDescription>
-                    {exam.tipo_prova} • {exam.modalidade}
-                  </CardDescription>
+        {isLoadingExams ? (
+          // Skeletons enquanto carrega
+          Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className="animate-pulse">
+              <CardHeader className="space-y-2">
+                <Skeleton className="h-5 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-2/3" />
+                <Skeleton className="h-4 w-1/2" />
+              </CardContent>
+            </Card>
+          ))
+        ) : filteredExams.length > 0 ? (
+          // Lista Real
+          filteredExams.map((exam) => (
+            <Card
+              key={`${exam.codigo}-${exam.data_prova}-${exam.hora_prova}`}
+              className="hover:bg-muted transition-colors cursor-default"
+            >
+              <CardHeader>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <CardTitle className="text-lg leading-tight">
+                      {exam.disciplina}
+                    </CardTitle>
+                    <CardDescription className="mt-1">
+                      {exam.tipo_prova} • {exam.modalidade}
+                    </CardDescription>
+                  </div>
+                  <Badge
+                    className={`${exam.status.color} border whitespace-nowrap`}
+                  >
+                    {exam.status.label}
+                  </Badge>
                 </div>
-                <Badge className={`${exam.status.color} border`}>
-                  {exam.status.label}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div className="flex items-center">
-                <Calendar className="h-4 w-4 mr-2" />
-                {exam.formattedDate.full} ({exam.formattedDate.weekDay})
-              </div>
-              <div className="flex items-center">
-                <Clock className="h-4 w-4 mr-2" />
-                {formatTime(exam.hora_prova)} às {formatTime(exam.hora_termino)}
-              </div>
-              <div className="flex items-center">
-                <MapPin className="h-4 w-4 mr-2" />
-                Sala: {exam.sala}
-              </div>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                <div className="flex items-center text-muted-foreground">
+                  <Calendar className="h-4 w-4 mr-2 text-primary" />
+                  <span className="text-foreground">
+                    {exam.formattedDate.full} ({exam.formattedDate.weekDay})
+                  </span>
+                </div>
+                <div className="flex items-center text-muted-foreground">
+                  <Clock className="h-4 w-4 mr-2 text-primary" />
+                  <span className="text-foreground">
+                    {formatTime(exam.hora_prova)} às{' '}
+                    {formatTime(exam.hora_termino)}
+                  </span>
+                </div>
+                <div className="flex items-center text-muted-foreground">
+                  <MapPin className="h-4 w-4 mr-2 text-primary" />
+                  <span className="text-foreground">Sala: {exam.sala}</span>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          // Estado Vazio
+          <Card className="lg:col-span-2">
+            <CardContent className="py-12 text-center text-muted-foreground">
+              <FileText className="h-12 w-12 mx-auto mb-4 opacity-20" />
+              <p>Nenhuma prova encontrada para os filtros selecionados.</p>
             </CardContent>
           </Card>
-        ))}
+        )}
       </div>
-
-      {filteredExams.length === 0 && (
-        <Card>
-          <CardContent className="py-12 text-center text-muted-foreground">
-            <FileText className="h-12 w-12 mx-auto mb-4" />
-            Nenhuma prova encontrada para os filtros selecionados.
-          </CardContent>
-        </Card>
-      )}
     </div>
   )
 }
