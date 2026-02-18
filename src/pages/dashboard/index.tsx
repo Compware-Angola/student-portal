@@ -27,6 +27,7 @@ import { useQueryAcademicTestSchedule } from '@/hooks/schedule/use-query-academi
 import { DebtCard } from './components/debt-card'
 import { CompletedSubjectsCard } from './components/completed-subjects-card'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
+import { Button } from '@/components/ui/button'
 
 // === Tipos ===
 interface Notification {
@@ -213,7 +214,7 @@ export const Dashboard = () => {
               <Bell className="h-5 w-5" />
               Mensagens e Comunicados
             </CardTitle>
-            {/*TODO:REMOVER {hasNotifications && (
+             {hasNotifications && (
               <Button
                 size="sm"
                 variant="ghost"
@@ -221,7 +222,7 @@ export const Dashboard = () => {
               >
                 Ver mais
               </Button>
-            )} */}
+            )} 
           </CardHeader>
           <CardContent>
             {loadingMensagens || loadingComunicados ? (
@@ -312,7 +313,7 @@ export const Dashboard = () => {
                 <CalendarDays className="h-5 w-5" />
                 Calendário Acadêmico
               </CardTitle>
-              {/*TODO:REMOVER {hasCalendar && (
+              {hasCalendar && (
                 <Button
                   size="sm"
                   variant="ghost"
@@ -320,7 +321,7 @@ export const Dashboard = () => {
                 >
                   Ver mais
                 </Button>
-              )} */}
+              )} 
             </CardHeader>
             <CardContent>
               {loadingAtividades ? (
@@ -384,7 +385,7 @@ export const Dashboard = () => {
                 <Clock className="h-5 w-5" />
                 Calendário de Provas
               </CardTitle>
-              {/*TODO: REMOVER {hasExams && (
+              {hasExams && (
                 <Button
                   size="sm"
                   variant="ghost"
@@ -392,7 +393,7 @@ export const Dashboard = () => {
                 >
                   Ver mais
                 </Button>
-              )} */}
+              )} 
             </CardHeader>
             <CardContent>
               {loadingExams ? (
