@@ -5,21 +5,33 @@ import { useQuery } from '@tanstack/react-query'
 type Params = {
   class?: string
   course?: string
+  semestre?: number
+  type?: 'old' | 'new'
 }
-export function useQueryCurriculumPlan(params: Params) {
+
+export function useQueryCurriculumPlan({
+  class: classes,
+  type = 'new',
+  semestre,
+  course,
+}: Params) {
   const { data, isLoading, error, isError } = useQuery<CurriculumPlan>({
-    queryKey: ['student-curriculum-plan', params.class, params.class],
+    queryKey: ['student-curriculum-plan', classes, course, semestre],
     queryFn: async () => {
-      if (!params.class || !params.course) {
+      if (!classes || !course) {
         throw new Error('Missing required parameters')
       }
       return curriculumPlanService({
-        class: params.class!,
-        course: params.course!,
+        class: classes!,
+        course: course!,
+        semestre: semestre,
       })
     },
     retry: 0,
-    enabled: Boolean(params.class && params.course),
+    enabled:
+      type == 'old'
+        ? Boolean(classes && course && semestre)
+        : Boolean(classes && course),
     staleTime: Infinity,
   })
   const formatGrade = (grades: CurriculumPlan['grades']) => {
@@ -42,7 +54,7 @@ export function useQueryCurriculumPlan(params: Params) {
 }
 
 export function useQueryCurriculumPlanCurrentYear(
-  params: Params,
+  params: Omit<Params, 'type' | 'semestre'>,
   enabled?: boolean,
 ) {
   const { data, isLoading, error, isError } = useQuery<CurriculumPlan>({

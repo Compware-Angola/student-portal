@@ -3,9 +3,9 @@ import { toast } from 'sonner'
 
 import { AuthStorage } from '@/storage/auth-storage'
 
-import { confirmEnrolmentNewStudent } from '@/services/enrolment/confirm-enrolment-new-student.service'
 import type { Grade } from '@/types/grade'
 import { useNavigate } from 'react-router-dom'
+import { enrollmentService, type EnrollmentDiscipline } from '@/services/enrolment/confirm-enrollment-new-student.service'
 
 export function useMutationConfirmNewStudentEnrollment() {
   const navigate = useNavigate()
@@ -16,10 +16,14 @@ export function useMutationConfirmNewStudentEnrollment() {
       const pre = AuthStorage.get()?.codigoPreinscricao
       if (!pre) throw new Error('Código de pré-inscrição não encontrado.')
 
-      const grades = selectedSubjects.map((s) => s.codigoGrade)
-      return await confirmEnrolmentNewStudent({
-        studentId: pre.toString(),
-        grades,
+      const grades = selectedSubjects.map<EnrollmentDiscipline>((s) => ({
+       codigo: parseInt(s.codigoGrade),
+       duracaoDisciplina: s.duracaoDisciplina,
+       semestre: s.semestreId
+      }))
+      return await enrollmentService({
+        codPreInscricao: pre.toString(),
+        grades
       })
     },
 

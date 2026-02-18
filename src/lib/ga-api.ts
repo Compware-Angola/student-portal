@@ -6,6 +6,7 @@ const VITE_API_URL_GA = import.meta.env.VITE_API_URL_GA
 export const gaApi = ky.create({
   retry: 0,
   prefixUrl: VITE_API_URL_GA,
+timeout:false,
 
   hooks: {
     beforeRequest: [
@@ -19,9 +20,10 @@ export const gaApi = ky.create({
     ],
     afterResponse: [
       async (_request, _options, response) => {
-        // if (response.status === 401) {
-        //   console.lo
-        // }
+        if (response.status === 401) {
+          AuthStorage.clear()
+          window.location.href = '/login'
+        }
         if (!response.ok) {
           let errorData: ApiErrorResponse | undefined
           let message = `Erro ${response.status}: ${response.statusText}`

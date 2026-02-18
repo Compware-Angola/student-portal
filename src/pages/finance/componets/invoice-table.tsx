@@ -31,10 +31,7 @@ import {
   CheckCircle2,
   XCircle,
 } from 'lucide-react'
-import {
-  TooltipProvider,
-
-} from '@/components/ui/tooltip'
+import { TooltipProvider } from '@/components/ui/tooltip'
 import {
   Dialog,
   DialogContent,
@@ -99,9 +96,12 @@ function usePollPendingTasks(invoiceId: number, enrollmentCode: string) {
       try {
         const { status } = await checkTaskStatus(task.taskId)
         const finish = (success: boolean) => {
-          success
-            ? toast.success('Referência gerada com sucesso!')
-            : toast.error('Erro na geração da referência.')
+          if (success) {
+            toast.success('Referência gerada com sucesso!')
+          } else {
+            toast.error('Erro na geração da referência.')
+          }
+
           removePendingTask(invoiceId)
           refetchInvoices()
           setIsPolling(false)
@@ -563,20 +563,20 @@ function useColumnsInvoiceTable({
         new Date(row.getValue('DataFactura')).toLocaleDateString('pt-PT'),
     },
     { accessorKey: 'Referencia', header: 'Número Doc*' },
-  {
-  id: 'referencia_pagamento',
-  header: 'Referência de Pagamento',
-  cell: ({ row }) => {
-    const refs = row.original.referencias_pagamento || []
-      const estado = row.getValue('estado') as number
+    {
+      id: 'referencia_pagamento',
+      header: 'Referência de Pagamento',
+      cell: ({ row }) => {
+        const refs = row.original.referencias_pagamento || []
+        const estado = row.getValue('estado') as number
 
-    if (refs.length === 0) {
-      return <span className="text-muted-foreground">—</span>
-    }
+        if (refs.length === 0) {
+          return <span className="text-muted-foreground">—</span>
+        }
 
-    return <ReferenciasDialog referencias={refs} estado={estado} />
-  },
-},
+        return <ReferenciasDialog referencias={refs} estado={estado} />
+      },
+    },
     {
       accessorKey: 'estado',
       header: 'Estado',
@@ -634,92 +634,108 @@ function useColumnsInvoiceTable({
     {
       id: 'acoes',
       header: 'Ações',
-      cell: ({ row }) => {
-        const invoice = row.original
-        const refs = invoice.referencias_pagamento || []
-        const podeCriarNovaReferencia = 
-  refs.length === 0 || refs.every(ref => ref.Status === 'Expired');
-
-        const temReferencia = refs.length > 0 && !podeCriarNovaReferencia;
-        const estaPendente = invoice.estado === 0
-        const isPolling = usePollPendingTasks(
-          Number(invoice.Codigo),
-          enrollmentCode,
-        )
-
-        return (
-          <div className="flex items-center justify-end gap-2">
-            {!temReferencia && estaPendente ? (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-8 text-xs"
-                    disabled={gerarRefMutation.isPending || isPolling}
-                  >
-                    {gerarRefMutation.isPending || isPolling ? (
-                      <>
-                        <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                        Gerando...
-                      </>
-                    ) : (
-                      'Gerar Referência'
-                    )}
-                  </Button>
-                </AlertDialogTrigger>
-
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Gerar nova referência de pagamento?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Esta ação irá gerar uma nova referência Multicaixa/MB Way
-                      para a Nota de Pagamento{' '}
-                      <span className="font-medium">{invoice.Codigo}</span>.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() =>
-                        gerarRefMutation.mutate({
-                          codigoFactura: invoice.Codigo,
-                        })
-                      }
-                      disabled={gerarRefMutation.isPending || isPolling}
-                    >
-                      {gerarRefMutation.isPending || isPolling ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />A
-                          gerar...
-                        </>
-                      ) : (
-                        'Gerar'
-                      )}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            ) : (
-              <PaymentReceipt
-                invoice={invoice}
-                academicYear={findAcademicYearDesignation(invoice?.ano_lectivo)}
-                showDownloadButton={false}
-                showPrintButton={true}
-              />
-            )}
-
-            <InvoiceDetailsDialog
-              invoice={invoice}
-              findAcademicYearDesignation={findAcademicYearDesignation}
-            />
-          </div>
-        )
-      },
+      cell: ({ row }) => (
+        <ActionCell
+          invoice={row.original}
+          enrollmentCode={enrollmentCode}
+          gerarRefMutation={gerarRefMutation}
+          findAcademicYearDesignation={findAcademicYearDesignation}
+        />
+      ),
     },
   ]
 
   return columns
+}
+
+const ActionCell = ({
+  invoice,
+  enrollmentCode,
+  gerarRefMutation,
+  findAcademicYearDesignation,
+}: {
+  invoice: Invoice
+  enrollmentCode: string
+  gerarRefMutation: ReturnType<typeof useGenerateReference>
+  findAcademicYearDesignation: (c: number) => string
+}) => {
+  // Agora o hook está no nível superior de um componente React funcional!
+  const isPolling = usePollPendingTasks(Number(invoice.Codigo), enrollmentCode)
+
+  const refs = invoice.referencias_pagamento || []
+  const podeCriarNovaReferencia =
+    refs.length === 0 || refs.every((ref) => ref.Status === 'Expired')
+  const temReferencia = refs.length > 0 && !podeCriarNovaReferencia
+  const estaPendente = invoice.estado === 0
+
+  return (
+    <div className="flex items-center justify-end gap-2">
+      {!temReferencia && estaPendente ? (
+        <AlertDialog>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs"
+                disabled={gerarRefMutation.isPending || isPolling}
+              >
+                {gerarRefMutation.isPending || isPolling ? (
+                  <>
+                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                    Gerando...
+                  </>
+                ) : (
+                  'Gerar Referência'
+                )}
+              </Button>
+            </AlertDialogTrigger>
+
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  Gerar nova referência de pagamento?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta ação irá gerar uma nova referência Multicaixa/MB Way para
+                  a Nota de Pagamento{' '}
+                  <span className="font-medium">{invoice.Codigo}</span>.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() =>
+                    gerarRefMutation.mutate({
+                      codigoFactura: invoice.Codigo,
+                    })
+                  }
+                  disabled={gerarRefMutation.isPending || isPolling}
+                >
+                  {gerarRefMutation.isPending || isPolling ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />A
+                      gerar...
+                    </>
+                  ) : (
+                    'Gerar'
+                  )}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </AlertDialog>
+      ) : (
+        <PaymentReceipt
+          invoice={invoice}
+          academicYear={findAcademicYearDesignation(invoice?.ano_lectivo)}
+          showPrintButton={true}
+        />
+      )}
+      <InvoiceDetailsDialog
+        invoice={invoice}
+        findAcademicYearDesignation={findAcademicYearDesignation}
+      />
+    </div>
+  )
 }

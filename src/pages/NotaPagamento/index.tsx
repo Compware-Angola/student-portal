@@ -1,430 +1,374 @@
+import { useEffect, useState, useMemo } from 'react'
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+  useReactTable,
+  getCoreRowModel,
+  flexRender,
+  type ColumnDef,
+  getSortedRowModel,
+  type SortingState,
+} from '@tanstack/react-table'
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { FileText, Download, Eye, Calendar } from 'lucide-react'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import { useQueryPayments } from '@/hooks/finance/use-query-finance-payments'
-import { Loader2 } from 'lucide-react'
+import { Eye, Download, Loader2, ChevronLeft, ChevronRight } from 'lucide-react'
+
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
-import { useEffect, useState } from 'react'
-import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-academic-year-student'
-import { dedupeAcademicYears } from '../finance'
+import { useQueryStudentPayments } from '@/hooks/payment/use-query-student-payments'
 import { YearSelect } from '@/components/year-select'
-import ComprovantePagamento from '@/components/comprovante-pagamento'
-
-interface NotaPagamento {
-  id: string
-  numero: string
-  tipo: 'Mesalidade' | 'servico' | 'melhoria' | 'inscricao' | string
-  descricao: string
-  valor: number
-  dataEmissao: string
-  dataVencimento: string
-  dataFactura: string
-  status: 'concluido' | 'pendente' | 'vencida' | string
-  metodoPagamento?:
-    | 'cash'
-    | 'transferencia'
-    | 'muteu_cash'
-    | 'deposito'
-    | 'express'
-    | 'por_referencia'
-    | 'tpa'
-    | string
-  comprovante?: string
-}
-
-const mapApiToNotaPagamento = (apiData: any[]): NotaPagamento[] => {
-  return apiData.map((item: any) => {
-    let status: 'concluido' | 'pendente' | 'vencida' | string
-    const isPaid = item.p_status_pagamento === 'concluido'
-    const isExpired =
-      item.f_DataVencimento &&
-      new Date(item.f_DataVencimento) < new Date() &&
-      !isPaid
-
-    if (isPaid) {
-      status = 'concluido'
-    } else if (isExpired) {
-      status = 'vencida'
-    } else {
-      status = 'pendente'
-    }
-
-    // Simples regra de tipo
-    let tipo: string = 'servico'
-    if (
-      item.Descricao_produto &&
-      item.Descricao_produto.toLowerCase().includes('Mensalidade')
-    ) {
-      tipo = 'Mensalidade'
-    }
-    return {
-      id: String(item.CodigoPagamento || item.CodigoFactura),
-      numero: item.f_Referencia || `FAT-${item.CodigoFactura}`,
-      tipo: tipo,
-
-      descricao:
-        [item.Descricao_produto, item.Descricao_factura]
-          .map((v) => (v ?? '').toString().trim())
-          .find((s) => s && !['', 'None', 'null'].includes(s)) ||
-        'Servço/Pagamentos',
-
-      valor: Number(item.f_ValorAPagar) || Number(item.TotalItem) || 0,
-      dataEmissao: item.f_DataFactura,
-      dataVencimento: item.f_DataVencimento,
-      status: status,
-      dataFactura: item.f_DataFactura,
-      metodoPagamento: item.p_forma_pagamento
-        ? item.p_forma_pagamento.replace(/\s/g, '_').toLowerCase()
-        : undefined,
-      comprovante: undefined,
-    }
-  })
-}
+import type { StudentPayment } from '@/services/payment/fetch-student-payments.service'
+import { ModalDetalhesPagamento } from './modal-detalhes-pagamento'
+import { formatCurrency } from '@/utils'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { pdf } from '@react-pdf/renderer'
+import { DetailedInvoiceStyledPDF } from './payment-pdf-document.tsx'
+import { useQueryPaymentDetails } from '@/hooks/payment/use-query-payment-details'
+import { useYearSelect } from '@/components/year-select/use-year-select.ts'
 
 export const NotaPagamento = () => {
-  const { profileData } = useQueryProfile()
+  // --- Estados de Controle ---
+  const [selectedInvoice, setSelectedInvoice] = useState<StudentPayment | null>(
+    null,
+  )
+  const [isDownloading, setIsDownloading] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const [selectedYear, setSelectedYear] = useState<string | undefined>(
     undefined,
   )
 
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(12)
+  const [sorting, setSorting] = useState<SortingState>([])
+
+  // --- Hooks de Dados ---
+  const { profileData } = useQueryProfile()
+
   const {
-    data: pagamentosData,
+    data: paymentsData,
     isLoading,
     isError,
-  } = useQueryPayments({
-    academicYear: selectedYear,
-    preRegistrationCode: profileData?.codigo_preinscricao,
-
-    page: 1,
-    limit: 10,
+  } = useQueryStudentPayments({
+    codigoMatricula: profileData?.enrollmentCode,
+    codigoPreInscricao: profileData?.codigo_preinscricao,
+    anoLectivo: selectedYear,
+    page,
+    limit,
   })
-  // Mapear dados da API para o formato do componente
-  const notas: NotaPagamento[] = pagamentosData?.data
-    ? mapApiToNotaPagamento(pagamentosData.data)
-    : []
 
-  const { data: academicYearData } = useQueryAcademicYearStudent(
-    profileData?.enrollmentCode,
+  const { data: detailsData } = useQueryPaymentDetails(
+    selectedInvoice?.CodigoFactura,
   )
-  const academicYears = dedupeAcademicYears(academicYearData?.anolectivos)
+
+  // --- Handlers ---
+  const handleOpenDetails = (invoice: StudentPayment) => {
+    setSelectedInvoice(invoice)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseDetails = () => {
+    setIsModalOpen(false)
+    setSelectedInvoice(null)
+  }
+
+  const handleDownloadClick = (invoice: StudentPayment) => {
+    setSelectedInvoice(invoice)
+    setIsDownloading(true)
+    setIsModalOpen(false)
+  }
+  const { academicYears } = useYearSelect(profileData?.enrollmentCode)
+
   useEffect(() => {
-    if (!academicYears) return
-
-    // Encontrar o ano ativo
-    const active = academicYears.find((y) => y.estado === 'Activo')
-
-    if (active && !selectedYear) {
-      setSelectedYear(String(active.codigo))
+    if (academicYears && !selectedYear) {
+      const active = academicYears.find((y) => y.estado === 'Activo')
+      if (active) setSelectedYear(String(active.codigo))
     }
-  }, [academicYears, selectedYear, setSelectedYear])
+  }, [academicYears, selectedYear])
 
-  const getStatusBadge = (status: string) => {
-     /*
-    switch (status) {
-     
-      case 'concluido':
-        return <Badge variant="secondary">Paga</Badge>
-      case 'pendente':
-        return <Badge variant="default">Pendente</Badge>
-      case 'vencida':
-        return <Badge variant="destructive">Vencida</Badge>
-      default:
-        return <Badge>Desconhecido</Badge>
-      
-       
+  useEffect(() => {
+    if (isDownloading && detailsData && selectedInvoice && profileData) {
+      const generatePDF = async () => {
+        try {
+          const blob = await pdf(
+            <DetailedInvoiceStyledPDF
+              details={detailsData}
+              student={profileData}
+              studentPayment={selectedInvoice}
+            />,
+          ).toBlob()
+
+          const url = URL.createObjectURL(blob)
+          window.open(url, '_blank')
+        } catch (error) {
+          console.error('Erro ao gerar PDF:', error)
+        } finally {
+          setIsDownloading(false)
+          // Só limpamos o selectedInvoice se o modal não estiver aberto
+          if (!isModalOpen) setSelectedInvoice(null)
+        }
+      }
+
+      generatePDF()
     }
-          */
-         console.log(status)
-         
-     return <Badge variant="secondary">Paga</Badge>
-  }
+  }, [detailsData, isDownloading, selectedInvoice, profileData, isModalOpen])
 
-  const getTipoBadge = (tipo: string) => {
-    switch (tipo) {
-      case 'Mensalidade':
-        return <Badge variant="outline">Mensalidade</Badge>
-      case 'servico':
-        return <Badge variant="outline">Serviço</Badge>
-      case 'melhoria':
-        return <Badge variant="outline">Melhoria</Badge>
-      case 'inscricao':
-        return <Badge variant="outline">Inscrição</Badge>
-      default:
-        return <Badge variant="outline">Outro</Badge>
-    }
-  }
+  // --- Colunas da Tabela ---
+  const columns = useMemo<ColumnDef<StudentPayment>[]>(
+    () => [
+      {
+        accessorKey: 'CodigoFactura',
+        header: 'Código',
+        cell: ({ row }) => (
+          <span className="font-bold">{row.original.CodigoFactura}</span>
+        ),
+      },
+      {
+        accessorKey: 'TotalPago',
+        header: 'Valor Pago',
+        cell: ({ row }) => formatCurrency(row.original.VALORAPAGAR ?? 0),
+      },
+      {
+        accessorKey: 'DataFactura',
+        header: 'Data',
+        cell: ({ row }) => {
+          const date = new Date(row.original.DATAFACTURA)
+          return date.toLocaleString('pt-PT').replace(',', '')
+        },
+      },
+      {
+        id: 'actions',
+        header: 'Acções',
+        cell: ({ row }) => {
+          const isThisDownloading =
+            isDownloading &&
+            selectedInvoice?.CodigoFactura === row.original.CodigoFactura
 
-  const getMetodoPagamento = (metodo?: string) => {
-    if (!metodo) return 'n/a'
-    switch (metodo.trim()) {
-      case 'TPA':
-        return 'tpa'
-      case 'DEPOSITO':
-        return 'deposito'
-      case 'TRANSFERENCIA':
-        return 'transferencia'
-      case 'EXPRESS':
-        return 'express'
-      case 'POR REFERÊNCIA':
-        return 'por referência'
-      case 'PAGAMENTO A CASH':
-      case 'CASH':
-        return 'pagamento a cash'
-
-      case 'MUTUE_CASH':
-        return 'muteu cash'
-
-      default:
-        // Retorna o valor original em minúsculas, caso exista
-        return metodo.toLowerCase()
-    }
-  }
-  const NotaDetalhes = ({ nota }: { nota: NotaPagamento }) => (
-    // ... (Seu componente NotaDetalhes permanece o mesmo, mas usará os dados mapeados) ...
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Eye className="mr-2 h-4 w-4" />
-          Ver Detalhes
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Pagamento</DialogTitle>
-          <DialogDescription>Número: {nota.numero}</DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm font-semibold mb-1">Tipo</p>
-              <p className="text-sm text-muted-foreground capitalize">
-                {nota.tipo}
-              </p>
+          return (
+            <div className="flex items-center gap-1">
+              <Button
+                aria-label="Ver detalhes"
+                variant="ghost"
+                size="icon"
+                className="cursor-pointer"
+                onClick={() => handleOpenDetails(row.original)}
+              >
+                <Eye className="h-5 w-5" />
+              </Button>
+              <Button
+                aria-label="Baixar pdf"
+                variant="secondary"
+                size="icon"
+                className="cursor-pointer"
+                disabled={isThisDownloading}
+                onClick={() => handleDownloadClick(row.original)}
+              >
+                {isThisDownloading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <Download className="h-5 w-5" />
+                )}
+              </Button>
             </div>
-            <div>
-              <p className="text-sm font-semibold mb-1">Status</p>
-              {getStatusBadge(nota.status)}
-            </div>
-            <div>
-              <p className="text-sm font-semibold mb-1">Data de Emissão</p>
-              <p className="text-sm text-muted-foreground">
-                {new Date(nota.dataEmissao).toLocaleDateString('pt-PT')}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold mb-1">Data de Vencimento</p>
-              <p className="text-sm text-muted-foreground">
-                {new Date(nota.dataVencimento).toLocaleDateString('pt-PT')}
-              </p>
-            </div>
-          </div>
-
-          <div className="border-t pt-4">
-            <p className="text-sm font-semibold mb-2">Descrição</p>
-            <p className="text-sm text-muted-foreground">{nota.descricao}</p>
-          </div>
-
-          <div className="border-t pt-4">
-            <div className="flex justify-between items-center">
-              <p className="text-lg font-semibold">Valor Total</p>
-              <p className="text-2xl font-bold text-primary">
-                {nota.valor.toLocaleString('pt-PT')} Kz
-              </p>
-            </div>
-          </div>
-
-          {nota.status === 'concluido' && (
-            <div className="border-t pt-4 space-y-3">
-              <div>
-                <p className="text-sm font-semibold mb-1">
-                  Método de Pagamento
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {getMetodoPagamento(nota.metodoPagamento)}
-                </p>
-              </div>
-            </div>
-          )}
-          <div className="flex gap-3 pt-4">
-            <ComprovantePagamento payment={nota} />
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+          )
+        },
+      },
+    ],
+    [isDownloading, selectedInvoice?.CodigoFactura],
   )
 
-  const totalPago = notas
-    .filter((n) => n.status == 'concluido')
-    .reduce((sum, n) => sum + n.valor, 0)
+  const table = useReactTable({
+    data: paymentsData?.data ?? [],
+    columns,
+    state: { sorting },
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    manualPagination: true,
+    pageCount: paymentsData?.totalPages ?? -1,
+  })
 
-  // --- Tratamento de Estado de Carregamento e Erro ---
-
-  if (isLoading) {
+  if (isError)
     return (
-      <div className="flex justify-center items-center h-40">
-        <Loader2 className="mr-2 h-8 w-8 animate-spin text-primary" />
-        <p>Carregando dados dos pagamentos Liquidados...</p>
+      <div className="p-4 text-red-500 font-semibold text-center border border-red-200 rounded-lg">
+        Erro ao carregar pagamentos. Verifique sua conexão.
       </div>
     )
-  }
 
-  if (isError) {
-    return (
-      <Card className="border-destructive">
-        <CardContent className="pt-6 text-destructive">
-          <p className="font-semibold">Erro ao carregar os dados.</p>
-          <p className="text-sm">Por favor, tente novamente mais tarde.</p>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  // --- Renderização Principal ---
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-        <div>
-          <h1 className="text-3xl font-bold"> Histórico de Pagamentos</h1>
-          <p className="text-muted-foreground mt-2">
-            Consulte os Históricos de Pagamentos concluídos
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Calendar className="h-5 w-5 text-muted-foreground" />
-
-          <YearSelect
-            academicYears={academicYears}
-            selectedYear={selectedYear}
-            onChange={setSelectedYear}
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Total Pago */}
-        <Card className="border rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-          <CardHeader className="pb-2 flex items-center justify-between">
-            <CardTitle className="text-sm font-semibold text-gray-700">
-              Total Pago
-            </CardTitle>
-            <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
-              Resolução Anual
-            </span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-600">
-              {totalPago.toLocaleString('pt-PT')} Kz
+      <Card className="p-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold uppercase tracking-wider">
+              Filtrar por Ano Lectivo
+            </label>
+            <div className="w-64">
+              <YearSelect
+                academicYears={academicYears}
+                selectedYear={selectedYear}
+                onChange={(val) => {
+                  setSelectedYear(val)
+                  setPage(1)
+                }}
+              />
             </div>
-            <p className="text-sm text-gray-500 mt-1">
-              Valor total pago ao longo do ano
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Total de Notas */}
-        <Card className="border rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-          <CardHeader className="pb-2 flex items-center justify-between">
-            <CardTitle className="text-sm font-semibold text-gray-700">
-              Total de Notas Liquidadas
-            </CardTitle>
-            <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
-              Resolução Anual
-            </span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-blue-600">
-              {notas.length}
-            </div>
-            <p className="text-sm text-gray-500 mt-1">
-              Número total de notas registadas neste ano
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Histórico de Notas de Pagamento</CardTitle>
-          <CardDescription>
-            Lista completa das suas notas de pagamento Concluídos
-          </CardDescription>
-        </CardHeader>
-
-        <CardContent>
-          <div className="space-y-4">
-            {notas.length === 0 ? (
-              <p className="text-muted-foreground text-center py-6">
-                Não há notas de pagamento registradas para este período.
-              </p>
-            ) : (
-              notas.map((nota) => (
-                <Card key={nota.numero}>
-                  <CardContent className="pt-6">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <FileText className="h-5 w-5 text-primary" />
-                          <div>
-                            <p className="font-semibold">{nota.descricao}</p>
-                            <p className="text-sm text-muted-foreground">
-                              {nota.numero}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex flex-wrap gap-2 mt-3">
-                          {getTipoBadge(nota.tipo)}
-                          {getStatusBadge(nota.status)}
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col md:items-end gap-3">
-                        <div className="text-right">
-                          <p className="text-2xl font-bold">
-                            {nota.valor.toLocaleString('pt-PT')} Kz
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            Data de Pagamento:{' '}
-                            {new Date(nota.dataFactura).toLocaleDateString(
-                              'pt-PT',
-                            )}
-                          </p>
-                        </div>
-                        <div className="flex gap-2">
-                          <NotaDetalhes nota={nota} />
-                          {nota.status === 'concluido' && nota.comprovante && (
-                            <Button variant="outline" size="sm">
-                              <Download className="mr-2 h-4 w-4" />
-                              Comprovante
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
           </div>
-        </CardContent>
+          {/* <Button size="icon" variant="secondary" className="cursor-pointer">
+            <Printer className="h-4 w-4" />
+          </Button> */}
+        </div>
+
+        <div className="pt-4">
+          <h2 className="text-xl font-bold border-l-[6px] border-emerald-500 pl-4 h-8 flex items-center">
+            Notas de Pagamentos
+          </h2>
+        </div>
       </Card>
+
+      <Card className="overflow-hidden">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow
+                key={headerGroup.id}
+                className="hover:bg-transparent border-b"
+              >
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id} className="uppercase py-4">
+                    {header.isPlaceholder ? null : (
+                      <div
+                        className={
+                          header.column.getCanSort()
+                            ? 'flex items-center cursor-pointer select-none gap-1'
+                            : ''
+                        }
+                        onClick={header.column.getToggleSortingHandler()}
+                      >
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                        {{ asc: ' ↑', desc: ' ↓' }[
+                          header.column.getIsSorted() as string
+                        ] ?? null}
+                      </div>
+                    )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-40 text-center"
+                >
+                  <Loader2 className="h-8 w-8 animate-spin mx-auto text-emerald-500" />
+                  <p className="mt-2 text-sm font-medium">
+                    Sincronizando Recibos...
+                  </p>
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  className="transition-colors border-b last:border-0"
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id} className="py-4">
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-32 text-center italic"
+                >
+                  Nenhum registro encontrado para este ano lectivo.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </Card>
+
+      {/* Paginação */}
+      <div className="flex flex-col sm:flex-row items-center justify-end gap-6 text-sm text-slate-500 py-2">
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-medium">Por página:</span>
+          <Select
+            value={limit.toString()}
+            onValueChange={(value) => {
+              setLimit(Number(value))
+              setPage(1)
+            }}
+          >
+            <SelectTrigger className="w-16">
+              <SelectValue placeholder={limit} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="12">12</SelectItem>
+              <SelectItem value="24">24</SelectItem>
+              <SelectItem value="48">48</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex items-center gap-8">
+          <span className="text-xs font-semibold tabular-nums">
+            {(page - 1) * limit + 1}-
+            {Math.min(page * limit, paymentsData?.total || 0)} of{' '}
+            {paymentsData?.total || 0}
+          </span>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1 || isLoading}
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setPage((p) => p + 1)}
+              disabled={page >= (paymentsData?.totalPages || 1) || isLoading}
+            >
+              <ChevronRight className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <ModalDetalhesPagamento
+        selectedInvoice={selectedInvoice}
+        student={profileData}
+        isOpen={isModalOpen}
+        onClose={handleCloseDetails}
+      />
     </div>
   )
 }

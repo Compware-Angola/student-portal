@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/select'
 
 import { YearSelect } from '@/components/year-select'
+import { formatCurrency } from '@/utils'
 
 type PaymentStatusFilter = 'all' | 'paid' | 'unpaid'
 
@@ -166,7 +167,7 @@ export function PaymentList({
                   <div className="flex items-center gap-8">
                     <div className="text-right">
                       <p className="text-1xl font-bold ">
-                        {Number(p.total_preco).toLocaleString('pt-AO')} Kz
+                        {formatCurrency(Number(p.status_pagamento === 1 ? p.valor_pago : p.total_preco))}
                       </p>
                       <div className="mt-3">
                         {getStatusBadge(

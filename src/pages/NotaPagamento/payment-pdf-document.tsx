@@ -5,14 +5,11 @@ import {
   Document,
   StyleSheet,
   Image,
-  PDFDownloadLink,
-  pdf,
 } from '@react-pdf/renderer'
-import { Button } from '@/components/ui/button'
-import type { Invoice } from '@/services/invoice/get-invoices-by-matricula.service'
-import { Download, Printer } from 'lucide-react'
+import type { PaymentDetail } from '@/services/payment/fetch-payment-details.service'
+import type { StudentPayment } from '@/services/payment/fetch-student-payments.service'
+import type { ProfileData } from '@/types/profile'
 
-// Estilos refinados
 const styles = StyleSheet.create({
   page: {
     backgroundColor: '#fff',
@@ -149,6 +146,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#444',
   },
+  infoBox: {
+    marginTop: 12,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#90a4ae', // cinza azulado suave
+    borderRadius: 6,
+    backgroundColor: '#f1f4f6', // cinza claro elegante
+  },
+
+  infoText: {
+    textAlign: 'center',
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#37474f', // cinza escuro moderno
+  },
 
   footer: {
     position: 'absolute',
@@ -161,19 +173,22 @@ const styles = StyleSheet.create({
   },
 })
 
-function PaymentReceiptDocument({
-  invoice,
+export function DetailedInvoiceStyledPDF({
+  student,
+  studentPayment,
+  details,
 }: {
-  invoice: Invoice
-  academicYear: string
+  student: ProfileData
+  studentPayment: StudentPayment
+  details: PaymentDetail[]
 }) {
+  const totalGeral = details.reduce((acc, item) => acc + item.TOTAL, 0)
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         {/* ---------- Cabeçalho ---------- */}
         <View style={styles.header}>
           <Image style={styles.logo} src="/logo_uma.png" />
-
           <View style={styles.companyInfo}>
             <Text style={styles.companyName}>
               Universidade Metodista de Angola
@@ -199,37 +214,27 @@ function PaymentReceiptDocument({
         </View>
 
         {/* ---------- Título ---------- */}
-        <Text style={styles.title}>Nota de Pagamento</Text>
+        <Text style={styles.title}>Recibo de Pagamento</Text>
 
         {/* ---------- Informações principais ---------- */}
         <View style={styles.section}>
           <View style={styles.infoRow}>
             <Text>
-              <Text style={styles.label}>Codigo:</Text> {invoice.Codigo}
+              <Text style={styles.label}>Codigo:</Text>{' '}
+              {studentPayment.CodigoFactura}
             </Text>
           </View>
 
           <View style={styles.infoRow}>
             <Text>
               <Text style={styles.label}>Data Emissão:</Text>{' '}
-              {new Date(invoice.DataFactura).toLocaleDateString()}
+              {new Date(studentPayment.DATAFACTURA).toLocaleDateString()}
             </Text>
-
-            {invoice.dataVencimento && (
-              <Text>
-                <Text style={styles.label}>Vencimento:</Text>{' '}
-                {new Date(invoice.dataVencimento).toLocaleDateString()}
-              </Text>
-            )}
           </View>
 
           <View style={styles.infoRow}>
             <Text>
-              <Text style={styles.label}>Ano Lectivo:</Text>{' '}
-              {invoice?.ano_lectivo}
-            </Text>
-            <Text>
-              <Text style={styles.label}>Polo:</Text> {invoice.polo}
+              <Text style={styles.label}>Ano Lectivo:</Text> {2025 + '-' + 2026}
             </Text>
           </View>
         </View>
@@ -237,81 +242,70 @@ function PaymentReceiptDocument({
         {/* ---------- Dados do Estudante ---------- */}
         <View style={styles.section}>
           <Text style={styles.label}>Dados do Estudante</Text>
-          <Text>Nome: {invoice.NomeCompleto}</Text>
-          <Text>Matrícula: {invoice.CodigoMatricula}</Text>
+          <Text>Nome: {student.fullName}</Text>
+          <Text>
+            Matrícula: {student.enrollmentCode ?? student.preEnrollmentCode}
+          </Text>
         </View>
 
-        {/* ---------- Dados de Pagamento ---------- */}
-        <View style={styles.paymentBox}>
-          <Text style={styles.paymentTitle}>DADOS PARA PAGAMENTO</Text>
-          <View style={styles.paymentInfo}>
-            <Text>
-              Entidade: {invoice.referencias_pagamento[0]?.ENTITY_ID || '10065'}
-            </Text>
-            <Text>
-              Referência:{' '}
-              {invoice.referencias_pagamento[0]?.REFERENCE ||
-                invoice.Referencia}
-            </Text>
-          </View>
-        </View>
-
-        {/* ---------- Tabela de itens ---------- */}
         <View style={styles.table}>
           <View style={[styles.tableRow, styles.tableHeader]}>
-            <Text style={[styles.tableCellHeader, { width: '60%' }]}>
-              Descrição
+            <Text style={[styles.tableCellHeader, { width: '35%' }]}>
+              Serviço
             </Text>
             <Text style={[styles.tableCellHeader, { width: '20%' }]}>
-              Valor (Kz)
+              Referência
+            </Text>
+            <Text style={[styles.tableCellHeader, { width: '10%' }]}>Qtd</Text>
+            <Text style={[styles.tableCellHeader, { width: '15%' }]}>
+              Multa
             </Text>
             <Text style={[styles.tableCellHeader, { width: '20%' }]}>
-              IVA (Kz)
+              Subtotal
             </Text>
           </View>
 
-          {/* ✅ Mapeamento dos itens de invoice.itens */}
-          {invoice.itens.map((item, index) => (
-            <View style={styles.tableRow} key={index}>
-              <Text style={[styles.tableCell, { width: '60%' }]}>
-                {/* Use item.Descricao aqui */}
-                {item.DescricaoServico || item.OBS || 'Sem descrição'}
+          {details.map((item, i) => (
+            <View key={i} style={styles.tableRow}>
+              <Text style={[styles.tableCell, { width: '35%' }]}>
+                {item.SERVICO}
+              </Text>
+              <Text
+                style={[
+                  styles.tableCell,
+                  { width: '20%', textAlign: 'center' },
+                ]}
+              >
+                {item.REFERENCIA}
+              </Text>
+              <Text
+                style={[
+                  styles.tableCell,
+                  { width: '10%', textAlign: 'center' },
+                ]}
+              >
+                {item.QUANTIDADE}
+              </Text>
+              <Text
+                style={[styles.tableCell, { width: '15%', textAlign: 'right' }]}
+              >
+                {item.MULTA.toLocaleString('pt-AO')} Kz
               </Text>
               <Text
                 style={[styles.tableCell, { width: '20%', textAlign: 'right' }]}
               >
-                {/* Use item.TotalPreco aqui */}
-                {Number(item.Total).toFixed(2)}
-              </Text>
-              <Text
-                style={[styles.tableCell, { width: '20%', textAlign: 'right' }]}
-              >
-                {/* Use item.totalIVA aqui */}
-                {Number(item.taxa_iva).toFixed(2)}
+                {item.TOTAL.toLocaleString('pt-AO')} Kz
               </Text>
             </View>
           ))}
         </View>
 
-        {/* ---------- Totais ---------- */}
         <View style={styles.totalSection}>
-          <Text>Desconto: {Number(invoice.Desconto).toFixed(2)} Kz</Text>
-          <Text>Multa: {Number(invoice.TotalMulta).toFixed(2)} Kz</Text>
-          <Text>
-            Total Retenção: {Number(invoice.total_retencao).toFixed(2)} Kz
-          </Text>
-          <Text>
-            Total Incidência: {Number(invoice.total_incidencia).toFixed(2)} Kz
-          </Text>
           <Text style={styles.totalText}>
-            {invoice.estado === 0
-              ? `Total a pagar: ${Number(invoice.TotalPreco).toFixed(2)} Kz`
-              : invoice.estado === 1
-                ? `Total pago: ${Number(invoice.TotalPreco).toFixed(2)} Kz`
-                : `Valor: ${Number(invoice.TotalPreco).toFixed(2)} Kz`}
+            TOTAL GERAL: {totalGeral.toLocaleString('pt-AO')} Kz
           </Text>
-          <Text>({invoice.ValorAPagarExtenso})</Text>
         </View>
+
         <View style={styles.nonFiscalBox}>
           <Text style={styles.nonFiscalTitle}>Documento Não Fiscal</Text>
           <Text style={styles.nonFiscalText}>
@@ -319,7 +313,7 @@ function PaymentReceiptDocument({
             possui validade fiscal para efeitos contabilísticos.
           </Text>
         </View>
-        {/* ---------- Rodapé ---------- */}
+
         <Text style={styles.footer}>
           Documento emitido automaticamente — Universidade Metodista de Angola
           © {new Date().getFullYear()}
@@ -329,75 +323,45 @@ function PaymentReceiptDocument({
   )
 }
 
-export function PaymentReceipt({
-  invoice,
-  academicYear,
-  showDownloadButton = true,
-  showPrintButton = true,
-}: {
-  invoice: Invoice
-  academicYear: string
-  showPrintButton?: boolean
-  showDownloadButton?: boolean
-}) {
-  const document = (
-    <PaymentReceiptDocument invoice={invoice} academicYear={academicYear} />
-  )
+// export function DetailedInvoiceStyledPDF({
+//   invoice,
+//   academicYear,
+// }: {
+//   invoice: Invoice
+//   academicYear: string
+// }) {
+//   const document = (
+//     <PaymentReceiptDocument invoice={invoice} academicYear={academicYear} />
+//   )
 
-  // Função para imprimir: gera um blob do PDF e abre em nova aba para imprimir
-  const handlePrint = async () => {
-    try {
-      const blob = await pdf(document).toBlob()
-      const fileURL = URL.createObjectURL(blob)
-      const printWindow = window.open(fileURL)
-      // aguarda janela abrir, depois aciona print
-      if (printWindow) {
-        // Algumas browsers bloqueiam print automático; chamamos quando possível
-        printWindow.focus()
-        printWindow.print()
-      } else {
-        // fallback: abrir o arquivo diretamente (usuário poderá imprimir manualmente)
-        window.open(fileURL, '_blank')
-      }
-    } catch (error) {
-      console.error('Erro ao gerar/abrir PDF para impressão', error)
-      // opcional: notificar usuário via toast
-    }
-  }
-
-  return (
-    <div className="flex items-center justify-end gap-2">
-      {/* Botão para descarregar o PDF — ocupa o espaço (flex-1) */}
-
-      {showDownloadButton && (
-        <PDFDownloadLink
-          document={document}
-          fileName={`Nota_de_pagamento_UMA_${invoice.Codigo}.pdf`}
-        >
-          {({ loading }) => (
-            <Button
-              className="flex-1"
-              disabled={loading}
-              aria-label="Descarregar PDF"
-            >
-              <Download className="mr-2 h-4 w-4" />
-              Descarregar PDF
-            </Button>
-          )}
-        </PDFDownloadLink>
-      )}
-
-      {showPrintButton && (
-        <Button
-          variant="outline"
-          onClick={handlePrint}
-          aria-label="Imprimir recibo"
-        >
-          <Printer className="h-4 w-4" />
-        </Button>
-      )}
-    </div>
-  )
-}
-
-export default PaymentReceipt
+//   return (
+//     <div className="flex gap-3 pt-4">
+//       <PDFDownloadLink
+//         document={document}
+//         fileName={`Nota_de_pagamento_UMA_${invoice.Codigo}.pdf`}
+//       >
+//         {({ loading }) => (
+//           <Button
+//             className="flex-1"
+//             disabled={loading}
+//             aria-label={
+//               loading ? 'A gerar Nota...' : 'Descarregar Nota de pagamento'
+//             }
+//           >
+//             {loading ? (
+//               <>
+//                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />A gerar
+//                 recibo...
+//               </>
+//             ) : (
+//               <>
+//                 <FileText className="mr-2 h-4 w-4" />
+//                 Pagar Em Cash
+//               </>
+//             )}
+//           </Button>
+//         )}
+//       </PDFDownloadLink>
+//     </div>
+//   )
+// }
