@@ -118,7 +118,7 @@ export const ModalDetalhesPagamento = ({
               <div className="flex flex-col md:flex-row gap-4 items-center justify-between ">
                 <div className="space-y-1">
                   <p>
-                    Data Factura:{' '}
+                    Data de Emissão :{' '}
                     <b>
                       {new Date(detailsData[0].DATAFACTURA).toLocaleDateString(
                         'pt-PT',
