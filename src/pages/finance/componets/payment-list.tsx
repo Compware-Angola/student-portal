@@ -5,8 +5,7 @@ import {
   CardContent,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Calendar, Receipt, CheckCircle2, XCircle } from 'lucide-react'
-import { useFinance } from '../hooks/use-finance'
+import { Calendar, CheckCircle2, XCircle } from 'lucide-react'
 import { useState } from 'react'
 import { useQueryFinanceMonthlyFee } from '@/hooks/finance/use-query-finance-monthly-fee'
 import {
@@ -18,7 +17,7 @@ import {
 } from '@/components/ui/select'
 
 import { YearSelect } from '@/components/year-select'
-import { formatCurrency } from '@/utils'
+import { PaymentListMonthly } from './payment-list-monthly'
 
 type PaymentStatusFilter = 'all' | 'paid' | 'unpaid'
 
@@ -35,7 +34,6 @@ export function PaymentList({
   selectedYear,
   onYearChange,
 }: PaymentListProps) {
-  const { getStatusBadge, handleGenerateReference } = useFinance()
 
   const [page, setPage] = useState(1)
   const [statusFilter, setStatusFilter] = useState<PaymentStatusFilter>('all')
@@ -142,53 +140,12 @@ export function PaymentList({
                 : 'Todas as mensalidades já foram pagas.'}
             </p>
 
-            
+
           </div>
         ) : (
           <>
             <div className="space-y-4">
-              {payments.map((p) => (
-                <div
-                  key={p.id_item}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 rounded-xl border bg-card p-6 shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div className="space-y-2">
-                    <h3 className="text-xl font-bold">{p.mes}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Vencimento: {new Date(p.data_limite).toLocaleDateString('pt-AO')}
-                    </p>
-                    {p.reference && (
-                      <p className="text-xs font-mono">
-                        Ref: <strong>{p.reference}</strong>
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-8">
-                    <div className="text-right">
-                      <p className="text-1xl font-bold ">
-                        {formatCurrency(Number(p.status_pagamento === 1 ? p.valor_pago : p.total_preco))}
-                      </p>
-                      <div className="mt-3">
-                        {getStatusBadge(
-                          p.status_pagamento === 1 ? 'paid' : 
-                          p.status_pagamento === 2 ? 'upcoming' : 'pending'
-                        )}
-                      </div>
-                    </div>
-
-                    {!p.reference && p.codigo_factura && (
-                      <Button
-                        onClick={() => handleGenerateReference(p.codigo_factura as number)}
-                        size="lg"
-                      >
-                        <Receipt className="mr-2 h-4 w-4" />
-                        Gerar Referência
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
+              <PaymentListMonthly payments={payments}/>
             </div>
 
             {/* Paginação */}

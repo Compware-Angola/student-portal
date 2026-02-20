@@ -4,7 +4,8 @@ export type Mensalidade = {
   data_inicial: string;
   data_final: string;
   data_limite: string;
-  total_preco:number
+  total_preco: number;
+  semestre: number;
   data_final_desconto: string | null;
   id_item: number;
   id_tipo_servico: number;
@@ -16,9 +17,13 @@ export type Mensalidade = {
   total_item: number;
   valor_pago: number;
   reference: string | null;
+  multa: number | null;
+  desconto:number | null;
   data_vencimento: string | null;
   status_pagamento: number | string; // pode vir "1"
   codigo_factura: number | null;
+  mensalidade: number | null
+  total: number | null
 };
 
 
