@@ -28,6 +28,7 @@ import { DebtCard } from './components/debt-card'
 import { CompletedSubjectsCard } from './components/completed-subjects-card'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 import { Button } from '@/components/ui/button'
+import { MonthlyCard } from './components/monthly-card'
 
 // === Tipos ===
 interface Notification {
@@ -67,22 +68,8 @@ export const Dashboard = () => {
       enrollmentCode: profileData?.enrollmentCode,
     })
 
-  // === Efeitos ===
-
-  // === Loading & Erros ===
-  // const result = await queryClient.fetchQuery<DebtNegotiationResponse>({
-  //   queryKey: ['renegotiation-debit', data.enrollmentCode],
-  //   queryFn: () =>
-  //     getDebit({
-  //       enrollmentCode: data.enrollmentCode,
-  //       preinscricao: profileData?.codigo_preinscricao,
-  //       type: '1',
-  //     }),
-  // })
-  //
-  // data: debit, isLoading: loadingDebit
-
   const greeting = `${profileData?.sexo === 'Feminino' ? 'Bem-vinda' : 'Bem-vindo'}, ${profileData?.firstName} ${profileData?.lastName}`
+  const confirmationYear = profileData?.confirmacoes?.[0].ano_lectivo;
 
   // === Normalização ===
   const normalizedMensagens: Notification[] = (mensagens || []).map((item) => ({
@@ -120,14 +107,14 @@ export const Dashboard = () => {
 
   const latestCalendar = [...(atividades || [])]
     .sort(
-      (a: any, b: any) =>
+      (a, b) =>
         new Date(b.data_inicio).getTime() - new Date(a.data_inicio).getTime(),
     )
     .slice(0, 2)
 
   const latestExams = [...exams]
     .sort(
-      (a: any, b: any) =>
+      (a, b) =>
         new Date(b.hora_prova).getTime() - new Date(a.hora_prova).getTime(),
     )
     .slice(0, 2)
@@ -197,10 +184,15 @@ export const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <DebtCard
+        {/* <DebtCard
           onClick={() => navigate('/financas')}
           enrollmentCode={profileData.enrollmentCode}
           preinscricao={profileData.codigo_preinscricao}
+        /> */}
+        <MonthlyCard
+          onClick={() => navigate('/financas')}
+          enrollmentCode={profileData.enrollmentCode}
+          selectedYear={confirmationYear}
         />
         <CompletedSubjectsCard enrollmentCode={profileData.enrollmentCode} />
       </div>
@@ -214,7 +206,7 @@ export const Dashboard = () => {
               <Bell className="h-5 w-5" />
               Mensagens e Comunicados
             </CardTitle>
-             {hasNotifications && (
+            {hasNotifications && (
               <Button
                 size="sm"
                 variant="ghost"
@@ -222,7 +214,7 @@ export const Dashboard = () => {
               >
                 Ver mais
               </Button>
-            )} 
+            )}
           </CardHeader>
           <CardContent>
             {loadingMensagens || loadingComunicados ? (
@@ -321,7 +313,7 @@ export const Dashboard = () => {
                 >
                   Ver mais
                 </Button>
-              )} 
+              )}
             </CardHeader>
             <CardContent>
               {loadingAtividades ? (
@@ -330,7 +322,7 @@ export const Dashboard = () => {
                 </p>
               ) : hasCalendar ? (
                 <div className="space-y-3">
-                  {latestCalendar.map((event: any) => (
+                  {latestCalendar.map((event) => (
                     <div
                       key={event.codigo}
                       className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-accent transition-colors cursor-pointer"
@@ -393,7 +385,7 @@ export const Dashboard = () => {
                 >
                   Ver mais
                 </Button>
-              )} 
+              )}
             </CardHeader>
             <CardContent>
               {loadingExams ? (
@@ -402,7 +394,7 @@ export const Dashboard = () => {
                 </p>
               ) : hasExams ? (
                 <div className="space-y-3">
-                  {latestExams.map((exam: any) => (
+                  {latestExams.map((exam) => (
                     <div
                       key={exam.codigo}
                       className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-accent transition-colors cursor-pointer"
