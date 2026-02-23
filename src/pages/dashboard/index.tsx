@@ -28,6 +28,7 @@ import { DebtCard } from './components/debt-card'
 import { CompletedSubjectsCard } from './components/completed-subjects-card'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 import { Button } from '@/components/ui/button'
+import { MonthlyCard } from './components/monthly-card'
 
 // === Tipos ===
 interface Notification {
@@ -68,6 +69,7 @@ export const Dashboard = () => {
     })
 
   const greeting = `${profileData?.sexo === 'Feminino' ? 'Bem-vinda' : 'Bem-vindo'}, ${profileData?.firstName} ${profileData?.lastName}`
+  const confirmationYear = profileData?.confirmacoes?.[0].ano_lectivo;
 
   // === Normalização ===
   const normalizedMensagens: Notification[] = (mensagens || []).map((item) => ({
@@ -182,10 +184,15 @@ export const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <DebtCard
+        {/* <DebtCard
           onClick={() => navigate('/financas')}
           enrollmentCode={profileData.enrollmentCode}
           preinscricao={profileData.codigo_preinscricao}
+        /> */}
+        <MonthlyCard
+          onClick={() => navigate('/financas')}
+          enrollmentCode={profileData.enrollmentCode}
+          selectedYear={confirmationYear}
         />
         <CompletedSubjectsCard enrollmentCode={profileData.enrollmentCode} />
       </div>
