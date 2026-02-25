@@ -21,6 +21,8 @@ import { useStudentSituation } from '@/hooks/use-student-stitiation'
 import { getEnrollmentRoute } from '@/utils/map-student-situation'
 import { RegistrationsUC } from '@/pages/registrationsUC'
 import { useMemo, type JSX } from 'react'
+import { Comunicado } from '@/pages/login/Comunicado'
+
 
 export function MainRoutes() {
   const { isLoading, hasEnrolmentCode } = useStudentSituation()
@@ -36,7 +38,9 @@ export function MainRoutes() {
   const enrollmentPath = getEnrollmentRoute(hasEnrolmentCode)
 
   return (
-    <Route
+     
+ <Route>
+     <Route
       path="/"
       element={
         <RequireAuth>
@@ -45,7 +49,8 @@ export function MainRoutes() {
       }
     >
       <Route index element={<Dashboard />} />
-
+      
+        
       <Route
         path="/calendario-academico"
         element={
@@ -144,6 +149,16 @@ export function MainRoutes() {
       <Route path="/pre-inscricao" element={<PreSubscription />} />
       <Route path="/perfil" element={<Profile />} />
     </Route>
+
+
+
+    <Route   path="/comunicado"
+      element={
+        <RequireAuth>
+         <Comunicado />
+        </RequireAuth>
+      } />
+ </Route>
   )
 }
 
