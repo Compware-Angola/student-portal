@@ -17,3 +17,4 @@ export async function uploadSingleFile(file: File) {
     body: formData,
   }).json()
 }
+

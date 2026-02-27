@@ -24,7 +24,6 @@ import { AuthStorage } from '@/storage/auth-storage'
 import { useQueryAcademicActivity } from '@/hooks/academic/use-query-academic-activity'
 import { useQueryAcademicTestSchedule } from '@/hooks/schedule/use-query-academic-test-schedule'
 
-import { DebtCard } from './components/debt-card'
 import { CompletedSubjectsCard } from './components/completed-subjects-card'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 import { Button } from '@/components/ui/button'
