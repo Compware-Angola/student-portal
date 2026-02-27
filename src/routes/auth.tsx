@@ -16,10 +16,7 @@ export function AuthRoutes() {
           isAuthenticated ? <Navigate to="/" replace /> : <RenovarSenha />
         }
       />
-      <Route
-        path="login"
-        element={isAuthenticated ? <Navigate to="/" replace /> : <Login />}
-      />
+
       <Route
         path="login"
         element={isAuthenticated ? <Navigate to="/" replace /> : <Login />}

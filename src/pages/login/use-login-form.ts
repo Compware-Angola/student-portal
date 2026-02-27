@@ -42,7 +42,7 @@ export function useLoginForm() {
 
       toast.success(response.mensagem || 'Autenticado com sucesso!')
 
-      navigate('/')
+      navigate('/comunicado')
     } catch (error) {
       console.log(error)
       toast.error('Credenciais inválidas, tente novamente.')
