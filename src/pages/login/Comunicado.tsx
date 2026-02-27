@@ -6,13 +6,8 @@ import { useNavigate } from 'react-router-dom'
 
 export function Comunicado() {
   const navigate = useNavigate()
-  const {data: comunicado,isLoading,error } = useGetAvisoImagem()
-
-  if (!comunicado?.filename) {
-  return <h1>SEM AVISO DISPONÍVEL...</h1>
-}
-
-  
+  const {data: comunicado} = useGetAvisoImagem()
+ 
   return (
     <div
       style={{
