@@ -18,7 +18,7 @@ export function YearSelect({
 }: YearSelectProps) {
   return (
     <Select value={selectedYear} onValueChange={onChange}>
-      <SelectTrigger className="min-w-60">
+      <SelectTrigger className="min-w-32">
         <SelectValue placeholder="Selecione o ano letivo" />
       </SelectTrigger>
       <SelectContent>

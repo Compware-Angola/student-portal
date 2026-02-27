@@ -5,6 +5,7 @@ import {
   Document,
   StyleSheet,
   PDFDownloadLink,
+  Image,
 } from '@react-pdf/renderer'
 import { Button } from '@/components/ui/button'
 import type { Invoice } from '@/services/invoice/get-invoices-by-matricula.service'
@@ -184,27 +185,32 @@ function PaymentReceiptDocument({
     <Document>
       <Page size="A4" style={styles.page}>
         {/* ---------- Cabeçalho ---------- */}
-        <View style={styles.companyInfo}>
-          <Text style={styles.companyName}>
-            Universidade Metodista de Angola
-          </Text>
 
-          <Text style={[styles.companyDetails, { marginTop: 4 }]}>
-            Luanda - Luanda.
-          </Text>
-          <Text style={[styles.companyDetails, { marginTop: 4 }]}>
-            Rua Nossa Senhora da Muxima Nº 10, Bairro Kinaxixi, Luanda.
-          </Text>
-          <Text style={[styles.companyDetails, { marginTop: 4 }]}>
-            NIF: 5401150865
-          </Text>
-          <Text style={[styles.companyDetails, { marginTop: 4 }]}>
-            Tel: +244 912131138 / +244 947716133 / +244 942364667
-          </Text>
+        <View style={styles.header}>
+          <Image style={styles.logo} src="/logo_uma.png" />
 
-          <Text style={[styles.companyDetails, { marginTop: 4 }]}>
-            Email: geral@uma.co.ao
-          </Text>
+          <View style={styles.companyInfo}>
+            <Text style={styles.companyName}>
+              Universidade Metodista de Angola
+            </Text>
+
+            <Text style={[styles.companyDetails, { marginTop: 4 }]}>
+              Luanda - Luanda.
+            </Text>
+            <Text style={[styles.companyDetails, { marginTop: 4 }]}>
+              Rua Nossa Senhora da Muxima Nº 10, Bairro Kinaxixi, Luanda.
+            </Text>
+            <Text style={[styles.companyDetails, { marginTop: 4 }]}>
+              NIF: 5401150865
+            </Text>
+            <Text style={[styles.companyDetails, { marginTop: 4 }]}>
+              Tel: +244 912131138 / +244 947716133 / +244 942364667
+            </Text>
+
+            <Text style={[styles.companyDetails, { marginTop: 4 }]}>
+              Email: geral@uma.co.ao
+            </Text>
+          </View>
         </View>
 
         {/* ---------- Título ---------- */}
@@ -253,7 +259,7 @@ function PaymentReceiptDocument({
         {/* ---------- Dados do Estudante ---------- */}
         <View style={styles.section}>
           <Text style={styles.label}>Dados do Estudante</Text>
-          <Text>Nome: {invoice.NomeCompletoAluno}</Text>
+          <Text>Nome: {invoice.NomeCompleto}</Text>
           <Text>Matrícula: {invoice.CodigoMatricula}</Text>
         </View>
 

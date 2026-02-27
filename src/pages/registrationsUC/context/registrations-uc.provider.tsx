@@ -22,6 +22,7 @@ import type { TypeServiceResponse } from '@/services/type-service/type-service.s
 import { useTypeServiceSingle } from '@/hooks/service/use-query-type-service'
 import { SERVICE_TYPES } from '@/constants/service-type'
 import { useQueryStudentSituation } from '@/hooks/student/use-query-student-situation'
+import { useQueryPrazoMatricula } from '@/hooks/prazos-matriculas/use-query-prazos-matricula'
 type ToggleState = {
   new: boolean
   pendents: boolean
@@ -53,6 +54,10 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     preinscricao: profileData?.codigo_preinscricao,
   })
 
+  const {data : prazosMatricula } = useQueryPrazoMatricula({
+    anoLectivo: currentAcademicYear?.codigo
+  })
+
   const { isLoading: isLoadingStudenttatistics, data: studentStatistics } =
     useQueryStudentDashboardStatistics(profileData?.enrollmentCode)
 
@@ -60,7 +65,10 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     data: pendentsGrades,
     isLoading: isLoadingStudentCurriculumPlanPendents,
     isError: isErrorStudentCurriculumPlanPendents,
-  } = useQueryCurriculumPlanPendents(profileData?.preEnrollmentCode)
+  } = useQueryCurriculumPlanPendents({
+    preEnrollmentCode: profileData?.preEnrollmentCode,
+    semestre: prazosMatricula?.semestre
+  })
   const { data: studentSituation } = useQueryStudentSituation({
     preErrolmentCode: profileData?.preEnrollmentCode,
   })
@@ -80,10 +88,14 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     data: grades,
     isLoading: isLoadingStudentCurriculumPlan,
     isError: isErrorStudentCurriculumPlan,
+    error: erroStudentCurriculum
   } = useQueryCurriculumPlan({
     class: generateClasse,
     course: profileData?.codigo_curso,
+    semestre: prazosMatricula?.semestre,
+    type: "old"
   })
+  console.log("heree",erroStudentCurriculum)
   const { data: foraPrazo } = useTypeServiceSingle({
     currentYearCode: Number(currentAcademicYear?.codigo),
     ...SERVICE_TYPES.INSCRICAO_FORA_PRAZO,
@@ -189,8 +201,8 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     const selectedGrades = selectedSubjects.map((subject) => {
       const horario = selectedSchedules[subject.codigoGrade]
       return {
-        codigoGrade: subject.codigoGrade,
-        codigoHorario: horario?.codigoHorario || null,
+        codigoGrade: parseInt (subject.codigoGrade),
+        codigoHorario:parseInt ( horario?.codigoHorario) || null,
         descHorario: horario?.descHorario || '',
       }
     })
@@ -359,7 +371,10 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
       return new Promise((resolve) => setTimeout(resolve, ms))
     }
     const payload = getOldStudentEnrollmentPayload()
-    await confirmOldStudentEnrollmentAsync(payload.selectedGrades)
+    await confirmOldStudentEnrollmentAsync({
+      selectedGrades: payload.selectedGrades,
+      semestre: prazosMatricula?.semestre!
+    })
     delay(6000)
     await createInvoiceWithPayload(parseInt(profileData?.codigo_matricula!))
     createMonthlyPayments(parseInt(profileData?.codigo_matricula!))
@@ -403,6 +418,7 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
         isLoadingDebit,
         studentSituation,
         debit,
+        semestreActual: prazosMatricula?.semestre
       }}
     >
       {children}
