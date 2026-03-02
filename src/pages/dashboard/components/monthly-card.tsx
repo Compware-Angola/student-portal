@@ -2,8 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Wallet } from 'lucide-react'
 import { formatCurrency } from '@/utils'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useQueryFinanceMonthlyFee } from '@/hooks/finance/use-query-finance-monthly-fee'
 import { useMemo } from 'react'
+import { useQueryFinanceMonthlyFee } from '@/hooks/finance/use-query-finance-monthly-fee'
 import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-academic-year-student'
 
 type MonthlyCardProps = {
@@ -12,64 +12,90 @@ type MonthlyCardProps = {
   onClick?: () => void
 }
 
-export function MonthlyCard(props: MonthlyCardProps) {
-  const { enrollmentCode, selectedYear, onClick } = props
-
+export function MonthlyCard({ enrollmentCode, selectedYear, onClick }: MonthlyCardProps) {
   const {
     data: monthlyFeeData,
-    isLoading,
-    isError,
-  } = useQueryFinanceMonthlyFee({
-    academicYear: selectedYear,
-    enrollmentCode,
-    status: 'pending',
-    page: 1,
-    limit: 100,
-  })
-  const { data: academicYearData, isLoading: isAcademicYearLoading } =
-    useQueryAcademicYearStudent(enrollmentCode)
-  academicYearData?.anolectivos[0].codigo == selectedYear
-  const payments = monthlyFeeData?.data ?? []
-  const sumPendents = useMemo(() => {
-    return payments.reduce((acc, payment) => {
-      return acc + (payment.total ?? 0)
-    }, 0)
-  }, [payments])
-
-  const academicDescricption = academicYearData?.anolectivos.find(
-    (ano) => ano.codigo === selectedYear,
+    isLoading: isFeesLoading,
+    isError: isFeesError,
+  } = useQueryFinanceMonthlyFee(
+    {
+      academicYear: selectedYear,
+      enrollmentCode,
+      status: 'pending',
+      page: 1,
+      limit: 100,
+    },
   )
 
-  const description = academicDescricption?.designacao ?? ''
+  const {
+    data: academicYearData,
+    isLoading: isAcademicLoading,
+  } = useQueryAcademicYearStudent(enrollmentCode)
+
+  const isLoading = isFeesLoading || isAcademicLoading
+
+  const pendingPayments = monthlyFeeData?.data ?? []
+
+  const totalPending = useMemo(() => {
+    return pendingPayments.reduce((sum, item) => sum + (item.total ?? 0), 0)
+  }, [pendingPayments])
+  const academicYear = academicYearData?.anolectivos?.find(
+    (ano) => ano.codigo === selectedYear
+  )
+
+  const yearLabel = academicYear?.designacao ?? selectedYear ?? 'Ano letivo'
+
+  const hasError = isFeesError
+  const hasNoData = !isLoading && pendingPayments.length === 0
+
   return (
     <Card
-      className="cursor-pointer hover:bg-muted transition-colors"
+      className={`
+        transition-colors
+        ${onClick ? 'cursor-pointer hover:bg-muted/60 active:bg-muted' : ''}
+      `}
       onClick={onClick}
     >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <div>
-          <CardTitle className="text-sm font-medium">
-            Mensalidades Pendentes ({description})
-          </CardTitle>
-
-        </div>
-        <Wallet className="h-4 w-4 text-destructive" />
+        <CardTitle className="text-sm font-medium">
+          Mensalidades Pendentes ({yearLabel})
+        </CardTitle>
+        <Wallet className="h-5 w-5 text-destructive/90" />
       </CardHeader>
+
       <CardContent>
         {isLoading ? (
-          <div className="space-y-2">
-            <Skeleton className="h-8 w-24" />
-            <Skeleton className="h-4 w-32" />
+          <div className="space-y-2 pt-1">
+            <Skeleton className="h-9 w-40 rounded-md" />
+            <Skeleton className="h-4 w-48" />
           </div>
-        ) : (
-          <>
-            <div className="text-2xl font-bold text-destructive">
-              {formatCurrency(sumPendents ?? 0)}
+        ) : hasError ? (
+          <div className="text-sm text-destructive/80">
+            Erro ao carregar mensalidades
+          </div>
+        ) : hasNoData ? (
+          <div className="space-y-1">
+            <div className="text-2xl font-bold text-muted-foreground/70">
+              {formatCurrency(0)}
             </div>
             <p className="text-xs text-muted-foreground">
+              Nenhuma mensalidade pendente
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-1">
+            <div className="text-2xl font-bold text-destructive">
+              {formatCurrency(totalPending)}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {pendingPayments.length === 1
+                ? '1 mensalidade pendente'
+                : `${pendingPayments.length} mensalidades pendentes`}
+            </p>
+            <p className="text-xs text-muted-foreground/80 pt-1">
               Clique para ver detalhes
             </p>
-          </>
+          </div>
         )}
       </CardContent>
     </Card>
