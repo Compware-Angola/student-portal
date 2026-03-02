@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
-import { MessageSquare, Megaphone, Loader2 } from 'lucide-react'
+import { MessageSquare, Megaphone, Loader2, Download } from 'lucide-react'
 import {
   useQueryAnnouncement,
   useQueryMessage,
@@ -15,6 +15,9 @@ import {
 import type { DetalheResposta } from '@/services/message_and_announcement/message_and_announcement.service'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { AuthStorage } from '@/storage/auth-storage'
+import { buildImageAssets } from '@/utils/build-image-assets'
+
+import { Button } from '@/components/ui/button'
 
 export type Notification = {
   id: string
@@ -38,7 +41,30 @@ export const MensagensNotificacoes = () => {
   const { data: mensagens, isLoading: isLoadingMensagens } = useQueryMessage({
     userId: userId.toString(),
   })
+const handleDownload = async (ficheiroName: string) => {
+  if (!ficheiroName) return;
 
+  try {
+    const fileUrl = buildImageAssets(ficheiroName);
+    if (!fileUrl) return;
+
+    const response = await fetch(fileUrl);
+    const blob = await response.blob();
+
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = ficheiroName;
+    document.body.appendChild(a);
+    a.click();
+
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Erro ao baixar ficheiro:", error);
+  }
+};
   if (profileError) {
     return (
       <Card>
@@ -189,6 +215,57 @@ export const MensagensNotificacoes = () => {
                           <p className="text-sm text-muted-foreground">
                             {msg.respostas.mensagem_resposta ?? 'Sem resposta'}
                           </p>
+                            {(msg.respostas.file_name1 || msg.respostas.file_name2 || msg.respostas.file_name3) && (
+                          <div className="mt-3 text-xs">
+                            <p className="font-medium text-muted-foreground mb-1">Anexos:</p>
+                            <div className="flex flex-col gap-2">
+                              {msg.respostas.file_name1 && (
+                                <div className="flex items-center justify-between bg-muted/50 p-2 rounded border">
+                                  <span className="text-blue-600 truncate max-w-[220px]">
+                                    {msg.respostas.file_name1}
+                                  </span>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleDownload(msg.respostas?.file_name1!)}
+                                  >
+                                    <Download className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              )}
+
+                              {msg.respostas.file_name2 && (
+                                <div className="flex items-center justify-between bg-muted/50 p-2 rounded border">
+                                  <span className="text-blue-600 truncate max-w-[220px]">
+                                    {msg.respostas.file_name2}
+                                  </span>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleDownload(msg.respostas?.file_name2!)}
+                                  >
+                                    <Download className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              )}
+
+                              {msg.respostas?.file_name3 && (
+                                <div className="flex items-center justify-between bg-muted/50 p-2 rounded border">
+                                  <span className="text-blue-600 truncate max-w-[220px]">
+                                    {msg.respostas?.file_name3}
+                                  </span>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleDownload(msg.respostas?.file_name3!)}
+                                  >
+                                    <Download className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
 
                           {msg.respostas.data_resposta && (
                             <p className="text-[12px] text-muted-foreground mt-2">
