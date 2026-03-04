@@ -1,4 +1,5 @@
 'use client'
+import { useNavigate } from 'react-router-dom'
 
 import {
   Card,
@@ -36,6 +37,7 @@ interface ServiceItem {
 
 export function AcademicServices() {
   // === Estado de serviços selecionados com quantidade ===
+  const navigate = useNavigate()
   const [selectedServices, setSelectedServices] = useState<Record<string, number>>({})
   const [showSuccessDialog, setShowSuccessDialog] = useState(false)
   const [searchService, setSearchService] = useState<string | undefined>(undefined)
@@ -293,13 +295,24 @@ export function AcademicServices() {
             <Button variant="outline" onClick={() => setShowSuccessDialog(false)}>
               Fechar
             </Button>
-            <Button
-              onClick={() => (window.location.href = '/financas')}
-              className="gap-2"
-            >
-              Ir para Financeiro
-              <ArrowRight className="h-4 w-4" />
-            </Button>
+           <Button
+  onClick={() => {
+    const payload = {
+      tab: 'nota-pagamento',
+      from: 'servicos',
+      ts: Date.now(),
+    }
+
+    const encoded = btoa(JSON.stringify(payload))
+
+    navigate(`/financas?data=${encoded}`)
+  }}
+  className="gap-2"
+>
+  Ir para Financeiro
+  <ArrowRight className="h-4 w-4" />
+</Button>
+
           </div>
         </DialogContent>
       </Dialog>

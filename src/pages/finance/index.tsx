@@ -10,16 +10,52 @@ import { PaymentList } from './componets/payment-list'
 import { useEffect, useState } from 'react'
 import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-academic-year-student'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
+import { useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 function Content() {
-  const { isLoadingProfileData, isProfileError, profileError, profileData } =
-    useFinance()
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
+
+  const [activeTab, setActiveTab] = useState<'payments' | 'invoices'>('payments')
+
+  const {
+    isLoadingProfileData,
+    isProfileError,
+    profileError,
+    profileData,
+  } = useFinance()
+
   const [selectedYear, setSelectedYear] = useState<string | undefined>(
     undefined,
   )
+
   const { data: currentAcademicYear } = useQueryCurrentAcademicYear()
   const { data: academicYearData, isLoading: isAcademicYearLoading } =
     useQueryAcademicYearStudent(profileData?.enrollmentCode)
+
+
+  useEffect(() => {
+    const data = searchParams.get('data')
+    if (!data) return
+
+    try {
+      const decoded = JSON.parse(atob(data))
+
+      if (decoded?.tab === 'nota-pagamento') {
+        setActiveTab('invoices')
+      }
+
+      if (decoded?.tab === 'mensalidades') {
+        setActiveTab('payments')
+      }
+
+      navigate('/financas', { replace: true })
+    } catch (error) {
+      console.error('Erro ao decodificar query param')
+    }
+  }, [searchParams, navigate])
+
 
   if (currentAcademicYear && academicYearData?.anolectivos) {
     const currentId = Number(currentAcademicYear.codigo)
@@ -41,7 +77,10 @@ function Content() {
     )
   }
 
-  const academicYears = dedupeAcademicYears(academicYearData?.anolectivos)
+  const academicYears = dedupeAcademicYears(
+    academicYearData?.anolectivos,
+  )
+
   useEffect(() => {
     if (!academicYears) return
 
@@ -50,7 +89,8 @@ function Content() {
     if (active && !selectedYear) {
       setSelectedYear(String(active.codigo))
     }
-  }, [academicYears, setSelectedYear])
+  }, [academicYears, selectedYear])
+
 
   if (
     isLoadingProfileData ||
@@ -59,12 +99,13 @@ function Content() {
     isAcademicYearLoading
   ) {
     if (profileError) {
-      toast.error('Error fetching profile data')
+      toast.error('Erro ao buscar perfil')
     }
     return <FinanceSkeleton />
   }
 
   if (!academicYearData) return <FinanceSkeleton />
+
   return (
     <div className="space-y-6">
       <div>
@@ -74,43 +115,20 @@ function Content() {
         </p>
       </div>
 
-      {/* <FinanceStats /> */}
-      {/*
-      <Tabs defaultValue="services" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-        {/* <TabsTrigger value="services">Pagamentos Pendentes</TabsTrigger>
-          <TabsTrigger value="payments">Mensalidades</TabsTrigger>
-          <TabsTrigger value="invoices">Nota de Pagamentos</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="services" className="mt-6">
-          <ServicesList />
-        </TabsContent>
-
-        <TabsContent value="payments" className="mt-6">
-          <PaymentList
-            academicYear={academicYearData?.anolectivos[0].codigo }
-            enrollmentCode={profileData.enrollmentCode}
-            academicYears={academicYearData}
-          />
-        </TabsContent>
-        <TabsContent value="invoices" className="mt-6">
-          <InvoicesTable enrollmentCode={profileData.enrollmentCode} />
-        </TabsContent>
-      </Tabs>
-  */}
-      <Tabs defaultValue="payments" className="w-full">
+   
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) =>
+          setActiveTab(value as 'payments' | 'invoices')
+        }
+        className="w-full"
+      >
         <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 gap-2 p-1 bg-muted rounded-lg">
-          <TabsTrigger
-            value="payments"
-            className="data-[state=active]:bg-background data-[state=active]:shadow-sm"
-          >
+          <TabsTrigger value="payments">
             Mensalidades
           </TabsTrigger>
-          <TabsTrigger
-            value="invoices"
-            className="data-[state=active]:bg-background data-[state=active]:shadow-sm"
-          >
+
+          <TabsTrigger value="invoices">
             Nota de Pagamentos
           </TabsTrigger>
         </TabsList>
