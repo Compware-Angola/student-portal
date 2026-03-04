@@ -26,6 +26,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+
 interface ServiceItem {
   codigo: string
   descricao: string
@@ -34,44 +35,45 @@ interface ServiceItem {
 }
 
 export function AcademicServices() {
-  const [selectedServices, setSelectedServices] = useState<string[]>([])
+  // === Estado de serviços selecionados com quantidade ===
+  const [selectedServices, setSelectedServices] = useState<Record<string, number>>({})
   const [showSuccessDialog, setShowSuccessDialog] = useState(false)
-  const [searchService, setSearchService] = useState<string | undefined>(
-    undefined,
-  )
+  const [searchService, setSearchService] = useState<string | undefined>(undefined)
 
   const { data: academicYearData } = useQueryCurrentAcademicYear()
-  const {
-    profileData,
-    isLoading: loadingProfile,
-    isError: errorProfile,
-  } = useQueryProfile()
-  const {
-    data: servicesData,
-    isLoading: loadingServices,
-    isError: errorServices,
-  } = useQueryAvailableServices({
-    academicYear: academicYearData?.codigo,
-    poloId: profileData?.poloId ?? '1',
-  })
+  const { profileData, isLoading: loadingProfile, isError: errorProfile } = useQueryProfile()
+  const { data: servicesData, isLoading: loadingServices, isError: errorServices } =
+    useQueryAvailableServices({
+      academicYear: academicYearData?.codigo,
+      poloId: profileData?.poloId ?? '1',
+    })
 
-  const { createInvoiceAsync,createInvoicePending, } = useMutationCreateInvoice()
+  const { createInvoiceAsync, createInvoicePending } = useMutationCreateInvoice()
 
   const poloId = profileData?.poloId ?? '1'
   const enrollmentCode = profileData?.codigo_matricula
   const pre_inscricao_raw = profileData?.codigo_preinscricao
 
-  // === Validação e conversão de IDs ===
   const matriculaNumero = enrollmentCode ? parseInt(enrollmentCode, 10) : null
-  const preInscricaoNumero = pre_inscricao_raw
-    ? parseInt(pre_inscricao_raw, 10)
-    : null
+  const preInscricaoNumero = pre_inscricao_raw ? parseInt(pre_inscricao_raw, 10) : null
 
-  // === Cálculo do payload ===
+  // === Função para alterar quantidade de cada serviço ===
+  const handleServiceChange = (codigo: string, quantidade: number) => {
+    setSelectedServices((prev) => {
+      if (quantidade <= 0) {
+        const copy = { ...prev }
+        delete copy[codigo]
+        return copy
+      }
+      return { ...prev, [codigo]: quantidade }
+    })
+  }
+
+  // === Payload para criar fatura ===
   const payload = useMemo(() => {
     if (
       !servicesData?.servicos ||
-      selectedServices.length === 0 ||
+      Object.keys(selectedServices).length === 0 ||
       !enrollmentCode ||
       !pre_inscricao_raw ||
       isNaN(matriculaNumero!) ||
@@ -83,14 +85,14 @@ export function AcademicServices() {
     const TAXA_IVA = 0
     const TAXA_RETENCAO = 0
     const DESCONTO_PORCENTAGEM = 0
-    const QUANTIDADE = 1
     const MAX_OBS_LENGTH = 45
 
     const itens = servicesData.servicos
-      .filter((s: ServiceItem) => selectedServices.includes(s.codigo))
+      .filter((s: ServiceItem) => selectedServices[s.codigo])
       .map((service: ServiceItem) => {
+        const quantidade = selectedServices[service.codigo] || 1
         const preco = parseFloat(service.preco)
-        const totalBruto = preco * QUANTIDADE
+        const totalBruto = preco * quantidade
         const valorDesconto = (totalBruto * DESCONTO_PORCENTAGEM) / 100
         const baseIncidencia = totalBruto - valorDesconto
         const valorIva = (baseIncidencia * TAXA_IVA) / 100
@@ -103,7 +105,7 @@ export function AcademicServices() {
 
         return {
           CodigoProduto: Number(service.codigo),
-          Quantidade: QUANTIDADE,
+          Quantidade: quantidade,
           preco,
           Total: total,
           valor_pago: total,
@@ -124,18 +126,9 @@ export function AcademicServices() {
 
     const TotalPreco = itens.reduce((sum: number, i: any) => sum + i.Total, 0)
     const totalIVA = itens.reduce((sum: number, i: any) => sum + i.valorIva, 0)
-    const total_retencao = itens.reduce(
-      (sum: number, i: any) => sum + i.retencao,
-      0,
-    )
-    const total_incidencia = itens.reduce(
-      (sum: number, i: any) => sum + i.incidencia,
-      0,
-    )
-    const Desconto = itens.reduce(
-      (sum: number, i: any) => sum + i.valorDesconto,
-      0,
-    )
+    const total_retencao = itens.reduce((sum: number, i: any) => sum + i.retencao, 0)
+    const total_incidencia = itens.reduce((sum: number, i: any) => sum + i.incidencia, 0)
+    const Desconto = itens.reduce((sum: number, i: any) => sum + i.valorDesconto, 0)
     const ValorAPagar = TotalPreco - total_retencao
 
     return {
@@ -168,14 +161,6 @@ export function AcademicServices() {
 
   const totalCost = payload?.TotalPreco || 0
 
-  const handleServiceToggle = (codigo: string) => {
-    setSelectedServices((prev) =>
-      prev.includes(codigo)
-        ? prev.filter((c) => c !== codigo)
-        : [...prev, codigo],
-    )
-  }
-
   const handleGenerateInvoice = async () => {
     if (!payload) {
       alert('Selecione pelo menos um serviço e verifique os dados do perfil.')
@@ -184,13 +169,14 @@ export function AcademicServices() {
 
     try {
       await createInvoiceAsync(payload)
-      setShowSuccessDialog(true) // Abre o popup
+      setShowSuccessDialog(true)
     } catch (error) {
       console.error('Erro ao gerar fatura:', error)
       alert('Erro ao gerar a fatura. Tente novamente.')
     }
   }
-    // === Filtros para fazer um find ===
+
+  // === Filtros de busca ===
   const filteredServices = useMemo(() => {
     if (!servicesData?.servicos) return []
     if (!searchService || searchService.trim() === '') {
@@ -203,31 +189,19 @@ export function AcademicServices() {
   }, [servicesData, searchService])
 
   // === Estados de Loading / Erro ===
-  if (loadingProfile || loadingServices) {
-    return <ServicesSkeleton />
-  }
-
-  if (errorProfile || errorServices || !servicesData) {
-    return (
-      <ErrorState message="Não foi possível carregar os serviços. Tente novamente mais tarde." />
-    )
-  }
-
-  if (servicesData.servicos.length === 0) {
-    return <EmptyState />
-  }
-
+  if (loadingProfile || loadingServices) return <ServicesSkeleton />
+  if (errorProfile || errorServices || !servicesData)
+    return <ErrorState message="Não foi possível carregar os serviços. Tente novamente mais tarde." />
+  if (servicesData.servicos.length === 0) return <EmptyState />
 
   // === Renderização Principal ===
   return (
     <>
       <div className="space-y-6">
         <header>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Serviços Acadêmicos
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight">Serviços Acadêmicos</h1>
           <p className="text-muted-foreground">
-            Selecione os serviços que deseja incluir na Nota de Pagamento.
+            Selecione os serviços e ajuste a quantidade desejada.
           </p>
         </header>
 
@@ -239,9 +213,7 @@ export function AcademicServices() {
                   <BookOpen className="h-5 w-5" />
                   Serviços Disponíveis
                 </CardTitle>
-                <CardDescription>
-                  Marque os itens que deseja faturar.
-                </CardDescription>
+                <CardDescription>Marque os itens que deseja faturar.</CardDescription>
               </div>
               <div>
                 <Input
@@ -253,20 +225,20 @@ export function AcademicServices() {
               </div>
             </div>
           </CardHeader>
+
           <CardContent>
             <div className="space-y-3">
               {filteredServices.map((service) => (
                 <ServiceItemRow
                   key={service.codigo}
                   service={service}
-                  checked={selectedServices.includes(service.codigo)}
-                  onToggle={() => handleServiceToggle(service.codigo)}
+                  quantidade={selectedServices[service.codigo] ?? 0}
+                  onChange={handleServiceChange}
                 />
               ))}
             </div>
 
-            {/* Resumo e Botão */}
-            {selectedServices.length > 0 && payload && (
+            {Object.keys(selectedServices).length > 0 && payload && (
               <div className="mt-8 pt-6 border-t">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
@@ -276,14 +248,9 @@ export function AcademicServices() {
                     </span>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm text-muted-foreground">
-                      Total a pagar
-                    </p>
+                    <p className="text-sm text-muted-foreground">Total a pagar</p>
                     <p className="text-2xl font-bold text-primary">
-                      {totalCost.toLocaleString('pt-AO', {
-                        style: 'currency',
-                        currency: 'AOA',
-                      })}
+                      {totalCost.toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })}
                     </p>
                   </div>
                 </div>
@@ -302,7 +269,6 @@ export function AcademicServices() {
                     'Solicitar serviço(s)'
                   )}
                 </Button>
-
               </div>
             )}
           </CardContent>
@@ -319,23 +285,16 @@ export function AcademicServices() {
             </DialogTitle>
             <DialogDescription className="pt-2">
               Acesse a{' '}
-              <span className="font-semibold text-primary">
-                área financeira
-              </span>{' '}
-              para liquidar a nota de pagamento.
+              <span className="font-semibold text-primary">área financeira</span> para
+              liquidar a nota de pagamento.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-3 pt-4">
-            <Button
-              variant="outline"
-              onClick={() => setShowSuccessDialog(false)}
-            >
+            <Button variant="outline" onClick={() => setShowSuccessDialog(false)}>
               Fechar
             </Button>
             <Button
-              onClick={() => {
-                window.location.href = '/financas'
-              }}
+              onClick={() => (window.location.href = '/financas')}
               className="gap-2"
             >
               Ir para Financeiro
@@ -348,49 +307,57 @@ export function AcademicServices() {
   )
 }
 
-// === Componentes Auxiliares (sem alterações) ===
+// === COMPONENTE SERVICE ITEM ROW COM QUANTIDADE ===
 function ServiceItemRow({
   service,
-  checked,
-  onToggle,
+  quantidade,
+  onChange,
 }: {
   service: ServiceItem
-  checked: boolean
-  onToggle: () => void
+  quantidade: number
+  onChange: (codigo: string, quantidade: number) => void
 }) {
   const preco = parseFloat(service.preco)
+
   return (
     <div className="flex items-center justify-between rounded-lg border p-4 hover:bg-accent/50 transition-colors">
       <div className="flex items-center gap-4">
         <Checkbox
           id={service.codigo}
-          checked={checked}
-          onCheckedChange={onToggle}
-          aria-label={`Selecionar ${service.descricao}`}
+          checked={quantidade > 0}
+          onCheckedChange={(checked) =>
+            onChange(service.codigo, checked ? 1 : 0)
+          }
         />
         <label htmlFor={service.codigo} className="cursor-pointer space-y-1">
           <div className="flex items-center gap-2">
             <span className="font-medium">{service.descricao}</span>
             <Badge variant="outline">{service.tipo_servico}</Badge>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Código: {service.codigo}
-          </p>
+          <p className="text-sm text-muted-foreground">Código: {service.codigo}</p>
         </label>
       </div>
-      <div className="text-right">
+
+      <div className="flex flex-col items-end gap-1">
         <p className="text-sm text-muted-foreground">Preço</p>
         <p className="font-medium">
-          {preco.toLocaleString('pt-AO', {
-            style: 'currency',
-            currency: 'AOA',
-          })}
+          {preco.toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })}
         </p>
+        {quantidade > 0 && (
+          <input
+            type="number"
+            min={1}
+            value={quantidade}
+            onChange={(e) => onChange(service.codigo, parseInt(e.target.value, 10))}
+            className="w-16 border rounded p-1 text-sm mt-1"
+          />
+        )}
       </div>
     </div>
   )
 }
 
+// === COMPONENTES AUXILIARES ===
 function ServicesSkeleton() {
   return (
     <Card>
@@ -438,9 +405,7 @@ function EmptyState() {
         <CardTitle>Serviços Acadêmicos</CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="text-muted-foreground">
-          Nenhum serviço disponível no momento.
-        </p>
+        <p className="text-muted-foreground">Nenhum serviço disponível no momento.</p>
       </CardContent>
     </Card>
   )
