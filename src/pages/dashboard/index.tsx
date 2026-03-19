@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card,CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 // import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -28,6 +28,9 @@ import { CompletedSubjectsCard } from './components/completed-subjects-card'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 import { Button } from '@/components/ui/button'
 import { MonthlyCard } from './components/monthly-card'
+import { useQueryAvisosPorGrupo } from '@/hooks/use-query-aviso-por-grupos'
+import { useEffect, useState } from 'react'
+import { DialogHeader, Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 
 // === Tipos ===
 interface Notification {
@@ -42,11 +45,55 @@ interface Notification {
 }
 
 export const Dashboard = () => {
+  const GRUPO_ESTUDANTE = 12
+
   const authData = AuthStorage.get()
   const { profileData } = useQueryProfile()
   const userId = authData?.user_id ?? profileData?.userId ?? ''
   const pre_inscricao = profileData?.codigo_preinscricao ?? ''
   const navigate = useNavigate()
+
+  const [openAvisoModal, setOpenAvisoModal] = useState(false)
+
+  const {
+  data: avisosGrupo,
+  isLoading: isLoadingAvisos,
+  error,
+  } = useQueryAvisosPorGrupo({
+    grupoId: GRUPO_ESTUDANTE,
+    curso: profileData?.codigo_curso
+      ? Number(profileData.codigo_curso)
+      : undefined,
+    periodo: profileData?.periodoId
+      ? Number(profileData.periodoId)
+      : undefined,
+  });
+
+  const agora = new Date()
+
+const avisosValidos = (avisosGrupo || []).filter((aviso) => {
+  const ativo = aviso.STATUS === 1
+
+  const naoExpirado =
+    !aviso.DATE_EXPIRACAO ||
+    new Date(aviso.DATE_EXPIRACAO) >= agora
+
+  const destinoEstudante =
+    aviso.DESTINO === GRUPO_ESTUDANTE ||
+    aviso.DESTINO_NOME?.toLowerCase() === 'estudante'
+
+  return ativo && naoExpirado && destinoEstudante
+})
+
+const avisoPrincipal = avisosValidos[0]
+
+useEffect(() => {
+  if (avisoPrincipal) {
+    setOpenAvisoModal(true)
+  }
+}, [avisoPrincipal])
+
+console.log("AVISOS VÁLIDOS :", avisosValidos)
 
   // === Hooks com Loading ===
   const { data: mensagens, isLoading: loadingMensagens } = useQueryMessage({
@@ -68,7 +115,7 @@ export const Dashboard = () => {
     })
 
   const greeting = `${profileData?.sexo === 'Feminino' ? 'Bem-vinda' : 'Bem-vindo'}, ${profileData?.firstName} ${profileData?.lastName}`
-  const confirmationYear = profileData?.confirmacoes?.[0]?.ano_lectivo
+  const confirmationYear = profileData?.confirmacoes?.[0].ano_lectivo;
 
   // === Normalização ===
   const normalizedMensagens: Notification[] = (mensagens || []).map((item) => ({
@@ -160,6 +207,38 @@ export const Dashboard = () => {
 
   return (
     <div className="space-y-6">
+
+      <Dialog open={openAvisoModal} onOpenChange={setOpenAvisoModal}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{avisoPrincipal?.ASSUNTO}</DialogTitle>
+          <DialogDescription>
+            {avisoPrincipal?.DESCRICAO}
+          </DialogDescription>
+        </DialogHeader>
+
+        {avisoPrincipal?.DATE_EXPIRACAO && (
+          <p className="text-sm text-muted-foreground">
+            Expira em{' '}
+            {new Date(avisoPrincipal.DATE_EXPIRACAO).toLocaleDateString(
+              'pt-PT',
+              {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+              },
+            )}
+          </p>
+        )}
+
+        <div className="flex justify-end">
+          <Button onClick={() => setOpenAvisoModal(false)}>
+            Fechar
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+
       {/* Saudação */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">{greeting}</h1>
