@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card,CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 // import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -42,6 +42,7 @@ interface Notification {
 }
 
 export const Dashboard = () => {
+
   const authData = AuthStorage.get()
   const { profileData } = useQueryProfile()
   const userId = authData?.user_id ?? profileData?.userId ?? ''
@@ -68,7 +69,7 @@ export const Dashboard = () => {
     })
 
   const greeting = `${profileData?.sexo === 'Feminino' ? 'Bem-vinda' : 'Bem-vindo'}, ${profileData?.firstName} ${profileData?.lastName}`
-  const confirmationYear = profileData?.confirmacoes?.[0]?.ano_lectivo
+  const confirmationYear = profileData?.confirmacoes?.[0].ano_lectivo;
 
   // === Normalização ===
   const normalizedMensagens: Notification[] = (mensagens || []).map((item) => ({
@@ -160,6 +161,8 @@ export const Dashboard = () => {
 
   return (
     <div className="space-y-6">
+
+
       {/* Saudação */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">{greeting}</h1>
