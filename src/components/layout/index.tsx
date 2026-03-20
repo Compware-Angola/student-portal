@@ -15,6 +15,7 @@ import {
 import { Outlet } from 'react-router-dom'
 import { ModeToggle } from '../mode-toggle'
 import { StudentInfo } from './components/student-info'
+import { StudentNotifications } from './components/student-notification'
 
 export default function Layout() {
   return (
@@ -42,6 +43,7 @@ export default function Layout() {
               </Breadcrumb>
             </div>
             <div className="flex gap-10 items-center">
+              <StudentNotifications />
               <StudentInfo />
               <ModeToggle />
             </div>
