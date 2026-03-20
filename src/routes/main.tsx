@@ -22,6 +22,7 @@ import { getEnrollmentRoute } from '@/utils/map-student-situation'
 import { RegistrationsUC } from '@/pages/registrationsUC'
 import { useMemo, type JSX } from 'react'
 import { Comunicado } from '@/pages/login/Comunicado'
+import NotificacoesPage from '@/pages/notification/notificacoes-page'
 
 
 export function MainRoutes() {
@@ -128,6 +129,7 @@ export function MainRoutes() {
           </RequireStudentWithEnrolmentCode>
         }
       />
+      <Route path="/notificacoes" element={<NotificacoesPage />} />
       <Route
         path="/suporte"
         element={
