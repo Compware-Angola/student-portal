@@ -89,27 +89,21 @@ export function StudentNotifications() {
           </div>
         ) : (
           <div className="max-h-72 overflow-y-auto">
-            {avisosValidos.map((aviso) => (
-              <DropdownMenuItem
-                key={aviso.CODIGO}
-                className="flex cursor-default flex-col items-start gap-1 px-3 py-2.5 focus:bg-accent"
-              >
-                <div className="flex w-full items-start justify-between gap-2">
-                  <span className="text-sm font-medium leading-tight text-foreground">
-                    {aviso.ASSUNTO}
-                  </span>
-
-                  {aviso.DATE_EXPIRACAO && (
-                    <span className="text-[10px] text-muted-foreground">
-                      {formatarExpiracao(aviso.DATE_EXPIRACAO)}
+            {avisosValidos.map((aviso, index) => (
+              <div key={aviso.CODIGO}>
+                <DropdownMenuItem
+                  className="cursor-default px-3 py-3 focus:bg-muted/50 data-[highlighted]:bg-muted/50"
+                >
+                  <div className="flex items-start gap-2">
+                    <span className="mt-1.5 h-2 w-2 rounded-full bg-primary shrink-0" />
+                    <span className="line-clamp-2 text-xs leading-6 text-foreground">
+                      {aviso.DESCRICAO}
                     </span>
-                  )}
-                </div>
+                  </div>
+                </DropdownMenuItem>
 
-                <span className="text-xs leading-snug text-muted-foreground line-clamp-2">
-                  {aviso.DESCRICAO}
-                </span>
-              </DropdownMenuItem>
+                {index < avisosValidos.length - 1 && <DropdownMenuSeparator />}
+              </div>
             ))}
           </div>
         )}
