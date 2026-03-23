@@ -27,7 +27,9 @@ export function useQueryAvisosPorGrupo({
       (grupoId !== undefined && grupoId !== 0) ||
       (curso !== undefined && curso !== 0) ||
       (periodo !== undefined && periodo !== 0),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 30,
+    refetchInterval: 1000 * 30,
+    refetchOnWindowFocus: true,
     retry: 2,
   });
 }
