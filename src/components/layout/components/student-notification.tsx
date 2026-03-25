@@ -28,7 +28,7 @@ export function StudentNotifications() {
   const navigate = useNavigate()
   const { profileData } = useQueryProfile()
 
-  const GRUPO_ESTUDANTE = 12
+  const GRUPO_ESTUDANTE_SIGLA = "EST"
 
   const curso = profileData?.codigo_curso
     ? Number(profileData.codigo_curso)
@@ -39,10 +39,12 @@ export function StudentNotifications() {
     : undefined
 
   const { data: avisosGrupo = [] } = useQueryAvisosPorGrupo({
-    grupoId: GRUPO_ESTUDANTE,
+    sigla: GRUPO_ESTUDANTE_SIGLA,
     curso,
     periodo,
   })
+
+  //console.log("GRUPOS: ", avisosGrupo)
 
   const avisosValidos = useMemo(() => {
     const agora = new Date()

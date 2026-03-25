@@ -5,28 +5,27 @@ import {
 import { useQuery } from "@tanstack/react-query";
 
 type UseQueryAvisosPorGrupoProps = {
-  grupoId?: number;
+  sigla?: string;
   curso?: number;
   periodo?: number;
 };
 
 export function useQueryAvisosPorGrupo({
-  grupoId,
+  sigla,
   curso,
   periodo,
 }: UseQueryAvisosPorGrupoProps) {
+  const siglaValida = !!sigla?.trim();
+
   return useQuery<AvisosPorGrupoResponse>({
-    queryKey: ["avisos-por-grupo", grupoId, curso, periodo],
+    queryKey: ["avisos-por-grupo", sigla?.trim(), curso, periodo],
     queryFn: () =>
       AvisosPorGrupoService({
-        grupoId,
+        sigla: sigla?.trim(),
         curso,
         periodo,
       }),
-    enabled:
-      (grupoId !== undefined && grupoId !== 0) ||
-      (curso !== undefined && curso !== 0) ||
-      (periodo !== undefined && periodo !== 0),
+    enabled: siglaValida,
     staleTime: 1000 * 30,
     refetchInterval: 1000 * 30,
     refetchOnWindowFocus: true,

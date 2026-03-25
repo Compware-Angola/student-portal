@@ -17,7 +17,7 @@ export type AvisoPorGrupo = {
 };
 
 type Params = {
-  grupoId?: number;
+  sigla?: string;
   curso?: number;
   periodo?: number;
 };
@@ -31,8 +31,10 @@ export async function AvisosPorGrupoService(
 ): Promise<AvisosPorGrupoResponse> {
   const searchParams = new URLSearchParams();
 
-  if (params.grupoId !== undefined && params.grupoId !== 0) {
-    searchParams.append("grupoId", String(params.grupoId));
+  const sigla = params.sigla?.trim();
+
+  if (sigla) {
+    searchParams.append("sigla", sigla);
   }
 
   if (params.curso !== undefined && params.curso !== 0) {
@@ -49,6 +51,8 @@ export async function AvisosPorGrupoService(
     : `solicitacoa/avisos-por-grupo`;
 
   const response = await gaApi.get<AvisosPorGrupoResponse>(url);
+  const data = await response.json()
+  console.log("RESPONSE: ", data)
 
-  return response.json();
+  return data;
 }

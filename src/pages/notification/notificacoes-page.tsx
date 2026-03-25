@@ -45,7 +45,7 @@ export default function NotificacoesPage() {
     aviso: null,
   })
 
-  const GRUPO_ESTUDANTE = 12
+  const GRUPO_ESTUDANTE_SIGLA = "EST"
 
   const curso = profileData?.codigo_curso
     ? Number(profileData.codigo_curso)
@@ -60,7 +60,7 @@ export default function NotificacoesPage() {
     isLoading,
     refetch,
   } = useQueryAvisosPorGrupo({
-    grupoId: GRUPO_ESTUDANTE,
+    sigla: GRUPO_ESTUDANTE_SIGLA,
     curso,
     periodo,
   })
