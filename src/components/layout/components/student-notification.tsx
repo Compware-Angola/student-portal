@@ -14,15 +14,7 @@ import { useQueryAvisosPorGrupo } from '@/hooks/use-query-aviso-por-grupos'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-function formatarExpiracao(data: string | null) {
-  if (!data) return 'Sem expiração'
 
-  return new Date(data).toLocaleDateString('pt-PT', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  })
-}
 
 export function StudentNotifications() {
   const navigate = useNavigate()
