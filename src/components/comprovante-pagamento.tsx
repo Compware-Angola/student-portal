@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
   },
   logo: { width: 110, height: 60 },
   companyInfo: { textAlign: 'right' },
-  companyName: { fontSize: 15, fontWeight: 'bold', color: '#0d1b48' },
+  companyName: { fontSize: 15, fontWeight: 'bold', color: '#0D1B48' },
   companyDetails: { fontSize: 9, color: '#444', marginTop: 3 },
   title: {
     textAlign: 'center',
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   tableRow: { flexDirection: 'row' },
-  tableHeader: { backgroundColor: '#0d1b48', color: '#fff' },
+  tableHeader: { backgroundColor: '#0D1B48', color: '#fff' },
   cellHeader: {
     padding: 6,
     fontSize: 10,
@@ -101,13 +101,13 @@ const styles = StyleSheet.create({
     padding: 12,
     backgroundColor: '#f0f7ff',
     borderWidth: 2,
-    borderColor: '#0d1b48',
+    borderColor: '#0D1B48',
     borderRadius: 6,
   },
   totalText: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#0d1b48',
+    color: '#0D1B48',
     textAlign: 'right',
   },
   footer: {
