@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
   companyName: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#0d1b48',
+    color: '#0D1B48',
   },
   companyDetails: {
     fontSize: 9,
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   },
   paymentBox: {
     borderWidth: 1.5,
-    borderColor: '#0d1b48',
+    borderColor: '#0D1B48',
     padding: 10,
     borderRadius: 6,
     backgroundColor: '#f8f9fb',
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   paymentTitle: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#0d1b48',
+    color: '#0D1B48',
     marginBottom: 4,
     textAlign: 'center',
   },
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   },
   tableRow: { flexDirection: 'row' },
   tableHeader: {
-    backgroundColor: '#0d1b48',
+    backgroundColor: '#0D1B48',
     color: 'white',
     fontWeight: 'bold',
   },
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     borderColor: '#d32f2f',
     textAlign: 'right',
   },
-  totalText: { fontSize: 12, fontWeight: 'bold', color: '#0d1b48' },
+  totalText: { fontSize: 12, fontWeight: 'bold', color: '#0D1B48' },
   nonFiscalBox: {
     marginTop: 15,
     padding: 10,
