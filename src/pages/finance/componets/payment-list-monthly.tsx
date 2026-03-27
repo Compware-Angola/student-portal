@@ -68,7 +68,7 @@ const PaymentListMonthly = ({ payments }: PaymentMonthly) => {
         )
       case InvoiceEnum.ISENTO:
         return (
-          <Badge className="bg-warning/10 text-warning hover:bg-warning/20">
+          <Badge className="bg-gray-100 text-gray-600 hover:bg-gray-200 ">
             <AlertCircle className="mr-1 h-3 w-3" />
             Isento
           </Badge>
