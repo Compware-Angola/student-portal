@@ -69,7 +69,7 @@ export const Dashboard = () => {
     })
 
   const greeting = `${profileData?.sexo === 'Feminino' ? 'Bem-vinda' : 'Bem-vindo'}, ${profileData?.firstName} ${profileData?.lastName}`
-  const confirmationYear = profileData?.confirmacoes?.[0].ano_lectivo;
+  const confirmationYear = profileData?.confirmacoes?.[0]?.ano_lectivo;
 
   // === Normalização ===
   const normalizedMensagens: Notification[] = (mensagens || []).map((item) => ({
