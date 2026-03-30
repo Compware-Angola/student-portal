@@ -106,7 +106,7 @@ export function StudentNotifications() {
 
         <DropdownMenuItem
           className="justify-center text-xs text-primary cursor-pointer"
-          onSelect={() => navigate('/notificacoes')}
+          onSelect={() => navigate('/mensagens')}
         >
           Ver todas as notificações
         </DropdownMenuItem>

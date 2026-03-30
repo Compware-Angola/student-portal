@@ -18,19 +18,25 @@ import { AuthStorage } from '@/storage/auth-storage'
 import { buildImageAssets } from '@/utils/build-image-assets'
 
 import { Button } from '@/components/ui/button'
+import { useQueryAvisosPorGrupo } from '@/hooks/use-query-aviso-por-grupos'
+import { useMemo } from 'react'
 
 export type Notification = {
   id: string
-  type: 'mensagem' | 'comunicado'
+  type: 'mensagem' | 'comunicado' | 'aviso'
   title: string
   message: string
   date: string
   read: boolean
   priority: 'medium' | 'low'
   respostas: DetalheResposta | null
+  fileName?: string | null
+  autor?: string | null
 }
 
 export const MensagensNotificacoes = () => {
+  const GRUPO_ESTUDANTE_SIGLA = "EST"
+
   const authData = AuthStorage.get()
   const { profileData, error: profileError } = useQueryProfile()
   const userId = authData?.user_id ?? profileData?.userId ?? ''
@@ -41,6 +47,41 @@ export const MensagensNotificacoes = () => {
   const { data: mensagens, isLoading: isLoadingMensagens } = useQueryMessage({
     userId: userId.toString(),
   })
+
+// AVISOS ESTUDANTES
+
+  const curso = profileData?.codigo_curso
+    ? Number(profileData.codigo_curso)
+    : undefined
+
+  const periodo = profileData?.periodoId
+    ? Number(profileData.periodoId)
+    : undefined
+
+  const {
+    data: avisosGrupo = [],
+    isLoading: isLoadingAviso,
+    refetch,
+  } = useQueryAvisosPorGrupo({
+    sigla: GRUPO_ESTUDANTE_SIGLA,
+    curso,
+    periodo,
+  })
+
+  const avisosValidos = useMemo(() => {
+    const agora = new Date()
+
+    return avisosGrupo.filter((aviso) => {
+      const ativo = aviso.STATUS === 1
+
+      const naoExpirado =
+        !aviso.DATE_EXPIRACAO || new Date(aviso.DATE_EXPIRACAO) >= agora
+
+      return ativo && naoExpirado
+    })
+  }, [avisosGrupo])
+
+
 const handleDownload = async (ficheiroName: string) => {
   if (!ficheiroName) return;
 
@@ -102,13 +143,28 @@ const handleDownload = async (ficheiroName: string) => {
     respostas: null,
   }))
 
-  const isLoading = isLoadingMensagens || isLoadingComunicados
+  const normalizedAvisos : Notification[] = avisosValidos.map((item) => ({
+  id: String(item.CODIGO),
+  type: 'aviso',
+  title: item.ASSUNTO ?? 'Sem assunto',
+  message: item.DESCRICAO ?? '',
+  date: item.DATE_EXPIRACAO ?? new Date().toISOString(),
+  read: false,
+  priority: 'low',
+  respostas: null,
+  fileName: item.FILE_NAME ?? null,
+  autor: item.AUTOR ?? null,
+}))
+
+const comunicadosEAvisos = [...normalizedComunicados, ...normalizedAvisos]
+
+  const isLoading = isLoadingMensagens || isLoadingComunicados || isLoadingAviso
 
   const getPriorityColor = (priority: 'medium' | 'low') => {
     return priority === 'medium' ? 'default' : 'secondary'
   }
 
-  const getIcon = (type: 'mensagem' | 'comunicado') => {
+  const getIcon = (type: 'mensagem' | 'comunicado' | 'aviso') => {
     return type === 'mensagem' ? (
       <MessageSquare className="h-5 w-5" />
     ) : (
@@ -157,7 +213,7 @@ const handleDownload = async (ficheiroName: string) => {
             Mensagens ({normalizedMensagens.length})
           </TabsTrigger>
           <TabsTrigger value="comunicados">
-            Comunicados ({normalizedComunicados.length})
+            Comunicados ({normalizedAvisos.length})
           </TabsTrigger>
         </TabsList>
 
@@ -298,49 +354,68 @@ const handleDownload = async (ficheiroName: string) => {
 
         {/* Aba de Comunicados */}
         <TabsContent value="comunicados" className="space-y-4 mt-6">
-          {normalizedComunicados.length === 0 ? (
-            <p className="text-center text-muted-foreground">
-              Nenhum comunicado disponível.
-            </p>
-          ) : (
-            normalizedComunicados
-              .sort(
-                (a, b) =>
-                  new Date(b.date).getTime() - new Date(a.date).getTime(),
-              )
-              .map((com) => (
-                <Card key={com.id}>
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        {getIcon(com.type)}
-                        <div>
-                          <CardTitle className="text-base">
-                            {com.title}
-                          </CardTitle>
-                          <CardDescription className="text-sm mt-1">
-                            {new Date(com.date).toLocaleDateString('pt-PT', {
-                              day: '2-digit',
-                              month: 'long',
-                              year: 'numeric',
-                            })}
-                          </CardDescription>
-                        </div>
-                      </div>
-                      <Badge variant={getPriorityColor(com.priority)}>
-                        Baixa
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">
-                      {com.message}
+  {comunicadosEAvisos.length === 0 ? (
+    <p className="text-center text-muted-foreground">
+      Nenhum comunicado ou aviso disponível.
+    </p>
+  ) : (
+    comunicadosEAvisos
+      .sort(
+        (a, b) =>
+          new Date(b.date).getTime() - new Date(a.date).getTime(),
+      )
+      .map((com) => (
+        <Card key={`${com.type}-${com.id}`}>
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                {getIcon(com.type)}
+                <div>
+                  <CardTitle className="text-base">{com.title}</CardTitle>
+                  <CardDescription className="text-sm mt-1">
+                    {new Date(com.date).toLocaleDateString('pt-PT', {
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric',
+                    })}
+                  </CardDescription>
+
+                  {com.autor && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Autor: {com.autor}
                     </p>
-                  </CardContent>
-                </Card>
-              ))
-          )}
-        </TabsContent>
+                  )}
+                </div>
+              </div>
+
+              <Badge variant={getPriorityColor(com.priority)}>
+                {com.type === 'aviso' ? 'Aviso' : 'Baixa'}
+              </Badge>
+            </div>
+          </CardHeader>
+
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted-foreground">{com.message}</p>
+
+            {com.fileName && (
+              <div className="flex items-center justify-between bg-muted/50 p-2 rounded border">
+                <span className="text-blue-600 truncate max-w-[220px]">
+                  {com.fileName}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDownload(com.fileName!)}
+                >
+                  <Download className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      ))
+  )}
+</TabsContent>
       </Tabs>
     </div>
   )
