@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
   },
   logo: { width: 110, height: 60 },
   companyInfo: { textAlign: 'right' },
-  companyName: { fontSize: 15, fontWeight: 'bold', color: '#0d1b48' },
+  companyName: { fontSize: 15, fontWeight: 'bold', color: '#0D1B48' },
   companyDetails: { fontSize: 9, color: '#444', marginTop: 3 },
   title: {
     textAlign: 'center',
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   },
 
   yearTitle: {
-    backgroundColor: '#0d1b48',
+    backgroundColor: '#0D1B48',
     color: 'white',
     fontSize: 12,
     padding: 6,
