@@ -18,6 +18,7 @@ import {
 import { Separator } from '@/components/ui/separator'
 import type { Mensalidade } from '@/types/finance-api-response'
 import { transformMonthly } from '@/utils/transform-Monthly'
+import { InvoiceEnum } from '@/enums/invoice.enum'
 
 export interface Monthly {
   id: number
@@ -44,25 +45,32 @@ interface PaymentMonthly {
 const PaymentListMonthly = ({ payments }: PaymentMonthly) => {
   const getStatusBadge = (status: number) => {
     switch (status) {
-      case 1:
+      case InvoiceEnum.PAGO:
         return (
           <Badge className="bg-success/10 text-success hover:bg-success/20">
             <CheckCircle className="mr-1 h-3 w-3" />
             Pago
           </Badge>
         )
-      case 2:
+      case InvoiceEnum.PARCELADO:
+        return (
+          <Badge className="bg-warning/10 text-warning hover:bg-warning/20">
+            <AlertCircle className="mr-1 h-3 w-3" />
+            Parcelado
+          </Badge>
+        )
+      case InvoiceEnum.PENDENTE:
         return (
           <Badge className="bg-warning/10 text-warning hover:bg-warning/20">
             <AlertCircle className="mr-1 h-3 w-3" />
             Pendente
           </Badge>
         )
-      case 0:
+      case InvoiceEnum.ISENTO:
         return (
-          <Badge className="bg-warning/10 text-warning hover:bg-warning/20">
+          <Badge className="bg-gray-100 text-gray-600 hover:bg-gray-200 ">
             <AlertCircle className="mr-1 h-3 w-3" />
-            Pendente
+            Isento
           </Badge>
         )
       default:

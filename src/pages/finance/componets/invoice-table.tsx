@@ -18,7 +18,6 @@ import type { Invoice } from '@/services/invoice/get-invoices-by-matricula.servi
 import { useQueryInvoices } from '@/hooks/invoice/use-query-invoices'
 import { InvoicesTableSkeleton } from './invoices-table-skeleton'
 import { toast } from 'sonner'
-import { Badge } from '@/components/ui/badge'
 import { PaymentReceipt } from '@/components/uma-invoice'
 import { useQueryAcademicYear } from '@/hooks/academic-year/use-query-academic-year'
 import type { AdemicsYear } from '@/services/academic-year/get-acamedic-year.service'
@@ -65,6 +64,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { ReferenciasDialog } from './referencie-dialog'
+import {  InvoiceStatusBadge } from '@/common/Invoice-status-badge'
 
 // --- LocalStorage & Polling (100% como tinhas) ---
 const PENDING_TASKS_KEY = 'pending_payment_tasks'
@@ -224,7 +224,7 @@ function InvoiceDetailsDialog({
             <p className="font-semibold mb-3">Itens Detalhados</p>
             <div className="space-y-3">
               {invoice.itens.map((item, idx) => (
-                <Card key={item.codigo} className="p-4">
+                <Card key={item.codigo} className="p-4 relative!">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div>
                       <p className="font-medium">
@@ -303,6 +303,9 @@ function InvoiceDetailsDialog({
                         </div>
                       )}
                     </div>
+                  </div>
+                  <div className='absolute top-4 right-4'>
+                    <InvoiceStatusBadge status={item.estado}/>
                   </div>
                 </Card>
               ))}
@@ -584,23 +587,7 @@ function useColumnsInvoiceTable({
         const estado = row.getValue('estado') as number
         return (
           <div className="flex justify-center">
-            {estado === 0 ? (
-              <Badge
-                variant="secondary"
-                className="bg-amber-100 text-amber-700"
-              >
-                <span className="size-1.5 rounded-full bg-amber-600 mr-1.5" />
-                Pendente
-              </Badge>
-            ) : (
-              <Badge
-                variant="secondary"
-                className="bg-green-100 text-green-700"
-              >
-                <span className="size-1.5 rounded-full bg-green-600 mr-1.5" />
-                Pago
-              </Badge>
-            )}
+            <InvoiceStatusBadge status={estado} />
           </div>
         )
       },
