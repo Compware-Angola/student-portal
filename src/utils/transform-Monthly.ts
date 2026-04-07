@@ -33,7 +33,7 @@ const transformMonthly = (monthlys: Mensalidade[]): Monthly[] => {
       formaPagamento: null,
       dataPagamento: null,
       dueDate: monthly.data_vencimento,
-      status: Number(monthly.status_pagamento),
+      status: Number(monthly.estado_fatura),
       reference: monthly.reference,
       observacoes: descricaoDesconto,
       bolseiro: 1
