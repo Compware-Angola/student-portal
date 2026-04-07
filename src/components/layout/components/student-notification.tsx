@@ -11,16 +11,18 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useQueryAvisosPorGrupo } from '@/hooks/use-query-aviso-por-grupos'
-import { useMemo } from 'react'
+import { useMemo, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-
-
+import { toast } from 'sonner'
 
 export function StudentNotifications() {
   const navigate = useNavigate()
   const { profileData } = useQueryProfile()
 
-  const GRUPO_ESTUDANTE_SIGLA = "EST"
+  const seenAvisoIds = useRef<Set<number>>(new Set())
+  const isFirstLoad = useRef(true)
+
+  const GRUPO_ESTUDANTE_SIGLA = 'EST'
 
   const curso = profileData?.codigo_curso
     ? Number(profileData.codigo_curso)
@@ -36,8 +38,6 @@ export function StudentNotifications() {
     periodo,
   })
 
-  //console.log("GRUPOS: ", avisosGrupo)
-
   const avisosValidos = useMemo(() => {
     const agora = new Date()
 
@@ -50,6 +50,34 @@ export function StudentNotifications() {
       return ativo && naoExpirado
     })
   }, [avisosGrupo])
+
+  useEffect(() => {
+    if (avisosValidos.length === 0) return
+
+    const novos = avisosValidos.filter(
+      (aviso) => !seenAvisoIds.current.has(aviso.CODIGO)
+    )
+
+    if (isFirstLoad.current) {
+      avisosValidos.forEach((aviso) => seenAvisoIds.current.add(aviso.CODIGO))
+      isFirstLoad.current = false
+      return
+    }
+
+    if (novos.length === 0) return
+
+    novos.forEach((aviso) => seenAvisoIds.current.add(aviso.CODIGO))
+
+    if (novos.length <= 3) {
+      toast.success('🔔 Recebeste um novo aviso', {
+        position: 'top-right',
+      })
+    } else {
+      toast.success(`🔔 Recebeste ${novos.length} novos avisos`, {
+        position: 'top-right',
+      })
+    }
+  }, [avisosValidos])
 
   return (
     <DropdownMenu>
@@ -106,7 +134,7 @@ export function StudentNotifications() {
 
         <DropdownMenuItem
           className="justify-center text-xs text-primary cursor-pointer"
-          onSelect={() => navigate('/notificacoes')}
+          onSelect={() => navigate('/mensagens')}
         >
           Ver todas as notificações
         </DropdownMenuItem>
