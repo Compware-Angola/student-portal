@@ -61,7 +61,6 @@ export const MensagensNotificacoes = () => {
   const {
     data: avisosGrupo = [],
     isLoading: isLoadingAviso,
-    refetch,
   } = useQueryAvisosPorGrupo({
     sigla: GRUPO_ESTUDANTE_SIGLA,
     curso,
