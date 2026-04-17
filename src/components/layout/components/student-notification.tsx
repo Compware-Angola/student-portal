@@ -115,6 +115,7 @@ export function StudentNotifications() {
               <div key={aviso.CODIGO}>
                 <DropdownMenuItem
                   className="cursor-default px-3 py-3 focus:bg-muted/50 data-[highlighted]:bg-muted/50"
+                  onSelect={() => navigate(`/mensagens`)}
                 >
                   <div className="flex items-start gap-2">
                     <span className="mt-1.5 h-2 w-2 rounded-full bg-primary shrink-0" />
