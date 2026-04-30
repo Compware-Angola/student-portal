@@ -26,6 +26,7 @@ import NotificacoesPage from '@/pages/notification/notificacoes-page'
 import { StudentStatus } from '@/enums/student.status.enum'
 import { getHomeRoute, routePermissions } from './permission'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
+import PreIncriptionDashboard from '@/pages/dashboard/pre-inscription-dashboard'
 
 export function MainRoutes() {
   const { isLoading, hasEnrolmentCode } = useStudentSituation()
@@ -153,10 +154,39 @@ export function MainRoutes() {
             </RequireStudentRoute>
           }
         />
-        <Route path="/financas/notas-pagamento" element={<NotaPagamento />} />
+        <Route
+          path="/pre-dashboard"
+          element={
+            <RequireStudentRoute>
+              <PreIncriptionDashboard />
+            </RequireStudentRoute>
+          }
+        />
+        <Route
+          path="/financas/notas-pagamento"
+          element={
+            <RequireStudentRoute>
+              <NotaPagamento />
+            </RequireStudentRoute>
+          }
+        />
 
-        <Route path="/pre-inscricao" element={<PreSubscription />} />
-        <Route path="/perfil" element={<Profile />} />
+        <Route
+          path="/pre-inscricao"
+          element={
+            <RequireStudentRoute>
+              <PreSubscription />
+            </RequireStudentRoute>
+          }
+        />
+        <Route
+          path="/perfil"
+          element={
+            <RequireStudentRoute>
+              <Profile />
+            </RequireStudentRoute>
+          }
+        />
       </Route>
 
       <Route

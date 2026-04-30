@@ -22,7 +22,7 @@ export function AcademicData() {
           type="date"
         />
         <InputFormField
-          label="Ano de Conclusão"
+          label="Media Final"
           control={form.control}
           name="averageGrade"
           placeholder="16.5"

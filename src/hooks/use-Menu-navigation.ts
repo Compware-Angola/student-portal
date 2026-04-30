@@ -25,7 +25,7 @@ import { useQueryProfile } from './profile/use-query-profile'
 
 export function useMenuNavigation() {
   const { hasEnrolmentCode, isLoading } = useStudentSituation()
-   const { isLoading : isLoadingProfile, studentStatus } = useQueryProfile()
+  const { isLoading: isLoadingProfile, studentStatus } = useQueryProfile()
 
   if (isLoading || isLoadingProfile || !studentStatus) {
     return { navMain: [] }
@@ -63,7 +63,7 @@ export function useMenuNavigation() {
       url: '/servicos-academicos',
       icon: BookOpen,
     },
-    { title: 'Perfil', url: '/perfil', icon: User },
+
     { title: 'Disciplinas', url: '/disciplinas', icon: Library },
     {
       title: 'Mensagens & Comunicados',
@@ -87,9 +87,13 @@ export function useMenuNavigation() {
       url: '/pre-inscricao',
       icon: Home,
     },
+    {
+      title: 'Inicio',
+      url: '/pre-dashboard',
+      icon: Home,
+    },
+    { title: 'Perfil', url: '/perfil', icon: User },
   ]
-
-
 
   const allowedRoutes = routePermissions[studentStatus] || []
 

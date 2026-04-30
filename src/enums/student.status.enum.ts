@@ -3,6 +3,8 @@ export const StudentStatus = {
   APROVADO: 'ADMITIDO_SEM_MATRICULA',
   REPROVADO: 'NAO_ADMITIDO',
   MATRICULADO: 'ALUNO_MATRICULADO',
+  SEM_ADMISSAO: 'SEM_ADMISSAO',
+  AGUARDANDO_RESULTADO: 'AGUARDANDO_RESULTADO'
 };
 
 export type StudentStatusType = typeof StudentStatus[keyof typeof StudentStatus]
