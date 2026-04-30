@@ -23,7 +23,7 @@ import { RegistrationsUC } from '@/pages/registrationsUC'
 import { useMemo, type JSX } from 'react'
 import { Comunicado } from '@/pages/login/Comunicado'
 import NotificacoesPage from '@/pages/notification/notificacoes-page'
-import { StudentStatus } from '@/enums/student.status.enum'
+
 import { getHomeRoute, routePermissions } from './permission'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 

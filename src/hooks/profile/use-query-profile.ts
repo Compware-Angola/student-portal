@@ -1,4 +1,4 @@
-import { getProfile, type CurrentUserResponse, type StudentProfile } from '@/services/profile'
+import { getProfile, type CurrentUserResponse } from '@/services/profile'
 import { extractFirstAndLastName } from '@/utils/extract-first-and-last-name'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
@@ -35,7 +35,7 @@ export function useQueryProfile() {
   const { data, isLoading, error, isError, refetch } = useQuery<CurrentUserResponse>(
     {
       queryKey: ['profile'],
-      queryFn:  getProfile,
+      queryFn: getProfile,
       staleTime: Infinity,
       retry: 0,
       enabled: !!auth,
@@ -71,7 +71,9 @@ export function useQueryProfile() {
       preEnrollmentCode: authData?.codigo_preinscricao?.toString() ?? null,
       estado_matricula: authData?.estado_matricula,
       numero_documento: authData?.numero_documento,
-      userId: authData?.user_id.toString()
+      userId: authData?.user_id.toString(),
+      estado_aluno: authData?.estado_aluno,
+
 
     }
   }, [data])
@@ -79,7 +81,7 @@ export function useQueryProfile() {
   return {
     profileData,
     isLoading,
-    studentStatus : profileData?.estado_aluno,
+    studentStatus: profileData?.estado_aluno,
     error,
     isError,
     refetch,

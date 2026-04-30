@@ -4,16 +4,18 @@ import type { DiaSemana, AulaHorario } from '../utils'
 
 const HOUR_START = 7
 const HOUR_END = 20
-const SLOT_MIN = 30
-const ROW_PX = 28
+const ROW_H = 56 // px por hora
 
-const subjectColors: Record<string, string> = {}
 const COLOR_POOL = [
-    'bg-primary/10 border-l-primary',
-    'bg-secondary/15 border-l-secondary',
-    'bg-accent/15 border-l-accent',
+    'bg-purple-100 border-l-purple-600 text-purple-900 dark:bg-purple-900/25 dark:text-purple-200',
+    'bg-teal-100 border-l-teal-600 text-teal-900 dark:bg-teal-900/25 dark:text-teal-200',
+    'bg-orange-100 border-l-orange-600 text-orange-900 dark:bg-orange-900/25 dark:text-orange-200',
+    'bg-pink-100 border-l-pink-500 text-pink-900 dark:bg-pink-900/25 dark:text-pink-200',
+    'bg-blue-100 border-l-blue-600 text-blue-900 dark:bg-blue-900/25 dark:text-blue-200',
+    'bg-green-100 border-l-green-600 text-green-900 dark:bg-green-900/25 dark:text-green-200',
 ]
 
+const subjectColors: Record<string, string> = {}
 let colorIndex = 0
 
 function getSubjectColor(subject: string): string {
@@ -22,6 +24,75 @@ function getSubjectColor(subject: string): string {
         colorIndex++
     }
     return subjectColors[subject]
+}
+
+function timeToMin(time: string): number {
+    const clean = time.includes('T') ? time.split('T')[1]?.slice(0, 5) ?? '00:00' : time.slice(0, 5)
+    const [h, m] = clean.split(':').map(Number)
+    return h * 60 + m
+}
+
+function formatTime(time?: string | null): string {
+    if (!time) return ''
+    const t = time.includes('T') ? time.split('T')[1]?.slice(0, 5) : time.slice(0, 5)
+    return t ?? ''
+}
+
+type AulaComColuna = AulaHorario & {
+    _col: number
+    _totalCols: number
+}
+
+function computeColumns(aulas: AulaHorario[]): AulaComColuna[] {
+    const sorted = aulas
+        .filter(a => a.hora_inicio && a.hora_termino)
+        .map((a, i) => ({ ...a, _idx: i }))
+        .sort((a, b) => timeToMin(a.hora_inicio!) - timeToMin(b.hora_inicio!))
+
+    // Atribui coluna a cada aula (greedy)
+    const cols: typeof sorted[] = []
+    const aulaCol: Record<number, number> = {}
+
+    for (const aula of sorted) {
+        const start = timeToMin(aula.hora_inicio!)
+        const end = timeToMin(aula.hora_termino!)
+        let col = 0
+        while (true) {
+            const conflict = cols[col]?.some(other => {
+                const os = timeToMin(other.hora_inicio!)
+                const oe = timeToMin(other.hora_termino!)
+                return start < oe && end > os
+            })
+            if (!conflict) break
+            col++
+        }
+        if (!cols[col]) cols[col] = []
+        cols[col].push(aula)
+        aulaCol[aula._idx] = col
+    }
+
+    // Calcula total de colunas que cada aula ocupa
+    const aulaTotalCols: Record<number, number> = {}
+    for (const aula of sorted) {
+        const start = timeToMin(aula.hora_inicio!)
+        const end = timeToMin(aula.hora_termino!)
+        let maxCol = aulaCol[aula._idx]
+        for (const other of sorted) {
+            if (other._idx === aula._idx) continue
+            const os = timeToMin(other.hora_inicio!)
+            const oe = timeToMin(other.hora_termino!)
+            if (start < oe && end > os) {
+                maxCol = Math.max(maxCol, aulaCol[other._idx])
+            }
+        }
+        aulaTotalCols[aula._idx] = maxCol + 1
+    }
+
+    return sorted.map(a => ({
+        ...a,
+        _col: aulaCol[a._idx],
+        _totalCols: aulaTotalCols[a._idx],
+    }))
 }
 
 type Props = {
@@ -35,90 +106,35 @@ export function ScheduleGrid({ schedule }: Props) {
         )
     }, [schedule])
 
-    const totalSlots = ((HOUR_END - HOUR_START) * 60) / SLOT_MIN
+    const totalHours = HOUR_END - HOUR_START
+    const gridHeight = totalHours * ROW_H
 
     const hourLabels = useMemo(() => {
-        const labels: string[] = []
-        for (let h = HOUR_START; h < HOUR_END; h++) {
-            labels.push(`${String(h).padStart(2, '0')}:00`)
-        }
-        return labels
-    }, [])
-    // 🔥 formatar hora (HH:mm)
-    const formatTime = (time?: string | null): string => {
-        if (!time) return ''
-        if (time.includes('T')) return time.split('T')[1]?.slice(0, 5) || ''
-        return time.slice(0, 5)
-    }
+        return Array.from({ length: totalHours }, (_, i) =>
+            `${String(HOUR_START + i).padStart(2, '0')}:00`
+        )
+    }, [totalHours])
 
-    // 🔥 Converte hora para slot (SEM Date e SEM decimal)
-    const timeToSlot = (
-        time?: string | null,
-        type: 'start' | 'end' = 'start'
-    ): number | null => {
-        if (!time || typeof time !== 'string') {
-            console.warn('timeToSlot recebeu valor inválido:', time)
-            return null
-        }
-
-        let h: number
-        let m: number
-
-        // ISO: 1970-01-01T10:30:00
-        if (time.includes('T')) {
-            const parts = time.split('T')[1]?.slice(0, 5) // "10:30"
-            if (!parts) return null
-
-            const [hh, mm] = parts.split(':')
-            h = Number(hh)
-            m = Number(mm)
-        } else {
-            // HH:mm
-            const match = /^(\d{2}):(\d{2})$/.exec(time)
-            if (!match) {
-                console.warn('Formato de hora inválido:', time)
-                return null
-            }
-
-            h = Number(match[1])
-            m = Number(match[2])
-        }
-
-        if (h < 0 || h > 23 || m < 0 || m > 59) {
-            console.warn('Hora fora do intervalo:', `${h}:${m}`)
-            return null
-        }
-
-        const totalMinutes = (h - HOUR_START) * 60 + m
-
-        if (totalMinutes < 0) {
-            console.warn('Hora antes do início permitido:', `${h}:${m}`)
-            return null
-        }
-
-        const rawSlot = totalMinutes / SLOT_MIN
-
-        return type === 'start'
-            ? Math.floor(rawSlot)
-            : Math.ceil(rawSlot)
-    }
+    const aulasComColunas = useMemo(() => {
+        return Object.fromEntries(
+            dias.map(([dia, aulas]) => [dia, computeColumns(aulas)])
+        )
+    }, [dias])
 
     return (
         <>
             <Card>
                 <CardContent className="p-0 overflow-x-auto">
-                    <div className="min-w-[900px]">
+                    <div className="min-w-[700px]">
+
                         {/* Cabeçalho */}
                         <div
                             className="grid border-b bg-muted/30"
-                            style={{
-                                gridTemplateColumns: `70px repeat(${dias.length}, 1fr)`
-                            }}
+                            style={{ gridTemplateColumns: `52px repeat(${dias.length}, 1fr)` }}
                         >
                             <div className="p-3 text-xs font-medium text-muted-foreground border-r">
                                 Hora
                             </div>
-
                             {dias.map(([dia, aulas]) => (
                                 <div key={dia} className="p-3 text-center border-r last:border-r-0">
                                     <p className="text-sm font-semibold">{dia}</p>
@@ -131,114 +147,113 @@ export function ScheduleGrid({ schedule }: Props) {
 
                         {/* Grelha */}
                         <div
-                            className="grid relative"
-                            style={{
-                                gridTemplateColumns: `70px repeat(${dias.length}, 1fr)`
-                            }}
+                            className="grid"
+                            style={{ gridTemplateColumns: `52px repeat(${dias.length}, 1fr)` }}
                         >
-                            {/* Horas */}
+                            {/* Coluna de horas */}
                             <div className="border-r">
                                 {hourLabels.map((label) => (
                                     <div
                                         key={label}
-                                        className="text-xs text-muted-foreground px-2 border-b flex items-start pt-1"
-                                        style={{ height: `${ROW_PX * 2}px` }}
+                                        className="text-[11px] text-muted-foreground px-2 border-b flex items-start pt-1"
+                                        style={{ height: `${ROW_H}px` }}
                                     >
                                         {label}
                                     </div>
                                 ))}
                             </div>
 
-                            {/* Dias */}
-                            {dias.map(([dia, aulas]) => (
-                                <div
-                                    key={dia}
-                                    className="relative border-r last:border-r-0"
-                                    style={{ height: `${ROW_PX * totalSlots}px` }}
-                                >
-                                    {/* Linhas */}
-                                    {hourLabels.map((_, i) => (
-                                        <div
-                                            key={i}
-                                            className="border-b border-dashed border-border/50"
-                                            style={{ height: `${ROW_PX * 2}px` }}
-                                        />
-                                    ))}
-
-                                    {/* Aulas */}
-                                    {aulas.map((aula, idx) => {
-                                        if (!aula?.hora_inicio || !aula?.hora_termino) {
-                                            console.warn('Aula inválida:', aula)
-                                            return null
-                                        }
-
-                                        const startSlot = timeToSlot(aula.hora_inicio, 'start')
-                                        const endSlot = timeToSlot(aula.hora_termino, 'end')
-
-                                        if (startSlot === null || endSlot === null) return null
-
-                                        const top = startSlot * ROW_PX
-                                        const height = Math.max(
-                                            (endSlot - startSlot) * ROW_PX,
-                                            ROW_PX
-                                        )
-
-                                        if (height <= 0) return null
-
-                                        const colorClass = getSubjectColor(aula.disciplina)
-
-                                        return (
+                            {/* Colunas dos dias */}
+                            {dias.map(([dia]) => {
+                                const aulas = aulasComColunas[dia] ?? []
+                                return (
+                                    <div
+                                        key={dia}
+                                        className="relative border-r last:border-r-0"
+                                        style={{ height: `${gridHeight}px` }}
+                                    >
+                                        {/* Linhas de hora */}
+                                        {hourLabels.map((_, i) => (
                                             <div
-                                                key={idx}
-                                                className={`absolute left-1 right-1 rounded-md border-l-4 border border-border/50 p-2 overflow-hidden hover:shadow-md transition-shadow cursor-pointer ${colorClass}`}
-                                                style={{
-                                                    top: `${top}px`,
-                                                    height: `${height}px`
-                                                }}
-                                                title={`${aula.disciplina} — ${aula.hora_inicio} a ${aula.hora_termino}`}
-                                            >
-                                                <p className="text-xs font-semibold truncate">
-                                                    {aula.disciplina}
-                                                </p>
+                                                key={i}
+                                                className="absolute left-0 right-0 border-b border-border/40"
+                                                style={{ top: `${i * ROW_H}px` }}
+                                            />
+                                        ))}
+                                        {/* Linhas de meia hora */}
+                                        {hourLabels.map((_, i) => (
+                                            <div
+                                                key={`half-${i}`}
+                                                className="absolute left-0 right-0 border-b border-dashed border-border/20"
+                                                style={{ top: `${i * ROW_H + ROW_H / 2}px` }}
+                                            />
+                                        ))}
 
-                                                <p className="text-[10px] text-muted-foreground">
-                                                    {formatTime(aula.hora_inicio)} - {formatTime(aula.hora_termino)}
-                                                </p>
+                                        {/* Aulas — sem sobreposição */}
+                                        {aulas.map((aula, idx) => {
+                                            const startMin = timeToMin(aula.hora_inicio!) - HOUR_START * 60
+                                            const endMin = timeToMin(aula.hora_termino!) - HOUR_START * 60
+                                            const top = (startMin / 60) * ROW_H
+                                            const height = Math.max(((endMin - startMin) / 60) * ROW_H - 2, 20)
 
-                                                {aula.sala && (
-                                                    <p className="text-[10px] text-muted-foreground truncate">
-                                                        {aula.sala}
+                                            const pct = 100 / aula._totalCols
+                                            const left = `calc(${aula._col * pct}% + 2px)`
+                                            const width = `calc(${pct}% - 4px)`
+                                            const colorClass = getSubjectColor(aula.disciplina)
+
+                                            return (
+                                                <div
+                                                    key={idx}
+                                                    className={`absolute rounded-md border-l-[3px] border border-black/10 p-1.5 overflow-hidden hover:shadow-md transition-shadow cursor-pointer ${colorClass}`}
+                                                    style={{
+                                                        top: `${top}px`,
+                                                        height: `${height}px`,
+                                                        left,
+                                                        width,
+                                                        zIndex: aula._col + 1,
+                                                    }}
+                                                    title={`${aula.disciplina} — ${formatTime(aula.hora_inicio)} a ${formatTime(aula.hora_termino)}`}
+                                                >
+                                                    <p className="text-[11px] font-semibold truncate leading-tight">
+                                                        {aula.disciplina}
                                                     </p>
-                                                )}
-                                            </div>
-                                        )
-                                    })}
-                                </div>
-                            ))}
+                                                    <p className="text-[10px] opacity-70 mt-0.5">
+                                                        {formatTime(aula.hora_inicio)} – {formatTime(aula.hora_termino)}
+                                                    </p>
+                                                    {aula.sala && (
+                                                        <p className="text-[10px] opacity-60 truncate">
+                                                            {aula.sala}
+                                                        </p>
+                                                    )}
+
+                                                    {aula.tipo && (
+                                                        <p className="text-[10px] font-medium mt-0.5 opacity-75 truncate">
+                                                            {aula.tipo}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                )
+                            })}
                         </div>
                     </div>
                 </CardContent>
             </Card>
 
-            {/* Legenda */}
+            {/* Legenda dinâmica por disciplina */}
             <div className="flex flex-wrap items-center gap-3 mt-4 text-xs text-muted-foreground">
-                <span className="font-medium">Legenda:</span>
-
-                <div className="flex items-center gap-1.5">
-                    <div className="w-3 h-3 rounded bg-primary/30 border-l-2 border-l-primary" />
-                    Teórica
-                </div>
-
-                <div className="flex items-center gap-1.5">
-                    <div className="w-3 h-3 rounded bg-secondary/30 border-l-2 border-l-secondary" />
-                    Prática
-                </div>
-
-                <div className="flex items-center gap-1.5">
-                    <div className="w-3 h-3 rounded bg-accent/30 border-l-2 border-l-accent" />
-                    Laboratório
-                </div>
+                <span className="font-medium">Disciplinas:</span>
+                {Object.entries(subjectColors).map(([name, cls]) => (
+                    <div key={name} className="flex items-center gap-1.5">
+                        <div className={`w-3 h-3 rounded-sm border-l-2 ${cls}`} />
+                        {name}
+                    </div>
+                ))}
             </div>
+            {/* Legend - Show when there are no schedules */}
+
         </>
     )
 }

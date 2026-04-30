@@ -14,7 +14,8 @@ export function useQueryAvisosPorGrupo({
   sigla,
   curso,
   periodo,
-}: UseQueryAvisosPorGrupoProps) {
+  enabled = true,
+}: UseQueryAvisosPorGrupoProps & { enabled?: boolean }) {
   const siglaValida = !!sigla?.trim();
 
   return useQuery<AvisosPorGrupoResponse>({
@@ -25,7 +26,7 @@ export function useQueryAvisosPorGrupo({
         curso,
         periodo,
       }),
-    enabled: siglaValida,
+    enabled: siglaValida && enabled,
     staleTime: 1000 * 30,
     refetchInterval: 1000 * 30,
     refetchOnWindowFocus: true,
