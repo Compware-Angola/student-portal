@@ -28,14 +28,15 @@ export function StudentNotifications() {
     ? Number(profileData.codigo_curso)
     : undefined
 
-  const periodo = profileData?.periodoId
-    ? Number(profileData.periodoId)
+  const periodo = profileData?.periodoid
+    ? Number(profileData.periodoid)
     : undefined
 
   const { data: avisosGrupo = [] } = useQueryAvisosPorGrupo({
     sigla: GRUPO_ESTUDANTE_SIGLA,
     curso,
     periodo,
+    enabled: !!profileData?.estado_aluno,
   })
 
   const avisosValidos = useMemo(() => {
