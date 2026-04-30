@@ -1,30 +1,29 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
-
+import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { AlertCircle } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { AlertCircle, LayoutGrid, List, Calendar } from 'lucide-react'
 import type { AulaHorario, DiaSemana } from '../utils'
-import { DayFilter } from './day-filter'
-import { ScheduleContent } from './schedule-content'
-
-export function ScheduleBody({
-  isLoading,
-  isError,
-  errorMessage,
-  schedule,
-  diaSelecionado,
-  onDiaChange,
-}: {
+import { ScheduleGrid } from './schedule-grid'
+import { DayCard } from './day-card'
+import { useState } from 'react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+type Props = {
   isLoading: boolean
   isError: boolean
   errorMessage?: string
   schedule: Record<DiaSemana, AulaHorario[]>
-  diaSelecionado: string
-  onDiaChange: (v: string) => void
-}) {
-  if (isLoading) {
-    return <ScheduleSkeleton />
-  }
+}
+
+export function ScheduleBody({ isLoading, isError, errorMessage, schedule }: Props) {
+  if (isLoading) return <ScheduleSkeleton />
+
 
   if (isError) {
     return (
@@ -35,56 +34,101 @@ export function ScheduleBody({
       </Alert>
     )
   }
+  const diasComAulas = Object.entries(schedule).filter(([, aulas]) => aulas.length > 0)
+
+  // 🔥 estado do dia selecionado
+  const [diaSelecionado, setDiaSelecionado] = useState<string>(
+    diasComAulas[0]?.[0] || ''
+  )
+
+  if (diasComAulas.length === 0) {
+    return (
+      <Card>
+        <CardContent className="py-12 text-center">
+          <Calendar className="mx-auto mb-3 h-12 w-12 text-muted-foreground" />
+          <p className="text-muted-foreground">Nenhuma aula para este período</p>
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
-    <>
-      <DayFilter
-        value={diaSelecionado}
-        onChange={onDiaChange}
-        schedule={schedule}
-      />
-      <ScheduleContent schedule={schedule} diaSelecionado={diaSelecionado} />
-    </>
+    <Tabs defaultValue="grid" className="space-y-4">
+      <TabsList>
+        <TabsTrigger value="grid" className="gap-2">
+          <LayoutGrid className="h-4 w-4" />
+          Grelha semanal
+        </TabsTrigger>
+        <TabsTrigger value="list" className="gap-2">
+          <List className="h-4 w-4" />
+          Por dia
+        </TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="grid">
+        <ScheduleGrid schedule={schedule} />
+      </TabsContent>
+
+      <TabsContent value="list">
+        <div className="space-y-4">
+
+          {/* SELECT */}
+          <div className="w-full flex justify-end items-center gap-2">
+            <label className="text-sm font-medium">Selecionar dia:</label>
+
+            <Select
+              value={diaSelecionado}
+              onValueChange={(value) => setDiaSelecionado(value)}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Escolher dia" />
+              </SelectTrigger>
+
+              <SelectContent>
+                {diasComAulas.map(([dia]) => (
+                  <SelectItem key={dia} value={dia}>
+                    {dia}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* DIA SELECIONADO */}
+          {diasComAulas
+            .filter(([dia]) => dia === diaSelecionado)
+            .map(([dia, aulas]) => (
+              <DayCard key={dia} dia={dia} aulas={aulas} />
+            ))}
+        </div>
+      </TabsContent>
+    </Tabs>
   )
 }
 
 function ScheduleSkeleton() {
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <Skeleton className="h-9 w-48" />
+    <div className="space-y-4">
+      <div className="flex gap-2">
+        <Skeleton className="h-9 w-36" />
+        <Skeleton className="h-9 w-28" />
       </div>
-
-      <div className="grid gap-4">
-        {[1, 2, 3].map((day) => (
-          <Card key={day}>
-            <CardHeader>
-              <Skeleton className="h-6 w-32" />
-            </CardHeader>
-            <CardContent className="pt-4">
-              <div className="space-y-3">
-                {[1, 2, 3].map((item) => (
-                  <div
-                    key={item}
-                    className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 rounded-lg border"
-                  >
-                    <div className="flex-shrink-0 min-w-[140px]">
-                      <Skeleton className="h-5 w-28" />
-                    </div>
-                    <div className="flex-1 space-y-2">
-                      <Skeleton className="h-5 w-3/4" />
-                      <div className="flex gap-2">
-                        <Skeleton className="h-4 w-20" />
-                        <Skeleton className="h-4 w-16" />
-                      </div>
-                    </div>
-                  </div>
-                ))}
+      <Card>
+        <CardContent className="p-0">
+          <div className="min-w-[900px] p-4 space-y-3">
+            <div className="flex gap-2">
+              <Skeleton className="h-8 w-16" />
+              {[1, 2, 3, 4, 5].map((i) => <Skeleton key={i} className="h-8 flex-1" />)}
+            </div>
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex gap-2">
+                <Skeleton className="h-14 w-16" />
+                {[1, 2, 3, 4, 5].map((j) => <Skeleton key={j} className="h-14 flex-1" />)}
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
