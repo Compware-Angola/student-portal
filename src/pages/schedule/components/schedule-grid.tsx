@@ -1,7 +1,12 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import type { DiaSemana, AulaHorario } from '../utils'
-
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog'
 const HOUR_START = 7
 const HOUR_END = 20
 const ROW_H = 56 // px por hora
@@ -100,6 +105,7 @@ type Props = {
 }
 
 export function ScheduleGrid({ schedule }: Props) {
+    const [selectedAula, setSelectedAula] = useState<AulaHorario | null>(null)
     const dias = useMemo(() => {
         return Object.entries(schedule).filter(
             ([, aulas]) => Array.isArray(aulas) && aulas.length > 0
@@ -204,6 +210,7 @@ export function ScheduleGrid({ schedule }: Props) {
                                             return (
                                                 <div
                                                     key={idx}
+                                                    onClick={() => setSelectedAula(aula)}
                                                     className={`absolute rounded-md border-l-[3px] border border-black/10 p-1.5 overflow-hidden hover:shadow-md transition-shadow cursor-pointer ${colorClass}`}
                                                     style={{
                                                         top: `${top}px`,
@@ -253,6 +260,36 @@ export function ScheduleGrid({ schedule }: Props) {
                 ))}
             </div>
             {/* Legend - Show when there are no schedules */}
+            <Dialog open={!!selectedAula} onOpenChange={() => setSelectedAula(null)}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="text-lg">
+                            {selectedAula?.disciplina}
+                        </DialogTitle>
+                    </DialogHeader>
+
+                    {selectedAula && (
+                        <div className="space-y-3 text-sm">
+                            <div>
+                                <span className="font-medium">Horário:</span>{' '}
+                                {formatTime(selectedAula.hora_inicio)} - {formatTime(selectedAula.hora_termino)}
+                            </div>
+
+                            <div>
+                                <span className="font-medium">Sala:</span>{' '}
+                                {selectedAula.sala || 'N/A'}
+                            </div>
+
+                            <div>
+                                <span className="font-medium">Tipo:</span>{' '}
+                                {selectedAula.tipo || 'N/A'}
+                            </div>
+
+                            {/* podes adicionar mais campos aqui */}
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
 
         </>
     )
