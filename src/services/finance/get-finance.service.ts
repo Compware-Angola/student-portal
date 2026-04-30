@@ -5,7 +5,7 @@ import type { MonthlyFeeDataResponse } from '@/types/finance-api-response'
 
 // Tipos baseados na rota do frontend/backend
 export interface MonthlyFeeQueryParams {
-    academicYear: string; // Vai como codAnoLectivo
+    academicYear: number; // Vai como codAnoLectivo
     enrollmentCode: string; // Vai como codigo_matricula
     status:string
     page?: number;
@@ -18,7 +18,7 @@ export interface MonthlyFeeQueryParams {
  * usando Query Parameters, alinhada com a rota do backend.
  *
  * @param params {MonthlyFeeQueryParams} Contém ano letivo, código da matrícula, página e limite.
- * @returns {Promise<MonthlyFeeDataResponse>} 
+ * @returns {Promise<MonthlyFeeDataResponse>}
  */
 export async function getmonthlyFee({
     academicYear,
@@ -33,10 +33,10 @@ export async function getmonthlyFee({
         page: page.toString(),
         limit: limit.toString(),
         codigo_matricula: enrollmentCode, // Mapeamento correto
-        codAnoLectivo: academicYear,  
+        codAnoLectivo: academicYear.toString(),
         status:status    // Mapeamento correto
     });
-    
+
     // 2. Constrói a URL final: /financial/monthly-fees?codigo_matricula=...&codAnoLectivo=...
     const url = `financial/monthly-fees?${queryParams.toString()}`
 

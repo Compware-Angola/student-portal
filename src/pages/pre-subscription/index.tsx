@@ -19,7 +19,7 @@ export function PreSubscription() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Pré-Inscrição</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Formulário de Candidaturas</h1>
         <p className="text-muted-foreground mt-2">
           Preencha o formulário para realizar a pré-inscrição ao exame de acesso
         </p>

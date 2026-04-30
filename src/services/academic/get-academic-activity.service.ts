@@ -16,7 +16,7 @@ export type AcademicActivityResponse = {
 
 type AcademicActivityParams = {
   academicYear: string
-  applicationType: string
+  applicationType: number
 }
 
 export async function getAcademicActivity(

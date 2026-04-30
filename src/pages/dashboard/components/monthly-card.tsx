@@ -8,7 +8,7 @@ import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-aca
 
 type MonthlyCardProps = {
   enrollmentCode?: string
-  selectedYear?: string
+  selectedYear?: number
   onClick?: () => void
 }
 
@@ -40,7 +40,7 @@ export function MonthlyCard({ enrollmentCode, selectedYear, onClick }: MonthlyCa
     return pendingPayments.reduce((sum, item) => sum + (item.total ?? 0), 0)
   }, [pendingPayments])
   const academicYear = academicYearData?.anolectivos?.find(
-    (ano) => ano.codigo === selectedYear
+    (ano) => ano.codigo === selectedYear?.toString()
   )
 
   const yearLabel = academicYear?.designacao ?? selectedYear ?? 'Ano letivo'
