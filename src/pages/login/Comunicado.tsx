@@ -1,13 +1,16 @@
 // Comunicado.tsx
 
+import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useGetAvisoImagem } from '@/hooks/use-get-aviso-imagem'
+import { getHomeRoute } from '@/routes/permission'
 import { buildImageAssets } from '@/utils/build-image-assets'
 import { useNavigate } from 'react-router-dom'
 
 export function Comunicado() {
   const navigate = useNavigate()
-  const {data: comunicado} = useGetAvisoImagem()
- 
+  const { data: comunicado } = useGetAvisoImagem()
+  const { studentStatus } = useQueryProfile()
+  const homeRoute = getHomeRoute(studentStatus!)
   return (
     <div
       style={{
@@ -34,7 +37,7 @@ export function Comunicado() {
         }}
       >
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate(homeRoute)}
           style={{
             padding: '10px 20px',
             backgroundColor: '#2d3e50',
@@ -47,8 +50,6 @@ export function Comunicado() {
         >
           PÁGINA PRINCIPAL
         </button>
-          
-          
 
         {comunicado?.filename && (
           <div

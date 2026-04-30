@@ -46,7 +46,7 @@ export const Dashboard = () => {
   const authData = AuthStorage.get()
   const { profileData } = useQueryProfile()
   const userId = authData?.user_id ?? profileData?.userId ?? ''
-  const pre_inscricao = profileData?.codigo_preinscricao ?? ''
+  const pre_inscricao = profileData?.codigo_preinscricao
   const navigate = useNavigate()
 
   // === Hooks com Loading ===
@@ -180,7 +180,7 @@ export const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(profileData.saldo_actual)}
+              {formatCurrency(profileData.saldo_reset)}
             </div>
             <p className="text-xs text-muted-foreground">Saldo atual</p>
           </CardContent>

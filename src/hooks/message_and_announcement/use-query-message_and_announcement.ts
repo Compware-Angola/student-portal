@@ -11,7 +11,7 @@ type Mensagem = {
 }
 
 type Comunicado = {
-  pre_inscricao?: string
+  pre_inscricao?: number
 }
 export function useQueryMessage(params: Mensagem) {
   const { data, isLoading, error, isError } = useQuery<RespostaMensagens>({

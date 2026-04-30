@@ -1,49 +1,80 @@
-import { apexApi } from '@/lib/apex-api'
+import { authApi } from '@/lib/auth-api'
 
-export async function getProfile(id: string): Promise<StudentProfile> {
-  return await apexApi.get(`students/profile/${id}`).json<StudentProfile>()
+export async function getProfile(): Promise<CurrentUserResponse> {
+  return await authApi.get(`auth/current-user?platform=PORTAL`).json<CurrentUserResponse>()
+}
+
+export interface Confirmacao {
+  codigo: number;
+  codigo_matricula: number;
+  ano_lectivo: number;
+  estado: number;
+  classe: number;
+  cadeirante: string;
+  canal: number;
 }
 
 export interface StudentProfile {
-  codresposta: number
-  msgresposta: string
-  codigo_preinscricao: string
-  nome_completo: string
-  sexo: string
-  data_nascimento: string
-  email: string
-  bilhete_identidade: string
-  telefone: string
-  numero_documento: string
-  codigo_admissao: string
-  data_admissao: string
-  codigo_matricula: string
-  data_matricula: string
-  estado_matricula: string
-  codigo_curso: string
-  codigo_aluno: string
-  curso: string
-  periodo: string
-  periodoId: string
-  max_cadeiras_curso: string
-  curso_candidatura: string
-  polo: string
-  confirmacoes: Confirmac[]
-  saldo_actual: string
-  saldo_anterior: string
-  userId: string
-  poloId: string
-  codigo_tipo_candidatura: string
-  curso_candidatura_designacao: string
-  foto?: string
+  user_id: number;
+  nome_completo: string;
+  email: string;
+  telefone: string;
+  numero_documento: string | null;
+
+  codigo_preinscricao: number;
+
+  nome_completo_1: string;
+  sexo: string;
+  data_nascimento: string;
+
+  email_1: string;
+  bilhete_identidade: string;
+  contactos_telefonicos: string;
+
+  saldo_reset: number;
+  saldo_reset_anter: number;
+
+  codigo_tipo_candidatura: number;
+  curso_candidatura: number;
+
+  codigo_admissao: number;
+  data_admissao: string;
+  media_final: number;
+
+  codigo_matricula: number;
+  data_matricula: string;
+  estado_matricula: string;
+
+  codigo_curso: number;
+  codigo_aluno: number;
+
+  curso: string;
+  max_cadeiras_curso: number;
+
+  turma: string | null;
+  sala: string | null;
+
+  periodo: string;
+  periodoid: number;
+
+  foto: string;
+
+  data_actualizacao: string;
+
+  poloid: number;
+  curso_duracao: number;
+  curso_duracao_candidatura: number;
+
+  polo: string;
+  curso_candidatura_designacao: string;
+
+  estado_aluno: string;
+
+  confirmacoes: Confirmacao[];
 }
 
-export interface Confirmac {
-  codigo: string
-  codigo_matricula: string
-  ano_lectivo: string
-  estado: string
-  classe: string
-  cadeirante: string
-  canal: string
+export interface CurrentUserResponse {
+  isAuthenticated: boolean;
+  user: StudentProfile;
+  message: string;
 }

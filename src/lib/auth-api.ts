@@ -3,10 +3,26 @@ import { ApiError, type ApiErrorResponse } from '@/error'
 import ky from 'ky'
 
 const VITE_API_URL_AUTH = import.meta.env.VITE_API_URL_AUTH
+
+function getToken() {
+ const authData = localStorage.getItem('@academico:auth')
+  const token = authData ? JSON.parse(authData).token : null
+  return token;
+}
+
 export const authApi = ky.create({
   retry: 0,
   prefixUrl: VITE_API_URL_AUTH,
   hooks: {
+     beforeRequest: [
+      (request) => {
+         const token = getToken()
+
+        if (token) {
+          request.headers.set('Authorization', `Bearer ${token}`)
+        }
+      },
+    ],
     afterResponse: [
       async (_request, _options, response) => {
         if (!response.ok) {
