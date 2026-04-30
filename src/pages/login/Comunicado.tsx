@@ -53,12 +53,7 @@ export function Comunicado() {
 
         {comunicado?.filename && (
           <div
-            style={{
-              maxHeight: '400px',
-              overflowY: 'auto',
-              borderRadius: '8px',
-              border: '1px solid #ddd',
-            }}
+            
           >
             <img
               src={buildImageAssets(comunicado.filename)}
