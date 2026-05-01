@@ -113,6 +113,14 @@ export function RegisterForm({
             label="Senha"
             type="password"
           />
+          <InputFormField
+            control={form.control}
+            name="confirmar_senha"
+            autoComplete="new-password"
+            placeholder="********"
+            label="Confirmar Senha"
+            type="password"
+          />
           <Field>
             <Button disabled={form.formState.isSubmitting} type="submit">
               {form.formState.isSubmitting && <Spinner />}

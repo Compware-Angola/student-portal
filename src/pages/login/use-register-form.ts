@@ -2,7 +2,6 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { useNavigate } from 'react-router-dom'
 import { ApiError } from '@/error'
 import { useQueryFetchFaculdades } from '@/hooks/faculdade/use-query-faculdade'
 import { useQueryTipoCandidatura } from '@/hooks/dropdowns/use-query-tipo-candidatura'
@@ -18,16 +17,26 @@ export const FormSchema = z.object({
     .min(1, { message: 'Número de documento é obrigatório' }),
   name: z.string().min(1, { message: 'Nome de usuário é obrigatório' }),
   telefone: z.string().min(1, { message: 'Telefone é obrigatório' }),
-  email:z.string().email({ message: 'Email inválido' }).optional(),
-  password: z.string().min(1, { message: 'Senha é obrigatória' }),
+  email: z.string().email({ message: 'Email inválido' }).optional(),
+  password: z
+    .string()
+    .min(8, { message: 'A senha deve ter pelo menos 8 caracteres' })
+    .regex(/[A-Z]/, { message: 'A senha deve conter pelo menos uma letra maiúscula' })
+    .regex(/[a-z]/, { message: 'A senha deve conter pelo menos uma letra minúscula' })
+    .regex(/[0-9]/, { message: 'A senha deve conter pelo menos um número' })
+    .regex(/[^A-Za-z0-9]/, { message: 'A senha deve conter pelo menos um caractere especial' }),
   faculdade: z.string().min(1, { message: 'Faculdade é obrigatório' }),
   grauacademico: z.string().min(1, { message: 'Faculdade é obrigatório' }),
+  confirmar_senha: z.string().min(1, { message: 'Confirmação de senha é obrigatória' }),
+
+}).refine((data) => data.password === data.confirmar_senha, {
+  message: 'As senhas não coincidem',
+  path: ['confirmar_senha'],
 })
 
 export type RegisterFormData = z.infer<typeof FormSchema>
 
 export function useRegisterForm() {
-  const navigate = useNavigate()
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(FormSchema),
@@ -37,6 +46,7 @@ export function useRegisterForm() {
       telefone: '',
       email: '',
       password: '',
+      confirmar_senha: '',
       tipo_de_documento: '',
       faculdade: '',
       grauacademico: '',
