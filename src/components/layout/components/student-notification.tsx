@@ -36,7 +36,7 @@ export function StudentNotifications() {
     sigla: GRUPO_ESTUDANTE_SIGLA,
     curso,
     periodo,
-    enabled: !!profileData?.estado_aluno,
+    enabled: profileData?.estado_aluno === 'ALUNO_MATRICULADO'
   })
 
   const avisosValidos = useMemo(() => {
