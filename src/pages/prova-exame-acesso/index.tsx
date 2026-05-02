@@ -15,7 +15,7 @@ import Questions from "./components/questions";
 // ====== Configuração da Prova ======
 // Para testar a tela de prova ativa, troque a data abaixo para o passado
 // ex: new Date(Date.now() - 1000) — ou ajuste FORCE_EXAM_OPEN para true.
-const EXAM_DATE = new Date("2026-05-02T11:27:47");
+const EXAM_DATE = new Date("2028-05-02T11:27:47");
 const EXAM_DURATION_MIN = 120;
 const FORCE_EXAM_OPEN = false;
 
