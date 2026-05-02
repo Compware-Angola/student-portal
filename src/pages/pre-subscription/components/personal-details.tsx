@@ -1,12 +1,21 @@
 import { useFormPreSubscriptionForm } from './form-provider'
 import { InputFormField } from '@/components/input-form-field'
 import { SelectFormField } from '@/components/selectFormField'
+import { RegisterAvatarSelector } from '@/pages/login/components/register-avatar-selector'
 
 export function PersonalDetails() {
   const { form } = useFormPreSubscriptionForm()
 
   return (
     <>
+      <RegisterAvatarSelector
+        onImageSelect={(file) => {
+           form.setValue('photo', file, {
+            shouldValidate: true,
+            shouldDirty: true,
+          })
+        }}
+      />
       {/* Nome completo */}
       <InputFormField
         control={form.control}

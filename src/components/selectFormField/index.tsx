@@ -43,9 +43,9 @@ export function SelectFormField<T extends FieldValues>(
           >
             <FormControl>
               <SelectTrigger
-                className={cn("cursor-pointer", fullWidth ? "w-full" : "")}
+                className={cn("cursor-pointer overflow-hidden", fullWidth ? "w-full" : "")}
               >
-                <SelectValue placeholder={placeholder} />
+                <SelectValue placeholder={placeholder}   className="cursor-pointer truncate"/>
               </SelectTrigger>
             </FormControl>
             <SelectContent>

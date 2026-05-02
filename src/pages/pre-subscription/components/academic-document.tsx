@@ -3,9 +3,10 @@ import { useFormPreSubscriptionForm } from './form-provider'
 import { SelectFormField } from '@/components/selectFormField'
 import { useQueryPeriod } from '@/hooks/dropdowns/use-query-period'
 import { usePoloDropdown } from '@/hooks/dropdowns/use-query-polo'
+import { FileInput } from '@/components/input-file'
 
 export function AcademicDocument() {
-  const { form } = useFormPreSubscriptionForm()
+  const { form, } = useFormPreSubscriptionForm()
   //OPCIONAIS
   const { data: courses } = useCursos()
 
@@ -22,8 +23,9 @@ export function AcademicDocument() {
       value: String(t.codigo),
     })) ?? []
 
-  const {data: polos } = usePoloDropdown()
-  const poloOptions = polos?.map((t) => ({
+  const { data: polos } = usePoloDropdown()
+  const poloOptions =
+    polos?.map((t) => ({
       label: t.designacao,
       value: String(t.id),
     })) ?? []
@@ -78,6 +80,19 @@ export function AcademicDocument() {
           fullWidth
           label="Turno Opcional"
           items={periodOptions}
+        />
+        <FileInput
+          label="Bilhete/Passaporte"
+          required
+          accept=".pdf"
+          maxSizeMB={5}
+          error={form.formState.errors.document?.message}
+          onChange={(file) =>
+            form.setValue('document', file!, {
+              shouldValidate: true,
+              shouldDirty: true,
+            })
+          }
         />
       </div>
     </>
