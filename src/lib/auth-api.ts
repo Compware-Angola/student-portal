@@ -1,23 +1,26 @@
-// src/api/invoiceApi.ts (ou onde estiver)
 import { ApiError, type ApiErrorResponse } from '@/error'
 import ky from 'ky'
 
 const VITE_API_URL_AUTH = import.meta.env.VITE_API_URL_AUTH
 
 function getToken() {
- const authData = localStorage.getItem('@academico:auth')
+  const authData = localStorage.getItem('@academico:auth')
   const token = authData ? JSON.parse(authData).token : null
-  return token;
+  return token
+}
+
+function logout() {
+  localStorage.removeItem('@academico:auth')
+  window.location.href = '/'
 }
 
 export const authApi = ky.create({
   retry: 0,
   prefixUrl: VITE_API_URL_AUTH,
   hooks: {
-     beforeRequest: [
+    beforeRequest: [
       (request) => {
-         const token = getToken()
-
+        const token = getToken()
         if (token) {
           request.headers.set('Authorization', `Bearer ${token}`)
         }
@@ -26,6 +29,11 @@ export const authApi = ky.create({
     afterResponse: [
       async (_request, _options, response) => {
         if (!response.ok) {
+          if (response.status === 401) {
+            logout()
+            return
+          }
+
           let errorData: ApiErrorResponse | undefined
           let message = `Erro ${response.status}: ${response.statusText}`
 
