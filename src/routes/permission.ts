@@ -18,19 +18,16 @@ export const routePermissions: Record<StudentStatusType, string[]> = {
   ],
 
   [StudentStatus.CANDIDATO]: ['/pre-inscricao'],
-  [StudentStatus.APROVADO]: ['/pre-dashboard', '/perfil'],
-  [StudentStatus.REPROVADO]: ['/pre-dashboard', '/perfil'],
-  [StudentStatus.SEM_ADMISSAO]: ['/pre-dashboard', '/perfil'],
-  [StudentStatus.AGUARDANDO_RESULTADO]: ['/pre-dashboard', '/perfil'],
+
+  [StudentStatus.PREINSCRITO]: ['/pre-dashboard', '/perfil'],
+
 }
 
 const homeRouteByStatus: Record<StudentStatusType, string> = {
   [StudentStatus.MATRICULADO]: '/',
   [StudentStatus.CANDIDATO]: '/pre-inscricao',
-  [StudentStatus.APROVADO]: '/pre-dashboard',
-  [StudentStatus.REPROVADO]: '/pre-dashboard',
-  [StudentStatus.SEM_ADMISSAO]: '/pre-dashboard',
-  [StudentStatus.AGUARDANDO_RESULTADO]: '/pre-dashboard',
+  [StudentStatus.PREINSCRITO]: '/pre-dashboard',
+
 }
 
 export function getHomeRoute(status: StudentStatusType) {

@@ -25,7 +25,7 @@ import { RegisterForm } from './components/register-form'
 export function Login() {
   const { setTheme } = useTheme()
   const [activeTab, setActiveTab] = useState<'login' | 'forgot'>('login')
-  const [authTab, setAuthTab] = useState<'login' | 'register'>('login');
+  const [authTab, setAuthTab] = useState<'login' | 'register'>('login')
   useEffect(() => {
     setTheme('light')
   }, [])
@@ -71,40 +71,42 @@ export function Login() {
 
         {/* Conteúdo principal */}
         <CardContent>
-          <Tabs defaultValue="login" className="w-full">
-             <TabsList className="grid w-full grid-cols-2 mb-4">
+          <Tabs
+            value={authTab}
+            onValueChange={(v) => setAuthTab(v as 'login' | 'register')}
+            className="w-full"
+          >
+            <TabsList className="grid w-full grid-cols-2 mb-4">
               <TabsTrigger value="login">Entrar</TabsTrigger>
               <TabsTrigger value="register">Registrar</TabsTrigger>
             </TabsList>
 
-          <TabsContent value={authTab}>
-          {activeTab === 'login' ? (
-            <>
+            <TabsContent value={'login'}>
+              {activeTab === 'login' ? (
+                <>
+                  <LoginForm />
 
-              <LoginForm />
-
-              {/* Link para recuperar senha */}
-              <div className="mt-8 text-center">
-                <Button
-                  variant="link"
-                  className="text-primary font-medium text-base hover:underline"
-                  onClick={() => setActiveTab('forgot')}
-                >
-                  Esqueceu sua senha?
-                </Button>
-              </div>
-            </>
-          ) : (
-            <div className="space-y-6">
-              <ForgotPasswordFlow onBack={() => setActiveTab('login')} />
-            </div>
-            )}
+                  {/* Link para recuperar senha */}
+                  <div className="mt-8 text-center">
+                    <Button
+                      variant="link"
+                      className="text-primary font-medium text-base hover:underline"
+                      onClick={() => setActiveTab('forgot')}
+                    >
+                      Esqueceu sua senha?
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-6">
+                  <ForgotPasswordFlow onBack={() => setActiveTab('login')} />
+                </div>
+              )}
             </TabsContent>
             <TabsContent value="register">
-              <RegisterForm onSuccess={ ()=> setAuthTab('login') } />
-             </TabsContent>
+              <RegisterForm onSuccess={() => setAuthTab('login')} />
+            </TabsContent>
           </Tabs>
-
         </CardContent>
 
         {/* ─── Label discreta de ambiente (só develop / pre-prd) ─── */}

@@ -55,7 +55,7 @@ export function useRegisterForm() {
   const { data: faculdade } = useQueryFetchFaculdades()
   const { data: tipoCandidaturas } = useQueryTipoCandidatura()
   const { data: tipoDocumentos } = useQueryTipoDocumento()
-  const { createBeginningStudentProcessAsync } =
+  const { createBeginningStudentProcessAsync, createBeginningStudentProcessPending } =
     useMutationBeginningStudentProcess()
   const faculdadesOptions =
     faculdade?.map((t) => ({
@@ -93,23 +93,7 @@ export function useRegisterForm() {
       console.log(data)
       //navigate('/')
     } catch (error) {
-      if (error instanceof ApiError) {
-        switch (error.status) {
-          case 400:
-            toast.error('Dados inválidos, verifique os campos.')
-            break
-          case 401:
-            toast.error('Credenciais inválidas, tente novamente.')
-            break
-          case 500:
-            toast.error('Erro no servidor. Tente mais tarde.')
-            break
-          default:
-            toast.error('Erro desconhecido contacte suporte.')
-        }
-        return
-      }
-      toast.error('Erro desconhecido contacte suporte.')
+      throw new Error("Erro ao fazer registro")
     }
   }
 
@@ -118,6 +102,7 @@ export function useRegisterForm() {
     onSubmit,
     faculdadesOptions,
     tipoCandidaturaOptions,
+    createBeginningStudentProcessPending,
     tipoDocumentoOptions,
   }
 }

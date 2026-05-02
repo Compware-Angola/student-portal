@@ -12,6 +12,7 @@ export const personalDataSchema = z.object({
   needs: z.string().min(1, 'Género é obrigatório'),
   motherName: z.string().min(1, 'Nome da mãe é obrigatório'),
   fatherName: z.string().min(1, 'Nome da pai é obrigatório'),
+  photo: z.instanceof(File).nullable().optional(),
 })
 
 export const PersonalDataKeys = Object.keys(

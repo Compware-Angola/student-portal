@@ -24,18 +24,23 @@ export function RegisterForm({
     faculdadesOptions,
     tipoCandidaturaOptions,
     tipoDocumentoOptions,
+    createBeginningStudentProcessPending,
   } = useRegisterForm()
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(
-          (data) => {
-            console.log('SUBMIT OK', data)
-            onSubmit(data)
-            onSuccess?.()
-            form.reset()
+          async (data) => {
+            try {
+              await onSubmit(data)
+              form.reset()
+              onSuccess?.()
+            } catch (error) {
+
+            }
           },
+
           (errors) => {
             console.log('ERROS DO FORM', errors)
           },
@@ -123,7 +128,7 @@ export function RegisterForm({
           />
           <Field>
             <Button disabled={form.formState.isSubmitting} type="submit">
-              {form.formState.isSubmitting && <Spinner />}
+              {createBeginningStudentProcessPending && <Spinner />}
               Criar sua Conta
             </Button>
           </Field>
