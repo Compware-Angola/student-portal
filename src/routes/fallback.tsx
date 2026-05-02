@@ -8,9 +8,9 @@ export function FallbackRoute() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/', { replace: true }) // 🔐 Vai para o dashboard
+      navigate('/', { replace: true })
     } else {
-      navigate('/auth', { replace: true }) // 🔑 Vai para login
+      navigate('/auth', { replace: true })
     }
   }, [isAuthenticated, navigate])
 

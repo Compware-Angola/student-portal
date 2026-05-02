@@ -1,4 +1,3 @@
-// src/api/invoiceApi.ts (ou onde estiver)
 import { ApiError, type ApiErrorResponse } from '@/error'
 import { AuthStorage } from '@/storage/auth-storage'
 import ky from 'ky'
@@ -8,12 +7,11 @@ const VITE_API_URL_INVOICE = import.meta.env.VITE_API_URL_INVOICE
 export const invoiceApi = ky.create({
   prefixUrl: VITE_API_URL_INVOICE,
   retry: 0,
-  timeout: 70_000, // 60 segundos
+  timeout: 70_000,
   hooks: {
     beforeRequest: [
       (request) => {
         const token = AuthStorage.getToken()
-
         if (token) {
           request.headers.set('Authorization', `Bearer ${token}`)
         }
@@ -21,11 +19,13 @@ export const invoiceApi = ky.create({
     ],
     afterResponse: [
       async (_request, _options, response) => {
-         if (response.status === 401) {
-          AuthStorage.clear()
-          window.location.href = '/login'
-        }
         if (!response.ok) {
+          if (response.status === 401) {
+            AuthStorage.clear()
+            window.location.href = '/login'
+            return
+          }
+
           let errorData: ApiErrorResponse | undefined
           let message = `Erro ${response.status}: ${response.statusText}`
 
