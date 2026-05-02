@@ -1,13 +1,23 @@
-import { useFormPreSubscriptionForm } from './form-provider'
+//import { useFormPreSubscriptionForm } from './form-provider'
 import { Button } from '@/components/ui/button'
 import EnrollmentSheet from '@/components/uma-ficha-inscricao'
 import { useQueryPreInscricaoFicha } from '@/hooks/pre-registation/use-query-pre-registration'
+import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { fmt } from '@/utils/fmt'
-import { Download, CheckCircle2, PartyPopper, Wallet } from 'lucide-react'
+import { useQueryClient } from '@tanstack/react-query'
+import {  CheckCircle2, PartyPopper, Wallet } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 export function ResumeDetails() {
-  const { form } = useFormPreSubscriptionForm()
-  const { data, isLoading } = useQueryPreInscricaoFicha(394415)
+  const { profileData } = useQueryProfile()
+  const { data } = useQueryPreInscricaoFicha(profileData?.user_id!)
+  const queryClient = useQueryClient()
+  const navigate = useNavigate()
+
+   async function handleGoToPayments() {
+    await queryClient.invalidateQueries({ queryKey: ['profile'] })
+    navigate('/perfil')
+  }
 
   return (
     <div className="flex flex-col items-center gap-6">
@@ -58,7 +68,7 @@ export function ResumeDetails() {
           showPrintButton={false}
         />
         <Button
-          onClick={() => {}}
+          onClick={() => handleGoToPayments()}
           className="flex-1"
           variant="outline"
           aria-label="Descarregar PDF"
