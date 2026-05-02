@@ -7,6 +7,7 @@ import { steps } from './step'
 import { preSubscriptionSchema, type PreSubscriptionSchema } from '../schemas'
 import { useMutationPreInscricao } from '@/hooks/pre-registation/use-mutation-pre-registration'
 import { useUploadSingle } from '@/hooks/upload/use-upload-single'
+import { toast } from 'sonner'
 
 type ContextValue = {
   onSubmit: (data: PreSubscriptionSchema) => void
@@ -29,7 +30,7 @@ export function FormPreSubscriptionProvider({
 }: {
   children: React.ReactNode
 }) {
-  const [currentStep, setCurrentStep] = React.useState(4)
+  const [currentStep, setCurrentStep] = React.useState(0)
   const progress = (currentStep / steps.length) * 100
   const { createPreInscricaoAsync, createPreInscricaoPending } =
     useMutationPreInscricao()
@@ -37,8 +38,7 @@ export function FormPreSubscriptionProvider({
   const isLoadingPreInscription =
     createPreInscricaoPending || uploadMutation.isPending
   const currentStepConfig = steps[currentStep]
-  const isSubmitStep = currentStepConfig.submitOnStep
-  const isSummaryStep = currentStepConfig.isSummary
+
 
   const uploadFile = async (data: File) => {
     const formData = new FormData()
@@ -118,7 +118,7 @@ export function FormPreSubscriptionProvider({
       documentPath = await uploadFile(data.document)
     }
     const payload = buildInscricaoPayload(data)
-    //await createPreInscricaoAsync(payload)
+    await createPreInscricaoAsync(payload)
   }, [])
 
  const handleNextOrSubmit = React.useCallback(async () => {
@@ -128,12 +128,18 @@ export function FormPreSubscriptionProvider({
 
   if (!valid) return
 
-  if (currentStepConfig.submitOnStep) {
-    await form.handleSubmit(async (data) => {
+   if (currentStepConfig.submitOnStep) {
+     try {
+      await form.handleSubmit(async (data) => {
       await onSubmit(data)
       setCurrentStep((prev) => prev + 1)
     })()
-
+     } catch (error: any) {
+       toast.error(
+        error?.message ||
+          'Erro ao fazer a pre inscrição.',
+      )
+    }
     return
   }
 
