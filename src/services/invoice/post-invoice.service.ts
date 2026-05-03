@@ -30,7 +30,7 @@ export type CreateInvoiceBody = {
   ValorAPagar: number
   total_incidencia: number
   total_retencao: number
-  CodigoMatricula: number
+  CodigoMatricula: number | null
   codigo_preinscricao: number
   Desconto: number
   totalIVA: number

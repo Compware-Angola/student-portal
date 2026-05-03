@@ -1,5 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useQueryInfoGeraisCandidatura } from "@/hooks/pre-registation/use-query-info-gerais-candidatura";
+import { useQueryProfile } from "@/hooks/profile/use-query-profile";
+import { fmt } from "@/utils/fmt";
 import { Separator } from "@radix-ui/react-separator";
 import { AlertCircle, BookOpen, Calendar, Clock, FileText, Hourglass, MapPin, User, } from "lucide-react";
 interface WaitingTestProps {
@@ -11,6 +14,13 @@ interface WaitingTestProps {
     EXAM_DATE: Date;
 }
 function WaitingTest({ days, hours, minutes, seconds, examInfo, EXAM_DATE }: WaitingTestProps) {
+    const { data: info } = useQueryInfoGeraisCandidatura()
+  const { profileData } = useQueryProfile()
+    const candidate = info?.nome_completo
+    const course = profileData?.curso_candidatura_designacao
+    const examDate = info?.data_admissao ?? undefined
+    const horario = `${fmt(info?.hora_inicio)} - ${fmt(info?.hora_fim)}`
+
 
     return (
 
@@ -45,18 +55,14 @@ function WaitingTest({ days, hours, minutes, seconds, examInfo, EXAM_DATE }: Wai
                 </CardHeader>
                 <CardContent className="pt-6 space-y-6">
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                        <InfoTile icon={<User className="h-5 w-5" />} label="Candidato" value={examInfo.candidate} />
-                        <InfoTile icon={<BookOpen className="h-5 w-5" />} label="Curso" value={examInfo.course} />
+                        <InfoTile icon={<User className="h-5 w-5" />} label="Candidato" value={fmt(candidate)} />
+                        <InfoTile icon={<BookOpen className="h-5 w-5" />} label="Curso" value={fmt(course)} />
                         <InfoTile
                             icon={<Calendar className="h-5 w-5" />}
                             label="Data"
-                            value={EXAM_DATE.toLocaleDateString("pt-PT", {
-                                day: "2-digit",
-                                month: "long",
-                                year: "numeric",
-                            })}
+                            value={fmt(examDate)}
                         />
-                        <InfoTile icon={<Clock className="h-5 w-5" />} label="Horário" value={examInfo.time} />
+                        <InfoTile icon={<Clock className="h-5 w-5" />} label="Horário" value={horario} />
                     </div>
 
                     <Separator />

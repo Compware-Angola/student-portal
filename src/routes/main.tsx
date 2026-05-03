@@ -28,6 +28,7 @@ import { getHomeRoute, routePermissions } from './permission'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import PreIncriptionDashboard from '@/pages/dashboard/pre-inscription-dashboard'
 import ProvaExameAcesso from '@/pages/prova-exame-acesso'
+import { PrePayment } from '@/pages/pre-payment'
 
 export function MainRoutes() {
   const { isLoading, hasEnrolmentCode } = useStudentSituation()
@@ -181,12 +182,19 @@ export function MainRoutes() {
           }
         />
         <Route
-          path="/exame-acesso/prova"
+          path="/exame-acesso"
           element={
-            <ProvaExameAcesso />
-            // <RequireStudentRoute>
-            //   <ProvaExameAcesso />
-            // </RequireStudentRoute>
+             <RequireStudentRoute>
+               <ProvaExameAcesso />
+             </RequireStudentRoute>
+          }
+        />
+        <Route
+          path="/pre-pagamento"
+          element={
+             <RequireStudentRoute>
+               <PrePayment />
+             </RequireStudentRoute>
           }
         />
         <Route

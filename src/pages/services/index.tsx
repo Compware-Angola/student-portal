@@ -47,17 +47,17 @@ export function AcademicServices() {
   const { data: servicesData, isLoading: loadingServices, isError: errorServices } =
     useQueryAvailableServices({
       academicYear: academicYearData?.codigo,
-      poloId: profileData?.poloId ?? '1',
+      poloId: profileData?.poloid.toString() ?? '1',
     })
 
   const { createInvoiceAsync, createInvoicePending } = useMutationCreateInvoice()
 
-  const poloId = profileData?.poloId ?? '1'
+  const poloId = profileData?.poloid ?? '1'
   const enrollmentCode = profileData?.codigo_matricula
   const pre_inscricao_raw = profileData?.codigo_preinscricao
 
-  const matriculaNumero = enrollmentCode ? parseInt(enrollmentCode, 10) : null
-  const preInscricaoNumero = pre_inscricao_raw ? parseInt(pre_inscricao_raw, 10) : null
+  const matriculaNumero = enrollmentCode ? enrollmentCode : null
+  const preInscricaoNumero = pre_inscricao_raw ?pre_inscricao_raw : null
 
   // === Função para alterar quantidade de cada serviço ===
   const handleServiceChange = (codigo: string, quantidade: number) => {
@@ -135,7 +135,7 @@ export function AcademicServices() {
 
     return {
       DataFactura: new Date().toISOString(),
-      polo_id: parseInt(poloId),
+      polo_id: poloId,
       TotalPreco,
       codigo_descricao: 101,
       ValorAPagar,

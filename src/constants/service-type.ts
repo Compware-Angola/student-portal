@@ -7,4 +7,8 @@ export const SERVICE_TYPES = {
     description: 'Inscrição Fora de Prazo',
     sigla: 'IFdP',
   },
+   TAXA_EXAME_ADMISSAO: {
+    description: 'Taxa de Exame de Admissão',
+    sigla: 'TdEdA',
+  },
 } as const

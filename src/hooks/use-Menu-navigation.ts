@@ -6,6 +6,7 @@ import { useStudentSituation } from './use-student-stitiation'
 import {
   BookOpen,
   Calendar,
+  CircleDollarSign,
   ClipboardList,
   CreditCard,
   FileText,
@@ -16,6 +17,7 @@ import {
   LayoutDashboard,
   Library,
   MessageSquare,
+  Pencil,
   Receipt,
   User,
 } from 'lucide-react'
@@ -92,7 +94,10 @@ export function useMenuNavigation() {
       url: '/pre-dashboard',
       icon: Home,
     },
+    { title: 'Exame de Acesso', url: '/exame-acesso', icon: Pencil },
+    { title: 'Pagamento', url: '/pre-pagamento', icon: CircleDollarSign },
     { title: 'Perfil', url: '/perfil', icon: User },
+
   ]
 
   const allowedRoutes = routePermissions[studentStatus] || []
