@@ -14,26 +14,30 @@ import { useTheme } from '@/hooks/use-theme'
 import { useEffect, useState } from 'react'
 import { ForgotPasswordFlow } from './components/forgot-password-flow'
 
+import { FileSearch } from 'lucide-react'
+
 // ───────────────────────────────────────────────
-//  Importa as flags de ambiente
-//  (deve existir src/config/env.ts ou similar)
 import { APP_ENV, isDevelop, isPrePrd } from '@/config/env'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { RegisterForm } from './components/register-form'
+import ValidarDocumentos from './components/ValidarDocumentos'
 // ───────────────────────────────────────────────
+
+// ─── Controla visibilidade da aba de registo ───
+const SHOW_REGISTER_TAB = true // muda para false para ocultar o registo
 
 export function Login() {
   const { setTheme } = useTheme()
-  const [activeTab, setActiveTab] = useState<'login' | 'forgot'>('login')
+
+  const [activeTab, setActiveTab] = useState<'login' | 'forgot' | 'validar'>('login')
   const [authTab, setAuthTab] = useState<'login' | 'register'>('login')
+
   useEffect(() => {
     setTheme('light')
   }, [])
 
-  // Mostra a label apenas em develop ou pre-prd
   const showEnvLabel = isDevelop || isPrePrd
 
-  // Texto amigável + "versão" (usa o valor bruto da env)
   const envDisplay = isDevelop
     ? `Ambiente: Desenvolvimento • v${APP_ENV}`
     : isPrePrd
@@ -76,17 +80,18 @@ export function Login() {
             onValueChange={(v) => setAuthTab(v as 'login' | 'register')}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="login">Entrar</TabsTrigger>
-              <TabsTrigger value="register">Registrar</TabsTrigger>
-            </TabsList>
+            {SHOW_REGISTER_TAB && (
+              <TabsList className="grid w-full grid-cols-2 mb-4">
+                <TabsTrigger value="login">Entrar</TabsTrigger>
+                <TabsTrigger value="register">Registrar</TabsTrigger>
+              </TabsList>
+            )}
 
-            <TabsContent value={'login'}>
-              {activeTab === 'login' ? (
+            <TabsContent value="login">
+              {activeTab === 'login' && (
                 <>
                   <LoginForm />
 
-                  {/* Link para recuperar senha */}
                   <div className="mt-8 text-center">
                     <Button
                       variant="link"
@@ -97,19 +102,44 @@ export function Login() {
                     </Button>
                   </div>
                 </>
-              ) : (
+              )}
+
+              {activeTab === 'forgot' && (
                 <div className="space-y-6">
                   <ForgotPasswordFlow onBack={() => setActiveTab('login')} />
                 </div>
               )}
+
+              {activeTab === 'validar' && (
+                <div className="space-y-6">
+                  <ValidarDocumentos onBack={() => setActiveTab('login')} />
+                </div>
+              )}
             </TabsContent>
-            <TabsContent value="register">
-              <RegisterForm onSuccess={() => setAuthTab('login')} />
-            </TabsContent>
+
+            {SHOW_REGISTER_TAB && (
+              <TabsContent value="register">
+                <RegisterForm onSuccess={() => setAuthTab('login')} />
+              </TabsContent>
+            )}
           </Tabs>
+
+          {/* ─── Link Validar Documentos ─── */}
+          {activeTab === 'login' && (
+            <div className="pt-1 text-center">
+              <button
+                type="button"
+                onClick={() => setActiveTab('validar')}
+                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors underline-offset-4 hover:underline"
+              >
+                <FileSearch className="h-3 w-3" />
+                Validar Documentos
+              </button>
+            </div>
+          )}
         </CardContent>
 
-        {/* ─── Label discreta de ambiente (só develop / pre-prd) ─── */}
+        {/* ─── Label de ambiente (só develop / pre-prd) ─── */}
         {showEnvLabel && (
           <div className="pb-6 pt-2 text-center text-xs text-muted-foreground/50">
             {envDisplay}
