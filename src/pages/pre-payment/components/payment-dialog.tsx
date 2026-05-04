@@ -14,6 +14,7 @@ import type { CreateInvoiceBody } from '@/services/invoice/post-invoice.service'
 import type { TypeServiceResponse } from '@/services/type-service/type-service.service'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { useQueryClient } from '@tanstack/react-query'
 
 type PaymentDialogProps = {
   isOpen: boolean
@@ -22,12 +23,14 @@ type PaymentDialogProps = {
 
 export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
   const { data: currentAcademicYear } = useQueryCurrentAcademicYear()
-  const { createInvoiceAsync, createInvoicePending } = useMutationCreateInvoice()
-
+  const { createInvoiceAsync, createInvoicePending } =
+    useMutationCreateInvoice()
+  const queryClient = useQueryClient()
   const { data: taxaAdmissao } = useTypeServiceSingle({
     currentYearCode: Number(currentAcademicYear?.codigo),
     ...SERVICE_TYPES.TAXA_EXAME_ADMISSAO,
   })
+
   const { profileData } = useQueryProfile()
   function createItem(serviceType: TypeServiceResponse | null) {
     if (!serviceType) return null
@@ -57,35 +60,35 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
 
   const handleFactura = async () => {
     try {
+      const totalApagar = taxaAdmissao?.preco
+      const item = createItem(taxaAdmissao)
+      const now = new Date()
+      if (!totalApagar || !item) return
 
-
-    const totalApagar = taxaAdmissao?.preco
-    const item = createItem(taxaAdmissao)
-    const now = new Date()
-    if (!totalApagar || !item) return
-
-    const invoice: CreateInvoiceBody = {
-      polo_id: profileData?.poloid!,
-      TotalPreco: totalApagar,
-      codigo_descricao: 101,
-      ValorAPagar: totalApagar,
-      total_incidencia: 0,
-      total_retencao: 0,
-      CodigoMatricula: null,
-      codigo_preinscricao: profileData?.codigo_preinscricao!,
-      Desconto: 0,
-      totalIVA: 0,
-      TotalMulta: 0,
-      Descricao: 'Matrícula + Inscrição em Disciplinas'.substring(0, 44),
-      tipo_documento_factura_id: 1,
-      canal: 3,
-      DataFactura: now.toISOString(),
-      itens: [item],
-    }
+      const invoice: CreateInvoiceBody = {
+        polo_id: profileData?.poloid!,
+        TotalPreco: totalApagar,
+        codigo_descricao: 101,
+        ValorAPagar: totalApagar,
+        total_incidencia: 0,
+        total_retencao: 0,
+        CodigoMatricula: null,
+        codigo_preinscricao: profileData?.codigo_preinscricao!,
+        Desconto: 0,
+        totalIVA: 0,
+        TotalMulta: 0,
+        Descricao: 'Matrícula + Inscrição em Disciplinas'.substring(0, 44),
+        tipo_documento_factura_id: 1,
+        canal: 3,
+        DataFactura: now.toISOString(),
+        itens: [item],
+      }
       await createInvoiceAsync(invoice)
+      await queryClient.invalidateQueries({
+        queryKey: ['info-gerais-candidatura'],
+      })
       onOpenChange?.(false)
-    }
-    catch (error : any) {
+    } catch (error: any) {
       toast.error(error?.message ?? 'Erro ao tentar fazer pagamento')
     }
   }
@@ -111,8 +114,11 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
           </p>
           <div className="flex justify-end">
             <Button onClick={() => handleFactura()}>
-              {createInvoicePending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Aceitar</Button>
+              {createInvoicePending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              Aceitar
+            </Button>
           </div>
         </div>
       </DialogContent>

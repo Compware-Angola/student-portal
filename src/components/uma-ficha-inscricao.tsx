@@ -394,7 +394,7 @@ function EnrollmentSheetDocument({
     </Document>
   )
 }
-const handleDownload = async (data: any) => {
+export const handleDownload = async (data: any) => {
   try {
     const blob = await pdf(<EnrollmentSheetDocument data={data} />).toBlob()
 

@@ -180,8 +180,8 @@ const ProvaExameAcesso = () => {
   }
 
   // ============ TELA: PROVA ATIVA ============
-  return (
-    <Questions
+  { info?.estado_aluno == AdmissionStatus.DIA_DA_PROVA } {
+     <Questions
       current={current}
       setCurrent={setCurrent}
       questions={questions}
@@ -194,7 +194,8 @@ const ProvaExameAcesso = () => {
       handleSubmit={handleSubmit}
       examInfo={examInfo}
     />
-  )
+  }
+  return <></>
 }
 
 export default ProvaExameAcesso

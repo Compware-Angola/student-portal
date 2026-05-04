@@ -29,6 +29,7 @@ import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import PreIncriptionDashboard from '@/pages/dashboard/pre-inscription-dashboard'
 import ProvaExameAcesso from '@/pages/prova-exame-acesso'
 import { PrePayment } from '@/pages/pre-payment'
+import { PaymentDialog } from '@/pages/pre-payment/components/payment-dialog'
 
 export function MainRoutes() {
   const { isLoading, hasEnrolmentCode } = useStudentSituation()
@@ -233,6 +234,7 @@ export function RequireStudentRoute({ children }: { children: JSX.Element }) {
   if (!allowedRoutes.includes(location.pathname)) {
     return <Navigate to={homeRoute} replace />
   }
+
 
   return children
 }

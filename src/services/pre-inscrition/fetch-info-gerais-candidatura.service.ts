@@ -18,6 +18,10 @@ export type InfoGeraisCandidaturaResponse = {
   hora_fim: string | null;
   status_prova: string | null;
   estado_aluno: string;
+  payments: {
+    has_invoice: true,
+    is_payed: false
+  }
 };
 
 /**

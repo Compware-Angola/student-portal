@@ -18,7 +18,7 @@ export const ExamLoader = () => {
               </div>
             </div>
 
-            <h2 className="text-2xl font-bold">Processando</h2>
+            <p className="text-base">Processando, aguarde...</p>
 
           </CardContent>
         </Card>
