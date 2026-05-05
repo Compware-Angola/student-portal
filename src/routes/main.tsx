@@ -29,7 +29,7 @@ import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import PreIncriptionDashboard from '@/pages/dashboard/pre-inscription-dashboard'
 import ProvaExameAcesso from '@/pages/prova-exame-acesso'
 import { PrePayment } from '@/pages/pre-payment'
-import { PaymentDialog } from '@/pages/pre-payment/components/payment-dialog'
+import { InscriçõesRecurosPage } from '@/pages/assessments/recuros'
 
 export function MainRoutes() {
   const { isLoading, hasEnrolmentCode } = useStudentSituation()
@@ -104,6 +104,14 @@ export function MainRoutes() {
           element={
             <RequireStudentRoute>
               <Assessments />
+            </RequireStudentRoute>
+          }
+        />
+        <Route
+          path="/avaliacoes/inscricoes-recurso"
+          element={
+            <RequireStudentRoute>
+              <InscriçõesRecurosPage />
             </RequireStudentRoute>
           }
         />
