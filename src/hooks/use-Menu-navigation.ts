@@ -59,7 +59,14 @@ export function useMenuNavigation() {
     },
 
     { title: 'Horário', url: '/horario', icon: Calendar },
-    { title: 'Avaliações', url: '/avaliacoes', icon: FileText },
+    { 
+      title: 'Avaliações', url: '/avaliacoes', icon: FileText, 
+      items:[{
+        title: 'Recurso',
+        url: '/avaliacoes/inscricoes-recurso',
+        icon: FileText,
+      },]
+     },
     {
       title: 'Serviços Acadêmicos',
       url: '/servicos-academicos',
