@@ -444,7 +444,7 @@ export function EnrollmentSheet({
   return (
     <div className="flex items-center justify-end gap-2">
       {showDownloadButton && (
-        <Button disabled={!data}  onClick={() => handleDownload(data)} className="flex-1" aria-label="Descarregar PDF">
+        <Button type='button' disabled={!data}  onClick={() => handleDownload(data)} className="flex-1" aria-label="Descarregar PDF">
           <Download className="mr-2 h-4 w-4" />
           {!data ? 'A gerar...' : 'Descarregar Ficha'}
         </Button>

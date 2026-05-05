@@ -5,7 +5,7 @@ import { useQueryPreInscricaoFicha } from '@/hooks/pre-registation/use-query-pre
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { fmt } from '@/utils/fmt'
 import { useQueryClient } from '@tanstack/react-query'
-import {  CheckCircle2, PartyPopper, Wallet } from 'lucide-react'
+import {  CheckCircle2, GraduationCap, PartyPopper } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 export function ResumeDetails() {
@@ -16,7 +16,7 @@ export function ResumeDetails() {
 
    async function handleGoToPayments() {
     await queryClient.invalidateQueries({ queryKey: ['profile'] })
-    navigate('/perfil')
+    navigate('/pre-inscricao')
   }
 
   return (
@@ -68,13 +68,14 @@ export function ResumeDetails() {
           showPrintButton={false}
         />
         <Button
+          type='button'
           onClick={() => handleGoToPayments()}
           className="flex-1"
           variant="outline"
           aria-label="Descarregar PDF"
         >
-          <Wallet className="mr-2 h-4 w-4" />
-          Ir para Pagamentos
+          <GraduationCap className="mr-2 h-4 w-4" />
+          Ir para Dashboard
         </Button>
       </div>
 

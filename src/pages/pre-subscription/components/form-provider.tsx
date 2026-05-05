@@ -8,6 +8,9 @@ import { preSubscriptionSchema, type PreSubscriptionSchema } from '../schemas'
 import { useMutationPreInscricao } from '@/hooks/pre-registation/use-mutation-pre-registration'
 import { useUploadSingle } from '@/hooks/upload/use-upload-single'
 import { toast } from 'sonner'
+import { useUpdateStudentPhoto } from '@/hooks/student/use-mutation-update-student-photo'
+import { useQueryProfile } from '@/hooks/profile/use-query-profile'
+import { DocumentTypeEnum } from '@/enums/document.type.enum'
 
 type ContextValue = {
   onSubmit: (data: PreSubscriptionSchema) => void
@@ -34,11 +37,17 @@ export function FormPreSubscriptionProvider({
   const progress = (currentStep / steps.length) * 100
   const { createPreInscricaoAsync, createPreInscricaoPending } =
     useMutationPreInscricao()
+
   const uploadMutation = useUploadSingle()
   const isLoadingPreInscription =
     createPreInscricaoPending || uploadMutation.isPending
   const currentStepConfig = steps[currentStep]
 
+  const updateStudentPhoto = useUpdateStudentPhoto({
+    skipInvalidate: true
+  });
+
+  const {profileData} = useQueryProfile()
 
   const uploadFile = async (data: File) => {
     const formData = new FormData()
@@ -47,10 +56,12 @@ export function FormPreSubscriptionProvider({
     return response.file.filename
   }
 
-  function buildInscricaoPayload(data: any) {
+  function buildInscricaoPayload(data: any, docs: any) {
     return {
       cursoCandidatura: Number(data.intendedCourse),
-      modalidadeFrequencia: Number(data.period),
+      modalidadeFrequencia: 2,
+      codigoTurno: parseInt (data.period),
+      codigoTurnoOptional:parseInt(data.periodSecondOption),
       nomeCompleto: data.fullName,
       bilheteIdentidade: data.documentNumber,
       dataEmissaoBI: data.issueDate,
@@ -73,6 +84,9 @@ export function FormPreSubscriptionProvider({
       poloId: Number(data.pole),
       cursoOpcional1Id: Number(data.intendedCourseSecond),
       cursoOpcional2Id: Number(data.intendedCourseThird),
+      documentos: docs,
+      codigoNacionalidade: Number(data.codigoNacionalidade),
+      codigoTipoCandidatura: Number(data.typeGraduation)
     }
   }
 
@@ -103,6 +117,8 @@ export function FormPreSubscriptionProvider({
       phone: '',
       phoneAlt: '',
       street: '',
+      typeGraduation: '',
+      codigoNacionalidade: ''
     },
     mode: 'onChange',
   })
@@ -110,14 +126,27 @@ export function FormPreSubscriptionProvider({
   const onSubmit = React.useCallback(async (data: PreSubscriptionSchema) => {
     let photoPath: string | undefined = undefined
     let documentPath: string | undefined = undefined
-
+    let certificatePath : string | undefined = undefined
+    let docs = []
     if (data.photo) {
       photoPath = await uploadFile(data.photo)
+      updateStudentPhoto.mutateAsync({ file: photoPath, userId : profileData?.userId! }, {})
     }
     if (data.document) {
       documentPath = await uploadFile(data.document)
+      docs.push( {
+        typeDocumentId: parseInt(data.documentType),
+        fileName: documentPath
+      })
     }
-    const payload = buildInscricaoPayload(data)
+    if (data.certificate) {
+      certificatePath = await uploadFile(data.certificate)
+      docs.push( {
+        typeDocumentId :DocumentTypeEnum.CERTIFICADO_COM_NOTAS,
+        fileName: documentPath
+      })
+    }
+    const payload = buildInscricaoPayload(data,docs)
     await createPreInscricaoAsync(payload)
   }, [])
 
