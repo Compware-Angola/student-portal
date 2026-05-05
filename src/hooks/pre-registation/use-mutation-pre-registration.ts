@@ -13,9 +13,9 @@ export function useMutationPreInscricao() {
     onSuccess: async () => {
       toast.success('Pré-inscrição realizada com sucesso')
 
-      await queryClient.invalidateQueries({
-        queryKey: ['pre-inscricoes'],
-      })
+      // await queryClient.invalidateQueries({
+      //   queryKey: ['pre-inscricoes'],
+      // })
     },
 
     onError: (error: unknown) => {

@@ -17,7 +17,6 @@ export function SpepNavigation() {
   const isSummary = currentStepConfig.isSummary
   const isSubmitStep = currentStepConfig.submitOnStep
 
-  // 🚨 no resumo não mostra nada
   if (isSummary) return null
 
   return (

@@ -67,23 +67,54 @@ const questions = [
   },
 ]
 
-function useCountdown(target: Date) {
+// function useCountdown(target: Date) {
+//   const [now, setNow] = useState(new Date())
+//   useEffect(() => {
+//     const t = setInterval(() => setNow(new Date()), 1000)
+//     return () => clearInterval(t)
+//   }, [])
+//   const diff = Math.max(0, target.getTime() - now.getTime())
+//   const days = Math.floor(diff / 86400000)
+//   const hours = Math.floor((diff % 86400000) / 3600000)
+//   const minutes = Math.floor((diff % 3600000) / 60000)
+//   const seconds = Math.floor((diff % 60000) / 1000)
+//   return { diff, days, hours, minutes, seconds }
+// }
+function useCountdown(target: Date | null) {
   const [now, setNow] = useState(new Date())
+
   useEffect(() => {
+    if (!target) return
     const t = setInterval(() => setNow(new Date()), 1000)
     return () => clearInterval(t)
-  }, [])
-  const diff = Math.max(0, target.getTime() - now.getTime())
-  const days = Math.floor(diff / 86400000)
-  const hours = Math.floor((diff % 86400000) / 3600000)
-  const minutes = Math.floor((diff % 3600000) / 60000)
-  const seconds = Math.floor((diff % 60000) / 1000)
-  return { diff, days, hours, minutes, seconds }
-}
+  }, [target])
 
+  if (!target) {
+    return {
+      diff: null,
+      days: 0,
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      hasDate: false,
+    }
+  }
+
+  const diff = Math.max(0, target.getTime() - now.getTime())
+
+  return {
+    diff,
+    days: Math.floor(diff / 86400000),
+    hours: Math.floor((diff % 86400000) / 3600000),
+    minutes: Math.floor((diff % 3600000) / 60000),
+    seconds: Math.floor((diff % 60000) / 1000),
+    hasDate: true,
+  }
+}
 const ProvaExameAcesso = () => {
   const { data: info, isLoading } = useQueryInfoGeraisCandidatura()
-  const { diff, days, hours, minutes, seconds } = useCountdown(EXAM_DATE)
+  const date = !info?.data_prova ? null : new Date(info?.data_prova)
+  const { diff, days, hours, minutes, seconds } = useCountdown(date)
   const examOpen = FORCE_EXAM_OPEN || diff === 0
   const offCampus = FORCE_OFF_CAMPUS
 
@@ -128,11 +159,11 @@ const ProvaExameAcesso = () => {
     )
   }
   if (isLoading) {
-    return <ExamLoader/>
+    return <ExamLoader />
   }
-   if (AdmissionStatus.SEM_ADMISSAO == info?.estado_aluno) {
-     return <FinanceInfo />
-   }
+  if (AdmissionStatus.SEM_ADMISSAO == info?.estado_aluno) {
+    return <FinanceInfo />
+  }
   if (offCampus) {
     return (
       <AcessoBloqueado
@@ -150,7 +181,6 @@ const ProvaExameAcesso = () => {
         minutes={minutes}
         seconds={seconds}
         examInfo={examInfo}
-        EXAM_DATE={EXAM_DATE}
       />
     )
   }
@@ -180,22 +210,47 @@ const ProvaExameAcesso = () => {
   }
 
   // ============ TELA: PROVA ATIVA ============
-  { info?.estado_aluno == AdmissionStatus.DIA_DA_PROVA } {
-     <Questions
-      current={current}
-      setCurrent={setCurrent}
-      questions={questions}
-      answers={answers}
-      setAnswers={setAnswers}
-      answeredCount={answeredCount}
-      progress={progress}
-      remaining={remaining}
-      formatClock={formatClock}
-      handleSubmit={handleSubmit}
-      examInfo={examInfo}
-    />
+  if (info?.estado_aluno == AdmissionStatus.DIA_DA_PROVA) {
+    return (
+      <Questions
+        current={current}
+        setCurrent={setCurrent}
+        questions={questions}
+        answers={answers}
+        setAnswers={setAnswers}
+        answeredCount={answeredCount}
+        progress={progress}
+        remaining={remaining}
+        formatClock={formatClock}
+        handleSubmit={handleSubmit}
+        examInfo={examInfo}
+      />
+    )
   }
-  return <></>
+
+  if (
+    info?.estado_aluno == AdmissionStatus.ADMITIDO_SEM_MATRICULA ||
+    info?.estado_aluno == AdmissionStatus.NAO_ADMITIDO
+  )
+    return (
+      <>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-blue-800 text-sm flex items-center gap-2">
+          <span className="h-2 w-2 bg-blue-500 rounded-full animate-pulse" />
+          Resuldados Disponibilizados no dashboard ✔
+        </div>
+      </>
+    )
+  if (info?.estado_aluno == AdmissionStatus.AGUARDANDO_RESULTADO) {
+    return (
+      <>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-blue-800 text-sm flex items-center gap-2">
+          <span className="h-2 w-2 bg-blue-500 rounded-full animate-pulse" />A
+          sua prova foi realizada com sucesso. Neste momento, deve aguardar a
+          disponibilização dos resultados, ✔
+        </div>
+      </>
+    )
+  }
 }
 
 export default ProvaExameAcesso

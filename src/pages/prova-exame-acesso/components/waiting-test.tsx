@@ -11,17 +11,16 @@ interface WaitingTestProps {
     minutes: number;
     seconds: number;
     examInfo: any;
-    EXAM_DATE: Date;
+
 }
-function WaitingTest({ days, hours, minutes, seconds, examInfo, EXAM_DATE }: WaitingTestProps) {
+function WaitingTest({ days, hours, minutes, seconds, examInfo }: WaitingTestProps) {
     const { data: info } = useQueryInfoGeraisCandidatura()
   const { profileData } = useQueryProfile()
     const candidate = info?.nome_completo
     const course = profileData?.curso_candidatura_designacao
-    const examDate = info?.data_admissao ?? undefined
+    const examDate = info?.data_prova ?? undefined
     const horario = `${fmt(info?.hora_inicio)} - ${fmt(info?.hora_fim)}`
-
-
+    const examOptions = info?.lista_de_provas ?? []
     return (
 
         <div
@@ -79,7 +78,7 @@ function WaitingTest({ days, hours, minutes, seconds, examInfo, EXAM_DATE }: Wai
                                 <BookOpen className="h-4 w-4 text-primary" /> Disciplinas
                             </div>
                             <div className="flex flex-wrap gap-2">
-                                {examInfo.subjects.map((s: any) => (
+                                {examOptions.map((s: any) => (
                                     <Badge key={s} variant="outline" className="text-sm">
                                         {s}
                                     </Badge>
