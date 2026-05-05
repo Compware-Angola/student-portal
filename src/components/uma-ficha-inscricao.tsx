@@ -5,11 +5,10 @@ import {
   Document,
   StyleSheet,
   Image,
-  PDFDownloadLink,
   pdf,
 } from '@react-pdf/renderer'
 import { Button } from '@/components/ui/button'
-import { Download, Printer } from 'lucide-react'
+import { Download } from 'lucide-react'
 import type { PreInscricaoFichaResponse } from '@/services/pre-inscrition/type'
 
 // ─── Paleta ────────────────────────────────────────────────────────────────
@@ -417,11 +416,10 @@ export const handleDownload = async (data: any) => {
 export function EnrollmentSheet({
   data,
   showDownloadButton = true,
-  showPrintButton = true,
 }: {
   data: PreInscricaoFichaResponse | undefined
   showDownloadButton?: boolean
-  showPrintButton?: boolean
+
 }) {
   //const document = <EnrollmentSheetDocument data={data} />
 
