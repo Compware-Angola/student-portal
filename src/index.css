@@ -210,3 +210,7 @@
     animation: float-rotate 1.8s ease-in-out infinite;
   }
 }
+
+button {
+  cursor: pointer;
+}
