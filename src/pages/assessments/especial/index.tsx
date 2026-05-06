@@ -9,7 +9,7 @@ import { CadeirasRecursoInscritas } from './cadeiras-recurso-inscritas'
 import { PaymentAlert } from '@/components/payment-alert'
 import { useQueryGetDebit } from '@/hooks/renegotiation/use-query-renegotiation'
 
-export function InscriçõesRecurosPage() {
+export function InscriçõesEspecial() {
   const { profileData, isError, isLoading } = useQueryProfile()
   const { data: debit, isLoading: isLoadingDebit } = useQueryGetDebit({
     type: '1',
