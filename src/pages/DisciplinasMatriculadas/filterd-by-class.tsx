@@ -91,7 +91,7 @@ export const FilteredByClass = ({ profileData }: CurrentYearProps) => {
     isLoading: isLoadingCurriculum,
     isError,
   } = useQueryCurriculumPlan({
-    class: selectedClass,
+    class: parseInt(selectedClass),
     course: profileData?.codigo_curso,
   })
 
@@ -295,11 +295,10 @@ export const FilteredByClass = ({ profileData }: CurrentYearProps) => {
                       {headerGroup.headers.map((header) => (
                         <th
                           key={header.id}
-                          className={`${
-                            header.column.id === 'disciplina'
-                              ? 'text-left'
-                              : 'text-center'
-                          } px-4 py-3 text-sm font-semibold`}
+                          className={`${header.column.id === 'disciplina'
+                            ? 'text-left'
+                            : 'text-center'
+                            } px-4 py-3 text-sm font-semibold`}
                         >
                           {header.isPlaceholder ? null : (
                             <div
@@ -352,11 +351,10 @@ export const FilteredByClass = ({ profileData }: CurrentYearProps) => {
                         {row.getVisibleCells().map((cell) => (
                           <td
                             key={cell.id}
-                            className={`${
-                              cell.column.id === 'disciplina'
-                                ? 'text-left'
-                                : 'text-center'
-                            } px-4 py-3`}
+                            className={`${cell.column.id === 'disciplina'
+                              ? 'text-left'
+                              : 'text-center'
+                              } px-4 py-3`}
                           >
                             {flexRender(
                               cell.column.columnDef.cell,
