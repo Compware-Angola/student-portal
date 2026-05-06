@@ -17,6 +17,7 @@ import {
   AlertCircle,
   ShieldAlert,
   Unlock,
+  Loader2,
 } from 'lucide-react'
 
 function PasswordDialog({
@@ -28,12 +29,10 @@ function PasswordDialog({
   show,
   onToggleShow,
   error,
-  blocked,
-  attempts,
-  maxAttempts,
   shake,
   candidate,
   course,
+  isLoading
 }: {
   open: boolean
   onOpenChange: (o: boolean) => void
@@ -43,12 +42,10 @@ function PasswordDialog({
   show: boolean
   onToggleShow: () => void
   error: string | null
-  blocked: boolean
-  attempts: number
-  maxAttempts: number
   shake: boolean
   candidate: string
   course: string
+  isLoading: boolean
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -94,12 +91,8 @@ function PasswordDialog({
               type={show ? 'text' : 'password'}
               value={value}
               onChange={(e) => onChange(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !blocked) onSubmit()
-              }}
               placeholder="Insira a senha fornecida"
               maxLength={32}
-              disabled={blocked}
               autoFocus
               className="pr-10 tracking-widest"
             />
@@ -126,9 +119,6 @@ function PasswordDialog({
           )}
 
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>
-              Tentativas: {attempts}/{maxAttempts}
-            </span>
             <span className="flex items-center gap-1">
               <ShieldAlert className="h-3 w-3" /> Acesso monitorado
             </span>
@@ -138,10 +128,10 @@ function PasswordDialog({
         <DialogFooter className="sm:justify-center">
           <Button
             onClick={onSubmit}
-            disabled={blocked || value.trim().length === 0}
+            disabled={value.trim().length === 0 || isLoading}
             className="w-full"
           >
-            <Unlock className="h-4 w-4" /> Iniciar Prova
+           {isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : <Unlock className="h-4 w-4" />}  Iniciar Prova
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -12,7 +12,7 @@ import { Progress } from '@/components/ui/progress'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Separator } from '@radix-ui/react-separator'
 import { ChevronLeft, ChevronRight, Send } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { PasswordDialog } from './password-dialog'
 import { StartExam } from './start-exam'
@@ -20,8 +20,7 @@ import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { fmt } from '@/utils/fmt'
 import { useMutationUnlockTest } from '@/hooks/pre-registation/use-mutation-validate-password'
 import { useQueryInfoGeraisCandidatura } from '@/hooks/pre-registation/use-query-info-gerais-candidatura'
-const MAX_PASSWORD_ATTEMPTS = 10
-const EXAM_PASSWORD = '1234'
+
 interface WaitingTestProps {
   current: number
   setCurrent: (current: number) => void
@@ -52,15 +51,14 @@ function Questions({
   const [passwordOpen, setPasswordOpen] = useState(false)
   const [passwordInput, setPasswordInput] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [attempts, setAttempts] = useState(0)
   const [passwordError, setPasswordError] = useState<string | null>(null)
+
   const [shake, setShake] = useState(false)
   const [startExam, setStartExam] = useState<boolean>(true)
   const showPasswordModal = () => setPasswordOpen(true)
   const closePasswordModal = () => setPasswordOpen(false)
   const { profileData } = useQueryProfile()
   const { data: info } = useQueryInfoGeraisCandidatura()
-  const blocked = attempts >= MAX_PASSWORD_ATTEMPTS
   const mutateUnlockPassword = useMutationUnlockTest()
 
   const saveUnlockAcces = () => {
@@ -68,26 +66,44 @@ function Questions({
     const key = `@${codigoPreInscricao}`
     localStorage.setItem(key, 'unlocked')
   }
-
-  const handleValidatePassword = async () => {
-    const prova_id = info?.prova_id
-    if (!prova_id) {
-      toast.error('Erro ao tentar desbloquear a prova')
-      return
-    }
-    await mutateUnlockPassword.unlockTestAsync({
-      password: passwordInput,
-      testId: prova_id,
-    })
-    if (mutateUnlockPassword.unlockTestSuccess) {
-      saveUnlockAcces();
+  const loadUnlockAccess = () => {
+    const codigoPreInscricao = profileData?.codigo_preinscricao
+    if (codigoPreInscricao) {
+      const key = `@${codigoPreInscricao}`
+      const valueStoraged = localStorage.getItem(key)
+      if (valueStoraged == 'unlocked') {
+        setStartExam(false)
+      }
     }
   }
+
+  const handleValidatePassword = async () => {
+    try {
+      const prova_id = info?.prova_id
+      if (!prova_id) {
+        toast.error('Erro ao tentar desbloquear a prova')
+        return
+      }
+      await mutateUnlockPassword.unlockTestAsync({
+        password: passwordInput,
+        testId: prova_id,
+      })
+      saveUnlockAcces()
+      setStartExam(false)
+    } catch (error) {
+      setPasswordError('Senha incorreta')
+      setShake(true)
+    }
+  }
+  useEffect(() => {
+    loadUnlockAccess()
+  }, [profileData?.codigo_preinscricao])
   if (startExam) {
     return (
       <>
         <StartExam onStart={showPasswordModal} />
         <PasswordDialog
+          isLoading={mutateUnlockPassword.unlockTestPending}
           open={passwordOpen}
           onOpenChange={closePasswordModal}
           value={passwordInput}
@@ -96,9 +112,6 @@ function Questions({
           show={showPassword}
           onToggleShow={() => setShowPassword((s) => !s)}
           error={passwordError}
-          blocked={blocked}
-          attempts={attempts}
-          maxAttempts={MAX_PASSWORD_ATTEMPTS}
           shake={shake}
           candidate={fmt(profileData?.nome_completo)}
           course={fmt(profileData?.curso_candidatura_designacao)}

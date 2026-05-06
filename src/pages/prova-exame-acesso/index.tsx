@@ -124,7 +124,6 @@ const ProvaExameAcesso = () => {
   const [submitted, setSubmitted] = useState(false)
   const [remaining, setRemaining] = useState(EXAM_DURATION_MIN * 60)
 
-
   useEffect(() => {
     if (!examOpen || submitted) return
     const t = setInterval(() => setRemaining((r) => Math.max(0, r - 1)), 1000)
@@ -159,6 +158,21 @@ const ProvaExameAcesso = () => {
       `Prova submetida com sucesso! Você respondeu ${answeredCount} de ${questions.length} perguntas.`,
     )
   }
+  return (
+    <Questions
+      current={current}
+      setCurrent={setCurrent}
+      questions={questions}
+      answers={answers}
+      setAnswers={setAnswers}
+      answeredCount={answeredCount}
+      progress={progress}
+      remaining={remaining}
+      formatClock={formatClock}
+      handleSubmit={handleSubmit}
+      examInfo={examInfo}
+    />
+  )
 
   if (isLoading) {
     return <ExamLoader />
