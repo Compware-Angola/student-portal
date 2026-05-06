@@ -1,6 +1,6 @@
 'use client'
 
-import { Card,CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 // import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -10,6 +10,9 @@ import {
   Wallet,
   GraduationCap,
   Calendar,
+  AlertCircle,
+  Hourglass,
+  ArrowRight,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
@@ -168,6 +171,48 @@ export const Dashboard = () => {
         <h1 className="text-3xl font-bold tracking-tight">{greeting}</h1>
         <p className="text-muted-foreground">{profileData.course}</p>
       </div>
+      {(profileData.confirmacoes?.length === 0 || profileData.confirmacoes[0]?.estado === 0) && (
+        <Card className="border-l-4 border-l-amber-500 bg-amber-500/5">
+          <CardContent className="p-5">
+            <div className="flex items-start gap-4">
+              <div className="hidden sm:flex h-11 w-11 items-center justify-center rounded-lg bg-amber-500/15 shrink-0">
+                <AlertCircle className="h-5 w-5 text-amber-600" />
+              </div>
+              <div className="flex-1 space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge className="bg-amber-500 hover:bg-amber-500 text-white gap-1">
+                    <Hourglass className="h-3 w-3" />
+                    Inscrição por confirmar
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">
+                    Estado: <strong className="text-foreground">Pendente</strong>
+                  </span>
+                </div>
+                <h3 className="text-base font-semibold leading-snug">
+                  A sua inscrição ainda não foi confirmada
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Para activar o seu acesso completo (horários, avaliações e disciplinas), é necessário concluir os seguintes passos:
+                </p>
+                <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1 pl-1">
+                  <li>Efectuar o pagamento da taxa de inscrição.</li>
+                </ul>
+                <div className="flex flex-wrap gap-2 pt-2">
+                  <Button size="sm" onClick={() => navigate("/financas")} className="gap-1.5">
+                    <Wallet className="h-4 w-4" />
+                    Regularizar pagamento
+                  </Button>
+
+                  <Button size="sm" variant="ghost" onClick={() => navigate("/suporte")} className="gap-1.5">
+                    Contactar Suporte
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Estatísticas */}
       <div className="grid gap-6 md:grid-cols-3">
@@ -228,9 +273,8 @@ export const Dashboard = () => {
                 {latestMensagens.map((msg) => (
                   <div
                     key={msg.id}
-                    className={`flex gap-3 p-3 rounded-lg border bg-card hover:bg-accent transition-colors cursor-pointer ${
-                      !msg.read ? 'border-l-4 border-l-primary' : ''
-                    }`}
+                    className={`flex gap-3 p-3 rounded-lg border bg-card hover:bg-accent transition-colors cursor-pointer ${!msg.read ? 'border-l-4 border-l-primary' : ''
+                      }`}
                     onClick={() => navigate('/mensagens')}
                   >
                     <div className="mt-1">{getIcon(msg.type)}</div>
