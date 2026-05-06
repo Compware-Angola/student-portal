@@ -5,10 +5,9 @@ import {
   Sparkles,
   GraduationCap as GradCap,
   ScrollText,
-  Wallet,
+
   BookMarked,
-  Info,
-  CalendarDays,
+
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -36,10 +35,11 @@ const PreInscriptionCard = () => {
       title: 'Ficha de Inscrição',
       description: 'Documento com os dados da sua candidatura',
       icon: BookMarked,
-      file: 'topicos-exame.pdf',
+      file: 'ficha-inscricao.pdf',
       tag: 'Essencial',
       action: () => handleDownloadFicha(data),
     },
+    /*
     {
       id: 2,
       title: 'Manual de Pagamentos',
@@ -47,7 +47,9 @@ const PreInscriptionCard = () => {
       icon: Wallet,
       file: 'manual-pagamentos.pdf',
       tag: 'Financeiro',
+
     },
+    */
     {
       id: 3,
       title: 'Regulamento dos Exames',
@@ -55,6 +57,12 @@ const PreInscriptionCard = () => {
       icon: ScrollText,
       file: 'regulamento-exames.pdf',
       tag: 'Regras',
+      action: () => {
+        const link = document.createElement('a')
+        link.href = '/docs/regulamento-exames.pdf'
+        link.download = 'regulamento-exames.pdf'
+        link.click()
+      },
     },
     {
       id: 4,
@@ -63,23 +71,32 @@ const PreInscriptionCard = () => {
       icon: FileText,
       file: 'regulamento-academico.pdf',
       tag: 'Oficial',
+      action: () => {
+        const link = document.createElement('a')
+        link.href = '/docs/regulamento-academico.pdf'
+        link.download = 'regulamento-academico.pdf'
+        link.click()
+      },
     },
-    {
-      id: 5,
-      title: 'Guia do Candidato',
-      description: 'Informações essenciais para novos candidatos.',
-      icon: Info,
-      file: 'guia-candidato.pdf',
-      tag: 'Recomendado',
-    },
-    {
-      id: 6,
-      title: 'Calendário do Exame',
-      description: 'Datas, horários e locais do exame de admissão.',
-      icon: CalendarDays,
-      file: 'calendario-exame.pdf',
-      tag: 'Importante',
-    },
+    /*
+ {
+   id: 5,
+   title: 'Guia do Candidato',
+   description: 'Informações essenciais para novos candidatos.',
+   icon: Info,
+   file: 'guia-candidato.pdf',
+   tag: 'Recomendado',
+ },
+ 
+ {
+   id: 6,
+   title: 'Calendário do Exame',
+   description: 'Datas, horários e locais do exame de admissão.',
+   icon: CalendarDays,
+   file: 'calendario-exame.pdf',
+   tag: 'Importante',
+ },
+ */
   ]
 
   return (

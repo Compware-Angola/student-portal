@@ -26,7 +26,7 @@ import { YearSelect } from '@/components/year-select'
 import { dedupeAcademicYears } from '../curriculum-card'
 import { parseFilter } from '@/utils'
 import { TableSkeleton } from '@/components/table-skeleton'
-import { useQueryCadeirasRecursoInscritas } from '@/hooks/assessments/recursos'
+import { useQueryCadeirasEpocaEspecialInscritas } from '@/hooks/assessments/recursos'
 import type { CadeiraRecursoInscrita } from '@/services/assessments/recursos.service'
 
 export function CadeirasRecursoInscritas() {
@@ -40,12 +40,12 @@ export function CadeirasRecursoInscritas() {
 
   const academicYears = dedupeAcademicYears(academicYearData?.anolectivos)
 
-  const { data, isLoading } = useQueryCadeirasRecursoInscritas({
+  const { data, isLoading } = useQueryCadeirasEpocaEspecialInscritas({
     anoLetivo: parseFilter(selectedYear),
     matricula: parseFilter(profileData?.enrollmentCode),
   })
 
-  const cadeiras = React.useMemo(() => data?.cadeirasInscristas ?? [], [data])
+  const cadeiras = React.useMemo(() => data?.cadeirasInscritas ?? [], [data])
 
   React.useEffect(() => {
     if (!academicYears) return
@@ -77,7 +77,7 @@ export function CadeirasRecursoInscritas() {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Cadeiras Inscritas no Recurso</CardTitle>
+          <CardTitle>Cadeiras Inscritas na Época Especial</CardTitle>
 
           <YearSelect
             academicYears={academicYears}
