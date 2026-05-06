@@ -1,9 +1,7 @@
 'use client'
 
-import { Skeleton } from "./ui/skeleton"
-import { TableCell, TableRow } from "./ui/table"
-
-
+import { Skeleton } from './ui/skeleton'
+import { TableCell, TableRow } from './ui/table'
 
 interface TableSkeletonProps {
   rows?: number
