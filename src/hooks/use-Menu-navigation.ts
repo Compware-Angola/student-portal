@@ -9,7 +9,6 @@ import {
   CircleDollarSign,
   ClipboardList,
   CreditCard,
-  FileText,
   GraduationCap,
   HandCoins,
   HelpCircle,
@@ -19,6 +18,8 @@ import {
   MessageSquare,
   Pencil,
   Receipt,
+  RotateCcw,
+  Star,
   User,
 } from 'lucide-react'
 
@@ -59,14 +60,23 @@ export function useMenuNavigation() {
     },
 
     { title: 'Horário', url: '/horario', icon: Calendar },
-    { 
-      title: 'Avaliações', url: '/avaliacoes', icon: FileText, 
-      items:[{
-        title: 'Recurso',
-        url: '/avaliacoes/inscricoes-recurso',
-        icon: FileText,
-      },]
-     },
+    {
+      title: 'Avaliações',
+      url: '/avaliacoes',
+      icon: ClipboardList,
+      items: [
+        {
+          title: 'Recurso',
+          url: '/avaliacoes/inscricoes-recurso',
+          icon: RotateCcw,
+        },
+        {
+          title: 'Especial',
+          url: '/avaliacoes/inscricoes-especial',
+          icon: Star,
+        },
+      ],
+    },
     {
       title: 'Serviços Acadêmicos',
       url: '/servicos-academicos',
@@ -104,7 +114,6 @@ export function useMenuNavigation() {
     { title: 'Exame de Acesso', url: '/exame-acesso', icon: Pencil },
     { title: 'Pagamento', url: '/pre-pagamento', icon: CircleDollarSign },
     { title: 'Perfil', url: '/perfil', icon: User },
-
   ]
 
   const allowedRoutes = routePermissions[studentStatus] || []
