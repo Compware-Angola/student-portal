@@ -1,9 +1,9 @@
 import { apexApi } from '@/lib/apex-api'
 export type Disciplina = {
-  disciplina: string
-  semestre: string
-  classe: string
-  duracaoDisciplina: string
+  disciplina: number
+  semestre: number
+  classe: number
+  duracaoDisciplina: number
   codigoDisciplina: number
   codigoGrade: number
   valorInscricao: number
