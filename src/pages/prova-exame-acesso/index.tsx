@@ -11,7 +11,6 @@ import { useQueryApiStatus } from '@/hooks/pre-registation/use-query-api-status'
 
 const EXAM_DURATION_MIN = 120
 const FORCE_EXAM_OPEN = false
-const FORCE_OFF_CAMPUS = false
 const INSTITUTION_NAME = 'Universidade Metodista de Angola'
 const INSTITUTION_WIFI = 'UMA-CAMPUS'
 
@@ -95,8 +94,11 @@ function useCountdown(target: Date | null) {
 }
 const ProvaExameAcesso = () => {
   const { data: info, isLoading } = useQueryInfoGeraisCandidatura()
+  const isDiaProva = info?.estado_aluno === AdmissionStatus.DIA_DA_PROVA
+
   const { isLoading: isLoadingApiStatus, isError: isErrorApiStatus } =
-    useQueryApiStatus()
+    useQueryApiStatus({ enabled: isDiaProva })
+
   const date = !info?.data_prova ? null : new Date(info?.data_prova)
   const { diff, days, hours, minutes, seconds } = useCountdown(date)
   const examOpen = FORCE_EXAM_OPEN || diff === 0
@@ -160,30 +162,30 @@ const ProvaExameAcesso = () => {
   }
   // ============ TELA: PROVA ATIVA ============
   if (info?.estado_aluno == AdmissionStatus.DIA_DA_PROVA) {
-   return (
-    <>
-      {isErrorApiStatus ? (
-        <AcessoBloqueado
-          INSTITUTION_WIFI={INSTITUTION_WIFI}
-          INSTITUTION_NAME={INSTITUTION_NAME}
-        />
-      ) : (
-        <Questions
-          current={current}
-          setCurrent={setCurrent}
-          questions={questions}
-          answers={answers}
-          setAnswers={setAnswers}
-          answeredCount={answeredCount}
-          progress={progress}
-          remaining={remaining}
-          formatClock={formatClock}
-          handleSubmit={handleSubmit}
-          examInfo={examInfo}
-        />
-      )}
-    </>
-  )
+    return (
+      <>
+        {isErrorApiStatus ? (
+          <AcessoBloqueado
+            INSTITUTION_WIFI={INSTITUTION_WIFI}
+            INSTITUTION_NAME={INSTITUTION_NAME}
+          />
+        ) : (
+          <Questions
+            current={current}
+            setCurrent={setCurrent}
+            questions={questions}
+            answers={answers}
+            setAnswers={setAnswers}
+            answeredCount={answeredCount}
+            progress={progress}
+            remaining={remaining}
+            formatClock={formatClock}
+            handleSubmit={handleSubmit}
+            examInfo={examInfo}
+          />
+        )}
+      </>
+    )
   }
 
   if (
