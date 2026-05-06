@@ -8,8 +8,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 interface UseQueryDebitFeeParams {
-  enrollmentCode?: string
-  preinscricao?: string
+  enrollmentCode?: number
+  preinscricao?: number
   type: string
 }
 
@@ -27,7 +27,7 @@ export function useQueryGetDebit({
         if (!preinscricao || !enrollmentCode) {
           throw new Error('Monthly fee data is not available')
         }
-        return getDebit({ enrollmentCode, preinscricao, type })
+        return getDebit({ enrollmentCode: Number(enrollmentCode), preinscricao: Number(preinscricao), type })
       },
       enabled: Boolean(isEnabled),
       staleTime: Infinity,
@@ -44,7 +44,7 @@ export function useQueryGetDebit({
 }
 type RenegociacaoVariables = {
   payload: RenegociacaoPayload
-  enrollmentCode: string
+  enrollmentCode: number
 }
 
 export function useMutationNegotiation() {

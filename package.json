@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview --port 4100"
+    "preview": "vite preview --port 4100",
+    "typecheck": "tsc --noEmit",
+    "lint:fix": "eslint --fix ."
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

@@ -41,7 +41,7 @@ export function PaymentList({
 
   // AQUI ESTÁ A MÁGICA: filtro vai pro backend!
   const { data: monthlyFeeData, isLoading, isError } = useQueryFinanceMonthlyFee({
-    academicYear: selectedYear,
+    academicYear: Number(selectedYear),
     enrollmentCode,
     status: statusFilter,
     page,

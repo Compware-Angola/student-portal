@@ -5,8 +5,8 @@ import { formatCurrency } from '@/utils'
 import { Skeleton } from '@/components/ui/skeleton'
 
 type DebtCardProps = {
-  enrollmentCode?: string
-  preinscricao?: string
+  enrollmentCode?: number
+  preinscricao?: number
   onClick?: () => void
 }
 

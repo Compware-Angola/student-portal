@@ -25,14 +25,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-academic-year-student'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { YearSelect } from '@/components/year-select'
-import { SemesterSelect } from '@/components/SemesterSelect'
+// import { SemesterSelect } from '@/components/SemesterSelect'
 import {
   useMutateInscricaoRecuro,
   useQueryCadeirasRecuros,
 } from '@/hooks/assessments/recursos'
 import { dedupeAcademicYears } from '../curriculum-card'
 import { parseFilter } from '@/utils'
-import type { CaderiraRecuro } from '@/services/assessments/recursos.service'
+import type { Cadeira } from '@/services/assessments/recursos.service'
 import { TableSkeleton } from '@/components/table-skeleton'
 import { Loader2 } from 'lucide-react'
 
@@ -40,7 +40,7 @@ export function CadeirasDisponiveis() {
   const { profileData } = useQueryProfile()
 
   const [selectedYear, setSelectedYear] = React.useState<string>()
-  const [selectedSemester, setSelectedSemester] = React.useState<string>()
+  // const [selectedSemester, setSelectedSemester] = React.useState<string>()
   const [selectedCadeiras, setSelectedCadeiras] = React.useState<
     {
       codigoGrade: number
@@ -58,7 +58,7 @@ export function CadeirasDisponiveis() {
   const { data: cadeirasRecurosData, isLoading } = useQueryCadeirasRecuros({
     anoLetivo: parseFilter(selectedYear),
     matricula: parseFilter(profileData?.enrollmentCode),
-    semestre: parseFilter(selectedSemester),
+    // semestre: parseFilter(selectedSemester),
   })
   const {
     mutateAsync: mutateInscricaoRecuro,
@@ -87,11 +87,11 @@ export function CadeirasDisponiveis() {
     )
   }, [data])
 
-  const onSelectSemester = (value?: string) => {
-    setSelectedSemester(value === '3' ? undefined : value)
-  }
+  // const onSelectSemester = (value?: string) => {
+  //   setSelectedSemester(value === '3' ? undefined : value)
+  // }
 
-  function toggleCadeira(row: CaderiraRecuro) {
+  function toggleCadeira(row: Cadeira) {
     setSelectedCadeiras((prev) => {
       const exists = prev.find(
         (c) => c.codigoGradeAluno === row.codigoGradeAluno,
@@ -122,7 +122,7 @@ export function CadeirasDisponiveis() {
     })
   }
 
-  const columns = React.useMemo<ColumnDef<CaderiraRecuro>[]>(
+  const columns = React.useMemo<ColumnDef<Cadeira>[]>(
     () => [
       {
         id: 'select',
@@ -168,7 +168,7 @@ export function CadeirasDisponiveis() {
               selectedYear={selectedYear}
               onChange={setSelectedYear}
             />
-            <SemesterSelect onChange={onSelectSemester} />
+            {/* <SemesterSelect onChange={onSelectSemester} /> */}
           </div>
         </div>
       </CardHeader>

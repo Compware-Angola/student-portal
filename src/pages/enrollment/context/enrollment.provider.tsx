@@ -80,7 +80,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     isLoading: isLoadingStudentCurriculumPlan,
     isError: isErrorStudentCurriculumPlan,
   } = useQueryCurriculumPlan({
-    class: '1',
+    class: 1,
     course: profileData?.codigo_curso,
     type:"new"
   })
@@ -95,8 +95,8 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
   const { data: monthlyFeeValue, isError: isMonthlyFeeValueErro } =
     useQueryMonthlyFeesValue({
       curso: profileData?.codigo_curso,
-      polo: profileData?.poloId,
-      anoLetivo: currentAcademicYear?.codigo ?? '23',
+      polo: profileData?.poloid,
+      anoLetivo: !currentAcademicYear?.codigo ? parseInt(currentAcademicYear?.codigo!) : 23
     })
 
   const {

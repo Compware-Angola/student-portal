@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 
 type Params = {
   academicYearCode?: string
-  candidacyType?: string
+  candidacyType?: number
   type: 'old' | 'new'
 }
 

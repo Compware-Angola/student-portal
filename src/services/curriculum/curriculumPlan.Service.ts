@@ -2,8 +2,8 @@ import { apexApi } from '@/lib/apex-api'
 import type { CurriculumPlan } from '@/types/curriculum-plan'
 
 type Params = {
-  class: string
-  course: string
+  class: number
+  course: number
   semestre?: number
 }
 

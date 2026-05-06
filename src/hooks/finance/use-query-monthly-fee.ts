@@ -5,9 +5,9 @@ import {
 import { useQuery } from '@tanstack/react-query'
 
 type Params = {
-  anoLetivo?: string
-  curso?: string
-  polo?: string
+  anoLetivo?: number
+  curso?: number
+  polo?: number
 }
 
 export function useQueryMonthlyFeesValue(params?: Params) {
