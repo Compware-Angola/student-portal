@@ -7,7 +7,7 @@ import { SecurityDataTab } from './security-data-tab'
 type InformationCardProps = {
   email?: string
   phone?: string
-  documento: string
+  documento?: string
   address?: string
   name: string
 
@@ -57,7 +57,7 @@ export function InformationCard({
             name={name}
             email={email ?? ''}
             phone={phone ?? ''}
-            documento={documento}
+            documento={documento ?? ''}
             address={address ?? ''}
             isEditing={isEditing}
             userId={userId}

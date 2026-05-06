@@ -31,7 +31,7 @@ import type { ProfileData } from '@/types/profile'
 import type { Grade } from '@/types/grade'
 import { GradeCurricularPDF } from '@/components/academic-grade-cocument'
 import { useQueryStudentCurriculumByCourse } from '@/hooks/curriculum/use-query-student-curriculum-by-course'
-import { parseFilter } from '@/utils'
+
 
 const anoPorExtenso = (codigo: string | number): string => {
   const mapa: Record<string, string> = {

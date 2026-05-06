@@ -13,8 +13,8 @@ export function Assessments() {
   const { data: academicYearData } = useQueryCurrentAcademicYear()
   const { data: debit, isLoading: isLoadingDebit } = useQueryGetDebit({
     type: '1',
-    enrollmentCode: profileData?.enrollmentCode,
-    preinscricao: String(profileData?.codigo_preinscricao),
+    enrollmentCode: Number(profileData?.enrollmentCode),
+    preinscricao: Number(profileData?.preEnrollmentCode),
   })
   useEffect(() => {
     if (isError) {
@@ -50,16 +50,16 @@ export function Assessments() {
 
         <TabsContent value="current" className="space-y-4">
           <GradeCurrentAcademicYear
-            academicYear={academicYear}
-            classe={classe}
-            enrollmentCode={enrollmentCode}
+            academicYear={academicYear?.toString()}
+            classe={classe?.toString()}
+            enrollmentCode={enrollmentCode?.toString()}
           />
         </TabsContent>
 
         <TabsContent value="all" className="space-y-4">
           <CurriculumCard
-            preEnrollmentCode={preEnrollmentCode}
-            enrollmentCode={enrollmentCode}
+            preEnrollmentCode={preEnrollmentCode?.toString()}
+            enrollmentCode={enrollmentCode?.toString()}
           />
         </TabsContent>
       </Tabs>

@@ -13,8 +13,8 @@ export function InscriçõesEspecial() {
   const { profileData, isError, isLoading } = useQueryProfile()
   const { data: debit, isLoading: isLoadingDebit } = useQueryGetDebit({
     type: '1',
-    enrollmentCode: profileData?.enrollmentCode,
-    preinscricao: profileData?.codigo_preinscricao,
+    enrollmentCode: Number(profileData?.enrollmentCode),
+    preinscricao: Number(profileData?.codigo_preinscricao),
   })
   useEffect(() => {
     if (isError) {

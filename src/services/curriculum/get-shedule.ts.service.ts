@@ -4,7 +4,7 @@ import type { Schedule } from '@/types/schedule'
 type ScheduleParams = {
   academicYear: string
   gradeCurricular: string
-  preocidade: string
+  preocidade: number
 }
 export async function getCurriculumSchedule(
   params: ScheduleParams,

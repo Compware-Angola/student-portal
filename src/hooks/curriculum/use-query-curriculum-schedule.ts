@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query'
 type Params = {
   academicYear?: string
   gradeCurricular?: string
-  preocidade?: string
+  preocidade?: number
 }
 export function useQueryCurriculumSchedule(params: Params, enabled: boolean) {
   const { data, isLoading, error, isError, refetch } =

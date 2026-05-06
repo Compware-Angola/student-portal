@@ -153,8 +153,8 @@ export const Renegociation = () => {
         queryKey: ['renegotiation-debit', data.enrollmentCode],
         queryFn: () =>
           getDebit({
-            enrollmentCode: data.enrollmentCode,
-            preinscricao: profileData?.codigo_preinscricao,
+            enrollmentCode: Number(data.enrollmentCode),
+            preinscricao: Number(profileData?.codigo_preinscricao),
             type: '1',
           }),
       })
@@ -231,7 +231,7 @@ export const Renegociation = () => {
 
       await createRenegotiationAsync({
         payload,
-        enrollmentCode: profileData?.codigo_matricula ?? '',
+        enrollmentCode: profileData?.codigo_matricula,
       })
 
       toast.success('Negociação confirmada com sucesso!')

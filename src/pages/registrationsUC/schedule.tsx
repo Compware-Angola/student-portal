@@ -147,7 +147,7 @@ export const ScheduleSelectionDialog = ({
     gradeCurricular: subject?.codigoGrade
       ? Number(subject?.codigoGrade)
       : undefined,
-    periodo: profileData?.periodoId ? Number(profileData.periodoId) : undefined,
+    periodo: profileData?.periodoid ? Number(profileData.periodoid) : undefined,
   })
 
   useEffect(() => {

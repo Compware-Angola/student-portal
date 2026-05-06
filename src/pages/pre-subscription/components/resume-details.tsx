@@ -65,7 +65,7 @@ export function ResumeDetails() {
         <EnrollmentSheet
           data={data}
           showDownloadButton={true}
-          showPrintButton={false}
+       
         />
         <Button
           type='button'

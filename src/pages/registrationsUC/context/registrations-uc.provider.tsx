@@ -50,7 +50,7 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
   } = useQueryCurrentAcademicYear()
   const { data: debit, isLoading: isLoadingDebit } = useQueryGetDebit({
     type: '1',
-    enrollmentCode: profileData?.enrollmentCode,
+    enrollmentCode: profileData?.codigo_matricula,
     preinscricao: profileData?.codigo_preinscricao,
   })
 
@@ -81,7 +81,8 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
   const generateClasse = useMemo(() => {
     const classe = profileData?.confirmacoes?.[0]?.classe
     const newClass = Number(classe) + 1
-    return `${newClass > 5 ? classe : newClass}`
+   // return `${newClass > 5 ? classe : newClass}`  
+   return newClass > 5 ? classe : newClass
   }, [profileData])
 
   const {
@@ -111,8 +112,8 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
   const { data: monthlyFeeValue, isError: isMonthlyFeeValueErro } =
     useQueryMonthlyFeesValue({
       curso: profileData?.codigo_curso,
-      polo: profileData?.poloId,
-      anoLetivo: currentAcademicYear?.codigo ?? '23',
+      polo: profileData?.poloid,
+      anoLetivo: !currentAcademicYear?.codigo ? parseInt(currentAcademicYear?.codigo!) : 23
     })
 
   const { createInvoiceAsync } = useMutationCreateInvoice()
@@ -264,14 +265,14 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
       ...selectedSubjects.map(generateDisciplineItem),
     ]
     const invoice: CreateInvoiceBody = {
-      polo_id: parseInt(profileData?.poloId),
+      polo_id: profileData?.poloid ?? 1,
       TotalPreco: totalPagar,
       codigo_descricao: 101,
       ValorAPagar: totalPagar,
       total_incidencia: 0,
       total_retencao: 0,
       CodigoMatricula: enrollmentCode,
-      codigo_preinscricao: parseInt(profileData.codigo_preinscricao!),
+      codigo_preinscricao: profileData.codigo_preinscricao,
       Desconto: 0,
       totalIVA: 0,
       TotalMulta: 0,
@@ -376,8 +377,8 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
       semestre: prazosMatricula?.semestre!
     })
     delay(6000)
-    await createInvoiceWithPayload(parseInt(profileData?.codigo_matricula!))
-    createMonthlyPayments(parseInt(profileData?.codigo_matricula!))
+    await createInvoiceWithPayload(Number(profileData?.codigo_matricula!))
+    createMonthlyPayments(Number(profileData?.codigo_matricula!))
   }
 
   return (
