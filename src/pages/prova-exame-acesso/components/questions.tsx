@@ -20,6 +20,7 @@ import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { fmt } from '@/utils/fmt'
 import { useMutationUnlockTest } from '@/hooks/pre-registation/use-mutation-validate-password'
 import { useQueryInfoGeraisCandidatura } from '@/hooks/pre-registation/use-query-info-gerais-candidatura'
+import { calculateDuration } from '@/utils/calcular-duracao'
 
 interface WaitingTestProps {
   current: number
@@ -47,6 +48,7 @@ function Questions({
   handleSubmit,
   examInfo,
 }: WaitingTestProps) {
+  const DEFAULT_DURATION = 1000 * 60 * 60 * 3 // 3h
   const q = questions[current]
   const [passwordOpen, setPasswordOpen] = useState(false)
   const [passwordInput, setPasswordInput] = useState('')
@@ -64,17 +66,44 @@ function Questions({
   const saveUnlockAcces = () => {
     const codigoPreInscricao = profileData?.codigo_preinscricao
     const key = `@${codigoPreInscricao}`
-    localStorage.setItem(key, 'unlocked')
+    localStorage.setItem(
+      key,
+      JSON.stringify({
+        unlocked: true,
+        timestamp: Date.now(),
+      }),
+    )
   }
   const loadUnlockAccess = () => {
     const codigoPreInscricao = profileData?.codigo_preinscricao
-    if (codigoPreInscricao) {
-      const key = `@${codigoPreInscricao}`
-      const valueStoraged = localStorage.getItem(key)
-      if (valueStoraged == 'unlocked') {
-        setStartExam(false)
-      }
+    if (!codigoPreInscricao) return
+    const key = `@${codigoPreInscricao}`
+    const stored = localStorage.getItem(key)
+    if (!stored) return
+    let parsed: any
+    try {
+      parsed = JSON.parse(stored)
+    } catch {
+      localStorage.removeItem(key)
+      return
     }
+    if (!parsed?.unlocked || !parsed?.timestamp) {
+      localStorage.removeItem(key)
+      return
+    }
+    const start = info?.hora_inicio
+    const end = info?.hora_fim
+    const durationMinutes = calculateDuration(start, end)
+    const durationMs =
+      durationMinutes && durationMinutes > 0
+        ? durationMinutes * 60 * 1000
+        : DEFAULT_DURATION
+    const isExpired = Date.now() - parsed.timestamp >= durationMs
+    if (isExpired) {
+      localStorage.removeItem(key)
+      return
+    }
+    setStartExam(false)
   }
 
   const handleValidatePassword = async () => {
@@ -95,9 +124,11 @@ function Questions({
       setShake(true)
     }
   }
+
   useEffect(() => {
     loadUnlockAccess()
   }, [profileData?.codigo_preinscricao])
+
   if (startExam) {
     return (
       <>

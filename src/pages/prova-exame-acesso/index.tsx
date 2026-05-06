@@ -1,8 +1,4 @@
 import { useState, useEffect, useMemo } from 'react'
-
-import { Card, CardContent } from '@/components/ui/card'
-
-import { CheckCircle2 } from 'lucide-react'
 import { toast } from 'sonner'
 import AcessoBloqueado from './components/block-info'
 import WaitingTest from './components/waiting-test'
@@ -11,11 +7,10 @@ import { useQueryInfoGeraisCandidatura } from '@/hooks/pre-registation/use-query
 import { AdmissionStatus } from '@/enums/admission.status.enum'
 import { FinanceInfo } from './components/finance-info'
 import { ExamLoader } from './components/exam-loader'
+import { useQueryApiStatus } from '@/hooks/pre-registation/use-query-api-status'
 
-const EXAM_DATE = new Date('2028-05-02T11:27:47')
 const EXAM_DURATION_MIN = 120
 const FORCE_EXAM_OPEN = false
-
 const FORCE_OFF_CAMPUS = false
 const INSTITUTION_NAME = 'Universidade Metodista de Angola'
 const INSTITUTION_WIFI = 'UMA-CAMPUS'
@@ -67,19 +62,6 @@ const questions = [
   },
 ]
 
-// function useCountdown(target: Date) {
-//   const [now, setNow] = useState(new Date())
-//   useEffect(() => {
-//     const t = setInterval(() => setNow(new Date()), 1000)
-//     return () => clearInterval(t)
-//   }, [])
-//   const diff = Math.max(0, target.getTime() - now.getTime())
-//   const days = Math.floor(diff / 86400000)
-//   const hours = Math.floor((diff % 86400000) / 3600000)
-//   const minutes = Math.floor((diff % 3600000) / 60000)
-//   const seconds = Math.floor((diff % 60000) / 1000)
-//   return { diff, days, hours, minutes, seconds }
-// }
 function useCountdown(target: Date | null) {
   const [now, setNow] = useState(new Date())
 
@@ -113,6 +95,8 @@ function useCountdown(target: Date | null) {
 }
 const ProvaExameAcesso = () => {
   const { data: info, isLoading } = useQueryInfoGeraisCandidatura()
+  const { isLoading: isLoadingApiStatus, isError: isErrorApiStatus } =
+    useQueryApiStatus()
   const date = !info?.data_prova ? null : new Date(info?.data_prova)
   const { diff, days, hours, minutes, seconds } = useCountdown(date)
   const examOpen = FORCE_EXAM_OPEN || diff === 0
@@ -158,23 +142,7 @@ const ProvaExameAcesso = () => {
       `Prova submetida com sucesso! Você respondeu ${answeredCount} de ${questions.length} perguntas.`,
     )
   }
-  return (
-    <Questions
-      current={current}
-      setCurrent={setCurrent}
-      questions={questions}
-      answers={answers}
-      setAnswers={setAnswers}
-      answeredCount={answeredCount}
-      progress={progress}
-      remaining={remaining}
-      formatClock={formatClock}
-      handleSubmit={handleSubmit}
-      examInfo={examInfo}
-    />
-  )
-
-  if (isLoading) {
+  if (isLoading || isLoadingApiStatus) {
     return <ExamLoader />
   }
   if (AdmissionStatus.SEM_ADMISSAO == info?.estado_aluno) {
@@ -202,21 +170,30 @@ const ProvaExameAcesso = () => {
   }
   // ============ TELA: PROVA ATIVA ============
   if (info?.estado_aluno == AdmissionStatus.DIA_DA_PROVA) {
-    return (
-      <Questions
-        current={current}
-        setCurrent={setCurrent}
-        questions={questions}
-        answers={answers}
-        setAnswers={setAnswers}
-        answeredCount={answeredCount}
-        progress={progress}
-        remaining={remaining}
-        formatClock={formatClock}
-        handleSubmit={handleSubmit}
-        examInfo={examInfo}
-      />
-    )
+   return (
+    <>
+      {isErrorApiStatus ? (
+        <AcessoBloqueado
+          INSTITUTION_WIFI={INSTITUTION_WIFI}
+          INSTITUTION_NAME={INSTITUTION_NAME}
+        />
+      ) : (
+        <Questions
+          current={current}
+          setCurrent={setCurrent}
+          questions={questions}
+          answers={answers}
+          setAnswers={setAnswers}
+          answeredCount={answeredCount}
+          progress={progress}
+          remaining={remaining}
+          formatClock={formatClock}
+          handleSubmit={handleSubmit}
+          examInfo={examInfo}
+        />
+      )}
+    </>
+  )
   }
 
   if (
