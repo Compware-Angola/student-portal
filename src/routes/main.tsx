@@ -81,7 +81,11 @@ export function MainRoutes() {
         />
         <Route
           path={enrollmentPath.slice(1)}
-          element={enrollmentComponents[enrollmentPath]}
+          element={
+            <RequireStudentRoute>
+              {enrollmentComponents[enrollmentPath]}
+            </RequireStudentRoute>
+          }
         />
         <Route
           path="/horario"
@@ -193,17 +197,17 @@ export function MainRoutes() {
         <Route
           path="/exame-acesso"
           element={
-             <RequireStudentRoute>
-               <ProvaExameAcesso />
-             </RequireStudentRoute>
+            <RequireStudentRoute>
+              <ProvaExameAcesso />
+            </RequireStudentRoute>
           }
         />
         <Route
           path="/pre-pagamento"
           element={
-             <RequireStudentRoute>
-               <PrePayment />
-             </RequireStudentRoute>
+            <RequireStudentRoute>
+              <PrePayment />
+            </RequireStudentRoute>
           }
         />
         <Route
@@ -242,7 +246,6 @@ export function RequireStudentRoute({ children }: { children: JSX.Element }) {
   if (!allowedRoutes.includes(location.pathname)) {
     return <Navigate to={homeRoute} replace />
   }
-
 
   return children
 }
