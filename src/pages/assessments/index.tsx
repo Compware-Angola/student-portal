@@ -14,7 +14,7 @@ export function Assessments() {
   const { data: debit, isLoading: isLoadingDebit } = useQueryGetDebit({
     type: '1',
     enrollmentCode: profileData?.enrollmentCode,
-    preinscricao: profileData?.codigo_preinscricao,
+    preinscricao: String(profileData?.codigo_preinscricao),
   })
   useEffect(() => {
     if (isError) {
