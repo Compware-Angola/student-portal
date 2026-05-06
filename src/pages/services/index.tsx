@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 import { useNavigate } from 'react-router-dom'
 
@@ -91,104 +92,107 @@ export function AcademicServices() {
   }
 
   // === Payload para criar fatura ===
-  const payload: CreateInvoiceBody | null = useMemo<CreateInvoiceBody | null>(() => {
-    if (
-      !servicesData?.servicos ||
-      Object.keys(selectedServices).length === 0 ||
-      !enrollmentCode ||
-      !pre_inscricao_raw ||
-      isNaN(matriculaNumero!) ||
-      isNaN(preInscricaoNumero!)
-    ) {
-      return null
-    } 
-    
+  const payload: CreateInvoiceBody | null =
+    useMemo<CreateInvoiceBody | null>(() => {
+      if (
+        !servicesData?.servicos ||
+        Object.keys(selectedServices).length === 0 ||
+        !enrollmentCode ||
+        !pre_inscricao_raw ||
+        isNaN(matriculaNumero!) ||
+        isNaN(preInscricaoNumero!)
+      ) {
+        return null
+      }
 
-    const TAXA_IVA = 0
-    const TAXA_RETENCAO = 0
-    const DESCONTO_PORCENTAGEM = 0
-    const MAX_OBS_LENGTH = 45
+      const TAXA_IVA = 0
+      const TAXA_RETENCAO = 0
+      const DESCONTO_PORCENTAGEM = 0
+      const MAX_OBS_LENGTH = 45
 
-    const itens = servicesData.servicos
-      .filter((s: ServiceItem) => selectedServices[s.codigo])
-      .map((service: ServiceItem) => {
-        const quantidade = selectedServices[service.codigo] || 1
-        const preco = parseFloat(service.preco)
-        const totalBruto = preco * quantidade
-        const valorDesconto = (totalBruto * DESCONTO_PORCENTAGEM) / 100
-        const baseIncidencia = totalBruto - valorDesconto
-        const valorIva = (baseIncidencia * TAXA_IVA) / 100
-        const total = baseIncidencia + valorIva
+      const itens = servicesData.servicos
+        .filter((s: ServiceItem) => selectedServices[s.codigo])
+        .map((service: ServiceItem) => {
+          const quantidade = selectedServices[service.codigo] || 1
+          const preco = parseFloat(service.preco)
+          const totalBruto = preco * quantidade
+          const valorDesconto = (totalBruto * DESCONTO_PORCENTAGEM) / 100
+          const baseIncidencia = totalBruto - valorDesconto
+          const valorIva = (baseIncidencia * TAXA_IVA) / 100
+          const total = baseIncidencia + valorIva
 
-        const obs =
-          service.descricao.length > MAX_OBS_LENGTH
-            ? service.descricao.substring(0, MAX_OBS_LENGTH)
-            : service.descricao
+          const obs =
+            service.descricao.length > MAX_OBS_LENGTH
+              ? service.descricao.substring(0, MAX_OBS_LENGTH)
+              : service.descricao
 
-        return {
-          CodigoProduto: Number(service.codigo),
-          Quantidade: quantidade,
-          preco,
-          Total: total,
-          valor_pago: total,
-          obs,
-          taxaIva: TAXA_IVA,
-          valorIva,
-          retencao: TAXA_RETENCAO,
-          incidencia: baseIncidencia,
-          valorDesconto,
-          descontoProduto: DESCONTO_PORCENTAGEM,
-          mes: '',
-          multa: 0,
-          estado: 0,
-          valorPago: 0,
-          valorATransportar: 0,
-        }
-      })
+          return {
+            CodigoProduto: Number(service.codigo),
+            Quantidade: quantidade,
+            preco,
+            Total: total,
+            valor_pago: total,
+            obs,
+            taxaIva: TAXA_IVA,
+            valorIva,
+            retencao: TAXA_RETENCAO,
+            incidencia: baseIncidencia,
+            valorDesconto,
+            descontoProduto: DESCONTO_PORCENTAGEM,
+            mes: '',
+            multa: 0,
+            estado: 0,
+            valorPago: 0,
+            valorATransportar: 0,
+          }
+        })
 
-    const TotalPreco = itens.reduce((sum: number, i: any) => sum + i.Total, 0)
-    const totalIVA = itens.reduce((sum: number, i: any) => sum + i.valorIva, 0)
-    const total_retencao = itens.reduce(
-      (sum: number, i: any) => sum + i.retencao,
-      0,
-    )
-    const total_incidencia = itens.reduce(
-      (sum: number, i: any) => sum + i.incidencia,
-      0,
-    )
-    const Desconto = itens.reduce(
-      (sum: number, i: any) => sum + i.valorDesconto,
-      0,
-    )
-    const ValorAPagar = TotalPreco - total_retencao
+      const TotalPreco = itens.reduce((sum: number, i: any) => sum + i.Total, 0)
+      const totalIVA = itens.reduce(
+        (sum: number, i: any) => sum + i.valorIva,
+        0,
+      )
+      const total_retencao = itens.reduce(
+        (sum: number, i: any) => sum + i.retencao,
+        0,
+      )
+      const total_incidencia = itens.reduce(
+        (sum: number, i: any) => sum + i.incidencia,
+        0,
+      )
+      const Desconto = itens.reduce(
+        (sum: number, i: any) => sum + i.valorDesconto,
+        0,
+      )
+      const ValorAPagar = TotalPreco - total_retencao
 
-    return {
-      DataFactura: new Date().toISOString(),
-      polo_id: Number(poloId),
-      TotalPreco,
-      codigo_descricao: 101,
-      ValorAPagar,
-      total_incidencia,
-      total_retencao,
-      CodigoMatricula: matriculaNumero!,
-      codigo_preinscricao: preInscricaoNumero!,
-      Desconto,
-      totalIVA,
-      TotalMulta: 0,
-      Descricao: 'Serviços Acadêmicos',
-      tipo_documento_factura_id: 1,
-      canal: 3,
-      itens,
-    }
-  }, [
-    selectedServices,
-    servicesData,
-    poloId,
-    enrollmentCode,
-    pre_inscricao_raw,
-    matriculaNumero,
-    preInscricaoNumero,
-  ])
+      return {
+        DataFactura: new Date().toISOString(),
+        polo_id: Number(poloId),
+        TotalPreco,
+        codigo_descricao: 101,
+        ValorAPagar,
+        total_incidencia,
+        total_retencao,
+        CodigoMatricula: matriculaNumero!,
+        codigo_preinscricao: preInscricaoNumero!,
+        Desconto,
+        totalIVA,
+        TotalMulta: 0,
+        Descricao: 'Serviços Acadêmicos',
+        tipo_documento_factura_id: 1,
+        canal: 3,
+        itens,
+      }
+    }, [
+      selectedServices,
+      servicesData,
+      poloId,
+      enrollmentCode,
+      pre_inscricao_raw,
+      matriculaNumero,
+      preInscricaoNumero,
+    ])
 
   const totalCost = payload?.TotalPreco || 0
 
