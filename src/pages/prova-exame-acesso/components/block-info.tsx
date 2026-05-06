@@ -134,9 +134,6 @@ function AcessoBloqueado({
                             <Button variant="outline" onClick={() => window.location.reload()}>
                                 <Wifi className="h-4 w-4" /> Verificar novamente
                             </Button>
-                            <Button onClick={() => (window.location.href = "/suporte")}>
-                                Contactar Suporte
-                            </Button>
                         </div>
 
                     </div>
