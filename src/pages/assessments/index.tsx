@@ -1,17 +1,15 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useEffect } from 'react'
-import { GradeCurrentAcademicYear } from './grade CurrentAcademicYear'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { toast } from 'sonner'
 import { CurriculumCard } from './curriculum-card'
-import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 import { PaymentAlert } from '@/components/payment-alert'
 import { useQueryGetDebit } from '@/hooks/renegotiation/use-query-renegotiation'
 import { Notes } from './notes'
 
 export function Assessments() {
   const { profileData, isError, isLoading } = useQueryProfile()
-  const { data: academicYearData } = useQueryCurrentAcademicYear()
+
   const { data: debit, isLoading: isLoadingDebit } = useQueryGetDebit({
     type: '1',
     enrollmentCode: Number(profileData?.enrollmentCode),
@@ -29,9 +27,6 @@ export function Assessments() {
   if (debit && (debit?.totalDivida ?? 0) > 0) return <PaymentAlert />
 
   const enrollmentCode = profileData?.codigo_matricula
-  const classe = profileData?.confirmacoes[0]?.classe
-  const academicYear =
-    academicYearData?.codigo || profileData?.confirmacoes[0]?.ano_lectivo
   const preEnrollmentCode = profileData?.preEnrollmentCode
 
   return (
