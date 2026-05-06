@@ -100,7 +100,6 @@ const ProvaExameAcesso = () => {
   const date = !info?.data_prova ? null : new Date(info?.data_prova)
   const { diff, days, hours, minutes, seconds } = useCountdown(date)
   const examOpen = FORCE_EXAM_OPEN || diff === 0
-  const offCampus = FORCE_OFF_CAMPUS
 
   // Estado da prova
   const [current, setCurrent] = useState(0)
@@ -156,15 +155,6 @@ const ProvaExameAcesso = () => {
         minutes={minutes}
         seconds={seconds}
         examInfo={examInfo}
-      />
-    )
-  }
-
-  if (offCampus) {
-    return (
-      <AcessoBloqueado
-        INSTITUTION_WIFI={INSTITUTION_WIFI}
-        INSTITUTION_NAME={INSTITUTION_NAME}
       />
     )
   }
