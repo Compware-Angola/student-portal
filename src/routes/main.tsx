@@ -82,7 +82,11 @@ export function MainRoutes() {
         />
         <Route
           path={enrollmentPath.slice(1)}
-          element={enrollmentComponents[enrollmentPath]}
+          element={
+            <RequireStudentRoute>
+              {enrollmentComponents[enrollmentPath]}
+            </RequireStudentRoute>
+          }
         />
         <Route
           path="/horario"

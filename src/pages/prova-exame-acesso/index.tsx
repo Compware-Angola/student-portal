@@ -124,6 +124,7 @@ const ProvaExameAcesso = () => {
   const [submitted, setSubmitted] = useState(false)
   const [remaining, setRemaining] = useState(EXAM_DURATION_MIN * 60)
 
+
   useEffect(() => {
     if (!examOpen || submitted) return
     const t = setInterval(() => setRemaining((r) => Math.max(0, r - 1)), 1000)
@@ -158,21 +159,13 @@ const ProvaExameAcesso = () => {
       `Prova submetida com sucesso! Você respondeu ${answeredCount} de ${questions.length} perguntas.`,
     )
   }
+
   if (isLoading) {
     return <ExamLoader />
   }
   if (AdmissionStatus.SEM_ADMISSAO == info?.estado_aluno) {
     return <FinanceInfo />
   }
-  if (offCampus) {
-    return (
-      <AcessoBloqueado
-        INSTITUTION_WIFI={INSTITUTION_WIFI}
-        INSTITUTION_NAME={INSTITUTION_NAME}
-      />
-    )
-  }
-
   if (AdmissionStatus.AGUARDANDO_DIA_DA_PROVA == info?.estado_aluno) {
     return (
       <WaitingTest
@@ -185,30 +178,14 @@ const ProvaExameAcesso = () => {
     )
   }
 
-  // ============ TELA: PROVA SUBMETIDA ============
-  if (submitted) {
+  if (offCampus) {
     return (
-      <div className="max-w-2xl mx-auto animate-fade-in">
-        <Card className="border-l-4 border-l-primary">
-          <CardContent className="p-10 text-center space-y-4">
-            <div className="mx-auto w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
-              <CheckCircle2 className="h-10 w-10 text-primary" />
-            </div>
-            <h2 className="text-2xl font-bold">Prova submetida com sucesso!</h2>
-            <p className="text-muted-foreground">
-              Você respondeu <strong>{answeredCount}</strong> de{' '}
-              <strong>{questions.length}</strong> perguntas.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Os resultados serão divulgados na sua área do estudante e por
-              e-mail.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <AcessoBloqueado
+        INSTITUTION_WIFI={INSTITUTION_WIFI}
+        INSTITUTION_NAME={INSTITUTION_NAME}
+      />
     )
   }
-
   // ============ TELA: PROVA ATIVA ============
   if (info?.estado_aluno == AdmissionStatus.DIA_DA_PROVA) {
     return (
