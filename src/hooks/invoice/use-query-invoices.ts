@@ -2,7 +2,7 @@ import {
   getInvoicesByMatricula,
   type InvoiceSearchParams,
 } from '@/services/invoice/get-invoices-by-matricula.service'
-import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 interface UseQueryInvoiceParams {
   academicYear: string
   enrollmentCode?: string
