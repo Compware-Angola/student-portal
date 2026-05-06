@@ -30,6 +30,7 @@ import PreIncriptionDashboard from '@/pages/dashboard/pre-inscription-dashboard'
 import ProvaExameAcesso from '@/pages/prova-exame-acesso'
 import { PrePayment } from '@/pages/pre-payment'
 import { InscriçõesRecurosPage } from '@/pages/assessments/recuros'
+import { InscriçõesEspecial } from '@/pages/assessments/especial'
 
 export function MainRoutes() {
   const { isLoading, hasEnrolmentCode } = useStudentSituation()
@@ -116,6 +117,14 @@ export function MainRoutes() {
           }
         />
         <Route
+          path="/avaliacoes/inscricoes-especial"
+          element={
+            <RequireStudentRoute>
+              <InscriçõesEspecial />
+            </RequireStudentRoute>
+          }
+        />
+        <Route
           path="/servicos-academicos"
           element={
             <RequireStudentRoute>
@@ -193,17 +202,17 @@ export function MainRoutes() {
         <Route
           path="/exame-acesso"
           element={
-             <RequireStudentRoute>
-               <ProvaExameAcesso />
-             </RequireStudentRoute>
+            <RequireStudentRoute>
+              <ProvaExameAcesso />
+            </RequireStudentRoute>
           }
         />
         <Route
           path="/pre-pagamento"
           element={
-             <RequireStudentRoute>
-               <PrePayment />
-             </RequireStudentRoute>
+            <RequireStudentRoute>
+              <PrePayment />
+            </RequireStudentRoute>
           }
         />
         <Route
@@ -242,7 +251,6 @@ export function RequireStudentRoute({ children }: { children: JSX.Element }) {
   if (!allowedRoutes.includes(location.pathname)) {
     return <Navigate to={homeRoute} replace />
   }
-
 
   return children
 }
