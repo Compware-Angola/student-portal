@@ -143,7 +143,7 @@ export function FormPreSubscriptionProvider({
       certificatePath = await uploadFile(data.certificate)
       docs.push( {
         typeDocumentId :DocumentTypeEnum.CERTIFICADO_COM_NOTAS,
-        fileName: documentPath
+        fileName: certificatePath
       })
     }
     const payload = buildInscricaoPayload(data,docs)

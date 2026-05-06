@@ -51,8 +51,8 @@ export default function NotificacoesPage() {
     ? Number(profileData.codigo_curso)
     : undefined
 
-  const periodo = profileData?.periodoId
-    ? Number(profileData.periodoId)
+  const periodo = profileData?.periodoid
+    ? Number(profileData.periodoid)
     : undefined
 
   const {

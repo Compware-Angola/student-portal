@@ -16,9 +16,9 @@ export type MonthlyFeeResponse = {
 }
 
 type MonthlyFeeParams = {
-  anoLetivo: string
-  curso: string
-  polo: string
+  anoLetivo: number
+  curso: number
+  polo: number
 }
 
 /**

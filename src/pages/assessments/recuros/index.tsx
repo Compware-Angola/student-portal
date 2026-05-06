@@ -13,7 +13,7 @@ export function InscriçõesRecurosPage() {
   const { profileData, isError, isLoading } = useQueryProfile()
   const { data: debit, isLoading: isLoadingDebit } = useQueryGetDebit({
     type: '1',
-    enrollmentCode: profileData?.enrollmentCode,
+    enrollmentCode: profileData?.codigo_matricula,
     preinscricao: profileData?.codigo_preinscricao,
   })
   useEffect(() => {

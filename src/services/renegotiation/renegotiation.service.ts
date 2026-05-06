@@ -101,90 +101,92 @@ export interface DebtNegotiationResponse {
 export interface DebitSearchParams {
   page?: number
   limit?: number
-  enrollmentCode: string
-  preinscricao: string
+  enrollmentCode: number
+  preinscricao: number
   type: string
-
 }
 
 export async function getDebit(
   searchParams: DebitSearchParams,
 ): Promise<DebtNegotiationResponse> {
-
   const response = await invoiceApi
-    .get(`debt-negotiation?matricula=${searchParams.enrollmentCode}&preinscricaoId=${searchParams.preinscricao}&tipoCandidatura=${searchParams.type}`,)
+    .get(
+      `debt-negotiation?matricula=${searchParams.enrollmentCode}&preinscricaoId=${searchParams.preinscricao}&tipoCandidatura=${searchParams.type}`,
+    )
     .json<DebtNegotiationResponse>()
   return response
 }
 interface FaturaItemMensalidade {
-  codGradeCurricular: string;
-  codFacturaOutrosServicos: string;
-  bolsa: string;
-  mes_temp_id: number;
-  n_prestacao: number;
-  valor: string;          // no JSON vem como string, mesmo sendo número
-  multa: number;
-  total: number;
-  servico: string;
-  mes_propina: string;
-  ano_lectivo: string;
-  taxa_multa: number;
-  taxa_desconto: number;
-  codigo_propina: number;
-  codigo_anoLectivo: number;
-  desconto: number;
-  incidencia: number;
-  valor_iva: number;
-  tipo_taxas: number;
-  taxa_descricao: string;
+  codGradeCurricular: string
+  codFacturaOutrosServicos: string
+  bolsa: string
+  mes_temp_id: number
+  n_prestacao: number
+  valor: string // no JSON vem como string, mesmo sendo número
+  multa: number
+  total: number
+  servico: string
+  mes_propina: string
+  ano_lectivo: string
+  taxa_multa: number
+  taxa_desconto: number
+  codigo_propina: number
+  codigo_anoLectivo: number
+  desconto: number
+  incidencia: number
+  valor_iva: number
+  tipo_taxas: number
+  taxa_descricao: string
 }
 
 interface FaturaItemServico {
-  codGradeCurricular: number;
-  codFacturaOutrosServicos: number;
-  codigo_propina: string;
-  codidigo_servico: string;       // mantive o nome exato do JSON (typo original)
-  codigo_anoLectivo: string;
-  valor: number;
-  multa: number;
-  total: number;
-  taxa_multa: number;
-  taxa_desconto: number;
-  desconto: number;
-  incidencia: number;
-  valor_iva: number;
-  servico: string;
-  mes_propina: string;
-  n_prestacao: string;
-  ano_lectivo: string;
-  bolsa: string;
-  taxa_descricao: string;
-  mes_temp_id: number;
+  codGradeCurricular: number
+  codFacturaOutrosServicos: number
+  codigo_propina: string
+  codidigo_servico: string // mantive o nome exato do JSON (typo original)
+  codigo_anoLectivo: string
+  valor: number
+  multa: number
+  total: number
+  taxa_multa: number
+  taxa_desconto: number
+  desconto: number
+  incidencia: number
+  valor_iva: number
+  servico: string
+  mes_propina: string
+  n_prestacao: string
+  ano_lectivo: string
+  bolsa: string
+  taxa_descricao: string
+  mes_temp_id: number
 }
 
 export interface RenegociacaoPayload {
-  totalDivida: number;
-  desconto: number;
-  precoTotal: number;
-  total_retencao: number;
-  total_incidencia: number;
-  totalIVA: number;
-  saldo_reset: number;
-  tipoPagamento: "TOTAL" | string;
-  fatura_item_mensalidades: FaturaItemMensalidade[];
-  fatura_item_servicos: FaturaItemServico[];
-  valor_pago_na_hora: number;
-  percentagem_retencao: number;
-  size: number;
-  bolsa: string;
-  somaValorDividaRecurso: number;
+  totalDivida: number
+  desconto: number
+  precoTotal: number
+  total_retencao: number
+  total_incidencia: number
+  totalIVA: number
+  saldo_reset: number
+  tipoPagamento: 'TOTAL' | string
+  fatura_item_mensalidades: FaturaItemMensalidade[]
+  fatura_item_servicos: FaturaItemServico[]
+  valor_pago_na_hora: number
+  percentagem_retencao: number
+  size: number
+  bolsa: string
+  somaValorDividaRecurso: number
 }
 
-export async function createDebitNegotation(enrollmentCode: string, payload: RenegociacaoPayload): Promise<void> {
+export async function createDebitNegotation(
+  enrollmentCode: number,
+  payload: RenegociacaoPayload,
+): Promise<void> {
   return invoiceApi
     .post(`debt-negotiation/${enrollmentCode}`, {
       json: payload,
     })
     .json()
-
 }

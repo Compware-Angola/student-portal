@@ -20,7 +20,7 @@ export type AcademicActivitiesResponse = {
  */
 type Params = {
   academicYearCode: string
-  candidacyType: string
+  candidacyType: number
   type: 'old' | 'new'
 }
 

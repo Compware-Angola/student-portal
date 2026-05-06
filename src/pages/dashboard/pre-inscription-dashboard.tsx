@@ -8,15 +8,7 @@ import { ExamLoader } from '../prova-exame-acesso/components/exam-loader'
 
 const PreIncriptionDashboard = () => {
   const { profileData } = useQueryProfile()
-  const studentData = {
-    name: 'João Silva',
-    status: 'admitido' as
-      | 'pre-inscrito'
-      | 'aguardando-resultado'
-      | 'admitido'
-      | 'reprovado'
-      | 'matriculado',
-  }
+  
   const { data: info, isLoading } = useQueryInfoGeraisCandidatura()
   const status = info?.estado_aluno
   if (isLoading) {

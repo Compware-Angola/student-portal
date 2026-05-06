@@ -87,11 +87,11 @@ export function Profile() {
           name={fullName}
           email={email}
           phone={telefone}
-          documento={numero_documento}
+          documento={numero_documento ?? ''}
           address={address}
           course={curso}
           isEditing={isEditing}
-          userId={userId}
+          userId={userId!}
         />
       </div>
     </div>
