@@ -8,15 +8,18 @@ import {
   type UseMutationResult,
 } from '@tanstack/react-query'
 
-export function useUpdateStudentPhoto(): UseMutationResult<
-  { message: string },
-  Error,
-  UpdateStudentPhoto
-> {
+type UseUpdateStudentPhotoOptions = {
+  skipInvalidate?: boolean
+}
+
+export function useUpdateStudentPhoto(
+  options?: UseUpdateStudentPhotoOptions,
+): UseMutationResult<{ message: string }, Error, UpdateStudentPhoto> {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: updateStudentPhoto,
     onSuccess: () => {
+      if(!options?.skipInvalidate)
       queryClient.invalidateQueries({ queryKey: ['profile'] })
     },
   })

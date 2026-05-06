@@ -6,6 +6,7 @@ export type Discipline = {
   semestre: string
   duracao: string
   classe: string
+  estado_codigo: number;
   ano_lectivo: string
   codigo_horario: string
   sala: string
@@ -41,6 +42,7 @@ export async function fetchDisciplinesService({
         semestre: String(semestre),
         matriculaId: String(matriculaId),
         page: String(page),
+        ignorarEliminados: 1,
         limit: String(limit),
       },
     })

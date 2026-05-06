@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 
 type Params = {
   academicYear?: string
-  applicationType?: string
+  applicationType?: number
 }
 
 /**

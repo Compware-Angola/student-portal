@@ -5,6 +5,12 @@ import { useForm, type UseFormReturn } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { steps } from './step'
 import { preSubscriptionSchema, type PreSubscriptionSchema } from '../schemas'
+import { useMutationPreInscricao } from '@/hooks/pre-registation/use-mutation-pre-registration'
+import { useUploadSingle } from '@/hooks/upload/use-upload-single'
+import { toast } from 'sonner'
+import { useUpdateStudentPhoto } from '@/hooks/student/use-mutation-update-student-photo'
+import { useQueryProfile } from '@/hooks/profile/use-query-profile'
+import { DocumentTypeEnum } from '@/enums/document.type.enum'
 
 type ContextValue = {
   onSubmit: (data: PreSubscriptionSchema) => void
@@ -16,6 +22,7 @@ type ContextValue = {
   handleBack: () => void
   steps: typeof steps
   progress: number
+  isLoadingPreInscription: boolean
 }
 
 export const FormPreSubscriptionContext =
@@ -28,6 +35,60 @@ export function FormPreSubscriptionProvider({
 }) {
   const [currentStep, setCurrentStep] = React.useState(0)
   const progress = (currentStep / steps.length) * 100
+  const { createPreInscricaoAsync, createPreInscricaoPending } =
+    useMutationPreInscricao()
+
+  const uploadMutation = useUploadSingle()
+  const isLoadingPreInscription =
+    createPreInscricaoPending || uploadMutation.isPending
+  const currentStepConfig = steps[currentStep]
+
+  const updateStudentPhoto = useUpdateStudentPhoto({
+    skipInvalidate: true
+  });
+
+  const {profileData} = useQueryProfile()
+
+  const uploadFile = async (data: File) => {
+    const formData = new FormData()
+    formData.append('file', data)
+    const response = await uploadMutation.mutateAsync(data)
+    return response.file.filename
+  }
+
+  function buildInscricaoPayload(data: any, docs: any) {
+    return {
+      cursoCandidatura: Number(data.intendedCourse),
+      modalidadeFrequencia: 2,
+      codigoTurno: parseInt (data.period),
+      codigoTurnoOptional:parseInt(data.periodSecondOption),
+      nomeCompleto: data.fullName,
+      bilheteIdentidade: data.documentNumber,
+      dataEmissaoBI: data.issueDate,
+      dataValidadeBI: data.expirationDate,
+      sexo: data.gender,
+      dataNascimento: data.birthDate,
+      estadoCivil: data.maritalStatus,
+      contactosTelefonicos: data.phone,
+      contactoDeEmergencia: data.phoneAlt || '',
+      moradaCompleta: data.street,
+      email: data.email,
+      instituicaoFormacaoAcesso: isNaN(Number(data.previousSchool))
+        ? undefined
+        : Number(data.previousSchool),
+      dataConclusao: data.graduationYear,
+      mediaFinal: Number(data.averageGrade),
+      pai: data.fatherName,
+      mae: data.motherName,
+      necessidadeEspecialId: data.needs === 'sim' ? 1 : 0,
+      poloId: Number(data.pole),
+      cursoOpcional1Id: Number(data.intendedCourseSecond),
+      cursoOpcional2Id: Number(data.intendedCourseThird),
+      documentos: docs,
+      codigoNacionalidade: Number(data.codigoNacionalidade),
+      codigoTipoCandidatura: Number(data.typeGraduation)
+    }
+  }
 
   const form = useForm<PreSubscriptionSchema>({
     resolver: zodResolver(preSubscriptionSchema),
@@ -43,62 +104,78 @@ export function FormPreSubscriptionProvider({
       maritalStatus: '',
       motherName: '',
       needs: '',
-      averageGrade: 0,
+      averageGrade: '0',
       graduationYear: '',
       previousSchool: '',
       intendedCourse: '',
+      intendedCourseSecond: '',
+      intendedCourseThird: '',
+      period: '',
+      periodSecondOption: '',
       pole: '',
-      secondOption: '',
+      email: '',
+      phone: '',
+      phoneAlt: '',
+      street: '',
+      typeGraduation: '',
+      codigoNacionalidade: ''
     },
     mode: 'onChange',
   })
 
   const onSubmit = React.useCallback(async (data: PreSubscriptionSchema) => {
-    console.log(data)
-    // const result = await createJobApplicationAsync({
-    //   fullName: data.fullName,
-    //   identityNumber: data.identityNumber,
-    //   birthDate: data.birthDate,
-    //   genderId: data.genderId,
-    //   maritalStatusId: data.maritalStatusId,
-    //   email: data.email,
-    //   phoneNumber: data.phoneNumber,
-    //   optionalPhoneNumber: data.optionalPhoneNumber,
-    //   desiredPositionId: data.desiredPositionId,
-    //   availabilityDate: data.availabilityDate,
-    //   ProfessionalExperience: data.ProfessionalExperience || [],
-    //   highestDegreeId: data.highestDegreeId,
-    //   courses: data.courses,
-    //   languages: data.languages,
-    //   skills: data.skills,
-    //   hasChildren: data.hasChildren === 'YES',
-    //   location: {
-    //     cityId: data.cityId,
-    //     districtId: data.districtId,
-    //     street: data.street,
-    //   },
-    //   knownDiseases: data.knownDiseases === 'YES',
-    //   experienceLevelId: data.experienceLevelId,
-    // })
-    // if (result?.success) {
-    //   setCurrentStep(0)
-    //   form.reset()
-    // }
+    let photoPath: string | undefined = undefined
+    let documentPath: string | undefined = undefined
+    let certificatePath : string | undefined = undefined
+    let docs = []
+    if (data.photo) {
+      photoPath = await uploadFile(data.photo)
+      updateStudentPhoto.mutateAsync({ file: photoPath, userId : profileData?.userId! }, {})
+    }
+    if (data.document) {
+      documentPath = await uploadFile(data.document)
+      docs.push( {
+        typeDocumentId: parseInt(data.documentType),
+        fileName: documentPath
+      })
+    }
+    if (data.certificate) {
+      certificatePath = await uploadFile(data.certificate)
+      docs.push( {
+        typeDocumentId :DocumentTypeEnum.CERTIFICADO_COM_NOTAS,
+        fileName: documentPath
+      })
+    }
+    const payload = buildInscricaoPayload(data,docs)
+    await createPreInscricaoAsync(payload)
   }, [])
 
-  const handleNextOrSubmit = React.useCallback(async () => {
-    const isLastStep = currentStep === steps.length - 1
-    const valid = await form.trigger(steps[currentStep].fields, {
-      shouldFocus: true,
-    })
+ const handleNextOrSubmit = React.useCallback(async () => {
+  const valid = await form.trigger(currentStepConfig.fields, {
+    shouldFocus: true,
+  })
 
-    if (!valid) return
-    if (isLastStep) {
-      form.handleSubmit(onSubmit)()
-    } else {
+  if (!valid) return
+
+   if (currentStepConfig.submitOnStep) {
+     try {
+      await form.handleSubmit(async (data) => {
+      await onSubmit(data)
       setCurrentStep((prev) => prev + 1)
+    })()
+     } catch (error: any) {
+       toast.error(
+        error?.message ||
+          'Erro ao fazer a pre inscrição.',
+      )
     }
-  }, [currentStep, form, onSubmit])
+    return
+  }
+
+  if (!currentStepConfig.isSummary) {
+    setCurrentStep((prev) => prev + 1)
+  }
+}, [currentStep, form, onSubmit])
 
   const handleBack = React.useCallback(() => {
     setCurrentStep((prev) => prev - 1)
@@ -110,6 +187,7 @@ export function FormPreSubscriptionProvider({
     currentStep,
     setCurrentStep,
     handleNextOrSubmit,
+    isLoadingPreInscription,
     handleBack,
     steps,
     progress,

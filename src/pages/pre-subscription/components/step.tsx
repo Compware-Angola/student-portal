@@ -5,6 +5,9 @@ import { AcademicData } from './academic-data'
 import { AcademicDataKeys } from '../schemas/academic-data.schema'
 import { DocumentKeys } from '../schemas/documents.schema'
 import { AcademicDocument } from './academic-document'
+import { ContactData } from './contact-data'
+import { ContactKeys } from '../schemas/contact-data.schema'
+import { ResumeDetails } from './resume-details'
 
 export const steps = [
   {
@@ -33,5 +36,25 @@ export const steps = [
     title: 'Dados da Candidatura',
     description: 'Informações sobre Dados da Candidatura',
     icon: FileText,
+  },
+  {
+    id: 'contacts',
+    component: <ContactData />,
+    fields: ContactKeys,
+    number: 3,
+    title: 'Dados de Contactos',
+    description: 'Informações sobre Dados da Contactos',
+    icon: FileText,
+    submitOnStep: true,
+  },
+  {
+    id: 'resume',
+    component: <ResumeDetails />,
+    fields: [],
+    number: 4,
+    title: 'Resumo',
+    description: 'Informações sobre Candidatura',
+    icon: FileText,
+    isSummary: true,
   },
 ]

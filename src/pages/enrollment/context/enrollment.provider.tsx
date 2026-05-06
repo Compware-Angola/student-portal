@@ -272,14 +272,14 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
       ...selectedSubjects.map(generateDisciplineItem),
     ]
     const invoice: CreateInvoiceBody = {
-      polo_id: parseInt(profileData?.poloId),
+      polo_id: profileData?.poloid,
       TotalPreco: totalPagar,
       codigo_descricao: 101,
       ValorAPagar: totalPagar,
       total_incidencia: 0,
       total_retencao: 0,
       CodigoMatricula: enrollmentCode,
-      codigo_preinscricao: parseInt(profileData.codigo_preinscricao!),
+      codigo_preinscricao: profileData.codigo_preinscricao!,
       Desconto: 0,
       totalIVA: 0,
       TotalMulta: 0,

@@ -8,7 +8,7 @@ import type { MonthlyFeeQueryParams } from '@/services/finance/get-finance.servi
 
 // Defina as props que o hook recebe (agora alinhado com o que getmonthlyFee precisa)
 interface UseQueryFinanceMonthlyFeeParams {
-  academicYear?: string
+  academicYear?: number
   enrollmentCode?: string
  status:string
   page?: number
@@ -27,8 +27,8 @@ export function useQueryFinanceMonthlyFee({
 
   // 1. Constrói o objeto de parâmetros que será passado para getmonthlyFee
   const params: MonthlyFeeQueryParams = {
-    academicYear: academicYear as string, // Cast seguro devido ao isEnabled
-    enrollmentCode: enrollmentCode as string, 
+    academicYear: academicYear! , // Cast seguro devido ao isEnabled
+    enrollmentCode: enrollmentCode as string,
     status:status,
     page,
     limit,

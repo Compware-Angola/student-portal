@@ -6,23 +6,31 @@ import { useStudentSituation } from './use-student-stitiation'
 import {
   BookOpen,
   Calendar,
+  CircleDollarSign,
   ClipboardList,
   CreditCard,
-  FileText,
   GraduationCap,
   HandCoins,
   HelpCircle,
+  Home,
   LayoutDashboard,
   Library,
   MessageSquare,
+  Pencil,
   Receipt,
+  RotateCcw,
+  Star,
   User,
 } from 'lucide-react'
 
+import { routePermissions } from '@/routes/permission'
+import { useQueryProfile } from './profile/use-query-profile'
+
 export function useMenuNavigation() {
   const { hasEnrolmentCode, isLoading } = useStudentSituation()
+  const { isLoading: isLoadingProfile, studentStatus } = useQueryProfile()
 
-  if (isLoading) {
+  if (isLoading || isLoadingProfile || !studentStatus) {
     return { navMain: [] }
   }
 
@@ -52,13 +60,29 @@ export function useMenuNavigation() {
     },
 
     { title: 'Horário', url: '/horario', icon: Calendar },
-    { title: 'Avaliações', url: '/avaliacoes', icon: FileText },
+    {
+      title: 'Avaliações',
+      url: '/avaliacoes',
+      icon: ClipboardList,
+      items: [
+        {
+          title: 'Recurso',
+          url: '/avaliacoes/inscricoes-recurso',
+          icon: RotateCcw,
+        },
+        {
+          title: 'Especial',
+          url: '/avaliacoes/inscricoes-especial',
+          icon: Star,
+        },
+      ],
+    },
     {
       title: 'Serviços Acadêmicos',
       url: '/servicos-academicos',
       icon: BookOpen,
     },
-    { title: 'Perfil', url: '/perfil', icon: User },
+
     { title: 'Disciplinas', url: '/disciplinas', icon: Library },
     {
       title: 'Mensagens & Comunicados',
@@ -76,35 +100,34 @@ export function useMenuNavigation() {
       url: '/renegociacao',
       icon: HandCoins,
     },
+    //ROTAS PARA CANDIDATOS
+    {
+      title: 'Inicio',
+      url: '/pre-inscricao',
+      icon: Home,
+    },
+    {
+      title: 'Inicio',
+      url: '/pre-dashboard',
+      icon: Home,
+    },
+    { title: 'Exame de Acesso', url: '/exame-acesso', icon: Pencil },
+    { title: 'Pagamento', url: '/pre-pagamento', icon: CircleDollarSign },
+    { title: 'Perfil', url: '/perfil', icon: User },
   ]
 
-  // 👉 URLs exclusivas para OLD
-  const oldOnlyRoutes = [
-    '/financas',
-    '/horario',
-    '/avaliacoes',
-    '/servicos-academicos',
-    '/disciplinas',
-    '/mensagens',
-    '/renegociacao',
-    '/calendario-academico',
-    '/suporte',
-  ]
+  const allowedRoutes = routePermissions[studentStatus] || []
 
-  const filteredNavMain = !hasEnrolmentCode
-    ? navMain
-        .filter((item) => !oldOnlyRoutes.includes(item.url))
-        .map((item) =>
-          item.items
-            ? {
-                ...item,
-                items: item.items.filter(
-                  (sub) => !oldOnlyRoutes.includes(sub.url),
-                ),
-              }
-            : item,
-        )
-    : navMain
+  const filteredNavMain = navMain
+    .filter((item) => allowedRoutes.includes(item.url))
+    .map((item) =>
+      item.items
+        ? {
+            ...item,
+            items: item.items.filter((sub) => allowedRoutes.includes(sub.url)),
+          }
+        : item,
+    )
 
   return {
     navMain: filteredNavMain,

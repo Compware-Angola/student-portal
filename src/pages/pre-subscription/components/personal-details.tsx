@@ -1,12 +1,56 @@
 import { useFormPreSubscriptionForm } from './form-provider'
 import { InputFormField } from '@/components/input-form-field'
 import { SelectFormField } from '@/components/selectFormField'
+import { useQueryEstadoCivil } from '@/hooks/dropdowns/use-query-estado-civil'
+import { useQueryNacionalidade } from '@/hooks/dropdowns/use-query-nacionalidade'
+import { useQueryNecessidadesEspeciais } from '@/hooks/dropdowns/use-query-necessidade-especial'
+import { useQuerySex } from '@/hooks/dropdowns/use-query-sex'
+import { useQueryTipoDocumento } from '@/hooks/dropdowns/use-query-tipo-documento'
+import { RegisterAvatarSelector } from '@/pages/login/components/register-avatar-selector'
 
 export function PersonalDetails() {
   const { form } = useFormPreSubscriptionForm()
+  const { data: tipoDocumentos } = useQueryTipoDocumento()
+  const { data: tipoSexos } = useQuerySex()
+  const { data: tipoNacionalidades } = useQueryNacionalidade()
+  const { data: estadoCivil } = useQueryEstadoCivil()
+  const { data: necessidadeEspeciais } = useQueryNecessidadesEspeciais()
+  const documentoOptions =
+    tipoDocumentos?.map((t) => ({
+      label: t.designacao,
+      value: String(t.codigo),
+    })) ?? []
 
+  const tipoSexoOptions =
+    tipoSexos?.map((t) => ({
+      label: t.designacao,
+      value: String(t.codigo),
+    })) ?? []
+  const tipoNacionalidaddesOptions =
+    tipoNacionalidades?.map((t) => ({
+      label: t.label,
+      value: String(t.value),
+    })) ?? []
+  const estadoCivilOptions =
+    estadoCivil?.map((t) => ({
+      label: t.designacao,
+      value: String(t.designacao),
+    })) ?? []
+  const necessidadeEspeciasOptions =
+    necessidadeEspeciais?.map((t) => ({
+      label: t.label,
+      value: String(t.value),
+    })) ?? []
   return (
     <>
+      <RegisterAvatarSelector
+        onImageSelect={(file) => {
+          form.setValue('photo', file, {
+            shouldValidate: true,
+            shouldDirty: true,
+          })
+        }}
+      />
       {/* Nome completo */}
       <InputFormField
         control={form.control}
@@ -29,11 +73,7 @@ export function PersonalDetails() {
           name="gender"
           label="Género"
           placeholder="Selecione"
-          items={[
-            { value: 'masculino', label: 'Masculino' },
-            { value: 'feminino', label: 'Feminino' },
-            { value: 'outro', label: 'Outro' },
-          ]}
+          items={tipoSexoOptions}
           fullWidth
         />
       </div>
@@ -61,24 +101,15 @@ export function PersonalDetails() {
           name="maritalStatus"
           label="Estado Civil"
           placeholder="Selecione"
-          items={[
-            { value: 'solteiro', label: 'Solteiro' },
-            { value: 'casado', label: 'Casado' },
-            { value: 'divorciado', label: 'Divorciado' },
-            { value: 'viúvo', label: 'Viúvo' },
-          ]}
+          items={estadoCivilOptions}
           fullWidth
         />
-
         <SelectFormField
           control={form.control}
           name="needs"
           label="Necessidades"
           placeholder="Selecione"
-          items={[
-            { value: 'sim', label: 'Sim' },
-            { value: 'nao', label: 'Não' },
-          ]}
+          items={necessidadeEspeciasOptions}
           fullWidth
         />
       </div>
@@ -90,11 +121,7 @@ export function PersonalDetails() {
           name="documentType"
           label="Tipo de Documento"
           placeholder="Selecione"
-          items={[
-            { value: 'bi', label: 'Bilhete de Identidade' },
-            { value: 'passaporte', label: 'Passaporte' },
-            { value: 'dire', label: 'DIRE' },
-          ]}
+          items={documentoOptions}
           fullWidth
         />
         <InputFormField
@@ -120,6 +147,14 @@ export function PersonalDetails() {
           type="date"
         />
       </div>
+      <SelectFormField
+        control={form.control}
+        name="codigoNacionalidade"
+        label="Nacionalidade"
+        placeholder="Selecione Nacionalidade"
+        items={tipoNacionalidaddesOptions}
+        fullWidth
+      />
     </>
   )
 }

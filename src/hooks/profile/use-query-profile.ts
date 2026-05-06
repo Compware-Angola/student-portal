@@ -1,4 +1,4 @@
-import { getProfile, type StudentProfile } from '@/services/profile'
+import { getProfile, type CurrentUserResponse } from '@/services/profile'
 import { extractFirstAndLastName } from '@/utils/extract-first-and-last-name'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
@@ -32,16 +32,10 @@ export function formatDate(dateString?: string | null): string {
 
 export function useQueryProfile() {
   const auth = AuthStorage.get()
-  const { data, isLoading, error, isError, refetch } = useQuery<StudentProfile>(
+  const { data, isLoading, error, isError, refetch } = useQuery<CurrentUserResponse>(
     {
       queryKey: ['profile'],
-
-      queryFn: () => {
-        if (!auth?.codigoPreinscricao?.toString()) {
-          throw new Error('código de pré-inscrição não fornecido')
-        }
-        return getProfile(auth?.codigoPreinscricao?.toString() ?? '')
-      },
+      queryFn: getProfile,
       staleTime: Infinity,
       retry: 0,
       enabled: !!auth,
@@ -49,38 +43,45 @@ export function useQueryProfile() {
   )
 
   const profileData: ProfileData | null = useMemo(() => {
-    if (!data) {
+    const authData = data?.user
+    if (!authData) {
       return null
     }
 
-    const { firstName, lastName } = extractFirstAndLastName(data.nome_completo)
+    const { firstName, lastName } = extractFirstAndLastName(authData.nome_completo)
 
     return {
-      ...data,
+      ...authData,
       firstName,
       lastName,
-      fullName: data.nome_completo,
-      birthDate: data.data_nascimento,
-      admissionDate: data.data_admissao,
-      enrollmentDate: data.data_matricula,
-      gender: data.sexo,
-      enrollmentState: data.estado_matricula,
-      course: data.curso ?? data.curso_candidatura_designacao,
-      polo: data.polo,
-      email: data.email,
-      phone: data.telefone,
+      fullName: authData?.nome_completo,
+      birthDate: authData?.data_nascimento,
+      admissionDate: authData?.data_admissao,
+      enrollmentDate: authData?.data_matricula ?? '-',
+      gender: authData?.sexo,
+      enrollmentState: authData?.estado_matricula,
+      course: authData?.curso ?? authData?.curso_candidatura_designacao,
+      polo: authData?.polo,
+      email: authData?.email,
+      phone: authData?.telefone,
       address: '',
-      curso: data.curso ?? data.curso_candidatura_designacao,
-      codigo_curso: data.codigo_curso ?? data.curso_candidatura,
-      enrollmentCode: data.codigo_matricula,
-      preEnrollmentCode: data.codigo_preinscricao,
-      estado_matricula: data.estado_matricula,
+      curso: authData?.curso ?? authData?.curso_candidatura_designacao,
+      codigo_curso: authData.codigo_curso ?? authData.curso_candidatura,
+      enrollmentCode: authData?.codigo_matricula?.toString() ?? null,
+      preEnrollmentCode: authData?.codigo_preinscricao?.toString() ?? null,
+      estado_matricula: authData?.estado_matricula,
+      numero_documento: authData?.numero_documento,
+      userId: authData?.user_id.toString(),
+      estado_aluno: authData?.estado_aluno,
+
+
     }
   }, [data])
 
   return {
     profileData,
     isLoading,
+    studentStatus: profileData?.estado_aluno,
     error,
     isError,
     refetch,

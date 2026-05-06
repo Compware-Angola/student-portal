@@ -28,14 +28,15 @@ export function StudentNotifications() {
     ? Number(profileData.codigo_curso)
     : undefined
 
-  const periodo = profileData?.periodoId
-    ? Number(profileData.periodoId)
+  const periodo = profileData?.periodoid
+    ? Number(profileData.periodoid)
     : undefined
 
   const { data: avisosGrupo = [] } = useQueryAvisosPorGrupo({
     sigla: GRUPO_ESTUDANTE_SIGLA,
     curso,
     periodo,
+    enabled: profileData?.estado_aluno === 'ALUNO_MATRICULADO',
   })
 
   const avisosValidos = useMemo(() => {
@@ -55,7 +56,7 @@ export function StudentNotifications() {
     if (avisosValidos.length === 0) return
 
     const novos = avisosValidos.filter(
-      (aviso) => !seenAvisoIds.current.has(aviso.CODIGO)
+      (aviso) => !seenAvisoIds.current.has(aviso.CODIGO),
     )
 
     if (isFirstLoad.current) {

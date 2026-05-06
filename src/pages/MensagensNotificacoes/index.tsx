@@ -42,20 +42,20 @@ export const MensagensNotificacoes = () => {
   const userId = authData?.user_id ?? profileData?.userId ?? ''
   const pre_inscricao = profileData?.codigo_preinscricao ?? ''
   const { data: comunicados, isLoading: isLoadingComunicados } =
-    useQueryAnnouncement({ pre_inscricao })
+    useQueryAnnouncement({ pre_inscricao: Number(pre_inscricao) })
   // ← aqui lê o localStorage
   const { data: mensagens, isLoading: isLoadingMensagens } = useQueryMessage({
     userId: userId.toString(),
   })
 
-// AVISOS ESTUDANTES
+  // AVISOS ESTUDANTES
 
   const curso = profileData?.codigo_curso
     ? Number(profileData.codigo_curso)
     : undefined
 
-  const periodo = profileData?.periodoId
-    ? Number(profileData.periodoId)
+  const periodo = profileData?.periodoid
+    ? Number(profileData.periodoid)
     : undefined
 
   const {
@@ -65,6 +65,7 @@ export const MensagensNotificacoes = () => {
     sigla: GRUPO_ESTUDANTE_SIGLA,
     curso,
     periodo,
+    enabled: profileData?.estado_aluno === 'ALUNO_MATRICULADO'
   })
 
   const avisosValidos = useMemo(() => {
@@ -81,30 +82,30 @@ export const MensagensNotificacoes = () => {
   }, [avisosGrupo])
 
 
-const handleDownload = async (ficheiroName: string) => {
-  if (!ficheiroName) return;
+  const handleDownload = async (ficheiroName: string) => {
+    if (!ficheiroName) return;
 
-  try {
-    const fileUrl = buildImageAssets(ficheiroName);
-    if (!fileUrl) return;
+    try {
+      const fileUrl = buildImageAssets(ficheiroName);
+      if (!fileUrl) return;
 
-    const response = await fetch(fileUrl);
-    const blob = await response.blob();
+      const response = await fetch(fileUrl);
+      const blob = await response.blob();
 
-    const url = window.URL.createObjectURL(blob);
+      const url = window.URL.createObjectURL(blob);
 
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = ficheiroName;
-    document.body.appendChild(a);
-    a.click();
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = ficheiroName;
+      document.body.appendChild(a);
+      a.click();
 
-    a.remove();
-    window.URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error("Erro ao baixar ficheiro:", error);
-  }
-};
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Erro ao baixar ficheiro:", error);
+    }
+  };
   if (profileError) {
     return (
       <Card>
@@ -142,20 +143,20 @@ const handleDownload = async (ficheiroName: string) => {
     respostas: null,
   }))
 
-  const normalizedAvisos : Notification[] = avisosValidos.map((item) => ({
-  id: String(item.CODIGO),
-  type: 'aviso',
-  title: item.ASSUNTO ?? 'Sem assunto',
-  message: item.DESCRICAO ?? '',
-  date: item.DATE_EXPIRACAO ?? new Date().toISOString(),
-  read: false,
-  priority: 'low',
-  respostas: null,
-  fileName: item.FILE_NAME ?? null,
-  autor: item.AUTOR ?? null,
-}))
+  const normalizedAvisos: Notification[] = avisosValidos.map((item) => ({
+    id: String(item.CODIGO),
+    type: 'aviso',
+    title: item.ASSUNTO ?? 'Sem assunto',
+    message: item.DESCRICAO ?? '',
+    date: item.DATE_EXPIRACAO ?? new Date().toISOString(),
+    read: false,
+    priority: 'low',
+    respostas: null,
+    fileName: item.FILE_NAME ?? null,
+    autor: item.AUTOR ?? null,
+  }))
 
-const comunicadosEAvisos = [...normalizedComunicados, ...normalizedAvisos]
+  const comunicadosEAvisos = [...normalizedComunicados, ...normalizedAvisos]
 
   const isLoading = isLoadingMensagens || isLoadingComunicados || isLoadingAviso
 
@@ -270,57 +271,57 @@ const comunicadosEAvisos = [...normalizedComunicados, ...normalizedAvisos]
                           <p className="text-sm text-muted-foreground">
                             {msg.respostas.mensagem_resposta ?? 'Sem resposta'}
                           </p>
-                            {(msg.respostas.file_name1 || msg.respostas.file_name2 || msg.respostas.file_name3) && (
-                          <div className="mt-3 text-xs">
-                            <p className="font-medium text-muted-foreground mb-1">Anexos:</p>
-                            <div className="flex flex-col gap-2">
-                              {msg.respostas.file_name1 && (
-                                <div className="flex items-center justify-between bg-muted/50 p-2 rounded border">
-                                  <span className="text-blue-600 truncate max-w-[220px]">
-                                    {msg.respostas.file_name1}
-                                  </span>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => handleDownload(msg.respostas?.file_name1!)}
-                                  >
-                                    <Download className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              )}
+                          {(msg.respostas.file_name1 || msg.respostas.file_name2 || msg.respostas.file_name3) && (
+                            <div className="mt-3 text-xs">
+                              <p className="font-medium text-muted-foreground mb-1">Anexos:</p>
+                              <div className="flex flex-col gap-2">
+                                {msg.respostas.file_name1 && (
+                                  <div className="flex items-center justify-between bg-muted/50 p-2 rounded border">
+                                    <span className="text-blue-600 truncate max-w-[220px]">
+                                      {msg.respostas.file_name1}
+                                    </span>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleDownload(msg.respostas?.file_name1!)}
+                                    >
+                                      <Download className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                )}
 
-                              {msg.respostas.file_name2 && (
-                                <div className="flex items-center justify-between bg-muted/50 p-2 rounded border">
-                                  <span className="text-blue-600 truncate max-w-[220px]">
-                                    {msg.respostas.file_name2}
-                                  </span>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => handleDownload(msg.respostas?.file_name2!)}
-                                  >
-                                    <Download className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              )}
+                                {msg.respostas.file_name2 && (
+                                  <div className="flex items-center justify-between bg-muted/50 p-2 rounded border">
+                                    <span className="text-blue-600 truncate max-w-[220px]">
+                                      {msg.respostas.file_name2}
+                                    </span>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleDownload(msg.respostas?.file_name2!)}
+                                    >
+                                      <Download className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                )}
 
-                              {msg.respostas?.file_name3 && (
-                                <div className="flex items-center justify-between bg-muted/50 p-2 rounded border">
-                                  <span className="text-blue-600 truncate max-w-[220px]">
-                                    {msg.respostas?.file_name3}
-                                  </span>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => handleDownload(msg.respostas?.file_name3!)}
-                                  >
-                                    <Download className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              )}
+                                {msg.respostas?.file_name3 && (
+                                  <div className="flex items-center justify-between bg-muted/50 p-2 rounded border">
+                                    <span className="text-blue-600 truncate max-w-[220px]">
+                                      {msg.respostas?.file_name3}
+                                    </span>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleDownload(msg.respostas?.file_name3!)}
+                                    >
+                                      <Download className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
 
                           {msg.respostas.data_resposta && (
                             <p className="text-[12px] text-muted-foreground mt-2">
@@ -353,68 +354,68 @@ const comunicadosEAvisos = [...normalizedComunicados, ...normalizedAvisos]
 
         {/* Aba de Comunicados */}
         <TabsContent value="comunicados" className="space-y-4 mt-6">
-  {comunicadosEAvisos.length === 0 ? (
-    <p className="text-center text-muted-foreground">
-      Nenhum comunicado ou aviso disponível.
-    </p>
-  ) : (
-    comunicadosEAvisos
-      .sort(
-        (a, b) =>
-          new Date(b.date).getTime() - new Date(a.date).getTime(),
-      )
-      .map((com) => (
-        <Card key={`${com.type}-${com.id}`}>
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                {getIcon(com.type)}
-                <div>
-                  <CardTitle className="text-base">{com.title}</CardTitle>
-                  <CardDescription className="text-sm mt-1">
-                    {new Date(com.date).toLocaleDateString('pt-PT', {
-                      day: '2-digit',
-                      month: 'long',
-                      year: 'numeric',
-                    })}
-                  </CardDescription>
+          {comunicadosEAvisos.length === 0 ? (
+            <p className="text-center text-muted-foreground">
+              Nenhum comunicado ou aviso disponível.
+            </p>
+          ) : (
+            comunicadosEAvisos
+              .sort(
+                (a, b) =>
+                  new Date(b.date).getTime() - new Date(a.date).getTime(),
+              )
+              .map((com) => (
+                <Card key={`${com.type}-${com.id}`}>
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        {getIcon(com.type)}
+                        <div>
+                          <CardTitle className="text-base">{com.title}</CardTitle>
+                          <CardDescription className="text-sm mt-1">
+                            {new Date(com.date).toLocaleDateString('pt-PT', {
+                              day: '2-digit',
+                              month: 'long',
+                              year: 'numeric',
+                            })}
+                          </CardDescription>
 
-                  {com.autor && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Autor: {com.autor}
-                    </p>
-                  )}
-                </div>
-              </div>
+                          {com.autor && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Autor: {com.autor}
+                            </p>
+                          )}
+                        </div>
+                      </div>
 
-              <Badge variant={getPriorityColor(com.priority)}>
-                {com.type === 'aviso' ? 'Aviso' : 'Baixa'}
-              </Badge>
-            </div>
-          </CardHeader>
+                      <Badge variant={getPriorityColor(com.priority)}>
+                        {com.type === 'aviso' ? 'Aviso' : 'Baixa'}
+                      </Badge>
+                    </div>
+                  </CardHeader>
 
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">{com.message}</p>
+                  <CardContent className="space-y-3">
+                    <p className="text-sm text-muted-foreground">{com.message}</p>
 
-            {com.fileName && (
-              <div className="flex items-center justify-between bg-muted/50 p-2 rounded border">
-                <span className="text-blue-600 truncate max-w-[220px]">
-                  {com.fileName}
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleDownload(com.fileName!)}
-                >
-                  <Download className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      ))
-  )}
-</TabsContent>
+                    {com.fileName && (
+                      <div className="flex items-center justify-between bg-muted/50 p-2 rounded border">
+                        <span className="text-blue-600 truncate max-w-[220px]">
+                          {com.fileName}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDownload(com.fileName!)}
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))
+          )}
+        </TabsContent>
       </Tabs>
     </div>
   )

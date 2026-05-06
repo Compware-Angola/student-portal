@@ -1,6 +1,6 @@
 import Layout from '@/components/layout'
 import { Dashboard } from '@/pages/dashboard'
-import { Navigate, Route } from 'react-router-dom'
+import { Navigate, Route, useLocation } from 'react-router-dom'
 import { RequireAuth } from './require-auth'
 import { Enrollment } from '@/pages/enrollment'
 import { Profile } from '@/pages/profile'
@@ -24,6 +24,13 @@ import { useMemo, type JSX } from 'react'
 import { Comunicado } from '@/pages/login/Comunicado'
 import NotificacoesPage from '@/pages/notification/notificacoes-page'
 
+import { getHomeRoute, routePermissions } from './permission'
+import { useQueryProfile } from '@/hooks/profile/use-query-profile'
+import PreIncriptionDashboard from '@/pages/dashboard/pre-inscription-dashboard'
+import ProvaExameAcesso from '@/pages/prova-exame-acesso'
+import { PrePayment } from '@/pages/pre-payment'
+import { InscriçõesRecurosPage } from '@/pages/assessments/recuros'
+import { InscriçõesEspecial } from '@/pages/assessments/especial'
 
 export function MainRoutes() {
   const { isLoading, hasEnrolmentCode } = useStudentSituation()
@@ -39,142 +46,214 @@ export function MainRoutes() {
   const enrollmentPath = getEnrollmentRoute(hasEnrolmentCode)
 
   return (
-     
- <Route>
-     <Route
-      path="/"
-      element={
-        <RequireAuth>
-          <Layout />
-        </RequireAuth>
-      }
-    >
-      <Route index element={<Dashboard />} />
-      
-        
+    <Route>
       <Route
-        path="/calendario-academico"
+        path="/"
         element={
-          <RequireStudentWithEnrolmentCode>
-            <AcademicCalendar />
-          </RequireStudentWithEnrolmentCode>
+          <RequireAuth>
+            <Layout />
+          </RequireAuth>
         }
-      />
-      <Route
-        path="/calendario-exames"
-        element={
-          <RequireStudentWithEnrolmentCode>
-            <ExamCalendar />
-          </RequireStudentWithEnrolmentCode>
-        }
-      />
-      <Route
-        path={enrollmentPath.slice(1)}
-        element={enrollmentComponents[enrollmentPath]}
-      />
-      <Route
-        path="/horario"
-        element={
-          <RequireStudentWithEnrolmentCode>
-            <Schedule />
-          </RequireStudentWithEnrolmentCode>
-        }
-      />
-      <Route
-        path="/pagamento-antecipado"
-        element={
-          <RequireStudentWithEnrolmentCode>
-            <AdvancePayment />
-          </RequireStudentWithEnrolmentCode>
-        }
-      />
-      <Route
-        path="/avaliacoes"
-        element={
-          <RequireStudentWithEnrolmentCode>
-            <Assessments />
-          </RequireStudentWithEnrolmentCode>
-        }
-      />
-      <Route
-        path="/servicos-academicos"
-        element={
-          <RequireStudentWithEnrolmentCode>
-            <AcademicServices />
-          </RequireStudentWithEnrolmentCode>
-        }
-      />
-      <Route
-        path="/financas"
-        element={
-          <RequireStudentWithEnrolmentCode>
-            <Finance />
-          </RequireStudentWithEnrolmentCode>
-        }
-      />
-      <Route
-        path="/renegociacao"
-        element={
-          <RequireStudentWithEnrolmentCode>
-            <Renegociation />
-          </RequireStudentWithEnrolmentCode>
-        }
-      />
+      >
+        <Route
+          index
+          element={
+            <RequireStudentRoute>
+              <Dashboard />
+            </RequireStudentRoute>
+          }
+        />
+
+        <Route
+          path="/calendario-academico"
+          element={
+            <RequireStudentRoute>
+              <AcademicCalendar />
+            </RequireStudentRoute>
+          }
+        />
+        <Route
+          path="/calendario-exames"
+          element={
+            <RequireStudentRoute>
+              <ExamCalendar />
+            </RequireStudentRoute>
+          }
+        />
+        <Route
+          path={enrollmentPath.slice(1)}
+          element={
+            <RequireStudentRoute>
+              {enrollmentComponents[enrollmentPath]}
+            </RequireStudentRoute>
+          }
+        />
+        <Route
+          path="/horario"
+          element={
+            <RequireStudentRoute>
+              <Schedule />
+            </RequireStudentRoute>
+          }
+        />
+        <Route
+          path="/pagamento-antecipado"
+          element={
+            <RequireStudentRoute>
+              <AdvancePayment />
+            </RequireStudentRoute>
+          }
+        />
+        <Route
+          path="/avaliacoes"
+          element={
+            <RequireStudentRoute>
+              <Assessments />
+            </RequireStudentRoute>
+          }
+        />
+        <Route
+          path="/avaliacoes/inscricoes-recurso"
+          element={
+            <RequireStudentRoute>
+              <InscriçõesRecurosPage />
+            </RequireStudentRoute>
+          }
+        />
+        <Route
+          path="/avaliacoes/inscricoes-especial"
+          element={
+            <RequireStudentRoute>
+              <InscriçõesEspecial />
+            </RequireStudentRoute>
+          }
+        />
+        <Route
+          path="/servicos-academicos"
+          element={
+            <RequireStudentRoute>
+              <AcademicServices />
+            </RequireStudentRoute>
+          }
+        />
+        <Route
+          path="/financas"
+          element={
+            <RequireStudentRoute>
+              <Finance />
+            </RequireStudentRoute>
+          }
+        />
+        <Route
+          path="/renegociacao"
+          element={
+            <RequireStudentRoute>
+              <Renegociation />
+            </RequireStudentRoute>
+          }
+        />
+
+        <Route
+          path="/mensagens"
+          element={
+            <RequireStudentRoute>
+              <MensagensNotificacoes />
+            </RequireStudentRoute>
+          }
+        />
+        <Route path="/notificacoes" element={<NotificacoesPage />} />
+        <Route
+          path="/suporte"
+          element={
+            <RequireStudentRoute>
+              <Suporte />
+            </RequireStudentRoute>
+          }
+        />
+        <Route
+          path="/disciplinas"
+          element={
+            <RequireStudentRoute>
+              <DisciplinasMatriculadas />
+            </RequireStudentRoute>
+          }
+        />
+        <Route
+          path="/pre-dashboard"
+          element={
+            <RequireStudentRoute>
+              <PreIncriptionDashboard />
+            </RequireStudentRoute>
+          }
+        />
+        <Route
+          path="/financas/notas-pagamento"
+          element={
+            <RequireStudentRoute>
+              <NotaPagamento />
+            </RequireStudentRoute>
+          }
+        />
+
+        <Route
+          path="/pre-inscricao"
+          element={
+            <RequireStudentRoute>
+              <PreSubscription />
+            </RequireStudentRoute>
+          }
+        />
+        <Route
+          path="/exame-acesso"
+          element={
+            <RequireStudentRoute>
+              <ProvaExameAcesso />
+            </RequireStudentRoute>
+          }
+        />
+        <Route
+          path="/pre-pagamento"
+          element={
+            <RequireStudentRoute>
+              <PrePayment />
+            </RequireStudentRoute>
+          }
+        />
+        <Route
+          path="/perfil"
+          element={
+            <RequireStudentRoute>
+              <Profile />
+            </RequireStudentRoute>
+          }
+        />
+      </Route>
 
       <Route
-        path="/mensagens"
+        path="/comunicado"
         element={
-          <RequireStudentWithEnrolmentCode>
-            <MensagensNotificacoes />
-          </RequireStudentWithEnrolmentCode>
+          <RequireAuth>
+            <Comunicado />
+          </RequireAuth>
         }
       />
-      <Route path="/notificacoes" element={<NotificacoesPage />} />
-      <Route
-        path="/suporte"
-        element={
-          <RequireStudentWithEnrolmentCode>
-            <Suporte />
-          </RequireStudentWithEnrolmentCode>
-        }
-      />
-      <Route
-        path="/disciplinas"
-        element={
-          <RequireStudentWithEnrolmentCode>
-            <DisciplinasMatriculadas />
-          </RequireStudentWithEnrolmentCode>
-        }
-      />
-      <Route path="/financas/notas-pagamento" element={<NotaPagamento />} />
-
-      <Route path="/pre-inscricao" element={<PreSubscription />} />
-      <Route path="/perfil" element={<Profile />} />
     </Route>
-
-
-
-    <Route   path="/comunicado"
-      element={
-        <RequireAuth>
-         <Comunicado />
-        </RequireAuth>
-      } />
- </Route>
   )
 }
 
-export function RequireStudentWithEnrolmentCode({
-  children,
-}: {
-  children: JSX.Element
-}) {
-  const { hasEnrolmentCode, isLoading } = useStudentSituation()
+export function RequireStudentRoute({ children }: { children: JSX.Element }) {
+  const { isLoading, studentStatus } = useQueryProfile()
 
-  if (isLoading) return null
+  const location = useLocation()
 
-  if (!hasEnrolmentCode) {
-    return <Navigate to="/" replace />
+  if (isLoading || !studentStatus) return null
+
+  const allowedRoutes = routePermissions[studentStatus]
+  console.log(location.pathname)
+  const homeRoute = getHomeRoute(studentStatus)
+  console.log(homeRoute)
+  if (!allowedRoutes.includes(location.pathname)) {
+    return <Navigate to={homeRoute} replace />
   }
 
   return children
