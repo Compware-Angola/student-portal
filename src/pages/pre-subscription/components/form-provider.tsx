@@ -73,9 +73,7 @@ export function FormPreSubscriptionProvider({
       contactoDeEmergencia: data.phoneAlt || '',
       moradaCompleta: data.street,
       email: data.email,
-      instituicaoFormacaoAcesso: isNaN(Number(data.previousSchool))
-        ? undefined
-        : Number(data.previousSchool),
+      instituicaoFormacao:data.previousSchool,
       dataConclusao: data.graduationYear,
       mediaFinal: Number(data.averageGrade),
       pai: data.fatherName,
@@ -143,7 +141,7 @@ export function FormPreSubscriptionProvider({
       certificatePath = await uploadFile(data.certificate)
       docs.push( {
         typeDocumentId :DocumentTypeEnum.CERTIFICADO_COM_NOTAS,
-        fileName: documentPath
+        fileName: certificatePath
       })
     }
     const payload = buildInscricaoPayload(data,docs)
