@@ -33,7 +33,7 @@ function WaitingTest({
   hours,
   minutes,
   seconds,
-  examInfo,
+
 }: WaitingTestProps) {
   const { data: info } = useQueryInfoGeraisCandidatura()
   const { profileData } = useQueryProfile()
@@ -101,7 +101,7 @@ function WaitingTest({
                 <MapPin className="h-4 w-4 text-primary" /> Local da Prova
               </div>
               <p className="text-lg font-semibold">
-                {fmt(info?.sala_de_prova)}
+                {info?.sala_de_prova}
               </p>
             </div>
             <div className="rounded-lg border p-4 bg-muted/30">

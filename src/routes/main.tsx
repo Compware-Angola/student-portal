@@ -30,6 +30,7 @@ import PreIncriptionDashboard from '@/pages/dashboard/pre-inscription-dashboard'
 import ProvaExameAcesso from '@/pages/prova-exame-acesso'
 import { PrePayment } from '@/pages/pre-payment'
 import { InscriçõesRecurosPage } from '@/pages/assessments/recuros'
+import { InscriçõesEspecial } from '@/pages/assessments/especial'
 
 export function MainRoutes() {
   const { isLoading, hasEnrolmentCode } = useStudentSituation()
@@ -116,6 +117,14 @@ export function MainRoutes() {
           element={
             <RequireStudentRoute>
               <InscriçõesRecurosPage />
+            </RequireStudentRoute>
+          }
+        />
+        <Route
+          path="/avaliacoes/inscricoes-especial"
+          element={
+            <RequireStudentRoute>
+              <InscriçõesEspecial />
             </RequireStudentRoute>
           }
         />

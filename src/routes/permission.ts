@@ -8,6 +8,7 @@ export const routePermissions: Record<StudentStatusType, string[]> = {
     '/horario',
     '/avaliacoes',
     '/avaliacoes/inscricoes-recurso',
+    '/avaliacoes/inscricoes-especial',
     '/servicos-academicos',
     '/disciplinas',
     '/mensagens',
@@ -25,7 +26,7 @@ export const routePermissions: Record<StudentStatusType, string[]> = {
     '/pre-dashboard',
     '/perfil',
     '/exame-acesso',
-    '/pre-pagamento'
+    '/pre-pagamento',
   ],
    [StudentStatus.ADMITIDO_SEM_MATRICULA]: [
     '/',
