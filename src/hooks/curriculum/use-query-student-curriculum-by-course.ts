@@ -5,7 +5,7 @@ import {
 
 import { useQuery } from '@tanstack/react-query'
 type Params = {
-  course?: string
+  course?: number
 }
 export function useQueryStudentCurriculumByCourse(params: Params) {
   const { data, isLoading, error, isError } =

@@ -3,8 +3,8 @@ import type { CurriculumPlan } from '@/types/curriculum-plan'
 
 import { useQuery } from '@tanstack/react-query'
 type Params = {
-  class?: string
-  course?: string
+  class?: number
+  course?: number
   semestre?: number
   type?: 'old' | 'new'
 }
