@@ -7,6 +7,7 @@ import { CurriculumCard } from './curriculum-card'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 import { PaymentAlert } from '@/components/payment-alert'
 import { useQueryGetDebit } from '@/hooks/renegotiation/use-query-renegotiation'
+import { Notes } from './notes'
 
 export function Assessments() {
   const { profileData, isError, isLoading } = useQueryProfile()
@@ -49,10 +50,9 @@ export function Assessments() {
         </TabsList>
 
         <TabsContent value="current" className="space-y-4">
-          <GradeCurrentAcademicYear
-            academicYear={academicYear?.toString()}
-            classe={classe?.toString()}
-            enrollmentCode={enrollmentCode?.toString()}
+          <Notes
+            
+            codigoMatricula={enrollmentCode}
           />
         </TabsContent>
 
