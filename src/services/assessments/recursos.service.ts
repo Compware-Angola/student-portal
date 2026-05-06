@@ -1,5 +1,6 @@
 import { gaApi } from '@/lib/ga-api'
-export type CaderiraRecuro = {
+
+export type Cadeira = {
   codigoGradeAluno: number
   gradeCurricula: number
   disciplina: string
@@ -12,39 +13,50 @@ export type CaderiraRecuro = {
   formula: string[]
   obs: string[]
 }
-type GetCadeirasRecurosResponse = {
+
+export type ResultadoAluno = {
   total: number
   matricula: number
   anoLectivo: number
   nomeCompleto: string
-  cadeiras: CaderiraRecuro[]
+  cadeiras: Cadeira[]
 }
-type GetCadeirasRecurosParams = {
+
+export type BaseParams = {
   anoLetivo: number
   matricula: number
-  semestre: number
 }
-export function getCadeirasRecuros({
-  anoLetivo,
-  matricula,
-}: GetCadeirasRecurosParams) {
-  const endpoint = `students/provas/recurso/${anoLetivo}/${matricula}`
-  return gaApi.get(endpoint).json<GetCadeirasRecurosResponse>()
+
+export type GetCadeirasParams = BaseParams & {
+  semestre?: number
 }
+
+export function getCadeirasRecurso({ anoLetivo, matricula }: BaseParams) {
+  return gaApi
+    .get(`students/provas/recurso/${anoLetivo}/${matricula}`)
+    .json<ResultadoAluno>()
+}
+
 export type GradeRecursoAluno = {
   codigoGradeAluno: number
   codigoGrade: number
   unidadeCurricular: string
 }
-export type IncricaoRecuro = {
+
+export type InscricaoRecursoPayload = {
   codigoMatricula: number
   gradesAlunos: GradeRecursoAluno[]
 }
 
-export function incricaoRecuro(dados: IncricaoRecuro) {
-  const { codigoMatricula, gradesAlunos } = dados
-  const endpoint = `students/provas/recurso/${codigoMatricula}`
-  return gaApi.post(endpoint, { json: { gradesAlunos } }).json<void>()
+export function inscreverRecurso({
+  codigoMatricula,
+  gradesAlunos,
+}: InscricaoRecursoPayload) {
+  return gaApi
+    .post(`students/provas/recurso/${codigoMatricula}`, {
+      json: { gradesAlunos },
+    })
+    .json<void>()
 }
 
 export type CadeiraRecursoInscrita = {
@@ -56,20 +68,48 @@ export type CadeiraRecursoInscrita = {
   classe: string
 }
 
-type GetCadeirasInscritasResponse = {
-  cadeirasInscristas: CadeiraRecursoInscrita[]
-}
-
-type GetCadeirasInscritasParams = {
-  anoLetivo: number
-  matricula: number
+export type GetCadeirasInscritasResponse = {
+  cadeirasInscritas: CadeiraRecursoInscrita[]
 }
 
 export function getCadeirasRecursoInscritas({
   anoLetivo,
   matricula,
-}: GetCadeirasInscritasParams) {
-  const endpoint = `students/provas/recurso/cadeiras-inscritas/${anoLetivo}/${matricula}`
+}: BaseParams) {
+  return gaApi
+    .get(`students/provas/recurso/cadeiras-inscritas/${anoLetivo}/${matricula}`)
+    .json<GetCadeirasInscritasResponse>()
+}
 
-  return gaApi.get(endpoint).json<GetCadeirasInscritasResponse>()
+export function getCadeirasEspecial({ anoLetivo, matricula }: BaseParams) {
+  return gaApi
+    .get(`students/provas/epoca-especial/${anoLetivo}/${matricula}`)
+    .json<ResultadoAluno>()
+}
+
+export function getCadeirasEpocaEspecialInscritas({
+  anoLetivo,
+  matricula,
+}: BaseParams) {
+  return gaApi
+    .get(
+      `students/provas/epoca-especial/cadeiras-inscritas/${anoLetivo}/${matricula}`,
+    )
+    .json<GetCadeirasInscritasResponse>()
+}
+
+export type InscricaoEpocaEspecialPayload = {
+  codigoMatricula: number
+  gradesAlunos: GradeRecursoAluno[]
+}
+
+export function inscreverEpocaEspecial({
+  codigoMatricula,
+  gradesAlunos,
+}: InscricaoEpocaEspecialPayload) {
+  return gaApi
+    .post(`students/provas/epoca-especial/${codigoMatricula}`, {
+      json: { gradesAlunos },
+    })
+    .json<void>()
 }

@@ -45,7 +45,7 @@ export function CadeirasRecursoInscritas() {
     matricula: parseFilter(profileData?.enrollmentCode),
   })
 
-  const cadeiras = React.useMemo(() => data?.cadeirasInscristas ?? [], [data])
+  const cadeiras = React.useMemo(() => data?.cadeirasInscritas ?? [], [data])
 
   React.useEffect(() => {
     if (!academicYears) return

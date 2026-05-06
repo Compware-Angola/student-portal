@@ -22,8 +22,8 @@ export function useQueryCurriculumPlan({
         throw new Error('Missing required parameters')
       }
       return curriculumPlanService({
-        class: classes!,
-        course: course!,
+        class: classes,
+        course: course,
         semestre: semestre,
       })
     },

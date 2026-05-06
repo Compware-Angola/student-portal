@@ -25,14 +25,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-academic-year-student'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { YearSelect } from '@/components/year-select'
-import { SemesterSelect } from '@/components/SemesterSelect'
+// import { SemesterSelect } from '@/components/SemesterSelect'
 import {
-  useMutateInscricaoRecuro,
-  useQueryCadeirasRecuros,
+  useMutateInscricaoEpocaEspecial,
+  useQueryCadeirasEpocaEspecial,
 } from '@/hooks/assessments/recursos'
 import { dedupeAcademicYears } from '../curriculum-card'
 import { parseFilter } from '@/utils'
-import type { CaderiraRecuro } from '@/services/assessments/recursos.service'
+import type { Cadeira } from '@/services/assessments/recursos.service'
 import { TableSkeleton } from '@/components/table-skeleton'
 import { Loader2 } from 'lucide-react'
 
@@ -40,7 +40,7 @@ export function CadeirasDisponiveis() {
   const { profileData } = useQueryProfile()
 
   const [selectedYear, setSelectedYear] = React.useState<string>()
-  const [selectedSemester, setSelectedSemester] = React.useState<string>()
+  // const [selectedSemester, setSelectedSemester] = React.useState<string>()
   const [selectedCadeiras, setSelectedCadeiras] = React.useState<
     {
       codigoGrade: number
@@ -55,15 +55,16 @@ export function CadeirasDisponiveis() {
 
   const academicYears = dedupeAcademicYears(academicYearData?.anolectivos)
 
-  const { data: cadeirasRecurosData, isLoading } = useQueryCadeirasRecuros({
-    anoLetivo: parseFilter(selectedYear),
-    matricula: parseFilter(profileData?.enrollmentCode),
-    semestre: parseFilter(selectedSemester),
-  })
+  const { data: cadeirasRecurosData, isLoading } =
+    useQueryCadeirasEpocaEspecial({
+      anoLetivo: parseFilter(selectedYear),
+      matricula: parseFilter(profileData?.enrollmentCode),
+      // semestre: parseFilter(selectedSemester),
+    })
   const {
-    mutateAsync: mutateInscricaoRecuro,
-    isPending: isPendingInscricaoRecuro,
-  } = useMutateInscricaoRecuro()
+    mutateAsync: mutateInscricaoEpocaEspecial,
+    isPending: isPendingInscricaoEpocaEspecial,
+  } = useMutateInscricaoEpocaEspecial()
 
   const data = React.useMemo(
     () => cadeirasRecurosData?.cadeiras ?? [],
@@ -87,11 +88,11 @@ export function CadeirasDisponiveis() {
     )
   }, [data])
 
-  const onSelectSemester = (value?: string) => {
-    setSelectedSemester(value === '3' ? undefined : value)
-  }
+  // const onSelectSemester = (value?: string) => {
+  //   setSelectedSemester(value === '3' ? undefined : value)
+  // }
 
-  function toggleCadeira(row: CaderiraRecuro) {
+  function toggleCadeira(row: Cadeira) {
     setSelectedCadeiras((prev) => {
       const exists = prev.find(
         (c) => c.codigoGradeAluno === row.codigoGradeAluno,
@@ -110,9 +111,9 @@ export function CadeirasDisponiveis() {
     })
   }
   const enrollmentCode = parseFilter(profileData?.enrollmentCode)
-  function handleInscricaoRecuro() {
+  function handleInscricaoEpocaEspecial() {
     if (!enrollmentCode) return
-    mutateInscricaoRecuro({
+    mutateInscricaoEpocaEspecial({
       codigoMatricula: enrollmentCode,
       gradesAlunos: selectedCadeiras.map((c) => ({
         codigoGradeAluno: c.codigoGradeAluno,
@@ -122,7 +123,7 @@ export function CadeirasDisponiveis() {
     })
   }
 
-  const columns = React.useMemo<ColumnDef<CaderiraRecuro>[]>(
+  const columns = React.useMemo<ColumnDef<Cadeira>[]>(
     () => [
       {
         id: 'select',
@@ -160,7 +161,7 @@ export function CadeirasDisponiveis() {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Cadeiras de Recurso</CardTitle>
+          <CardTitle>Exame Especial</CardTitle>
 
           <div className="flex gap-2">
             <YearSelect
@@ -168,7 +169,7 @@ export function CadeirasDisponiveis() {
               selectedYear={selectedYear}
               onChange={setSelectedYear}
             />
-            <SemesterSelect onChange={onSelectSemester} />
+            {/* <SemesterSelect onChange={onSelectSemester} /> */}
           </div>
         </div>
       </CardHeader>
@@ -261,11 +262,11 @@ export function CadeirasDisponiveis() {
                     disabled={
                       !enrollmentCode ||
                       selectedCadeiras.length === 0 ||
-                      isPendingInscricaoRecuro
+                      isPendingInscricaoEpocaEspecial
                     }
-                    onClick={handleInscricaoRecuro}
+                    onClick={handleInscricaoEpocaEspecial}
                   >
-                    {isPendingInscricaoRecuro ? (
+                    {isPendingInscricaoEpocaEspecial ? (
                       <>
                         <Loader2 className="animate-spin mr-2" />
                         <span>Inscrevendo...</span>

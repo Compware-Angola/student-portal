@@ -37,9 +37,11 @@ export function InscriçõesEspecial() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
-          Inscrições para recurso
+          Inscrições para exames especiais
         </h1>
-        <p className="text-muted-foreground mt-2">Inscreva-se em recursos</p>
+        <p className="text-muted-foreground mt-2">
+          Inscreva-se em exames especiais
+        </p>
       </div>
 
       <Tabs defaultValue="current" className="space-y-4">
