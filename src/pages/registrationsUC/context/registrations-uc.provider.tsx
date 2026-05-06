@@ -81,7 +81,7 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
   const generateClasse = useMemo(() => {
     const classe = profileData?.confirmacoes?.[0]?.classe
     const newClass = Number(classe) + 1
-   // return `${newClass > 5 ? classe : newClass}`  
+   // return `${newClass > 5 ? classe : newClass}`
    return newClass > 5 ? classe : newClass
   }, [profileData])
 
@@ -113,7 +113,7 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     useQueryMonthlyFeesValue({
       curso: profileData?.codigo_curso,
       polo: profileData?.poloid,
-      anoLetivo: !currentAcademicYear?.codigo ? parseInt(currentAcademicYear?.codigo!) : 23
+      anoLetivo: currentAcademicYear?.codigo ? parseInt(currentAcademicYear?.codigo!) : 23
     })
 
   const { createInvoiceAsync } = useMutationCreateInvoice()

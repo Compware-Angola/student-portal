@@ -96,7 +96,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     useQueryMonthlyFeesValue({
       curso: profileData?.codigo_curso,
       polo: profileData?.poloid,
-      anoLetivo: !currentAcademicYear?.codigo ? parseInt(currentAcademicYear?.codigo!) : 23
+      anoLetivo: currentAcademicYear?.codigo ? parseInt(currentAcademicYear?.codigo!) : 23
     })
 
   const {
