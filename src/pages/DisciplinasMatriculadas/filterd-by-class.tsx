@@ -31,6 +31,7 @@ import type { ProfileData } from '@/types/profile'
 import type { Grade } from '@/types/grade'
 import { GradeCurricularPDF } from '@/components/academic-grade-cocument'
 import { useQueryStudentCurriculumByCourse } from '@/hooks/curriculum/use-query-student-curriculum-by-course'
+import { parseFilter } from '@/utils'
 
 const anoPorExtenso = (codigo: string | number): string => {
   const mapa: Record<string, string> = {
@@ -91,7 +92,7 @@ export const FilteredByClass = ({ profileData }: CurrentYearProps) => {
     isLoading: isLoadingCurriculum,
     isError,
   } = useQueryCurriculumPlan({
-    class: selectedClass,
+    class: parseFilter(selectedClass),
     course: profileData?.codigo_curso,
   })
 

@@ -33,6 +33,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import type { CreateInvoiceBody } from '@/services/invoice/post-invoice.service'
 
 interface ServiceItem {
   codigo: string
@@ -90,7 +91,7 @@ export function AcademicServices() {
   }
 
   // === Payload para criar fatura ===
-  const payload = useMemo(() => {
+  const payload: CreateInvoiceBody | null = useMemo<CreateInvoiceBody | null>(() => {
     if (
       !servicesData?.servicos ||
       Object.keys(selectedServices).length === 0 ||
@@ -100,7 +101,8 @@ export function AcademicServices() {
       isNaN(preInscricaoNumero!)
     ) {
       return null
-    }
+    } 
+    
 
     const TAXA_IVA = 0
     const TAXA_RETENCAO = 0
@@ -162,7 +164,7 @@ export function AcademicServices() {
 
     return {
       DataFactura: new Date().toISOString(),
-      polo_id: poloId,
+      polo_id: Number(poloId),
       TotalPreco,
       codigo_descricao: 101,
       ValorAPagar,
