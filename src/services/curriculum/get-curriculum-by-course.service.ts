@@ -13,7 +13,7 @@ export type StudentCurriculumByCourse = {
   grades: Disciplina[]
 }
 type Params = {
-  course: string
+  course: number
 }
 
 export async function StudentCurriculumByCourseService(
