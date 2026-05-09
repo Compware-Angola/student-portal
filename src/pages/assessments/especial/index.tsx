@@ -29,7 +29,27 @@ export function InscriçõesEspecial() {
   }, [isError])
 
   if (isLoading || !profileData || isLoadingDebit) {
-    return <div>Loading...</div>
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-6">
+        <div className="relative w-12 h-12">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="48" height="48">
+            <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="3" className="opacity-10" />
+            <circle
+              cx="24" cy="24" r="20"
+              stroke="currentColor" strokeWidth="3"
+              strokeLinecap="round"
+              strokeDasharray="31.4 94.2"
+              className="animate-spin origin-center"
+              style={{ animationDuration: '0.85s' }}
+            />
+          </svg>
+        </div>
+        <div className="text-center space-y-1">
+          <p className="text-sm font-medium text-foreground">A carregar</p>
+          <p className="text-xs text-muted-foreground">Por favor aguarde...</p>
+        </div>
+      </div>
+    )
   }
   if (debit && (debit?.totalDivida ?? 0) > 0) return <PaymentAlert />
 

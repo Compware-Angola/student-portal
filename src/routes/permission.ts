@@ -24,12 +24,11 @@ export const routePermissions: Record<StudentStatusType, string[]> = {
     '/financas',
     '/horario',
     '/avaliacoes',
-    '/avaliacoes/inscricoes-recurso',
-    '/avaliacoes/inscricoes-especial',
+
     '/servicos-academicos',
     '/disciplinas',
     '/mensagens',
-    '/renegociacao',
+
     '/calendario-academico',
     '/suporte',
     '/financas/notas-pagamento',
