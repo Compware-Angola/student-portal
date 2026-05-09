@@ -19,6 +19,23 @@ export const routePermissions: Record<StudentStatusType, string[]> = {
     '/perfil',
     '/inscricao-uc'
   ],
+  [StudentStatus.DIPLOMADO]: [
+    '/',
+    '/financas',
+    '/horario',
+    '/avaliacoes',
+    '/avaliacoes/inscricoes-recurso',
+    '/avaliacoes/inscricoes-especial',
+    '/servicos-academicos',
+    '/disciplinas',
+    '/mensagens',
+    '/renegociacao',
+    '/calendario-academico',
+    '/suporte',
+    '/financas/notas-pagamento',
+    '/perfil',
+    '/inscricao-uc'
+  ],
 
   [StudentStatus.CANDIDATO]: ['/pre-inscricao'],
 
@@ -28,7 +45,7 @@ export const routePermissions: Record<StudentStatusType, string[]> = {
     '/exame-acesso',
     '/pre-pagamento',
   ],
-   [StudentStatus.ADMITIDO_SEM_MATRICULA]: [
+  [StudentStatus.ADMITIDO_SEM_MATRICULA]: [
     '/',
     '/perfil',
     '/matricula',

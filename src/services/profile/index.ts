@@ -1,3 +1,4 @@
+import type { StudentStatusType } from '@/enums/student.status.enum';
 import { authApi } from '@/lib/auth-api'
 
 export async function getProfile(): Promise<CurrentUserResponse> {
@@ -68,7 +69,7 @@ export interface StudentProfile {
   polo: string;
   curso_candidatura_designacao: string;
 
-  estado_aluno: string;
+  estado_aluno: StudentStatusType;
 
   confirmacoes: Confirmacao[];
 }
