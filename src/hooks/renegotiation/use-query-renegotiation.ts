@@ -17,8 +17,9 @@ export function useQueryGetDebit({
   enrollmentCode,
   preinscricao,
   type,
-}: UseQueryDebitFeeParams) {
-  const isEnabled = !!preinscricao && !!enrollmentCode && !!type
+  enabled = true,
+}: UseQueryDebitFeeParams & { enabled?: boolean }) {
+  const isEnabled = !!preinscricao && !!enrollmentCode && !!type && enabled
 
   const { data, isLoading, error, isError } = useQuery<DebtNegotiationResponse>(
     {
