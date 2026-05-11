@@ -10,56 +10,23 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card'
-
-
 import { Separator } from '@/components/ui/separator'
 import {
     ArrowLeft,
     CheckCircle2,
     XCircle,
     FileSearch,
-
     Calendar,
     User,
     BookOpen,
-
     Hash,
-
 } from 'lucide-react'
 
-// ─── Tipos ─────────────────────────────────────
-type DocumentoValido = {
-    codigo: string
-    tipo: string
-    aluno: string
-    numeroEstudante: string
-    curso: string
-    dataEmissao: string
-    emitidoPor: string
-    finalidade: string
-    validade?: string
-}
-
-type ResultadoEstado = 'idle' | 'valido' | 'invalido'
-
-// ─── Mock ─────────────────────────────────────
-const documentosMock: DocumentoValido[] = [
-    {
-        codigo: '9876543210987',
-        tipo: 'declaracao',
-        aluno: 'João Manuel da Silva',
-        numeroEstudante: '20210456',
-        curso: 'Engenharia Informática',
-        dataEmissao: '15/03/2025',
-        emitidoPor: 'Secretaria Académica — UMA',
-        finalidade: 'Apresentação a entidade empregadora',
-        validade: '15/09/2025',
-    },
-]
+import { useValidateDocument } from '@/hooks/docs/use-validate-document';
 
 
 // ─── UI auxiliar ───────────────────────────────
-function InfoRow({ icon: Icon, label, value }: any) {
+function InfoRow({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
     return (
         <div className="flex items-start gap-3 py-3">
             <div className="mt-0.5 rounded-md bg-primary/10 p-1.5">
@@ -75,32 +42,24 @@ function InfoRow({ icon: Icon, label, value }: any) {
 
 // ─── Componente ───────────────────────────────
 const ValidarDocumentos = ({ onBack }: { onBack: () => void }) => {
+    const [inputCodigo, setInputCodigo] = useState('')
+    const [codigoAtivo, setCodigoAtivo] = useState('')
 
-    const [codigo, setCodigo] = useState('')
-    const [resultado, setResultado] = useState<ResultadoEstado>('idle')
-    const [doc, setDoc] = useState<DocumentoValido | null>(null)
-    const [loading, setLoading] = useState(false)
+    const {
+        data: doc,
+        isLoading,
+        isError,
+        isFetched,
+        refetch,
+    } = useValidateDocument(codigoAtivo)
 
-    const handleValidar = (e: React.FormEvent) => {
-        e.preventDefault()
-        setLoading(true)
-
-        setTimeout(() => {
-            const found = documentosMock.find(
-                (d) =>
-                    d.codigo.toLowerCase() === codigo.toLowerCase()
-            )
-
-            if (found) {
-                setDoc(found)
-                setResultado('valido')
-            } else {
-                setResultado('invalido')
-            }
-
-            setLoading(false)
-        }, 600)
+    const handleValidar = () => {
+        setCodigoAtivo(inputCodigo.trim())
+        refetch()
     }
+
+    const isValido = isFetched && !!doc && !isError
+    const isInvalido = isFetched && (isError || !doc)
 
     return (
         <div className="w-full max-w-3xl mx-auto space-y-6">
@@ -117,11 +76,7 @@ const ValidarDocumentos = ({ onBack }: { onBack: () => void }) => {
                         <FileSearch className="h-6 w-6 text-primary" />
                     </div>
                 </div>
-
-                <CardTitle className="text-2xl">
-                    Validar Documentos
-                </CardTitle>
-
+                <CardTitle className="text-2xl">Validar Documentos</CardTitle>
                 <CardDescription>
                     Verifique a autenticidade dos documentos
                 </CardDescription>
@@ -131,25 +86,28 @@ const ValidarDocumentos = ({ onBack }: { onBack: () => void }) => {
 
             <CardContent className="space-y-6">
                 {/* FORM */}
-                <form onSubmit={handleValidar} className="space-y-4">
-                    <div className="grid sm:grid-cols-1 gap-4">
-
-                        <div>
-                            <Label>Código</Label>
-                            <Input className='w-full'
-                                value={codigo}
-                                onChange={(e) => setCodigo(e.target.value)}
-                            />
-                        </div>
+                <div className="space-y-4">
+                    <div>
+                        <Label>Código</Label>
+                        <Input
+                            className="w-full"
+                            value={inputCodigo}
+                            onChange={(e) => setInputCodigo(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleValidar()}
+                            placeholder="Insira o código do documento"
+                        />
                     </div>
-
-                    <Button className="w-full" disabled={loading}>
-                        {loading ? 'Validando...' : 'Validar'}
+                    <Button
+                        className="w-full"
+                        onClick={handleValidar}
+                        disabled={isLoading || !inputCodigo.trim()}
+                    >
+                        {isLoading ? 'Validando...' : 'Validar'}
                     </Button>
-                </form>
+                </div>
 
-                {/* RESULTADO */}
-                {resultado === 'valido' && doc && (
+                {/* RESULTADO VÁLIDO */}
+                {isValido && doc && (
                     <div className="border rounded-xl p-4 bg-green-50">
                         <div className="flex items-center gap-2 mb-3 text-green-700 font-semibold">
                             <CheckCircle2 className="h-5 w-5" />
@@ -157,19 +115,22 @@ const ValidarDocumentos = ({ onBack }: { onBack: () => void }) => {
                         </div>
 
                         <div className="grid sm:grid-cols-2 gap-4">
-                            <InfoRow icon={User} label="Aluno" value={doc.aluno} />
-                            <InfoRow icon={Hash} label="Código" value={doc.codigo} />
+                            <InfoRow icon={User} label="Aluno" value={doc.nome_completo} />
+                            <InfoRow icon={Hash} label="Nº Matrícula" value={String(doc.codigo_matricula)} />
                             <InfoRow icon={BookOpen} label="Curso" value={doc.curso} />
-                            <InfoRow icon={Calendar} label="Emissão" value={doc.dataEmissao} />
+                            <InfoRow icon={Calendar} label="Data de Registo" value={doc.data_registo} />
+                            <InfoRow icon={User} label="Faculdade" value={doc.faculdade} />
+                            <InfoRow icon={BookOpen} label="Tipo de Documento" value={doc.tipo_documento} />
                         </div>
                     </div>
                 )}
 
-                {resultado === 'invalido' && (
+                {/* RESULTADO INVÁLIDO */}
+                {isInvalido && (
                     <div className="border rounded-xl p-4 bg-red-50 text-red-600">
                         <div className="flex items-center gap-2 font-semibold">
                             <XCircle className="h-5 w-5" />
-                            Documento inválido
+                            Documento inválido ou não encontrado
                         </div>
                     </div>
                 )}
