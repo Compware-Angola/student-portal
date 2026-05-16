@@ -77,12 +77,57 @@ export interface MesDivida {
  * NOTA: Esta estrutura É DIFERENTE da sua interface DebtSearchResult original,
  * que precisa ser adaptada no seu componente se for usar este mock.
  */
+
+export interface Mensalidade {
+  mes_temp_id: number
+  mes: string
+  data_inicial: string
+  data_final: string
+  data_limite: string
+  id_item: number
+  codigo_matricula: number
+  ano_lectivo_fatura: number
+  estado_fatura: number
+  valorapagar: number
+  valorentregue: number
+  data_vencimento: string
+  desconto: number
+  semestre: number
+  multa: number
+  total_item: number
+  valor_pago: number
+  mensalidade: number
+  total: number
+  total_preco: number
+  status_pagamento: number
+  data_operacao: string | null
+  data_pagamento: string | null
+  descricao_servico: string | null
+  codigo_servico: number | null
+}
+export interface OutroServico {
+  codgradecurricular: number
+  codfacturaoutrosservicos: number
+  valor: number
+  multa: number
+  total: number
+  servico: string
+  ano_lectivo: string
+  taxa_multa: number
+  taxa_desconto: number
+  codidigo_servico: number
+  codigo_anolectivo: number
+  desconto: number
+  incidencia: number
+  valor_iva: number
+  tipo_taxas: number
+  taxa_descricao: string
+}
+
 export interface DebtNegotiationResponse {
-  empresa: Empresa
+  Mensalidades: Mensalidade[]
+  OutrosServicos: OutroServico[]
   anoAtual: number
-  anoCorrente: AnoCorrente
-  meses: Mes[]
-  mesesDividas: MesDivida[]
   totalIVA: number
   percentagem_retencao: number
   totalDivida: number
@@ -91,17 +136,13 @@ export interface DebtNegotiationResponse {
   size: number
   desconto: number
   precoTotal: number
-  bolsa: string | null
-  saldo_reset: number
-  somaValorDividaRecurso: number
-  dividaOutrosServicos: any[]
-  somaDividaFacturas: number
 }
 
 export interface DebitSearchParams {
   page?: number
   limit?: number
   enrollmentCode: number
+  academicYear?: number
   preinscricao: number
   type: string
 }
@@ -109,9 +150,15 @@ export interface DebitSearchParams {
 export async function getDebit(
   searchParams: DebitSearchParams,
 ): Promise<DebtNegotiationResponse> {
+   const params = new URLSearchParams({
+    codigo_matricula: String(searchParams.enrollmentCode),
+  })
+  if (searchParams.academicYear !== undefined) {
+    params.append('codAnoLectivo', String(searchParams.academicYear))
+  }
   const response = await invoiceApi
     .get(
-      `debt-negotiation?matricula=${searchParams.enrollmentCode}&preinscricaoId=${searchParams.preinscricao}&tipoCandidatura=${searchParams.type}`,
+      `debt-negotiation/get-debts-information?${params.toString()}`,
     )
     .json<DebtNegotiationResponse>()
   return response
@@ -164,20 +211,47 @@ interface FaturaItemServico {
 
 export interface RenegociacaoPayload {
   totalDivida: number
-  desconto: number
   precoTotal: number
   total_retencao: number
   total_incidencia: number
   totalIVA: number
-  saldo_reset: number
-  tipoPagamento: 'TOTAL' | string
-  fatura_item_mensalidades: FaturaItemMensalidade[]
-  fatura_item_servicos: FaturaItemServico[]
-  valor_pago_na_hora: number
+  desconto: number
   percentagem_retencao: number
-  size: number
-  bolsa: string
-  somaValorDividaRecurso: number
+  tipoPagamento: string
+
+  Mensalidades: {
+    mes_temp_id: number
+    mes: string
+    valor: string
+    multa: number
+    total: number
+    servico: string
+    codigo_servico: number | null
+    ano_lectivo: number
+    desconto: number
+    incidencia: number
+    valor_iva: number
+    tipo_taxas: number
+    codigo_factura: number
+    obs: string
+  }[]
+
+  OutrosServicos: {
+    codgradecurricular: number
+    codfacturaoutrosservicos: number
+    codidigo_servico: string
+    ano_lectivo: number
+    valor: number
+    multa: number
+    total: number
+    taxa_multa: number
+    taxa_desconto: number
+    desconto: number
+    incidencia: number
+    valor_iva: number
+    obs: string
+    servico: string
+  }[]
 }
 
 export async function createDebitNegotation(
