@@ -188,71 +188,71 @@ export const Renegociation = () => {
   }
 
   // === CONFIRMAR ===
-const onConfirmNegotiation = async () => {
-  if (!debtData || !simulationData) return
-  setIsLoading(true)
-  try {
-    const payload = {
-      totalDivida: debtData.totalDivida,
-      precoTotal: debtData.precoTotal,
-      total_retencao: debtData.total_retencao,
-      total_incidencia: debtData.total_incidencia,
-      totalIVA: debtData.totalIVA,
-      desconto: debtData.desconto,
-      percentagem_retencao: debtData.percentagem_retencao,
-      tipoPagamento: simulationData.negotiationType as 'TOTAL' | 'PARCELADO',
-      Mensalidades: debtData.Mensalidades.map((m: Mensalidade) => ({
-        mes_temp_id: m.mes_temp_id,
-        mes: m.mes,
-        valor: String(m.mensalidade),
-        multa: m.multa,
-        total: m.total,
-        servico: m.descricao_servico ?? "Mensalidade",
-        codigo_servico: m.codigo_servico,
-        ano_lectivo: m.ano_lectivo_fatura,
-        desconto: m.desconto,
-        incidencia: m.mensalidade,
-        valor_iva: 0,
-        tipo_taxas: 1,
-        codigo_factura: m.id_item,
-        obs: 'Mensalidade',
-      })),
-      OutrosServicos: debtData.OutrosServicos.map((s: OutroServico) => ({
-        codgradecurricular: s.codgradecurricular,
-        codfacturaoutrosservicos: s.codfacturaoutrosservicos,
-        codidigo_servico: String(s.codidigo_servico),
-        ano_lectivo: s.codigo_anolectivo,
-        valor: s.valor,
-        multa: s.multa,
-        total: s.total,
-        taxa_multa: s.taxa_multa,
-        taxa_desconto: s.taxa_desconto,
-        desconto: s.desconto,
-        incidencia: s.incidencia,
-        valor_iva: s.valor_iva,
-        obs: 'Serviço',
-        servico: s.servico,
-      })),
-    }
+  const onConfirmNegotiation = async () => {
+    if (!debtData || !simulationData) return
+    setIsLoading(true)
+    try {
+      const payload = {
+        totalDivida: debtData.totalDivida,
+        precoTotal: debtData.precoTotal,
+        total_retencao: debtData.total_retencao,
+        total_incidencia: debtData.total_incidencia,
+        totalIVA: debtData.totalIVA,
+        desconto: debtData.desconto,
+        percentagem_retencao: debtData.percentagem_retencao,
+        tipoPagamento: simulationData.negotiationType as 'TOTAL' | 'PARCELADO',
+        Mensalidades: debtData.Mensalidades.map((m: Mensalidade) => ({
+          mes_temp_id: m.mes_temp_id,
+          mes: m.mes,
+          valor: String(m.mensalidade),
+          multa: m.multa,
+          total: m.total,
+          servico: m.descricao_servico ?? "Mensalidade",
+          codigo_servico: m.codigo_servico,
+          ano_lectivo: m.ano_lectivo_fatura,
+          desconto: m.desconto,
+          incidencia: m.mensalidade,
+          valor_iva: 0,
+          tipo_taxas: 1,
+          codigo_factura: m.id_item,
+          obs: 'Mensalidade',
+        })),
+        OutrosServicos: debtData.OutrosServicos.map((s: OutroServico) => ({
+          codgradecurricular: s.codgradecurricular,
+          codfacturaoutrosservicos: s.codfacturaoutrosservicos,
+          codidigo_servico: String(s.codidigo_servico),
+          ano_lectivo: s.codigo_anolectivo,
+          valor: s.valor,
+          multa: s.multa,
+          total: s.total,
+          taxa_multa: s.taxa_multa,
+          taxa_desconto: s.taxa_desconto,
+          desconto: s.desconto,
+          incidencia: s.incidencia,
+          valor_iva: s.valor_iva,
+          obs: 'Serviço',
+          servico: s.servico,
+        })),
+      }
 
-    await createRenegotiationAsync({
-      payload,
-      enrollmentCode: profileData?.codigo_matricula,
-    })
+      await createRenegotiationAsync({
+        payload,
+        enrollmentCode: profileData?.codigo_matricula,
+      })
 
-    toast.success('Negociação confirmada com sucesso!')
-    setStep('complete')
-  } catch (error: any) {
-    console.error('Erro ao criar Negociação de Dívida:', error)
-    if (error instanceof ApiError) {
-      toast.error(error.message || 'Erro ao criar renegociação.')
-    } else {
-      toast.error('Erro de conexão. Tente novamente.')
+      toast.success('Negociação confirmada com sucesso!')
+      setStep('complete')
+    } catch (error: any) {
+      console.error('Erro ao criar Negociação de Dívida:', error)
+      if (error instanceof ApiError) {
+        toast.error(error.message || 'Erro ao criar renegociação.')
+      } else {
+        toast.error('Erro de conexão. Tente novamente.')
+      }
+    } finally {
+      setIsLoading(false)
     }
-  } finally {
-    setIsLoading(false)
   }
-}
 
   // === FORMATADORES ===
   const formatCurrency = (value: number) =>
@@ -330,7 +330,7 @@ const onConfirmNegotiation = async () => {
                         Mensalidade(s)
                       </p>
                       {debtData.Mensalidades &&
-                      debtData.Mensalidades.length > 0 ? (
+                        debtData.Mensalidades.length > 0 ? (
                         debtData.Mensalidades.map((m: Mensalidade) => (
                           <div
                             key={m.id_item || m.mes}
@@ -339,8 +339,7 @@ const onConfirmNegotiation = async () => {
                             {/* Esquerda: Descrição */}
                             <div className="flex-1 min-w-0 pr-2">
                               <span className="text-sm truncate block">
-                                {`Mensalidade ${m.mes}`|| 'Mensalidade'} -{' '}
-                                {m.mes || 'Mês não informado'}
+                                {m.mes ? `Mensalidade ${m.mes}` : 'Mensalidade'}
                               </span>
                             </div>
 
@@ -375,7 +374,7 @@ const onConfirmNegotiation = async () => {
                       </p>
 
                       {debtData.OutrosServicos &&
-                      debtData.OutrosServicos.length > 0 ? (
+                        debtData.OutrosServicos.length > 0 ? (
                         debtData.OutrosServicos.map((m: any) => (
                           <div
                             key={m.servico}
