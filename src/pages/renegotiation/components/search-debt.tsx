@@ -20,6 +20,11 @@ import { Search, Loader2 } from 'lucide-react'
 import z from 'zod'
 import type { searchDebtSchema } from '../schemas'
 import type { UseFormReturn } from 'react-hook-form'
+import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-academic-year-student'
+import { useQueryProfile } from '@/hooks/profile/use-query-profile'
+import { SelectFormField } from '@/components/selectFormField'
+import { useId } from 'react'
+import { dedupeAcademicYears } from '@/utils/dedupe-academic-years'
 
 type SearchDebtFormData = z.infer<typeof searchDebtSchema>
 
@@ -34,6 +39,23 @@ export function SearchDebt({
   onSearchDebt,
   isSearching,
 }: SearchDebtProps) {
+  const allOptionId = useId()
+  const { profileData } = useQueryProfile()
+  const { data: academicYearData } = useQueryAcademicYearStudent(
+    String(profileData?.codigo_matricula),
+  )
+  const academicYears = dedupeAcademicYears(academicYearData?.anolectivos)
+  const academicYearOptions = [
+    {
+      label: 'Todos',
+      value: allOptionId,
+    },
+
+    ...(academicYears?.map((t) => ({
+      label: t.designacao,
+      value: String(t.codigo),
+    })) ?? []),
+  ]
   return (
     <Card>
       <CardHeader>
@@ -51,6 +73,16 @@ export function SearchDebt({
             onSubmit={searchForm.handleSubmit(onSearchDebt)}
             className="space-y-4"
           >
+            <div>
+              <SelectFormField
+                name="academicYear"
+                fullWidth
+                control={searchForm.control}
+                label="Ano Lectivo"
+                placeholder="Ano Lectivo"
+                items={academicYearOptions}
+              />
+            </div>
             <FormField
               control={searchForm.control}
               name="enrollmentCode"

@@ -53,12 +53,15 @@ import { useQueryClient } from '@tanstack/react-query'
 import {
   getDebit,
   type DebtNegotiationResponse,
+  type Mensalidade,
   type MesDivida,
+  type OutroServico,
 } from '@/services/renegotiation/renegotiation.service'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 import { useNavigate } from 'react-router-dom'
 import { useMutationNegotiation } from '@/hooks/renegotiation/use-query-renegotiation'
 import { ApiError } from '@/error'
+import { parseFilter } from '@/utils'
 
 // === SCHEMA ===
 const simulateNegotiationSchema = z.object({
@@ -86,7 +89,7 @@ export const Renegociation = () => {
   const [debtData, setDebtData] = useState<DebtNegotiationResponse | null>(null)
   const [isSearching, setIsSearching] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedMesDivida, setSelectedMesDivida] = useState<MesDivida | null>(
+  const [selectedMesDivida, setSelectedMesDivida] = useState<Mensalidade | null>(
     null,
   )
   const [simulationData, setSimulationData] =
@@ -110,7 +113,7 @@ export const Renegociation = () => {
       negotiationType: undefined,
     },
   })
-  const openMesDividaModal = (item: MesDivida) => {
+  const openMesDividaModal = (item: Mensalidade) => {
     setSelectedMesDivida(item)
     setIsModalOpen(true)
   }
@@ -150,11 +153,12 @@ export const Renegociation = () => {
     setIsSearching(true)
     try {
       const result = await queryClient.fetchQuery<DebtNegotiationResponse>({
-        queryKey: ['renegotiation-debit', data.enrollmentCode],
+        queryKey: ['renegotiation-debit', data.enrollmentCode, data.academicYear],
         queryFn: () =>
           getDebit({
             enrollmentCode: Number(data.enrollmentCode),
             preinscricao: Number(profileData?.codigo_preinscricao),
+            academicYear: parseFilter(data.academicYear),
             type: '1',
           }),
       })
@@ -190,43 +194,45 @@ export const Renegociation = () => {
     try {
       const payload = {
         totalDivida: debtData.totalDivida,
-        desconto: debtData.desconto,
         precoTotal: debtData.precoTotal,
         total_retencao: debtData.total_retencao,
         total_incidencia: debtData.total_incidencia,
         totalIVA: debtData.totalIVA,
-        saldo_reset: Number(debtData.saldo_reset),
-        tipoPagamento: simulationData.negotiationType.toUpperCase() as
-          | 'TOTAL'
-          | 'PARCIAL',
-        fatura_item_mensalidades: debtData.mesesDividas.map((m: any) => ({
-          codGradeCurricular: m.codGradeCurricular || '',
-          codFacturaOutrosServicos: m.codFacturaOutrosServicos || '',
-          bolsa: m.bolsa || '',
-          mes_temp_id: Number(m.mes_temp_id) || 0,
-          n_prestacao: Number(m.n_prestacao) || 0,
-          valor: String(m.valor) || '0',
-          multa: Number(m.multa) || 0,
-          total: Number(m.total) || 0,
-          servico: m.servico || '',
-          mes_propina: m.mes_propina || '',
-          ano_lectivo: m?.ano_lectivo || '',
-          taxa_multa: Number(m.taxa_multa) || 0,
-          taxa_desconto: Number(m.taxa_desconto) || 0,
-          codigo_propina: Number(m.codigo_propina) || 0,
-          codigo_anoLectivo: Number(m.codigo_anoLectivo) || 0,
-          desconto: Number(m.desconto) || 0,
-          incidencia: Number(m.incidencia) || 0,
-          valor_iva: Number(m.valor_iva) || 0,
-          tipo_taxas: Number(m.tipo_taxas) || 0,
-          taxa_descricao: m.taxa_descricao || '',
-        })),
-        fatura_item_servicos: debtData.dividaOutrosServicos as any[],
-        valor_pago_na_hora: simulationData.initialPayment,
+        desconto: debtData.desconto,
         percentagem_retencao: debtData.percentagem_retencao,
-        size: debtData.size,
-        bolsa: debtData.bolsa || '',
-        somaValorDividaRecurso: debtData.somaValorDividaRecurso || 0,
+        tipoPagamento: simulationData.negotiationType as 'TOTAL' | 'PARCELADO',
+        Mensalidades: debtData.Mensalidades.map((m: Mensalidade) => ({
+          mes_temp_id: m.mes_temp_id,
+          mes: m.mes,
+          valor: String(m.mensalidade),
+          multa: m.multa,
+          total: m.total,
+          servico: m.descricao_servico ?? "Mensalidade",
+          codigo_servico: m.codigo_servico,
+          ano_lectivo: m.ano_lectivo_fatura,
+          desconto: m.desconto,
+          incidencia: m.mensalidade,
+          valor_iva: 0,
+          tipo_taxas: 1,
+          codigo_factura: m.id_item,
+          obs: 'Mensalidade',
+        })),
+        OutrosServicos: debtData.OutrosServicos.map((s: OutroServico) => ({
+          codgradecurricular: s.codgradecurricular,
+          codfacturaoutrosservicos: s.codfacturaoutrosservicos,
+          codidigo_servico: String(s.codidigo_servico),
+          ano_lectivo: s.codigo_anolectivo,
+          valor: s.valor,
+          multa: s.multa,
+          total: s.total,
+          taxa_multa: s.taxa_multa,
+          taxa_desconto: s.taxa_desconto,
+          desconto: s.desconto,
+          incidencia: s.incidencia,
+          valor_iva: s.valor_iva,
+          obs: 'Serviço',
+          servico: s.servico,
+        })),
       }
 
       await createRenegotiationAsync({
@@ -239,9 +245,7 @@ export const Renegociation = () => {
     } catch (error: any) {
       console.error('Erro ao criar Negociação de Dívida:', error)
       if (error instanceof ApiError) {
-        // Remove as aspas quebradas que o backend manda
-        //  const cleanMessage = error.message.replace(/"/g, '').trim()
-        // toast.error(cleanMessage || 'Erro ao criar renegociação.')
+        toast.error(error.message || 'Erro ao criar renegociação.')
       } else {
         toast.error('Erro de conexão. Tente novamente.')
       }
@@ -325,18 +329,17 @@ export const Renegociation = () => {
                       <p className="text-sm text-muted-foreground">
                         Mensalidade(s)
                       </p>
-                      {debtData.mesesDividas &&
-                      debtData.mesesDividas.length > 0 ? (
-                        debtData.mesesDividas.map((m: MesDivida) => (
+                      {debtData.Mensalidades &&
+                        debtData.Mensalidades.length > 0 ? (
+                        debtData.Mensalidades.map((m: Mensalidade) => (
                           <div
-                            key={m.codigo_propina || m.mes_propina}
+                            key={m.id_item || m.mes}
                             className="flex items-center justify-between p-3 bg-muted rounded-lg hover:bg-muted/80 transition-colors"
                           >
                             {/* Esquerda: Descrição */}
                             <div className="flex-1 min-w-0 pr-2">
                               <span className="text-sm truncate block">
-                                {m.servico || 'Mensalidade'} -{' '}
-                                {m.mes_propina || 'Mês não informado'}
+                                {m.mes ? `Mensalidade ${m.mes}` : 'Mensalidade'}
                               </span>
                             </div>
 
@@ -370,9 +373,9 @@ export const Renegociation = () => {
                         Outros Serviço(s)
                       </p>
 
-                      {debtData.dividaOutrosServicos &&
-                      debtData.dividaOutrosServicos.length > 0 ? (
-                        debtData.dividaOutrosServicos.map((m: any) => (
+                      {debtData.OutrosServicos &&
+                        debtData.OutrosServicos.length > 0 ? (
+                        debtData.OutrosServicos.map((m: any) => (
                           <div
                             key={m.servico}
                             className="flex justify-between items-center p-3 bg-muted rounded-lg hover:bg-muted/80 transition-colors"
@@ -663,38 +666,26 @@ export const Renegociation = () => {
 
           {selectedMesDivida && (
             <div className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="font-medium">Serviço:</span>
-                <span className="text-muted-foreground">
-                  {selectedMesDivida.servico}
-                </span>
-              </div>
 
               <div className="flex justify-between">
                 <span className="font-medium">Mês:</span>
                 <span className="text-muted-foreground">
-                  {selectedMesDivida.mes_propina}
+                  {selectedMesDivida.mes}
                 </span>
               </div>
 
               <div className="flex justify-between">
                 <span className="font-medium">Ano Letivo:</span>
                 <span className="text-muted-foreground">
-                  {selectedMesDivida?.ano_lectivo}
+                  {selectedMesDivida?.ano_lectivo_fatura}
                 </span>
               </div>
 
-              <div className="flex justify-between">
-                <span className="font-medium">Prestação:</span>
-                <span className="text-muted-foreground">
-                  Nº {selectedMesDivida.n_prestacao}
-                </span>
-              </div>
 
               <div className="flex justify-between">
                 <span className="font-medium">Valor Base:</span>
                 <span className="text-muted-foreground">
-                  {formatCurrency(parseFloat(selectedMesDivida.valor || '0'))}
+                  {formatCurrency(selectedMesDivida.mensalidade || 0)}
                 </span>
               </div>
 
@@ -704,13 +695,13 @@ export const Renegociation = () => {
                   {formatCurrency(selectedMesDivida.multa)}
                 </span>
               </div>
-
               <div className="flex justify-between">
-                <span className="font-medium">Taxa de Multa:</span>
-                <span className="text-muted-foreground">
-                  {selectedMesDivida.taxa_multa}%
+                <span className="font-medium">Desconto:</span>
+                <span className="text-success font-medium">
+                  {formatCurrency(selectedMesDivida.desconto)}
                 </span>
               </div>
+
 
               <div className="flex justify-between border-t pt-2">
                 <span className="font-bold">Total a Pagar:</span>
