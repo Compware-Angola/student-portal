@@ -163,51 +163,7 @@ export async function getDebit(
     .json<DebtNegotiationResponse>()
   return response
 }
-interface FaturaItemMensalidade {
-  codGradeCurricular: string
-  codFacturaOutrosServicos: string
-  bolsa: string
-  mes_temp_id: number
-  n_prestacao: number
-  valor: string // no JSON vem como string, mesmo sendo número
-  multa: number
-  total: number
-  servico: string
-  mes_propina: string
-  ano_lectivo: string
-  taxa_multa: number
-  taxa_desconto: number
-  codigo_propina: number
-  codigo_anoLectivo: number
-  desconto: number
-  incidencia: number
-  valor_iva: number
-  tipo_taxas: number
-  taxa_descricao: string
-}
 
-interface FaturaItemServico {
-  codGradeCurricular: number
-  codFacturaOutrosServicos: number
-  codigo_propina: string
-  codidigo_servico: string // mantive o nome exato do JSON (typo original)
-  codigo_anoLectivo: string
-  valor: number
-  multa: number
-  total: number
-  taxa_multa: number
-  taxa_desconto: number
-  desconto: number
-  incidencia: number
-  valor_iva: number
-  servico: string
-  mes_propina: string
-  n_prestacao: string
-  ano_lectivo: string
-  bolsa: string
-  taxa_descricao: string
-  mes_temp_id: number
-}
 
 export interface RenegociacaoPayload {
   totalDivida: number
