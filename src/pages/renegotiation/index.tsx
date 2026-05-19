@@ -54,7 +54,6 @@ import {
   getDebit,
   type DebtNegotiationResponse,
   type Mensalidade,
-  type MesDivida,
   type OutroServico,
 } from '@/services/renegotiation/renegotiation.service'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
