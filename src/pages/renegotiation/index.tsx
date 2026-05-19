@@ -666,12 +666,6 @@ export const Renegociation = () => {
 
           {selectedMesDivida && (
             <div className="space-y-3 text-sm">
-              {/* <div className="flex justify-between">
-                <span className="font-medium">Serviço:</span>
-                <span className="text-muted-foreground">
-                  {selectedMesDivida.servico}
-                </span>
-              </div> */}
 
               <div className="flex justify-between">
                 <span className="font-medium">Mês:</span>
@@ -687,12 +681,6 @@ export const Renegociation = () => {
                 </span>
               </div>
 
-              {/* <div className="flex justify-between">
-                <span className="font-medium">Prestação:</span>
-                <span className="text-muted-foreground">
-                  Nº {selectedMesDivida.pr}
-                </span>
-              </div> */}
 
               <div className="flex justify-between">
                 <span className="font-medium">Valor Base:</span>
@@ -714,17 +702,11 @@ export const Renegociation = () => {
                 </span>
               </div>
 
-              {/* <div className="flex justify-between">
-                <span className="font-medium">Taxa de Multa:</span>
-                <span className="text-muted-foreground">
-                  {selectedMesDivida}%
-                </span>
-              </div> */}
 
               <div className="flex justify-between border-t pt-2">
                 <span className="font-bold">Total a Pagar:</span>
                 <span className="font-bold text-primary">
-                  {formatCurrency(selectedMesDivida.valorapagar)}
+                  {formatCurrency(selectedMesDivida.total)}
                 </span>
               </div>
 
