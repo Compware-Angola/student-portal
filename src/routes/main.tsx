@@ -80,14 +80,15 @@ export function MainRoutes() {
             </RequireStudentRoute>
           }
         />
-        <Route
+        {/* TODO:PROVISORIO  */}
+        {/* <Route
           path={enrollmentPath.slice(1)}
           element={
             <RequireStudentRoute>
               {enrollmentComponents[enrollmentPath]}
             </RequireStudentRoute>
           }
-        />
+        /> */}
         <Route
           path="/horario"
           element={

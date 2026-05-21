@@ -70,7 +70,7 @@ export function Assessments() {
         </p>
       </div>
 
-      {isConfirmacaoPendente && (
+      {isConfirmacaoPendente && !isDiplomado && (
         <Card className="border-l-4 border-l-amber-500 bg-amber-500/5">
           <CardContent className="p-5">
             <div className="flex items-start gap-4">
@@ -119,7 +119,7 @@ export function Assessments() {
         </TabsList>
 
         <TabsContent value="current" className="space-y-4">
-          {isConfirmacaoPendente ? (
+          {isConfirmacaoPendente && !isDiplomado ? (
             <div className="flex flex-col items-center justify-center py-16 text-center text-muted-foreground gap-4">
               <div className="flex items-center flex-col">
                 <Lottie
@@ -138,7 +138,7 @@ export function Assessments() {
         </TabsContent>
 
         <TabsContent value="all" className="space-y-4">
-          {isConfirmacaoPendente ? (
+          {isConfirmacaoPendente && !isDiplomado ? (
             <div className="flex flex-col items-center justify-center py-16 text-center text-muted-foreground gap-4">
               {/* ESPAÇO PARA ANIMAÇÃO */}
               <div className="flex items-center flex-col">

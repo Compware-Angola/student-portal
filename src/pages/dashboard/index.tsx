@@ -171,7 +171,7 @@ export const Dashboard = () => {
         <h1 className="text-3xl font-bold tracking-tight">{greeting}</h1>
         <p className="text-muted-foreground">{profileData.course}</p>
       </div>
-      {(profileData.confirmacoes?.length === 0 || profileData.confirmacoes[0]?.estado === 0) && (
+      {(profileData.estado_aluno !== "DIPLOMADO" && profileData.confirmacoes?.length === 0 || profileData.confirmacoes[0]?.estado === 0) && (
         <Card className="border-l-4 border-l-amber-500 bg-amber-500/5">
           <CardContent className="p-5">
             <div className="flex items-start gap-4">

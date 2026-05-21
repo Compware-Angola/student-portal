@@ -542,7 +542,8 @@ export const Renegociation = () => {
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Ano Académico</p>
-                <p className="font-semibold">{simulationData.academicYear}</p>
+                {simulationData.academicYear && (<p className="font-semibold">{simulationData.academicYear}</p>
+              )} 
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Valor Total</p>
