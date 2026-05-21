@@ -18,9 +18,9 @@ import { Suporte } from '@/pages/Suporte'
 import { DisciplinasMatriculadas } from '@/pages/DisciplinasMatriculadas'
 import { NotaPagamento } from '@/pages/NotaPagamento'
 import { useStudentSituation } from '@/hooks/use-student-stitiation'
-import { getEnrollmentRoute } from '@/utils/map-student-situation'
-import { RegistrationsUC } from '@/pages/registrationsUC'
-import { useMemo, type JSX } from 'react'
+// import { getEnrollmentRoute } from '@/utils/map-student-situation'
+// import { RegistrationsUC } from '@/pages/registrationsUC'
+import { type JSX } from 'react'
 import { Comunicado } from '@/pages/login/Comunicado'
 import NotificacoesPage from '@/pages/notification/notificacoes-page'
 
@@ -33,17 +33,19 @@ import { InscriçõesRecurosPage } from '@/pages/assessments/recuros'
 import { InscriçõesEspecial } from '@/pages/assessments/especial'
 
 export function MainRoutes() {
-  const { isLoading, hasEnrolmentCode } = useStudentSituation()
-  const enrollmentComponents: Record<string, JSX.Element> = useMemo(
-    () => ({
-      '/inscricao-uc': <RegistrationsUC />,
-      '/matricula': <Enrollment />,
-    }),
-    [],
-  )
+  const { isLoading, 
+   // hasEnrolmentCode 
+  } = useStudentSituation()
+  // const enrollmentComponents: Record<string, JSX.Element> = useMemo(
+  //   () => ({
+  //     '/inscricao-uc': <RegistrationsUC />,
+  //     '/matricula': <Enrollment />,
+  //   }),
+  //   [],
+  // )
   if (isLoading) return null
 
-  const enrollmentPath = getEnrollmentRoute(hasEnrolmentCode)
+  // const enrollmentPath = getEnrollmentRoute(hasEnrolmentCode)
 
   return (
     <Route>
