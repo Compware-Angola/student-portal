@@ -27,15 +27,17 @@ import { routePermissions } from '@/routes/permission'
 import { useQueryProfile } from './profile/use-query-profile'
 
 export function useMenuNavigation() {
-  const { hasEnrolmentCode, isLoading } = useStudentSituation()
+  const { 
+    //hasEnrolmentCode, 
+    isLoading } = useStudentSituation()
   const { isLoading: isLoadingProfile, studentStatus } = useQueryProfile()
 
   if (isLoading || isLoadingProfile || !studentStatus) {
     return { navMain: [] }
   }
 
-  const enrollmentPath = getEnrollmentRoute(hasEnrolmentCode)
-  const enrollmentTitle = getEnrollmentLabel(hasEnrolmentCode)
+  // const enrollmentPath = getEnrollmentRoute(hasEnrolmentCode)
+  // const enrollmentTitle = getEnrollmentLabel(hasEnrolmentCode)
 
   const navMain = [
     { title: 'Dashboard', url: '/', icon: LayoutDashboard },
@@ -53,11 +55,11 @@ export function useMenuNavigation() {
       ],
     },
 
-    {
-      title: enrollmentTitle,
-      url: enrollmentPath,
-      icon: GraduationCap,
-    },
+    // {
+    //   title: enrollmentTitle,
+    //   url: enrollmentPath,
+    //   icon: GraduationCap,
+    // },
 
     { title: 'Horário', url: '/horario', icon: Calendar },
     {

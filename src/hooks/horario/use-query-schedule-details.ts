@@ -8,7 +8,6 @@ export const useQueryScheduleDetails = (
   turmaId: number | null,
   options?: { enabled?: boolean },
 ) => {
-  console.log({ turmaId })
   return useQuery<ScheduleDetailsResponse>({
     queryKey: ['schedule-details', turmaId],
     queryFn: () => getScheduleDetailsService(turmaId!),

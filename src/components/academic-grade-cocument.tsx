@@ -95,7 +95,7 @@ type Props = {
 
 export function AcademicGradeDocument({ disciplinas, curso }: Props) {
   const data = groupByAnoESemestre(disciplinas)
-  console.log({ data })
+
 
   return (
     <Document>

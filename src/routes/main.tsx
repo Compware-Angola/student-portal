@@ -252,9 +252,7 @@ export function RequireStudentRoute({ children }: { children: JSX.Element }) {
   if (isLoading || !studentStatus) return null
 
   const allowedRoutes = routePermissions[studentStatus]
-  console.log(location.pathname)
   const homeRoute = getHomeRoute(studentStatus)
-  console.log(homeRoute)
   if (!allowedRoutes.includes(location.pathname)) {
     return <Navigate to={homeRoute} replace />
   }

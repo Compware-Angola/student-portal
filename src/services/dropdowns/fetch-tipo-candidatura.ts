@@ -13,6 +13,6 @@ export async function fetchTipoCandidatura(): Promise<TipoCandidatura[]> {
   const data = await apexApi
     .get("uma/tipo-candidatura/all")
     .json<FetchTipoCandidaturaResponse>();
-  console.log(data)
+
   return data.tipo_candidaturas ?? [];
 }
