@@ -664,8 +664,12 @@ const ActionCell = ({
               <Button
                 size="sm"
                 variant="outline"
+               
                 className="h-8 text-xs"
-                disabled={gerarRefMutation.isPending || isPolling}
+                disabled={
+                //  gerarRefMutation.isPending || isPolling
+                true
+                }
               >
                 {gerarRefMutation.isPending || isPolling ? (
                   <>
@@ -692,12 +696,17 @@ const ActionCell = ({
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
                 <AlertDialogAction
-                  onClick={() =>
+                  onClick={() => {
+                    // TODO: Remove this after testing
+                    toast.info("Desculpe, esta desabilitada no momento!")
+                    return
                     gerarRefMutation.mutate({
                       codigoFactura: invoice.Codigo,
                     })
+                  }}
+                  disabled={
+                    gerarRefMutation.isPending || isPolling
                   }
-                  disabled={gerarRefMutation.isPending || isPolling}
                 >
                   {gerarRefMutation.isPending || isPolling ? (
                     <>

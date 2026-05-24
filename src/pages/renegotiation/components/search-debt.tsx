@@ -39,7 +39,6 @@ export function SearchDebt({
   onSearchDebt,
   isSearching,
 }: SearchDebtProps) {
-  const allOptionId = useId()
   const { profileData } = useQueryProfile()
   const { data: academicYearData } = useQueryAcademicYearStudent(
     String(profileData?.codigo_matricula),
@@ -48,7 +47,7 @@ export function SearchDebt({
   const academicYearOptions = [
     {
       label: 'Todos',
-      value: allOptionId,
+      value: 'all',
     },
 
     ...(academicYears?.map((t) => ({

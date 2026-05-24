@@ -12,7 +12,9 @@ export interface CheckTaskStatusResponse {
  * @param taskId ID da task retornado pelo backend
  * @returns Status da task
  */
-export async function checkTaskStatus(taskId: string): Promise<CheckTaskStatusResponse> {
+export async function checkTaskStatus(
+  taskId: string,
+): Promise<CheckTaskStatusResponse> {
   const url = `payment-references/status/${taskId}`
 
   const res = await Api.get(url)

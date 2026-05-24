@@ -54,7 +54,6 @@ import {
   getDebit,
   type DebtNegotiationResponse,
   type Mensalidade,
-  type MesDivida,
   type OutroServico,
 } from '@/services/renegotiation/renegotiation.service'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
@@ -99,7 +98,7 @@ export const Renegociation = () => {
     resolver: zodResolver(searchDebtSchema),
     defaultValues: {
       enrollmentCode: `${profileData?.codigo_matricula ?? ''}`,
-      academicYear: academicYear?.designacao ?? '',
+      academicYear:  'all',
     },
   })
 
@@ -182,6 +181,7 @@ export const Renegociation = () => {
 
   // === SIMULAR ===
   const onSimulateNegotiation = async (data: SimulateNegotiationFormData) => {
+    console.log("Simulate", data);
     setSimulationData(data)
     setStep('confirm')
     toast.success('Pronto para confirmar a renegociação')
@@ -543,7 +543,8 @@ export const Renegociation = () => {
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Ano Académico</p>
-                <p className="font-semibold">{simulationData.academicYear}</p>
+                <p className="font-semibold">{simulationData.academicYear == 'all' ? 'Todos' :simulationData.academicYear }</p>
+
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Valor Total</p>

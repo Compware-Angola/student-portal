@@ -52,7 +52,6 @@ function CurriculumRow({
     ano_lectivo: string
     disciplina: string
     semestre: string
-    estado: string
     nota?: string | number
   }
 }) {
@@ -62,9 +61,6 @@ function CurriculumRow({
       <TableCell>{subject.disciplina}</TableCell>
       <TableCell>{subject?.ano_lectivo}</TableCell>
       <TableCell>{subject.semestre}</TableCell>
-      <TableCell>
-        <StatusBadge estado={subject.estado} />
-      </TableCell>
       <TableCell className="text-right font-medium">{subject.nota}</TableCell>
     </TableRow>
   )
@@ -148,7 +144,6 @@ export function CurriculumCard({
                 <TableHead>Disciplina</TableHead>
                 <TableHead>Ano Lectivo</TableHead>
                 <TableHead>Semestre</TableHead>
-                <TableHead>Estado</TableHead>
                 <TableHead className="text-right">Nota</TableHead>
               </TableRow>
             </TableHeader>

@@ -52,7 +52,5 @@ export async function AvisosPorGrupoService(
 
   const response = await gaApi.get<AvisosPorGrupoResponse>(url);
   const data = await response.json()
-  console.log("RESPONSE: ", data)
-
   return data;
 }

@@ -18,7 +18,7 @@ const PENDING_TASKS_KEY = 'pending_payment_tasks'
 
 // === Função API (reutilizável) ===
 export async function generateReference(
-  params: GenerateReferenceParams
+  params: GenerateReferenceParams,
 ): Promise<GenerateReferenceResponse> {
   const url = `payment-references/renew/reference/${params.codigoFactura}`
 
@@ -36,16 +36,20 @@ export async function generateReference(
 
 // === Hook com lógica de localStorage + toast ===
 export function useGenerateReference() {
-
   return useMutation({
     mutationFn: generateReference,
     onSuccess: (data) => {
       // Atualiza localStorage
       const pendingTasks: { invoiceId: number; taskId: string }[] = JSON.parse(
-        localStorage.getItem(PENDING_TASKS_KEY) || '[]'
+        localStorage.getItem(PENDING_TASKS_KEY) || '[]',
       )
-      const filtered = pendingTasks.filter(t => t.invoiceId !== data.invoiceId)
-      const updated = [...filtered, { invoiceId: data.invoiceId, taskId: data.taskId }]
+      const filtered = pendingTasks.filter(
+        (t) => t.invoiceId !== data.invoiceId,
+      )
+      const updated = [
+        ...filtered,
+        { invoiceId: data.invoiceId, taskId: data.taskId },
+      ]
       localStorage.setItem(PENDING_TASKS_KEY, JSON.stringify(updated))
 
       // Feedback
