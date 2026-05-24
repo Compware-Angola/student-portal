@@ -1,5 +1,6 @@
 
 import { authApi } from '@/lib/auth-api'
+import { mailifyApi } from '@/lib/mailify-api';
 
 type User = {
   id: number;
@@ -48,7 +49,7 @@ export function login(credentials: AuthCredentials): Promise<AuthResponse> {
 export function checkEmail(email: string): Promise<{ exists: boolean }> {
   return authApi
     .post('auth/check-email', { json: { email, platform: 'PORTAL' } })
-    .json<{ email:string,exists: boolean }>()
+    .json<{ email: string, exists: boolean }>()
 }
 
 export async function requestPasswordReset(email: string): Promise<void> {
@@ -63,23 +64,27 @@ export async function resetPassword(token: string, newPassword: string): Promise
     })
 }
 export interface RequestDataUpdate {
-  /** E-mail que o usuário quer usar/corrigir */
   email: string;
-
-  /** Número de matrícula do estudante (obrigatório para identificação) */
   enrrolment: string;
-
-  /** Telefone de contato com código de Angola */
   phone: string;
-
-  /** Explicação detalhada do motivo da solicitação */
   details: string;
-
-  /** Plataforma de origem */
-  platform: 'GA'  | 'PORTAL'; 
+  platform: 'GA' | 'PORTAL';
 }
-export async function sendrenewDataRequest(peload: RequestDataUpdate){
-  await authApi
-    .post('auth/send-renew-data', { json: peload })
 
+export async function sendrenewDataRequest(payload: RequestDataUpdate) {
+  await mailifyApi.post('send-email', {
+    json: {
+
+      subject: '[Portal UMA] Solicitação de Atualização de Dados Cadastrais',
+      company: 'universidade_metodista_angola',
+      type: 'solicitar_actualizacao_dados',
+      context: {
+        email: payload.email,
+        enrrolment: payload.enrrolment,
+        phone: payload.phone,
+        platform: payload.platform,
+        details: payload.details,
+      },
+    },
+  });
 }
