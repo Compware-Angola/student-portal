@@ -75,7 +75,7 @@ export function useRegisterForm() {
     })) ?? []
 
   async function onSubmit(data: RegisterFormData) {
-    console.log("entrou aqui")
+   
     try {
       await createBeginningStudentProcessAsync({
         name: data.name,
@@ -89,7 +89,7 @@ export function useRegisterForm() {
         faculdade: data.faculdade,
       })
       toast.success('Autenticado com sucesso!')
-      console.log(data)
+     
       //navigate('/')
     } catch (error) {
       throw new Error("Erro ao fazer registro")

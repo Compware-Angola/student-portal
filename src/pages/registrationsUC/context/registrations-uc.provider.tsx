@@ -89,14 +89,14 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     data: grades,
     isLoading: isLoadingStudentCurriculumPlan,
     isError: isErrorStudentCurriculumPlan,
-    error: erroStudentCurriculum
+  
   } = useQueryCurriculumPlan({
     class: generateClasse,
     course: profileData?.codigo_curso,
     semestre: prazosMatricula?.semestre,
     type: "old"
   })
-  console.log("heree",erroStudentCurriculum)
+  
   const { data: foraPrazo } = useTypeServiceSingle({
     currentYearCode: Number(currentAcademicYear?.codigo),
     ...SERVICE_TYPES.INSCRICAO_FORA_PRAZO,

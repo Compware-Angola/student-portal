@@ -21,13 +21,17 @@ import { APP_ENV, isDevelop, isPrePrd } from '@/config/env'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { RegisterForm } from './components/register-form'
 import ValidarDocumentos from './components/ValidarDocumentos'
+import { TipoCalendario } from '@/enums/tipo-calendario.enum'
+import { useGetPrazoPorTipo } from '@/hooks/prazos'
 // ───────────────────────────────────────────────
 
 // ─── Controla visibilidade da aba de registo ───
-const SHOW_REGISTER_TAB = true // muda para false para ocultar o registo
+// muda para false para ocultar o registo
 
 export function Login() {
   const { setTheme } = useTheme()
+  const { data: prazoResponse, isLoading: prazoLoading } = useGetPrazoPorTipo({ tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO })
+  const SHOW_REGISTER_TAB = prazoLoading || prazoResponse?.podeInscrever
 
   const [activeTab, setActiveTab] = useState<'login' | 'forgot' | 'validar'>('login')
   const [authTab, setAuthTab] = useState<'login' | 'register'>('login')

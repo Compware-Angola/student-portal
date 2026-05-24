@@ -6,9 +6,9 @@ const transformMonthly = (monthlys: Mensalidade[]): Monthly[] => {
 
   return monthlys.map((monthly) => {
     const valorBase =
-      monthly.status_pagamento === 1
+      monthly.estado_fatura === 1
         ? monthly.valor_pago
-        : monthly.total;
+        : monthly.ValorAPagar;
     const desconto = Number(monthly.desconto)
     const mensalidade = Number(monthly.mensalidade)
 
@@ -27,14 +27,14 @@ const transformMonthly = (monthlys: Mensalidade[]): Monthly[] => {
       tipoDesconto: "Percentual",
       mensalidade: formatCurrency(monthly.mensalidade ?? 0),
       valorBase: String(valorBase),
-      valorAPagar: String(monthly.total),
+      valorAPagar: String(monthly.ValorAPagar),
       multa: formatCurrency(monthly.multa ?? 0),
       desconto: formatCurrency(monthly.desconto ?? 0),
       formaPagamento: null,
       dataPagamento: null,
       dueDate: monthly.data_vencimento,
       status: Number(monthly.estado_fatura),
-      reference: monthly.reference,
+      reference: null,
       observacoes: descricaoDesconto,
       bolseiro: 1
     };

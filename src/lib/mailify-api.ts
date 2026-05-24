@@ -2,12 +2,12 @@ import { ApiError, type ApiErrorResponse } from '@/error'
 import { AuthStorage } from '@/storage/auth-storage'
 import ky from 'ky'
 
-const VITE_API_URL_INVOICE = import.meta.env.VITE_API_URL_INVOICE
+const VITE_API_URL_MAILIFY = import.meta.env.VITE_API_URL_MAILIFY
 
-export const invoiceApi = ky.create({
-  prefixUrl: VITE_API_URL_INVOICE,
+export const mailifyApi = ky.create({
   retry: 0,
-  timeout: 70_000,
+  prefixUrl: VITE_API_URL_MAILIFY,
+  timeout: false,
   hooks: {
     beforeRequest: [
       (request) => {

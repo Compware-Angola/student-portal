@@ -39,11 +39,9 @@ export function RegisterForm({
             } catch (error) {
 
             }
-          },
+          }
 
-          (errors) => {
-            console.log('ERROS DO FORM', errors)
-          },
+
         )}
         className={cn('flex flex-col gap-6', className)}
         {...props}
