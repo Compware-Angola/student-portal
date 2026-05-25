@@ -23,7 +23,6 @@ import type { UseFormReturn } from 'react-hook-form'
 import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-academic-year-student'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { SelectFormField } from '@/components/selectFormField'
-import { useId } from 'react'
 import { dedupeAcademicYears } from '@/utils/dedupe-academic-years'
 
 type SearchDebtFormData = z.infer<typeof searchDebtSchema>

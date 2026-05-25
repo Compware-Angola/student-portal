@@ -16,7 +16,7 @@ export type PrazoResponse = {
 }
 
 export type PrazoParams = {
-  tipo: TipoCalendario | string
+  tipo: (typeof TipoCalendario)[keyof typeof TipoCalendario] | string
   anoLectivo?: string | number
 }
 
