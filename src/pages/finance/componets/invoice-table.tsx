@@ -64,7 +64,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { ReferenciasDialog } from './referencie-dialog'
-import {  InvoiceStatusBadge } from '@/common/Invoice-status-badge'
+import { InvoiceStatusBadge } from '@/common/Invoice-status-badge'
 
 // --- LocalStorage & Polling (100% como tinhas) ---
 const PENDING_TASKS_KEY = 'pending_payment_tasks'
@@ -304,8 +304,8 @@ function InvoiceDetailsDialog({
                       )}
                     </div>
                   </div>
-                  <div className='absolute top-4 right-4'>
-                    <InvoiceStatusBadge status={item.estado}/>
+                  <div className="absolute top-4 right-4">
+                    <InvoiceStatusBadge status={item.estado} />
                   </div>
                 </Card>
               ))}
@@ -664,11 +664,10 @@ const ActionCell = ({
               <Button
                 size="sm"
                 variant="outline"
-               
                 className="h-8 text-xs"
                 disabled={
-                //  gerarRefMutation.isPending || isPolling
-                true
+                  //  gerarRefMutation.isPending || isPolling
+                  true
                 }
               >
                 {gerarRefMutation.isPending || isPolling ? (
@@ -698,15 +697,13 @@ const ActionCell = ({
                 <AlertDialogAction
                   onClick={() => {
                     // TODO: Remove this after testing
-                    toast.info("Desculpe, esta desabilitada no momento!")
+                    toast.info('Desculpe, esta desabilitada no momento!')
                     return
                     gerarRefMutation.mutate({
                       codigoFactura: invoice.Codigo,
                     })
                   }}
-                  disabled={
-                    gerarRefMutation.isPending || isPolling
-                  }
+                  disabled={gerarRefMutation.isPending || isPolling}
                 >
                   {gerarRefMutation.isPending || isPolling ? (
                     <>

@@ -8,9 +8,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
+// import { Badge } from '@/components/ui/badge'
 
-import { cn } from '@/lib/utils'
+// import { cn } from '@/lib/utils'
 import { useQueryCurrentCurriculumPlanSudent } from '@/hooks/curriculum/use-query-current-curriculum-plan-student'
 import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-academic-year-student'
 import { YearSelect } from '@/components/year-select'
@@ -19,26 +19,26 @@ import { SemesterSelect } from '@/components/SemesterSelect'
 /* =======================
    Componente Badge de Estado
 ======================= */
-function StatusBadge({ estado }: { estado: string }) {
-  const isSuccess = estado === 'Fez com Sucesso'
+// function StatusBadge({ estado }: { estado: string }) {
+//   const isSuccess = estado === 'Fez com Sucesso'
 
-  const baseClasses =
-    'rounded-full border-none focus-visible:outline-none focus-visible:ring-2'
-  const colorClasses = isSuccess
-    ? 'bg-green-600/10 text-green-600 focus-visible:ring-green-600/20 dark:bg-green-400/10 dark:text-green-400 dark:focus-visible:ring-green-400/40'
-    : 'bg-amber-600/10 text-amber-600 focus-visible:ring-amber-600/20 dark:bg-amber-400/10 dark:text-amber-400 dark:focus-visible:ring-amber-400/40'
+//   const baseClasses =
+//     'rounded-full border-none focus-visible:outline-none focus-visible:ring-2'
+//   const colorClasses = isSuccess
+//     ? 'bg-green-600/10 text-green-600 focus-visible:ring-green-600/20 dark:bg-green-400/10 dark:text-green-400 dark:focus-visible:ring-green-400/40'
+//     : 'bg-amber-600/10 text-amber-600 focus-visible:ring-amber-600/20 dark:bg-amber-400/10 dark:text-amber-400 dark:focus-visible:ring-amber-400/40'
 
-  const dotClasses = isSuccess
-    ? 'size-1.5 rounded-full bg-green-600 dark:bg-green-400'
-    : 'size-1.5 rounded-full bg-amber-600 dark:bg-amber-400'
+//   const dotClasses = isSuccess
+//     ? 'size-1.5 rounded-full bg-green-600 dark:bg-green-400'
+//     : 'size-1.5 rounded-full bg-amber-600 dark:bg-amber-400'
 
-  return (
-    <Badge className={cn(baseClasses, colorClasses)}>
-      <span className={dotClasses} aria-hidden="true" />
-      {estado}
-    </Badge>
-  )
-}
+//   return (
+//     <Badge className={cn(baseClasses, colorClasses)}>
+//       <span className={dotClasses} aria-hidden="true" />
+//       {estado}
+//     </Badge>
+//   )
+// }
 
 /* =======================
    Componente Linha da Tabela
@@ -79,7 +79,9 @@ export function CurriculumCard({
   const [selectedYear, setSelectedYear] = useState<string | undefined>(
     undefined,
   )
-  const [selectedSemester, setSelectedSemester] = useState<string | undefined>(undefined)
+  const [selectedSemester, setSelectedSemester] = useState<string | undefined>(
+    undefined,
+  )
 
   const {
     data: studentCurriculumPlanData,
@@ -87,8 +89,7 @@ export function CurriculumCard({
   } = useQueryCurrentCurriculumPlanSudent({
     academicYearCode: selectedYear,
     preEnrollmentCode,
-    semester:selectedSemester
-
+    semester: selectedSemester,
   })
 
   const { data: academicYearData } = useQueryAcademicYearStudent(enrollmentCode)
@@ -104,14 +105,16 @@ export function CurriculumCard({
     }
   }, [academicYears, setSelectedYear])
 
-  const onSelectSemester = useCallback((codeSemester: string | undefined) => {
-    if (codeSemester == '3') {
-      setSelectedSemester(undefined)
-    }
-    else {
-      setSelectedSemester(codeSemester)
-    }
-  },[selectedSemester])
+  const onSelectSemester = useCallback(
+    (codeSemester: string | undefined) => {
+      if (codeSemester == '3') {
+        setSelectedSemester(undefined)
+      } else {
+        setSelectedSemester(codeSemester)
+      }
+    },
+    [selectedSemester],
+  )
 
   return (
     <Card>
@@ -119,7 +122,7 @@ export function CurriculumCard({
         <div className="flex items-center justify-between">
           <CardTitle>Notas Finais</CardTitle>
           <div className="flex items-center ">
-            <div className='mr-1'>
+            <div className="mr-1">
               <YearSelect
                 academicYears={academicYears}
                 selectedYear={selectedYear}
