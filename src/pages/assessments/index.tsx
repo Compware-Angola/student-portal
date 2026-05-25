@@ -3,8 +3,8 @@ import { useEffect } from 'react'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { toast } from 'sonner'
 import { CurriculumCard } from './curriculum-card'
-import { PaymentAlert } from '@/components/payment-alert'
-import { useQueryGetDebit } from '@/hooks/renegotiation/use-query-renegotiation'
+// import { PaymentAlert } from '@/components/payment-alert'
+// import { useQueryGetDebit } from '@/hooks/renegotiation/use-query-renegotiation'
 import { Notes } from './notes'
 import { Button } from '@/components/ui/button'
 import { AlertCircle, ArrowRight, Hourglass, Wallet } from 'lucide-react'
@@ -22,12 +22,12 @@ export function Assessments() {
     profileData?.confirmacoes?.length === 0 ||
     profileData?.confirmacoes[0]?.estado === 0
   const navigate = useNavigate()
-  const { data: debit, isLoading: isLoadingDebit } = useQueryGetDebit({
-    type: '1',
-    enrollmentCode: Number(codigo_matricula),
-    preinscricao: Number(codigo_preinscricao),
-    enabled: !!codigo_matricula && !!codigo_preinscricao && !isDiplomado
-  })
+  // const { data: debit, isLoading: isLoadingDebit } = useQueryGetDebit({
+  //   type: '1',
+  //   enrollmentCode: Number(codigo_matricula),
+  //   preinscricao: Number(codigo_preinscricao),
+  //   enabled: !!codigo_matricula && !!codigo_preinscricao && !isDiplomado
+  // })
 
   useEffect(() => {
     if (isError) {
@@ -35,7 +35,7 @@ export function Assessments() {
     }
   }, [isError])
 
-  if (isLoading || !profileData || isLoadingDebit) {
+  if (isLoading || !profileData) {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-6">
         <div className="relative w-12 h-12">
@@ -59,7 +59,7 @@ export function Assessments() {
     )
   }
 
-  if (debit && (debit?.totalDivida ?? 0) > 0) return <PaymentAlert />
+  // if (debit && (debit?.totalDivida ?? 0) > 0) return <PaymentAlert />
 
   return (
     <div className="space-y-6">
