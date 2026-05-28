@@ -8,12 +8,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-// import { Badge } from '@/components/ui/badge'
-
-// import { cn } from '@/lib/utils'
 import { useQueryCurrentCurriculumPlanSudent } from '@/hooks/curriculum/use-query-current-curriculum-plan-student'
 import { YearSelect } from '@/components/year-select'
 import { SemesterSelect } from '@/components/SemesterSelect'
+import StatusBadgeCustom from './components/status-bage'
+
 import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-academic-year-student'
 
 /* =======================
@@ -61,7 +60,9 @@ function CurriculumRow({
       <TableCell>{subject.disciplina}</TableCell>
       <TableCell>{subject?.ano_lectivo}</TableCell>
       <TableCell>{subject.semestre}</TableCell>
+      {/* <TableCell><StatusBadgeCustom media={Number(subject?.nota)} /></TableCell> */}
       <TableCell className="text-right font-medium">{subject.nota}</TableCell>
+
     </TableRow>
   )
 }
@@ -89,7 +90,8 @@ export function CurriculumCard({
   } = useQueryCurrentCurriculumPlanSudent({
     academicYearCode: selectedYear,
     preEnrollmentCode,
-    semester: selectedSemester,
+    semester: selectedSemester
+
   })
 
   const { data: academicYearData } = useQueryAcademicYearStudent(enrollmentCode)
@@ -105,16 +107,14 @@ export function CurriculumCard({
     }
   }, [academicYears, setSelectedYear])
 
-  const onSelectSemester = useCallback(
-    (codeSemester: string | undefined) => {
-      if (codeSemester == '3') {
-        setSelectedSemester(undefined)
-      } else {
-        setSelectedSemester(codeSemester)
-      }
-    },
-    [selectedSemester],
-  )
+  const onSelectSemester = useCallback((codeSemester: string | undefined) => {
+    if (codeSemester == '3') {
+      setSelectedSemester(undefined)
+    }
+    else {
+      setSelectedSemester(codeSemester)
+    }
+  }, [selectedSemester])
 
   return (
     <Card>
@@ -147,6 +147,7 @@ export function CurriculumCard({
                 <TableHead>Disciplina</TableHead>
                 <TableHead>Ano Lectivo</TableHead>
                 <TableHead>Semestre</TableHead>
+                {/*  <TableHead>Estado</TableHead> */}
                 <TableHead className="text-right">Nota</TableHead>
               </TableRow>
             </TableHeader>
@@ -169,7 +170,7 @@ export function dedupeAcademicYears(
   const map = new Map()
 
   list.forEach((item) => {
-    map.set(item.codigo, item) // se tiver repetido, sobrescreve e fica só 1
+    map.set(item.codigo, item)
   })
 
   return Array.from(map.values())
