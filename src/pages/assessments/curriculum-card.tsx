@@ -11,7 +11,7 @@ import {
 import { useQueryCurrentCurriculumPlanSudent } from '@/hooks/curriculum/use-query-current-curriculum-plan-student'
 import { YearSelect } from '@/components/year-select'
 import { SemesterSelect } from '@/components/SemesterSelect'
-import StatusBadgeCustom from './components/status-bage'
+
 
 import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-academic-year-student'
 
