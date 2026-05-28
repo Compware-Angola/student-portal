@@ -26,7 +26,6 @@ export function MonthlyCard({ enrollmentCode, selectedYear, onClick }: MonthlyCa
       limit: 100,
     },
   )
-
   const {
     data: academicYearData,
     isLoading: isAcademicLoading,
@@ -40,14 +39,11 @@ export function MonthlyCard({ enrollmentCode, selectedYear, onClick }: MonthlyCa
     return pendingPayments.reduce((sum, item) => sum + (item.total ?? 0), 0)
   }, [pendingPayments])
   const academicYear = academicYearData?.anolectivos?.find(
-    (ano) => ano.codigo === selectedYear?.toString()
+    (ano) => ano.codigo.toString() === selectedYear?.toString()
   )
-
   const yearLabel = academicYear?.designacao ?? selectedYear ?? 'Ano letivo'
-
   const hasError = isFeesError
   const hasNoData = !isLoading && pendingPayments.length === 0
-
   return (
     <Card
       className={`
@@ -58,7 +54,7 @@ export function MonthlyCard({ enrollmentCode, selectedYear, onClick }: MonthlyCa
     >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">
-          Mensalidades Pendentes ({yearLabel})
+         Mensalidades Restantes ({yearLabel})
         </CardTitle>
         <Wallet className="h-5 w-5 text-destructive/90" />
       </CardHeader>
@@ -90,7 +86,7 @@ export function MonthlyCard({ enrollmentCode, selectedYear, onClick }: MonthlyCa
             <p className="text-xs text-muted-foreground">
               {pendingPayments.length === 1
                 ? '1 mensalidade pendente'
-                : `${pendingPayments.length} mensalidades pendentes`}
+                : `${pendingPayments.length} Mensalidades Restantes`}
             </p>
             <p className="text-xs text-muted-foreground/80 pt-1">
               Clique para ver detalhes

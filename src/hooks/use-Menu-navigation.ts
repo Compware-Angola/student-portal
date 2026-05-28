@@ -1,7 +1,7 @@
-import {
-  getEnrollmentLabel,
-  getEnrollmentRoute,
-} from '@/utils/map-student-situation'
+// import {
+//   getEnrollmentLabel,
+//   getEnrollmentRoute,
+// } from '@/utils/map-student-situation'
 import { useStudentSituation } from './use-student-stitiation'
 import {
   BookOpen,
@@ -9,7 +9,6 @@ import {
   CircleDollarSign,
   ClipboardList,
   CreditCard,
-  GraduationCap,
   HandCoins,
   HelpCircle,
   Home,
@@ -27,9 +26,10 @@ import { routePermissions } from '@/routes/permission'
 import { useQueryProfile } from './profile/use-query-profile'
 
 export function useMenuNavigation() {
-  const { 
-    //hasEnrolmentCode, 
-    isLoading } = useStudentSituation()
+  const {
+    //hasEnrolmentCode,
+    isLoading,
+  } = useStudentSituation()
   const { isLoading: isLoadingProfile, studentStatus } = useQueryProfile()
 
   if (isLoading || isLoadingProfile || !studentStatus) {

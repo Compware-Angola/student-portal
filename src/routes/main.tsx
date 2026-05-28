@@ -2,7 +2,7 @@ import Layout from '@/components/layout'
 import { Dashboard } from '@/pages/dashboard'
 import { Navigate, Route, useLocation } from 'react-router-dom'
 import { RequireAuth } from './require-auth'
-import { Enrollment } from '@/pages/enrollment'
+
 import { Profile } from '@/pages/profile'
 import { AdvancePayment } from '@/pages/advance-payment/inde'
 import { Finance } from '@/pages/finance'
@@ -33,8 +33,9 @@ import { InscriçõesRecurosPage } from '@/pages/assessments/recuros'
 import { InscriçõesEspecial } from '@/pages/assessments/especial'
 
 export function MainRoutes() {
-  const { isLoading, 
-   // hasEnrolmentCode 
+  const {
+    isLoading,
+    // hasEnrolmentCode
   } = useStudentSituation()
   // const enrollmentComponents: Record<string, JSX.Element> = useMemo(
   //   () => ({
