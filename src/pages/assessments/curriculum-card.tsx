@@ -146,7 +146,7 @@ export function dedupeAcademicYears(
   const map = new Map()
 
   list.forEach((item) => {
-    map.set(item.codigo, item) // se tiver repetido, sobrescreve e fica só 1
+    map.set(item.codigo, item)
   })
 
   return Array.from(map.values())
