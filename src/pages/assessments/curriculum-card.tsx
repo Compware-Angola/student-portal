@@ -9,11 +9,35 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { useQueryCurrentCurriculumPlanSudent } from '@/hooks/curriculum/use-query-current-curriculum-plan-student'
-import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-academic-year-student'
 import { YearSelect } from '@/components/year-select'
 import { SemesterSelect } from '@/components/SemesterSelect'
-import StatusBadgeCustom from './components/status-bage'
 
+
+import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-academic-year-student'
+
+/* =======================
+   Componente Badge de Estado
+======================= */
+// function StatusBadge({ estado }: { estado: string }) {
+//   const isSuccess = estado === 'Fez com Sucesso'
+
+//   const baseClasses =
+//     'rounded-full border-none focus-visible:outline-none focus-visible:ring-2'
+//   const colorClasses = isSuccess
+//     ? 'bg-green-600/10 text-green-600 focus-visible:ring-green-600/20 dark:bg-green-400/10 dark:text-green-400 dark:focus-visible:ring-green-400/40'
+//     : 'bg-amber-600/10 text-amber-600 focus-visible:ring-amber-600/20 dark:bg-amber-400/10 dark:text-amber-400 dark:focus-visible:ring-amber-400/40'
+
+//   const dotClasses = isSuccess
+//     ? 'size-1.5 rounded-full bg-green-600 dark:bg-green-400'
+//     : 'size-1.5 rounded-full bg-amber-600 dark:bg-amber-400'
+
+//   return (
+//     <Badge className={cn(baseClasses, colorClasses)}>
+//       <span className={dotClasses} aria-hidden="true" />
+//       {estado}
+//     </Badge>
+//   )
+// }
 
 /* =======================
    Componente Linha da Tabela
