@@ -12,7 +12,7 @@ export const routePermissions: Record<StudentStatusType, string[]> = {
     '/servicos-academicos',
     '/disciplinas',
     '/mensagens',
-    '/renegociacao',
+    //  '/renegociacao',
     '/calendario-academico',
     '/suporte',
     '/financas/notas-pagamento',
