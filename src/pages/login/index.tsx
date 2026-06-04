@@ -1,114 +1,60 @@
+'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  Eye,
-  EyeOff,
-  User,
-  Lock,
-  LogIn,
-  BarChart3,
-  FileText,
-  CalendarDays,
-  UserCircle,
-  MessageSquare,
-  Mail,
-  ArrowLeft,
-  ShieldCheck,
-  Search,
-  CheckCircle2,
-  XCircle,
-  Phone,
-  Hash,
-  Send,
-  UserPlus,
-  GraduationCap,
-  IdCard,
-  ClipboardList,
-  Info,
+  Eye, EyeOff, User, Lock, BarChart3, FileText, CalendarDays,
+  UserCircle, MessageSquare, Mail, ArrowLeft, ShieldCheck, Search,
+  CheckCircle2, XCircle, Phone, Hash, Send, UserPlus, GraduationCap,
+  IdCard, ClipboardList, Info,
 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+  Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
 } from "@/components/ui/form";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-
-import logo from "@/assets/logo_uma.png";
 import studentsPhoto from "@/assets/black-students.jpg";
+import { LogoBackground } from "./components/logo-background";
 
-// Feature flag: registo aberto apenas em determinadas épocas (controlado por boolean).
-const REGISTRATION_OPEN = true;
+// ───────────────────────────────────────────────
+// LÓGICA DE AMBIENTE, TEMA E PRAZO DE INSCRIÇÕES
+// ───────────────────────────────────────────────
+import { APP_ENV, isDevelop, isPrePrd } from '@/config/env';
+import { useGetPrazoPorTipo } from '@/hooks/prazos';
+import { TipoCalendario } from '@/enums/tipo-calendario.enum';
+import { useTheme } from '@/hooks/use-theme';
+import { LoginForm } from "./components/login-form";
+import { ForgotPassword } from "./components/forgot-password-flow";
+
+
+type View = "login" | "forgot" | "update-request" | "validate-doc" | "register";
 
 const FACULDADES = [
-  "Faculdade de Engenharia",
-  "Faculdade de Ciências Económicas",
-  "Faculdade de Direito",
-  "Faculdade de Ciências da Saúde",
-  "Faculdade de Educação",
-  "Faculdade de Teologia",
+  "Faculdade de Engenharia", "Faculdade de Ciências Económicas",
+  "Faculdade de Direito", "Faculdade de Ciências da Saúde",
+  "Faculdade de Educação", "Faculdade de Teologia",
 ];
 
 const TIPOS_CANDIDATURA = [
-  "1ª Vez (Acesso ao Ensino Superior)",
-  "Transferência",
-  "Mudança de Curso",
-  "Reingresso",
+  "1ª Vez (Acesso ao Ensino Superior)", "Transferência",
+  "Mudança de Curso", "Reingresso",
 ];
 
-const TIPOS_DOCUMENTO = [
-  "Bilhete de Identidade",
-  "Passaporte",
-  "Cartão de Residente",
-];
+const TIPOS_DOCUMENTO = ["Bilhete de Identidade", "Passaporte", "Cartão de Residente"];
 
 
-type View =
-  | "login"
-  | "forgot"
-  | "update-request"
-  | "validate-doc"
-  | "register";
 
-
-const REGISTERED_EMAILS = new Set([
-  "estudante@metodista.ao",
-  "joao.silva@metodista.ao",
-  "maria.santos@metodista.ao",
-]);
-
-
-const DOCUMENT_DB: Record<
-  string,
-  { nome: string; curso: string; matricula: string; estado: string; emissao: string }
-> = {
-  "DOC-2024-001": {
-    nome: "João Manuel Silva",
-    curso: "Engenharia Informática",
-    matricula: "2024001234",
-    estado: "Válido",
-    emissao: "12/03/2024",
-  },
-  "DOC-2024-002": {
-    nome: "Maria Santos",
-    curso: "Gestão de Empresas",
-    matricula: "2024001567",
-    estado: "Válido",
-    emissao: "05/05/2024",
-  },
+const DOCUMENT_DB: Record<string, {
+  nome: string; curso: string; matricula: string; estado: string; emissao: string;
+}> = {
+  "DOC-2024-001": { nome: "João Manuel Silva", curso: "Engenharia Informática", matricula: "2024001234", estado: "Válido", emissao: "12/03/2024" },
+  "DOC-2024-002": { nome: "Maria Santos", curso: "Gestão de Empresas", matricula: "2024001567", estado: "Válido", emissao: "05/05/2024" },
 };
 
 const FEATURES = [
@@ -119,37 +65,48 @@ const FEATURES = [
   { icon: MessageSquare, text: "Comunicados e avisos da instituição" },
 ];
 
- export  function Login() {
+// ─────────────────────────────────────────────────────────────
+// COMPONENTE PRINCIPAL
+// ─────────────────────────────────────────────────────────────
+export function Login() {
   const [view, setView] = useState<View>("login");
+
+  // ── Forçar tema light (equivalente ao doc 2) ──
+  const { setTheme } = useTheme();
+  useEffect(() => {
+    setTheme('light');
+  }, []);
+
+  // ── Prazo de inscrições: botão de registo só aparece se estiver no prazo ──
+  const { data: prazoResponse, isLoading: prazoLoading } = useGetPrazoPorTipo({
+    tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
+  });
+
+  // Enquanto carrega, mantém visível (evita flash de desaparecimento)
+  const SHOW_REGISTER_TAB = prazoLoading || (prazoResponse?.podeInscrever ?? false);
+
+  const showEnvLabel = isDevelop || isPrePrd;
+  const envDisplay = isDevelop
+    ? `Ambiente: Desenvolvimento • v${APP_ENV}`
+    : isPrePrd
+      ? `Ambiente: Pré-produção • v${APP_ENV}`
+      : '';
 
   return (
     <div className="min-h-screen grid lg:grid-cols-[6fr_4fr] bg-white">
-      {/* LEFT — photo + maroon overlay */}
+      {/* LEFT — foto + overlay */}
       <aside className="relative hidden lg:flex flex-col justify-between overflow-hidden text-white p-12 min-h-screen">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${studentsPhoto})` }}
-          aria-hidden
-        />
-        <div
-          className="absolute inset-0"
-          style={{ backgroundColor: "rgba(110, 15, 15, 0.65)" }}
-          aria-hidden
-        />
-        <div
-          className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40"
-          aria-hidden
-        />
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${studentsPhoto})` }} aria-hidden />
+        <div className="absolute inset-0" style={{ backgroundColor: "rgba(110, 15, 15, 0.65)" }} aria-hidden />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40" aria-hidden />
 
         <div className="relative z-10 max-w-xl">
           <h1 className="text-5xl font-bold leading-[1.05] tracking-tight">
-            Bem-vindo ao
-            <br />
+            Bem-vindo ao<br />
             Portal do <span style={{ color: "#F5A623" }}>Estudante</span>
           </h1>
           <p className="mt-5 max-w-md text-base text-white/90">
-            Consulte notas, pautas, horários e actividades académicas numa
-            plataforma centralizada.
+            Consulte notas, pautas, horários e actividades académicas numa plataforma centralizada.
           </p>
 
           <ul className="mt-10 space-y-4">
@@ -168,285 +125,51 @@ const FEATURES = [
         </div>
 
         <div className="relative z-10">
-          <p className="text-xs text-white/75">
-            © {new Date().getFullYear()} Universidade Metodista de Angola
-          </p>
+          <p className="text-xs text-white/75">© {new Date().getFullYear()} Universidade Metodista de Angola</p>
         </div>
       </aside>
 
-      {/* RIGHT — dynamic form */}
+      {/* RIGHT — formulário dinâmico */}
       <main className="relative flex items-center justify-center p-6 sm:p-10 bg-white overflow-hidden">
-     
+        <LogoBackground top="2.5rem" right="2.5rem" />
+        <LogoBackground bottom="2.5rem" left="2.5rem" />
 
         <div className="relative w-full max-w-md space-y-6">
-          {/* Mobile banner */}
+          {/* Banner mobile */}
           <div className="lg:hidden -mx-6 sm:-mx-10 -mt-6 sm:-mt-10 mb-2 relative h-56 overflow-hidden text-white">
-            <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `url(${studentsPhoto})` }}
-            />
-            <div
-              className="absolute inset-0"
-              style={{ backgroundColor: "rgba(110, 15, 15, 0.65)" }}
-            />
+            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${studentsPhoto})` }} />
+            <div className="absolute inset-0" style={{ backgroundColor: "rgba(110, 15, 15, 0.65)" }} />
             <div className="relative z-10 flex h-full flex-col justify-end p-6">
               <h1 className="text-2xl font-bold leading-tight">
                 Portal do <span style={{ color: "#F5A623" }}>Estudante</span>
               </h1>
-              <p className="text-xs text-white/85 mt-1">
-                Universidade Metodista de Angola
-              </p>
+              <p className="text-xs text-white/85 mt-1">Universidade Metodista de Angola</p>
             </div>
           </div>
 
-          {view === "login" && <LoginForm setView={setView} />}
-          {view === "forgot" && <ForgotPasswordForm setView={setView} />}
+          {view === "login" && <LoginForm setView={setView} showRegister={SHOW_REGISTER_TAB} />}
+          {view === "forgot" && <ForgotPassword setView={setView} />}
           {view === "update-request" && <UpdateRequestForm setView={setView} />}
           {view === "validate-doc" && <ValidateDocumentForm setView={setView} />}
-          {view === "register" && <RegisterForm setView={setView} />}
+          {view === "register" && SHOW_REGISTER_TAB && <RegisterForm setView={setView} />}
         </div>
+
+        {/* Label de ambiente */}
+        {showEnvLabel && (
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-xs text-muted-foreground/50 text-center">
+            {envDisplay}
+          </div>
+        )}
       </main>
     </div>
   );
 }
 
-/* ---------------- LOGIN ---------------- */
 
-const loginSchema = z.object({
-  studentId: z.string().min(4, "Número de estudante inválido").max(20),
-  password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
-});
 
-function LoginForm({ setView }: { setView: (v: View) => void }) {
-  const [showPassword, setShowPassword] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-
-  const form = useForm<z.infer<typeof loginSchema>>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { studentId: "", password: "" },
-  });
-
-  const onSubmit = () => {
-    setSubmitting(true);
-    setTimeout(() => setSubmitting(false), 1000);
-  };
-
-  return (
-    <>
-      <div className="space-y-2">
-        <h2 className="text-[28px] font-bold tracking-tight text-foreground leading-tight">
-          Entrar na conta
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          Digite suas credenciais para aceder ao portal.
-        </p>
-      </div>
-
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-          <FormField
-            control={form.control}
-            name="studentId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Número de Estudante</FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      {...field}
-                      autoComplete="username"
-                      placeholder="ex: 2024001234"
-                      className="h-11 pl-10 rounded-lg bg-slate-50 border-slate-200"
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Senha</FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      {...field}
-                      type={showPassword ? "text" : "password"}
-                      autoComplete="current-password"
-                      placeholder="••••••••••••"
-                      className="h-11 px-10 rounded-lg bg-slate-50 border-slate-200"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((v) => !v)}
-                      aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <PrimaryButton type="submit" disabled={submitting}>
-            <LogIn className="mr-2 h-4 w-4" />
-            {submitting ? "Entrando..." : "Entrar"}
-          </PrimaryButton>
-
-          <div className="flex items-center justify-between text-xs">
-            <button
-              type="button"
-              onClick={() => setView("forgot")}
-              className="font-medium text-muted-foreground hover:text-foreground hover:underline"
-            >
-              Esqueceu a senha?
-            </button>
-            <button
-              type="button"
-              onClick={() => setView("validate-doc")}
-              className="inline-flex items-center gap-1 font-medium text-muted-foreground hover:text-foreground hover:underline"
-            >
-              <ShieldCheck className="h-3.5 w-3.5" />
-              Validar documento
-            </button>
-          </div>
-
-          <div className="relative my-2">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-slate-200" />
-            </div>
-            <div className="relative flex justify-center text-[11px] uppercase tracking-wider">
-              <span className="bg-white px-2 text-muted-foreground">Novo estudante?</span>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setView("register")}
-            className="inline-flex w-full items-center justify-center gap-2 h-11 rounded-lg border border-slate-200 bg-white text-sm font-medium text-foreground hover:bg-slate-50 transition-colors"
-          >
-            <UserPlus className="h-4 w-4" style={{ color: "#E02020" }} />
-            Criar a sua conta
-          </button>
-        </form>
-      </Form>
-    </>
-  );
-}
-
-/* ---------------- FORGOT PASSWORD ---------------- */
-
-const forgotSchema = z.object({
-  email: z.string().email("E-mail inválido"),
-});
-
-function ForgotPasswordForm({ setView }: { setView: (v: View) => void }) {
-  const [status, setStatus] = useState<"idle" | "sent" | "not-found">("idle");
-
-  const form = useForm<z.infer<typeof forgotSchema>>({
-    resolver: zodResolver(forgotSchema),
-    defaultValues: { email: "" },
-  });
-
-  const onSubmit = (data: z.infer<typeof forgotSchema>) => {
-    if (REGISTERED_EMAILS.has(data.email.toLowerCase())) {
-      setStatus("sent");
-    } else {
-      setStatus("not-found");
-    }
-  };
-
-  return (
-    <>
-      <BackButton onClick={() => setView("login")} />
-      <div className="space-y-2">
-        <h2 className="text-[28px] font-bold tracking-tight text-foreground leading-tight">
-          Recuperar senha
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          Informe o seu e-mail institucional para receber as instruções.
-        </p>
-      </div>
-
-      {status === "sent" ? (
-        <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800 space-y-3">
-          <div className="flex items-center gap-2 font-medium">
-            <CheckCircle2 className="h-5 w-5" />
-            E-mail enviado
-          </div>
-          <p>Enviámos um link de recuperação para o seu e-mail. Verifique a sua caixa de entrada.</p>
-          <Button variant="outline" onClick={() => setView("login")} className="w-full">
-            Voltar ao login
-          </Button>
-        </div>
-      ) : (
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>E-mail</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        {...field}
-                        type="email"
-                        placeholder="seu.email@metodista.ao"
-                        className="h-11 pl-10 rounded-lg bg-slate-50 border-slate-200"
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {status === "not-found" && (
-              <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 space-y-3">
-                <div className="flex items-center gap-2 font-medium">
-                  <XCircle className="h-5 w-5" />
-                  E-mail não encontrado
-                </div>
-                <p>
-                  Este e-mail não consta dos nossos registos. Pode solicitar a actualização dos seus
-                  dados pessoais.
-                </p>
-                <Button
-                  type="button"
-                  onClick={() => setView("update-request")}
-                  className="w-full"
-                  style={{ backgroundColor: "#E02020", color: "white" }}
-                >
-                  Solicitar actualização de dados
-                </Button>
-              </div>
-            )}
-
-            <PrimaryButton type="submit">
-              <Send className="mr-2 h-4 w-4" />
-              Enviar instruções
-            </PrimaryButton>
-          </form>
-        </Form>
-      )}
-    </>
-  );
-}
-
-/* ---------------- UPDATE REQUEST ---------------- */
-
+// ─────────────────────────────────────────────────────────────
+// UPDATE REQUEST
+// ─────────────────────────────────────────────────────────────
 const updateSchema = z.object({
   matricula: z.string().min(4, "Matrícula inválida").max(20),
   telefone: z.string().min(9, "Telefone inválido").max(20),
@@ -579,8 +302,9 @@ function UpdateRequestForm({ setView }: { setView: (v: View) => void }) {
   );
 }
 
-/* ---------------- VALIDATE DOCUMENT ---------------- */
-
+// ─────────────────────────────────────────────────────────────
+// VALIDATE DOCUMENT
+// ─────────────────────────────────────────────────────────────
 const docSchema = z.object({
   numero: z.string().min(3, "Número de documento inválido").max(50),
 });
@@ -672,52 +396,9 @@ function ValidateDocumentForm({ setView }: { setView: (v: View) => void }) {
   );
 }
 
-/* ---------------- helpers ---------------- */
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between gap-3 border-b border-green-200/50 last:border-b-0 py-1">
-      <dt className="text-green-900/70">{label}</dt>
-      <dd className="font-medium text-green-900 text-right">{value}</dd>
-    </div>
-  );
-}
-
-function BackButton({ onClick }: { onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-    >
-      <ArrowLeft className="h-3.5 w-3.5" />
-      Voltar
-    </button>
-  );
-}
-
-function PrimaryButton({
-  children,
-  ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement>) {
-  return (
-    <Button
-      {...props}
-      className="h-11 w-full rounded-lg text-white transition-all hover:-translate-y-0.5"
-      style={{
-        backgroundColor: "#E02020",
-        boxShadow: "0 10px 25px -10px rgba(224, 32, 32, 0.55)",
-      }}
-      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#B81818")}
-      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#E02020")}
-    >
-      {children}
-    </Button>
-  );
-}
-
-/* ---------------- REGISTER (cadastro) ---------------- */
-
+// ─────────────────────────────────────────────────────────────
+// REGISTER
+// ─────────────────────────────────────────────────────────────
 const registerSchema = z.object({
   nomeCompleto: z.string().trim().min(3, "Nome inválido").max(120),
   email: z.string().trim().email("E-mail inválido").max(255),
@@ -739,22 +420,22 @@ function RegisterForm({ setView }: { setView: (v: View) => void }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  const { data: prazoResponse } = useGetPrazoPorTipo({
+    tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
+  });
+  const REGISTRATION_OPEN = prazoResponse?.podeInscrever ?? false;
+
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      nomeCompleto: "",
-      email: "",
-      telefone: "",
-      faculdade: "",
-      tipoCandidatura: "",
-      tipoDocumento: "",
-      numeroDocumento: "",
-      senha: "",
-      confirmarSenha: "",
+      nomeCompleto: "", email: "", telefone: "",
+      faculdade: "", tipoCandidatura: "",
+      tipoDocumento: "", numeroDocumento: "",
+      senha: "", confirmarSenha: "",
     },
   });
 
-  // Período de candidaturas fechado: mostrar aviso e bloquear o formulário.
+  // Período fechado — bloqueia o formulário
   if (!REGISTRATION_OPEN) {
     return (
       <>
@@ -808,10 +489,7 @@ function RegisterForm({ setView }: { setView: (v: View) => void }) {
 
   const onSubmit = () => {
     setSubmitting(true);
-    setTimeout(() => {
-      setSubmitting(false);
-      setSent(true);
-    }, 900);
+    setTimeout(() => { setSubmitting(false); setSent(true); }, 900);
   };
 
   return (
@@ -862,7 +540,6 @@ function RegisterForm({ setView }: { setView: (v: View) => void }) {
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="telefone"
@@ -897,9 +574,7 @@ function RegisterForm({ setView }: { setView: (v: View) => void }) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {FACULDADES.map((f) => (
-                      <SelectItem key={f} value={f}>{f}</SelectItem>
-                    ))}
+                    {FACULDADES.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -923,9 +598,7 @@ function RegisterForm({ setView }: { setView: (v: View) => void }) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {TIPOS_CANDIDATURA.map((t) => (
-                      <SelectItem key={t} value={t}>{t}</SelectItem>
-                    ))}
+                    {TIPOS_CANDIDATURA.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -950,16 +623,13 @@ function RegisterForm({ setView }: { setView: (v: View) => void }) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {TIPOS_DOCUMENTO.map((t) => (
-                        <SelectItem key={t} value={t}>{t}</SelectItem>
-                      ))}
+                      {TIPOS_DOCUMENTO.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                     </SelectContent>
                   </Select>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="numeroDocumento"
@@ -994,12 +664,9 @@ function RegisterForm({ setView }: { setView: (v: View) => void }) {
                         placeholder="••••••••"
                         className="h-11 px-10 rounded-lg bg-slate-50 border-slate-200"
                       />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword((v) => !v)}
-                        aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      >
+                      <button type="button" onClick={() => setShowPassword(v => !v)}
+                        aria-label={showPassword ? "Ocultar" : "Mostrar"}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
@@ -1008,7 +675,6 @@ function RegisterForm({ setView }: { setView: (v: View) => void }) {
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="confirmarSenha"
@@ -1024,12 +690,9 @@ function RegisterForm({ setView }: { setView: (v: View) => void }) {
                         placeholder="••••••••"
                         className="h-11 px-10 rounded-lg bg-slate-50 border-slate-200"
                       />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword((v) => !v)}
-                        aria-label={showConfirmPassword ? "Ocultar senha" : "Mostrar senha"}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      >
+                      <button type="button" onClick={() => setShowConfirmPassword(v => !v)}
+                        aria-label={showConfirmPassword ? "Ocultar" : "Mostrar"}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                         {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
@@ -1047,5 +710,44 @@ function RegisterForm({ setView }: { setView: (v: View) => void }) {
         </form>
       </Form>
     </>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// HELPERS PARTILHADOS
+// ─────────────────────────────────────────────────────────────
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between gap-3 border-b border-green-200/50 last:border-b-0 py-1">
+      <dt className="text-green-900/70">{label}</dt>
+      <dd className="font-medium text-green-900 text-right">{value}</dd>
+    </div>
+  );
+}
+
+export function BackButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+    >
+      <ArrowLeft className="h-3.5 w-3.5" />
+      Voltar
+    </button>
+  );
+}
+
+export function PrimaryButton({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+  return (
+    <Button
+      {...props}
+      className="h-11 w-full rounded-lg text-white transition-all hover:-translate-y-0.5"
+      style={{ backgroundColor: "#E02020", boxShadow: "0 10px 25px -10px rgba(224, 32, 32, 0.55)" }}
+      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#B81818")}
+      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#E02020")}
+    >
+      {children}
+    </Button>
   );
 }

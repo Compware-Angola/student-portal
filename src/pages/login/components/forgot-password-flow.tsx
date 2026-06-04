@@ -1,176 +1,128 @@
-'use client'
-import { useState } from 'react'
+'use client';
+
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+  CheckCircle2, XCircle, Send,
+  Mail
+} from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
-  ArrowLeft,
-  CheckCircle,
-  AlertCircle,
-  Key,
+  Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
+} from "@/components/ui/form";
+import { BackButton, PrimaryButton } from "..";
 
-  Mail,
-} from 'lucide-react'
-import { toast } from 'sonner'
 
-import { checkEmail, requestPasswordReset } from '@/services/auth/login.service'
-import { AtualizacaoDadosSimples } from './update-data'
 
-type Step = 'email' | 'found' | 'not-found'
 
-export function ForgotPasswordFlow({ onBack }: { onBack: () => void }) {
-  const [step, setStep] = useState<Step>('email')
-  const [email, setEmail] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+const REGISTERED_EMAILS = new Set([
+  "estudante@metodista.ao",
+  "joao.silva@metodista.ao",
+  "maria.santos@metodista.ao",
+]);
 
-  const handleCheckEmail = async (e: React.FormEvent) => {
-    e.preventDefault()
+const forgotSchema = z.object({
+  email: z.string().email("E-mail inválido"),
+});
+interface LoginFormProps {
+  setView: (view: "login" | "forgot" | "update-request" | "validate-doc" | "register") => void;
+}
+export function ForgotPassword({ setView }: LoginFormProps) {
+  const [status, setStatus] = useState<"idle" | "sent" | "not-found">("idle");
 
-    if (!email || !email.includes('@')) {
-      toast.error('E-mail inválido')
-      return
+  const form = useForm<z.infer<typeof forgotSchema>>({
+    resolver: zodResolver(forgotSchema),
+    defaultValues: { email: "" },
+  });
+
+  const onSubmit = (data: z.infer<typeof forgotSchema>) => {
+    if (REGISTERED_EMAILS.has(data.email.toLowerCase())) {
+      setStatus("sent");
+    } else {
+      setStatus("not-found");
     }
-
-    setIsLoading(true)
-
-    try {
-      const data = await checkEmail(email.toLowerCase().trim())
-
-      if (data.exists) {
-        setStep('found')
-        toast.success('E-mail encontrado!')
-      } else {
-        setStep('not-found')
-      }
-    } catch (err: any) {
-      toast.error('Erro ao verificar e-mail')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleResetPassword = async () => {
-    try {
-      setIsLoading(true)
-      await requestPasswordReset(email.toLowerCase().trim())
-
-      toast.success('Link enviado!', {
-        icon: <Mail className="h-5 w-5" />,
-      })
-
-      setStep('email')
-      setEmail('')
-    } catch {
-      toast.error('Erro ao enviar')
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Voltar */}
-      <Button variant="ghost" onClick={onBack}>
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Voltar
-      </Button>
+    <>
+      <BackButton onClick={() => setView("login")} />
+      <div className="space-y-2">
+        <h2 className="text-[28px] font-bold tracking-tight text-foreground leading-tight">
+          Recuperar senha
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Informe o seu e-mail institucional para receber as instruções.
+        </p>
+      </div>
 
-      {/* STEP: EMAIL */}
-      {step === 'email' && (
-        <>
-          <CardHeader className="text-center">
-            <div className="mx-auto p-3 bg-primary/10 rounded-full w-fit mb-4">
-              <Key className="h-6 w-6 text-primary" />
-            </div>
-            <CardTitle>Recuperar Senha</CardTitle>
-            <CardDescription>Digite seu e-mail</CardDescription>
-          </CardHeader>
+      {status === "sent" ? (
+        <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800 space-y-3">
+          <div className="flex items-center gap-2 font-medium">
+            <CheckCircle2 className="h-5 w-5" />
+            E-mail enviado
+          </div>
+          <p>Enviámos um link de recuperação para o seu e-mail. Verifique a sua caixa de entrada.</p>
+          <Button variant="outline" onClick={() => setView("login")} className="w-full">
+            Voltar ao login
+          </Button>
+        </div>
+      ) : (
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>E-mail</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        {...field}
+                        type="email"
+                        placeholder="seu.email@metodista.ao"
+                        className="h-11 pl-10 rounded-lg bg-slate-50 border-slate-200"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <CardContent>
-            <form onSubmit={handleCheckEmail} className="space-y-4">
-              <div>
-                <Label>E-mail</Label>
-                <Input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
+            {status === "not-found" && (
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 space-y-3">
+                <div className="flex items-center gap-2 font-medium">
+                  <XCircle className="h-5 w-5" />
+                  E-mail não encontrado
+                </div>
+                <p>
+                  Este e-mail não consta dos nossos registos. Pode solicitar a actualização dos seus
+                  dados pessoais.
+                </p>
+                <Button
+                  type="button"
+                  onClick={() => setView("update-request")}
+                  className="w-full"
+                  style={{ backgroundColor: "#E02020", color: "white" }}
+                >
+                  Solicitar actualização de dados
+                </Button>
               </div>
+            )}
 
-              <Button className="w-full" disabled={isLoading}>
-                {isLoading ? 'Verificando...' : 'Continuar'}
-              </Button>
-            </form>
-          </CardContent>
-        </>
+            <PrimaryButton type="submit">
+              <Send className="mr-2 h-4 w-4" />
+              Enviar instruções
+            </PrimaryButton>
+          </form>
+        </Form>
       )}
-
-      {/* STEP: FOUND */}
-      {step === 'found' && (
-        <>
-          <CardHeader>
-            <CardTitle className="text-green-600 flex items-center gap-2">
-              <CheckCircle className="h-5 w-5" />
-              E-mail encontrado
-            </CardTitle>
-            <CardDescription>
-              Vamos enviar o link de recuperação
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-            <Alert>
-              <CheckCircle className="h-4 w-4" />
-              <AlertDescription>
-                Será enviado para: <b>{email}</b>
-              </AlertDescription>
-            </Alert>
-
-            <Button onClick={handleResetPassword} className="w-full">
-              {isLoading ? 'Enviando...' : 'Enviar link'}
-            </Button>
-
-            <Button variant="outline" onClick={() => setStep('email')}>
-              Voltar
-            </Button>
-          </CardContent>
-        </>
-      )}
-
-      {/* STEP: NOT FOUND */}
-      {step === 'not-found' && (
-        <>
-          <CardHeader>
-            <CardTitle className="text-orange-600 flex items-center gap-2">
-              <AlertCircle className="h-5 w-5" />
-              E-mail não encontrado
-            </CardTitle>
-            <CardDescription>
-              Atualize seus dados
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-            <Alert>
-              <AlertDescription>
-                Seu e-mail pode estar desatualizado.
-              </AlertDescription>
-            </Alert>
-
-            <AtualizacaoDadosSimples emailInicial={email} />
-
-            <Button variant="outline" onClick={() => setStep('email')}>
-              Tentar novamente
-            </Button>
-          </CardContent>
-        </>
-      )}
-    </div>
-  )
+    </>
+  );
 }

@@ -1,4 +1,3 @@
-// Comunicado.tsx
 
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useGetAvisoImagem } from '@/hooks/use-get-aviso-imagem'
@@ -15,7 +14,7 @@ export function Comunicado() {
     <div
       style={{
         minHeight: '100vh',
-        backgroundImage: "url('/banner-login.webp')", // <- imagem estática
+        backgroundImage: "url('/banner-login.webp')",
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
@@ -53,7 +52,7 @@ export function Comunicado() {
 
         {comunicado?.filename && (
           <div
-            
+
           >
             <img
               src={buildImageAssets(comunicado.filename)}
