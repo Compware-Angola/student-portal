@@ -103,7 +103,7 @@ export function LoginForm({ setView, showRegister }: LoginFormProps) {
             name="username"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Número de Estudante</FormLabel>
+                <FormLabel>Username (BI ou Email)</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -202,7 +202,6 @@ export function LoginForm({ setView, showRegister }: LoginFormProps) {
                   <span className="bg-white px-2 text-muted-foreground">Novo estudante?</span>
                 </div>
               </div>
-
               <button
                 type="button"
                 onClick={() => setView("register")}

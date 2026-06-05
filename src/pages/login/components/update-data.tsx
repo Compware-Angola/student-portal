@@ -1,78 +1,79 @@
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { CheckCircle2, Send, Mail, Phone, Hash, Loader2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
+
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { toast } from 'sonner'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { BackButton, PrimaryButton } from '..'
 import { sendrenewDataRequest } from '@/services/auth/login.service'
-import { useNavigate } from 'react-router-dom'
 
-interface AtualizacaoDadosSimplesProps {
-  emailInicial: string
+// ---------------------------------------------------------------------------
+// Types / View
+// ---------------------------------------------------------------------------
+
+type View = 'login' | 'forgot' | 'update-request' | 'validate-doc' | 'register'
+
+// ---------------------------------------------------------------------------
+// Schema
+// ---------------------------------------------------------------------------
+
+const updateSchema = z.object({
+  matricula: z.string().min(4, 'Matrícula inválida').max(20),
+  telefone: z.string().min(9, 'Telefone inválido').max(20),
+  novoEmail: z.string().email('E-mail inválido'),
+  motivos: z
+    .string()
+    .min(20, 'Descreva os motivos (mín. 20 caracteres)')
+    .max(500),
+})
+
+// ---------------------------------------------------------------------------
+// Props
+// ---------------------------------------------------------------------------
+
+interface UpdateRequestFormProps {
+  setView: (v: View) => void
 }
 
-export function AtualizacaoDadosSimples({
-  emailInicial,
-}: AtualizacaoDadosSimplesProps) {
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
+export function UpdateRequestForm({ setView }: UpdateRequestFormProps) {
+  const [sent, setSent] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
-  const [formData, setFormData] = useState({
-    newEmail: emailInicial,
-    enrrolment: '',
-    phone: '',
-    details: '',
+
+  const form = useForm<z.infer<typeof updateSchema>>({
+    resolver: zodResolver(updateSchema),
+    defaultValues: { matricula: '', telefone: '', novoEmail: '', motivos: '' },
   })
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    })
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    // Validações rápidas no frontend
-    if (!formData.enrrolment.trim()) {
-      toast.error('Matrícula obrigatória')
-      return
-    }
-    if (!formData.phone.trim()) {
-      toast.error('Telefone obrigatório')
-      return
-    }
-    if (formData.details.trim().length < 20) {
-      toast.error('Explique melhor o motivo (mínimo 20 caracteres)')
-      return
-    }
-
+  const onSubmit = async (data: z.infer<typeof updateSchema>) => {
     setIsLoading(true)
 
     try {
       await sendrenewDataRequest({
-        email: formData.newEmail.trim(),
-        enrrolment: formData.enrrolment.trim(),
-        phone: formData.phone.trim(),
-        details: formData.details.trim(),
+        email: data.novoEmail.trim(),
+        enrrolment: data.matricula.trim(),
+        phone: data.telefone.trim(),
+        details: data.motivos.trim(),
         platform: 'PORTAL',
       })
-      toast.success('Solicitação enviada com sucesso!', {
-        description:
-          'Sua solicitação foi recebida. A secretaria entrará em contato em breve.',
-        duration: 8000,
-      })
-      navigate('/login')
 
-      // Opcional: limpar ou fechar modal
-      setFormData({
-        newEmail: emailInicial,
-        enrrolment: '',
-        phone: '',
-        details: '',
-      })
+      setSent(true)
     } catch (err: any) {
       console.error(err)
       toast.error('Falha ao enviar', {
@@ -83,83 +84,156 @@ export function AtualizacaoDadosSimples({
     }
   }
 
+  // -------------------------------------------------------------------------
+  // STATE: Solicitação enviada com sucesso
+  // -------------------------------------------------------------------------
+
+  if (sent) {
+    return (
+      <>
+        <BackButton onClick={() => setView('login')} />
+        <div className="rounded-lg border border-green-200 bg-green-50 p-6 text-sm text-green-800 space-y-3">
+          <div className="flex items-center gap-2 font-semibold text-base">
+            <CheckCircle2 className="h-5 w-5" />
+            Solicitação enviada
+          </div>
+          <p>
+            A sua solicitação foi recebida. Os Serviços Académicos irão
+            analisar e responder ao novo e-mail informado em até 72 horas úteis.
+          </p>
+          <Button
+            variant="outline"
+            onClick={() => navigate('/login')}
+            className="w-full"
+          >
+            Voltar ao login
+          </Button>
+        </div>
+      </>
+    )
+  }
+
+  // -------------------------------------------------------------------------
+  // STATE: Formulário
+  // -------------------------------------------------------------------------
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      {/* E-mail atual (desativado) */}
-      <div className="space-y-2">
-        <Label>E-mail que você informou</Label>
-        <Input value={emailInicial} disabled className="bg-muted" />
-      </div>
+    <>
+      <BackButton onClick={() => setView('forgot')} />
 
-      {/* Novo e-mail (editável) */}
       <div className="space-y-2">
-        <Label htmlFor="newEmail">Novo e-mail (se mudou) *</Label>
-        <Input
-          id="newEmail"
-          name="newEmail"
-          type="email"
-          placeholder="novo.email@dominio.com"
-          value={formData.newEmail}
-          onChange={handleChange}
-          required
-        />
-      </div>
-
-      {/* Matrícula */}
-      <div className="space-y-2">
-        <Label htmlFor="enrrolment">Número de Matrícula *</Label>
-        <Input
-          id="enrrolment"
-          name="enrrolment"
-          placeholder="Ex: 202300145"
-          value={formData.enrrolment}
-          onChange={handleChange}
-          required
-        />
-      </div>
-
-      {/* Telefone */}
-      <div className="space-y-2">
-        <Label htmlFor="phone">Telefone de contato *</Label>
-        <Input
-          id="phone"
-          name="phone"
-          placeholder="+244 923 456 789"
-          value={formData.phone}
-          onChange={handleChange}
-          required
-        />
-        <p className="text-xs text-muted-foreground">
-          Formato: +244 923 456 789
+        <h2 className="text-[26px] font-bold tracking-tight text-foreground leading-tight">
+          Solicitar actualização de dados
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Preencha o formulário para que os Serviços Académicos actualizem o
+          seu cadastro.
         </p>
       </div>
 
-      {/* Motivo / Detalhes */}
-      <div className="space-y-2">
-        <Label htmlFor="details">Motivo da solicitação *</Label>
-        <Textarea
-          id="details"
-          name="details"
-          placeholder="Explicação detalhada: quando mudou de e-mail, por que não recebe notificações, etc."
-          value={formData.details}
-          onChange={handleChange}
-          required
-          rows={5}
-          className="resize-none"
-        />
-        <p className="text-xs text-muted-foreground">
-          Mínimo 20 caracteres • Seja o mais claro possível
-        </p>
-      </div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {/* Matrícula */}
+          <FormField
+            control={form.control}
+            name="matricula"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Número de Matrícula</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Hash className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      {...field}
+                      placeholder="ex: 2024001234"
+                      disabled={isLoading}
+                      className="h-11 pl-10 rounded-lg bg-slate-50 border-slate-200"
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-      {/* Botão */}
-      <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
-        {isLoading ? (
-          <>Enviando solicitação...</>
-        ) : (
-          <>Enviar Solicitação à Secretaria</>
-        )}
-      </Button>
-    </form>
+          {/* Telefone */}
+          <FormField
+            control={form.control}
+            name="telefone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Telefone</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      {...field}
+                      placeholder="+244 9XX XXX XXX"
+                      disabled={isLoading}
+                      className="h-11 pl-10 rounded-lg bg-slate-50 border-slate-200"
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Novo E-mail */}
+          <FormField
+            control={form.control}
+            name="novoEmail"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Novo E-mail</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      {...field}
+                      type="email"
+                      placeholder="novo.email@exemplo.com"
+                      disabled={isLoading}
+                      className="h-11 pl-10 rounded-lg bg-slate-50 border-slate-200"
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Motivos */}
+          <FormField
+            control={form.control}
+            name="motivos"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Motivos</FormLabel>
+                <FormControl>
+                  <textarea
+                    {...field}
+                    rows={4}
+                    disabled={isLoading}
+                    placeholder="Descreva o motivo da actualização..."
+                    className="flex w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none disabled:opacity-50"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <PrimaryButton type="submit" disabled={isLoading}>
+            {isLoading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="mr-2 h-4 w-4" />
+            )}
+            {isLoading ? 'A enviar...' : 'Enviar solicitação'}
+          </PrimaryButton>
+        </form>
+      </Form>
+    </>
   )
 }

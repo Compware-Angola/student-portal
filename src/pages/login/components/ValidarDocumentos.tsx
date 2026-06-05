@@ -1,30 +1,27 @@
 'use client'
-import { useState } from 'react'
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
-import {
-    ArrowLeft,
-    CheckCircle2,
-    XCircle,
-    FileSearch,
-    Calendar,
+    ShieldCheck, Search,
+    CheckCircle2, XCircle,
     User,
-    BookOpen,
     Hash,
-} from 'lucide-react'
+    BookOpen,
+    Calendar,
+} from "lucide-react";
+
+import { Input } from "@/components/ui/input";
+import {
+    Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
+} from "@/components/ui/form";
+
 
 import { useValidateDocument } from '@/hooks/docs/use-validate-document';
-
-
+import { BackButton, PrimaryButton } from "..";
+type View = 'login' | 'forgot' | 'update-request' | 'validate-doc' | 'register'
 // ─── UI auxiliar ───────────────────────────────
 function InfoRow({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
     return (
@@ -40,103 +37,101 @@ function InfoRow({ icon: Icon, label, value }: { icon: any; label: string; value
     )
 }
 
-// ─── Componente ───────────────────────────────
-const ValidarDocumentos = ({ onBack }: { onBack: () => void }) => {
-    const [inputCodigo, setInputCodigo] = useState('')
-    const [codigoAtivo, setCodigoAtivo] = useState('')
 
+
+
+export function ValidateDocumentForm({ setView }: { setView: (v: View) => void }) {
+    const docSchema = z.object({
+        numero: z.string().min(3, "Número de documento inválido").max(50),
+    });
+    const [codigoAtivo, setCodigoAtivo] = useState('')
     const {
         data: doc,
-        isLoading,
+
         isError,
         isFetched,
         refetch,
     } = useValidateDocument(codigoAtivo)
-
-    const handleValidar = () => {
-        setCodigoAtivo(inputCodigo.trim())
-        refetch()
-    }
-
     const isValido = isFetched && !!doc && !isError
     const isInvalido = isFetched && (isError || !doc)
 
+
+    const form = useForm<z.infer<typeof docSchema>>({
+        resolver: zodResolver(docSchema),
+        defaultValues: { numero: "" },
+    });
+
+    const onSubmit = (data: z.infer<typeof docSchema>) => {
+        setCodigoAtivo(data.numero.trim())
+        refetch()
+    };
+
     return (
-        <div className="w-full max-w-3xl mx-auto space-y-6">
-            {/* Voltar */}
-            <Button variant="ghost" onClick={onBack}>
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Voltar
-            </Button>
+        <>
+            <BackButton onClick={() => setView("login")} />
+            <div className="space-y-2">
+                <h2 className="text-[28px] font-bold tracking-tight text-foreground leading-tight">
+                    Validar documento
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                    Insira o número do documento emitido pela instituição para verificar a sua autenticidade.
+                </p>
+            </div>
 
-            {/* Header */}
-            <CardHeader className="text-center">
-                <div className="flex justify-center mb-2">
-                    <div className="bg-primary/10 p-3 rounded-xl">
-                        <FileSearch className="h-6 w-6 text-primary" />
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <FormField
+                        control={form.control}
+                        name="numero"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Número do documento</FormLabel>
+                                <FormControl>
+                                    <div className="relative">
+                                        <ShieldCheck className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                        <Input {...field} placeholder="ex: DOC-2024-001" className="h-11 pl-10 rounded-lg bg-slate-50 border-slate-200" />
+                                    </div>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <PrimaryButton type="submit">
+                        <Search className="mr-2 h-4 w-4" />
+                        Validar
+                    </PrimaryButton>
+                </form>
+            </Form>
+
+            {isValido && doc && (
+                <div className="rounded-lg border border-green-200 bg-green-50 p-5 space-y-3">
+                    <div className="flex items-center gap-2 font-semibold text-green-800">
+                        <CheckCircle2 className="h-5 w-5" />
+                        Documento válido
                     </div>
+                    <dl className="grid grid-cols-1 gap-2 text-sm">
+                        <InfoRow icon={User} label="Nome" value={doc.nome_completo} />
+                        <InfoRow icon={Hash} label="Nº Matrícula" value={String(doc.codigo_matricula)} />
+                        <InfoRow icon={BookOpen} label="Curso" value={doc.curso} />
+                        <InfoRow icon={Calendar} label="Data de Registo" value={doc.data_registo} />
+                        <InfoRow icon={User} label="Faculdade" value={doc.faculdade} />
+                        <InfoRow icon={BookOpen} label="Tipo de Documento" value={doc.tipo_documento} />
+                    </dl>
                 </div>
-                <CardTitle className="text-2xl">Validar Documentos</CardTitle>
-                <CardDescription>
-                    Verifique a autenticidade dos documentos
-                </CardDescription>
-            </CardHeader>
+            )}
 
-            <Separator />
-
-            <CardContent className="space-y-6">
-                {/* FORM */}
-                <div className="space-y-4">
-                    <div>
-                        <Label>Código</Label>
-                        <Input
-                            className="w-full"
-                            value={inputCodigo}
-                            onChange={(e) => setInputCodigo(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleValidar()}
-                            placeholder="Insira o código do documento"
-                        />
+            {isInvalido && (
+                <div className="rounded-lg border border-red-200 bg-red-50 p-5 text-sm text-red-800">
+                    <div className="flex items-center gap-2 font-semibold">
+                        <XCircle className="h-5 w-5" />
+                        Documento não encontrado
                     </div>
-                    <Button
-                        className="w-full"
-                        onClick={handleValidar}
-                        disabled={isLoading || !inputCodigo.trim()}
-                    >
-                        {isLoading ? 'Validando...' : 'Validar'}
-                    </Button>
+                    <p className="mt-1 text-red-700">
+                        Verifique se digitou o número correctamente ou contacte os Serviços Académicos.
+                    </p>
                 </div>
-
-                {/* RESULTADO VÁLIDO */}
-                {isValido && doc && (
-                    <div className="border rounded-xl p-4 bg-green-50">
-                        <div className="flex items-center gap-2 mb-3 text-green-700 font-semibold">
-                            <CheckCircle2 className="h-5 w-5" />
-                            Documento válido
-                        </div>
-
-                        <div className="grid sm:grid-cols-2 gap-4">
-                            <InfoRow icon={User} label="Aluno" value={doc.nome_completo} />
-                            <InfoRow icon={Hash} label="Nº Matrícula" value={String(doc.codigo_matricula)} />
-                            <InfoRow icon={BookOpen} label="Curso" value={doc.curso} />
-                            <InfoRow icon={Calendar} label="Data de Registo" value={doc.data_registo} />
-                            <InfoRow icon={User} label="Faculdade" value={doc.faculdade} />
-                            <InfoRow icon={BookOpen} label="Tipo de Documento" value={doc.tipo_documento} />
-                        </div>
-                    </div>
-                )}
-
-                {/* RESULTADO INVÁLIDO */}
-                {isInvalido && (
-                    <div className="border rounded-xl p-4 bg-red-50 text-red-600">
-                        <div className="flex items-center gap-2 font-semibold">
-                            <XCircle className="h-5 w-5" />
-                            Documento inválido ou não encontrado
-                        </div>
-                    </div>
-                )}
-            </CardContent>
-        </div>
-    )
+            )}
+        </>
+    );
 }
-
-export default ValidarDocumentos
