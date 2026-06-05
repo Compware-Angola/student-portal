@@ -1,9 +1,9 @@
-import { getAvisoImagem } from "@/services/auth/fetch-image.service"
+import { getAvisosGeral } from "@/services/auth/fetch-image.service"
 import { useQuery } from "@tanstack/react-query"
 
-export function useGetAvisoImagem() {
+export function useGetAvisosGeral(sigla?: string) {
   return useQuery({
-    queryKey: ["aviso-imagem"],
-    queryFn: getAvisoImagem,
+    queryKey: ["avisos-geral", sigla],
+    queryFn: () => getAvisosGeral(sigla),
   })
 }
