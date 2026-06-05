@@ -47,7 +47,7 @@ export function ValidateDocumentForm({ setView }: { setView: (v: View) => void }
     const [codigoAtivo, setCodigoAtivo] = useState('')
     const {
         data: doc,
-
+        isLoading,
         isError,
         isFetched,
         refetch,
@@ -97,9 +97,9 @@ export function ValidateDocumentForm({ setView }: { setView: (v: View) => void }
                         )}
                     />
 
-                    <PrimaryButton type="submit">
+                    <PrimaryButton type="submit" disabled={isLoading}>
                         <Search className="mr-2 h-4 w-4" />
-                        Validar
+                        {isLoading ? "Validando..." : "Validar"}
                     </PrimaryButton>
                 </form>
             </Form>
