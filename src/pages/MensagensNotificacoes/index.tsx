@@ -20,6 +20,7 @@ import { buildImageAssets } from '@/utils/build-image-assets'
 import { Button } from '@/components/ui/button'
 import { useQueryAvisosPorGrupo } from '@/hooks/use-query-aviso-por-grupos'
 import { useMemo } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 export type Notification = {
   id: string
@@ -36,6 +37,24 @@ export type Notification = {
 
 export const MensagensNotificacoes = () => {
   const GRUPO_ESTUDANTE_SIGLA = "EST"
+  const [searchParams, setSearchParams] = useSearchParams()
+  const tabParam = searchParams.get('tab')
+  const currentTab =
+    tabParam === 'comunicados' || tabParam === 'mensagens'
+      ? tabParam
+      : 'mensagens'
+
+  const handleTabChange = (value: string) => {
+    const nextSearchParams = new URLSearchParams(searchParams)
+
+    if (value === 'mensagens') {
+      nextSearchParams.delete('tab')
+    } else {
+      nextSearchParams.set('tab', value)
+    }
+
+    setSearchParams(nextSearchParams)
+  }
 
   const authData = AuthStorage.get()
   const { profileData, error: profileError } = useQueryProfile()
@@ -207,7 +226,11 @@ export const MensagensNotificacoes = () => {
    */}
       </div>
 
-      <Tabs defaultValue="mensagens" className="w-full">
+      <Tabs
+        value={currentTab}
+        onValueChange={handleTabChange}
+        className="w-full"
+      >
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="mensagens">
             Mensagens ({normalizedMensagens.length})
