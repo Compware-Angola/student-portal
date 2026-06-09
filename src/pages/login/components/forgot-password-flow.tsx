@@ -1,176 +1,274 @@
-'use client'
-import { useState } from 'react'
-import {
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import {
-  ArrowLeft,
-  CheckCircle,
-  AlertCircle,
-  Key,
+'use client';
 
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  CheckCircle2,
+  XCircle,
+  Send,
   Mail,
-} from 'lucide-react'
-import { toast } from 'sonner'
+  Loader2,
+} from "lucide-react";
 
-import { checkEmail, requestPasswordReset } from '@/services/auth/login.service'
-import { AtualizacaoDadosSimples } from './update-data'
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { BackButton, PrimaryButton } from "..";
+import { checkEmail, requestPasswordReset } from "@/services/auth/login.service";
+import { toast } from "sonner";
 
-type Step = 'email' | 'found' | 'not-found'
 
-export function ForgotPasswordFlow({ onBack }: { onBack: () => void }) {
-  const [step, setStep] = useState<Step>('email')
-  const [email, setEmail] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+// ---------------------------------------------------------------------------
+// Schema
+// ---------------------------------------------------------------------------
 
-  const handleCheckEmail = async (e: React.FormEvent) => {
-    e.preventDefault()
+const forgotSchema = z.object({
+  email: z.string().email("E-mail inválido"),
+});
 
-    if (!email || !email.includes('@')) {
-      toast.error('E-mail inválido')
-      return
-    }
+// ---------------------------------------------------------------------------
+// Props
+// ---------------------------------------------------------------------------
 
-    setIsLoading(true)
+interface LoginFormProps {
+  setView: (
+    view: "login" | "forgot" | "update-request" | "validate-doc" | "register"
+  ) => void;
+}
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
+export function ForgotPassword({ setView }: LoginFormProps) {
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "found" | "sent" | "not-found"
+  >("idle");
+  const [apiMessage, setApiMessage] = useState<string>("");
+  const [verifiedEmail, setVerifiedEmail] = useState<string>("");
+  const [isSending, setIsSending] = useState(false);
+  const [apiError, setApiError] = useState<string>("");
+
+  const form = useForm<z.infer<typeof forgotSchema>>({
+    resolver: zodResolver(forgotSchema),
+    defaultValues: { email: "" },
+  });
+
+  // Step 1 — verifica se o e-mail existe
+  const onSubmit = async (data: z.infer<typeof forgotSchema>) => {
+    setApiError("");
+    setStatus("loading");
 
     try {
-      const data = await checkEmail(email.toLowerCase().trim())
+      const result = await checkEmail(data.email.toLowerCase().trim());
 
-      if (data.exists) {
-        setStep('found')
-        toast.success('E-mail encontrado!')
+      if (result.exists) {
+        setVerifiedEmail(data.email.toLowerCase().trim());
+        setStatus("found"); // ← email encontrado, aguarda confirmação do utilizador
       } else {
-        setStep('not-found')
+        setStatus("not-found");
       }
-    } catch (err: any) {
-      toast.error('Erro ao verificar e-mail')
-    } finally {
-      setIsLoading(false)
+    } catch {
+      setApiError("Erro ao verificar o e-mail. Por favor tente novamente.");
+      setStatus("idle");
     }
-  }
+  };
 
-  const handleResetPassword = async () => {
+  // Step 2 — envia o link de recuperação
+  const handleSendLink = async () => {
+    setIsSending(true);
+    setApiError("");
+
     try {
-      setIsLoading(true)
-      await requestPasswordReset(email.toLowerCase().trim())
-
+      // const result = await sendPasswordResetWithAI(verifiedEmail);
+      await requestPasswordReset(verifiedEmail);
       toast.success('Link enviado!', {
         icon: <Mail className="h-5 w-5" />,
       })
-
-      setStep('email')
-      setEmail('')
+      setStatus("sent"); // ← link enviado com sucesso
     } catch {
-      toast.error('Erro ao enviar')
+      setApiError("Erro ao enviar o link. Por favor tente novamente.");
     } finally {
-      setIsLoading(false)
+      setIsSending(false);
     }
-  }
+  };
+
+  const resetForm = () => {
+    setStatus("idle");
+    setApiMessage("");
+    setApiError("");
+    setVerifiedEmail("");
+    form.reset();
+  };
+
+  const isLoading = status === "loading";
 
   return (
-    <div className="space-y-6">
-      {/* Voltar */}
-      <Button variant="ghost" onClick={onBack}>
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Voltar
-      </Button>
+    <>
+      <BackButton onClick={() => setView("login")} />
 
-      {/* STEP: EMAIL */}
-      {step === 'email' && (
-        <>
-          <CardHeader className="text-center">
-            <div className="mx-auto p-3 bg-primary/10 rounded-full w-fit mb-4">
-              <Key className="h-6 w-6 text-primary" />
-            </div>
-            <CardTitle>Recuperar Senha</CardTitle>
-            <CardDescription>Digite seu e-mail</CardDescription>
-          </CardHeader>
+      <div className="space-y-2">
+        <h2 className="text-[28px] font-bold tracking-tight text-foreground leading-tight">
+          Recuperar senha
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Informe o seu e-mail institucional para receber as instruções.
+        </p>
+      </div>
 
-          <CardContent>
-            <form onSubmit={handleCheckEmail} className="space-y-4">
-              <div>
-                <Label>E-mail</Label>
-                <Input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
+      {/* ------------------------------------------------------------------ */}
+      {/* STATE: Formulário (idle / loading)                                  */}
+      {/* ------------------------------------------------------------------ */}
+      {(status === "idle" || status === "loading") && (
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>E-mail</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        {...field}
+                        type="email"
+                        placeholder="seu.email@metodista.ao"
+                        disabled={isLoading}
+                        className="h-11 pl-10 rounded-lg bg-slate-50 border-slate-200"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <Button className="w-full" disabled={isLoading}>
-                {isLoading ? 'Verificando...' : 'Continuar'}
-              </Button>
-            </form>
-          </CardContent>
-        </>
+            {apiError && (
+              <p className="text-sm text-red-600">{apiError}</p>
+            )}
+
+            <PrimaryButton type="submit" disabled={isLoading}>
+              {isLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="mr-2 h-4 w-4" />
+              )}
+              {isLoading ? "A verificar..." : "Enviar instruções"}
+            </PrimaryButton>
+          </form>
+        </Form>
       )}
 
-      {/* STEP: FOUND */}
-      {step === 'found' && (
-        <>
-          <CardHeader>
-            <CardTitle className="text-green-600 flex items-center gap-2">
-              <CheckCircle className="h-5 w-5" />
-              E-mail encontrado
-            </CardTitle>
-            <CardDescription>
-              Vamos enviar o link de recuperação
-            </CardDescription>
-          </CardHeader>
+      {/* ------------------------------------------------------------------ */}
+      {/* STATE: E-mail encontrado — aguarda confirmação para enviar o link   */}
+      {/* ------------------------------------------------------------------ */}
+      {status === "found" && (
+        <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800 space-y-3">
+          <div className="flex items-center gap-2 font-medium">
+            <CheckCircle2 className="h-5 w-5" />
+            E-mail encontrado
+          </div>
+          <p>
+            Encontrámos uma conta associada a{" "}
+            <strong>{verifiedEmail}</strong>. Clique abaixo para receber
+            o link de recuperação.
+          </p>
 
-          <CardContent className="space-y-4">
-            <Alert>
-              <CheckCircle className="h-4 w-4" />
-              <AlertDescription>
-                Será enviado para: <b>{email}</b>
-              </AlertDescription>
-            </Alert>
+          {apiError && (
+            <p className="text-red-600 text-xs">{apiError}</p>
+          )}
 
-            <Button onClick={handleResetPassword} className="w-full">
-              {isLoading ? 'Enviando...' : 'Enviar link'}
-            </Button>
+          <Button
+            onClick={handleSendLink}
+            disabled={isSending}
+            className="w-full"
+            style={{ backgroundColor: "#E02020", color: "white" }}
+          >
+            {isSending ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="mr-2 h-4 w-4" />
+            )}
+            {isSending ? "A enviar..." : "Enviar link de recuperação"}
+          </Button>
 
-            <Button variant="outline" onClick={() => setStep('email')}>
-              Voltar
-            </Button>
-          </CardContent>
-        </>
+          <Button
+            variant="outline"
+            onClick={resetForm}
+            className="w-full"
+          >
+            Usar outro e-mail
+          </Button>
+        </div>
       )}
 
-      {/* STEP: NOT FOUND */}
-      {step === 'not-found' && (
-        <>
-          <CardHeader>
-            <CardTitle className="text-orange-600 flex items-center gap-2">
-              <AlertCircle className="h-5 w-5" />
-              E-mail não encontrado
-            </CardTitle>
-            <CardDescription>
-              Atualize seus dados
-            </CardDescription>
-          </CardHeader>
+      {/* ------------------------------------------------------------------ */}
+      {/* STATE: Link enviado com sucesso                                     */}
+      {/* ------------------------------------------------------------------ */}
+      {status === "sent" && (
+        <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800 space-y-3">
+          <div className="flex items-center gap-2 font-medium">
+            <CheckCircle2 className="h-5 w-5" />
+            Link enviado!
+          </div>
+          <p>{apiMessage}</p>
+          <p className="text-xs text-green-700">
+            Verifique também a sua pasta de spam caso não encontre o e-mail.
+          </p>
 
-          <CardContent className="space-y-4">
-            <Alert>
-              <AlertDescription>
-                Seu e-mail pode estar desatualizado.
-              </AlertDescription>
-            </Alert>
-
-            <AtualizacaoDadosSimples emailInicial={email} />
-
-            <Button variant="outline" onClick={() => setStep('email')}>
-              Tentar novamente
-            </Button>
-          </CardContent>
-        </>
+          <Button
+            variant="outline"
+            onClick={() => setView("login")}
+            className="w-full"
+          >
+            Voltar ao login
+          </Button>
+        </div>
       )}
-    </div>
-  )
+
+      {/* ------------------------------------------------------------------ */}
+      {/* STATE: E-mail não encontrado                                        */}
+      {/* ------------------------------------------------------------------ */}
+      {status === "not-found" && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 space-y-3">
+          <div className="flex items-center gap-2 font-medium">
+            <XCircle className="h-5 w-5" />
+            E-mail não encontrado
+          </div>
+          <p>Este e-mail não consta dos nossos registos.</p>
+          <p className="text-xs text-amber-700">
+            Pode solicitar a actualização dos seus dados pessoais.
+          </p>
+
+          <Button
+            type="button"
+            onClick={() => setView("update-request")}
+            className="w-full"
+            style={{ backgroundColor: "#E02020", color: "white" }}
+          >
+            Solicitar actualização de dados
+          </Button>
+
+          <Button
+            variant="outline"
+            onClick={resetForm}
+            className="w-full"
+          >
+            Tentar outro e-mail
+          </Button>
+        </div>
+      )}
+    </>
+  );
 }

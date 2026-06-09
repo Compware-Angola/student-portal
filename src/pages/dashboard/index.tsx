@@ -17,7 +17,7 @@ import {
 import { useNavigate } from 'react-router-dom'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { DashboardSkeleton } from './components/dashboard-skeleton'
-import { formatCurrency } from '@/utils'
+
 
 import {
   useQueryAnnouncement,
@@ -31,6 +31,7 @@ import { CompletedSubjectsCard } from './components/completed-subjects-card'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 import { Button } from '@/components/ui/button'
 import { MonthlyCard } from './components/monthly-card'
+import { WalletCard } from './components/wallet-card'
 
 // === Tipos ===
 interface Notification {
@@ -216,26 +217,13 @@ export const Dashboard = () => {
 
       {/* Estatísticas */}
       <div className="grid gap-6 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Carteira Digital
-            </CardTitle>
-            <Wallet className="h-4 w-4 text-success" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(profileData.saldo_reset)}
-            </div>
-            <p className="text-xs text-muted-foreground">Saldo atual</p>
-          </CardContent>
-        </Card>
 
-        {/* <DebtCard
-          onClick={() => navigate('/financas')}
-          enrollmentCode={profileData.enrollmentCode}
-          preinscricao={profileData.codigo_preinscricao}
-        /> */}
+        < WalletCard
+          balance={profileData.saldo_reset}
+
+        />
+
+
         <MonthlyCard
           onClick={() => navigate('/financas')}
           enrollmentCode={profileData.enrollmentCode}

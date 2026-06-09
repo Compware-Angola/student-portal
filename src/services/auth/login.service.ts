@@ -26,15 +26,14 @@ type User = {
   nomecompleto: string;
 };
 
-type AuthResponse = {
+export type AuthResponse = {
   access_token: string;
   expires_in: number;
   user: User;
   mensagem: string;
 };
 
-
-type AuthCredentials = {
+export type AuthCredentials = {
   username: string
   password: string
   platform?: string

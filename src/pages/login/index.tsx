@@ -1,155 +1,172 @@
-'use client'
+'use client';
+
+import { useState, useEffect } from "react";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import { LoginForm } from './components/login-form'
-import { LogoBackground } from './components/logo-background'
-import { Button } from '@/components/ui/button'
-import { useTheme } from '@/hooks/use-theme'
+  BarChart3, FileText, CalendarDays,
+  UserCircle, MessageSquare, ArrowLeft,
+} from "lucide-react";
 
-import { useEffect, useState } from 'react'
-import { ForgotPasswordFlow } from './components/forgot-password-flow'
+import { Button } from "@/components/ui/button";
 
-import { FileSearch } from 'lucide-react'
+import studentsPhoto from "@/assets/black-students.jpg";
+import { LogoBackground } from "./components/logo-background";
 
 // ───────────────────────────────────────────────
-import { APP_ENV, isDevelop, isPrePrd } from '@/config/env'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { RegisterForm } from './components/register-form'
-import ValidarDocumentos from './components/ValidarDocumentos'
-import { TipoCalendario } from '@/enums/tipo-calendario.enum'
-import { useGetPrazoPorTipo } from '@/hooks/prazos'
+// LÓGICA DE AMBIENTE, TEMA E PRAZO DE INSCRIÇÕES
 // ───────────────────────────────────────────────
+import { APP_ENV, isDevelop, isPrePrd } from '@/config/env';
+import { useGetPrazoPorTipo } from '@/hooks/prazos';
+import { TipoCalendario } from '@/enums/tipo-calendario.enum';
+import { useTheme } from '@/hooks/use-theme';
+import { LoginForm } from "./components/login-form";
+import { ForgotPassword } from "./components/forgot-password-flow";
+import { UpdateRequestForm } from "./components/update-data";
+import { ValidateDocumentForm } from "./components/ValidarDocumentos";
+import { RegisterForm } from "./components/register-form";
 
-// ─── Controla visibilidade da aba de registo ───
-// muda para false para ocultar o registo
 
+type View = "login" | "forgot" | "update-request" | "validate-doc" | "register";
+
+
+
+const FEATURES = [
+  { icon: BarChart3, text: "Consulta de notas e resultados académicos" },
+  { icon: FileText, text: "Acesso às pautas e avaliações" },
+  { icon: CalendarDays, text: "Calendário académico e horários de aulas" },
+  { icon: UserCircle, text: "Dados pessoais e informações de matrícula" },
+  { icon: MessageSquare, text: "Comunicados e avisos da instituição" },
+];
+
+// ─────────────────────────────────────────────────────────────
+// COMPONENTE PRINCIPAL
+// ─────────────────────────────────────────────────────────────
 export function Login() {
-  const { setTheme } = useTheme()
-  const { data: prazoResponse, isLoading: prazoLoading } = useGetPrazoPorTipo({ tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO })
-  const SHOW_REGISTER_TAB = prazoLoading || prazoResponse?.podeInscrever
+  const [view, setView] = useState<View>("login");
 
-  const [activeTab, setActiveTab] = useState<'login' | 'forgot' | 'validar'>('login')
-  const [authTab, setAuthTab] = useState<'login' | 'register'>('login')
-
+  // ── Forçar tema light (equivalente ao doc 2) ──
+  const { setTheme } = useTheme();
   useEffect(() => {
-    setTheme('light')
-  }, [])
+    setTheme('light');
+  }, []);
 
-  const showEnvLabel = isDevelop || isPrePrd
+  // ── Prazo de inscrições: botão de registo só aparece se estiver no prazo ──
+  const { data: prazoResponse, isLoading: prazoLoading } = useGetPrazoPorTipo({
+    tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
+  });
 
+  // Enquanto carrega, mantém visível (evita flash de desaparecimento)
+  const SHOW_REGISTER_TAB = prazoLoading || (prazoResponse?.podeInscrever ?? false);
+
+  const showEnvLabel = isDevelop || isPrePrd;
   const envDisplay = isDevelop
     ? `Ambiente: Desenvolvimento • v${APP_ENV}`
     : isPrePrd
       ? `Ambiente: Pré-produção • v${APP_ENV}`
-      : ''
+      : '';
 
   return (
-    <div className="flex min-h-screen items-center justify-center relative bg-gradient-to-br from-background to-muted p-4">
-      <LogoBackground top="2.5rem" right="2.5rem" />
-      <LogoBackground bottom="2.5rem" left="2.5rem" />
+    <div className="min-h-screen grid lg:grid-cols-[6fr_4fr] bg-white">
+      {/* LEFT — foto + overlay */}
+      <aside className="relative hidden lg:flex flex-col justify-between overflow-hidden text-white p-12 min-h-screen">
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${studentsPhoto})` }} aria-hidden />
+        <div className="absolute inset-0" style={{ backgroundColor: "rgba(110, 15, 15, 0.65)" }} aria-hidden />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40" aria-hidden />
 
-      <Card className="w-full max-w-md relative z-10">
-        {/* Header */}
-        <CardHeader className="space-y-4 text-center pb-8">
-          <div className="flex justify-center">
-            <img
-              src="/logo_uma.webp"
-              alt="Universidade Metodista de Angola"
-              className="h-24 w-auto"
-            />
+        <div className="relative z-10 max-w-xl">
+          <h1 className="text-5xl font-bold leading-[1.05] tracking-tight">
+            Bem-vindo ao<br />
+            Portal do <span style={{ color: "#F5A623" }}>Estudante</span>
+          </h1>
+          <p className="mt-5 max-w-md text-base text-white/90">
+            Consulte notas, pautas, horários e actividades académicas numa plataforma centralizada.
+          </p>
+
+          <ul className="mt-10 space-y-4">
+            {FEATURES.map(({ icon: Icon, text }) => (
+              <li key={text} className="flex items-center gap-3">
+                <span
+                  className="flex h-9 w-9 items-center justify-center rounded-lg ring-1 ring-white/20"
+                  style={{ backgroundColor: "rgba(245, 166, 35, 0.15)" }}
+                >
+                  <Icon className="h-4 w-4" style={{ color: "#F5A623" }} />
+                </span>
+                <span className="text-sm text-white/95">{text}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="relative z-10">
+          <p className="text-xs text-white/75">© {new Date().getFullYear()} Universidade Metodista de Angola</p>
+        </div>
+      </aside>
+
+      {/* RIGHT — formulário dinâmico */}
+      <main className="relative flex items-center justify-center p-6 sm:p-10 bg-white overflow-hidden">
+        <LogoBackground top="2.5rem" right="2.5rem" />
+        <LogoBackground bottom="2.5rem" left="2.5rem" />
+
+        <div className="relative w-full max-w-md space-y-6">
+          {/* Banner mobile */}
+          <div className="lg:hidden -mx-6 sm:-mx-10 -mt-6 sm:-mt-10 mb-2 relative h-56 overflow-hidden text-white">
+            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${studentsPhoto})` }} />
+            <div className="absolute inset-0" style={{ backgroundColor: "rgba(110, 15, 15, 0.65)" }} />
+            <div className="relative z-10 flex h-full flex-col justify-end p-6">
+              <h1 className="text-2xl font-bold leading-tight">
+                Portal do <span style={{ color: "#F5A623" }}>Estudante</span>
+              </h1>
+              <p className="text-xs text-white/85 mt-1">Universidade Metodista de Angola</p>
+            </div>
           </div>
 
-          <CardTitle className="text-2xl">
-            {activeTab === 'forgot'
-              ? 'Recuperar Senha'
-              : 'Portal Universitário'}
-          </CardTitle>
+          {view === "login" && <LoginForm setView={setView} showRegister={SHOW_REGISTER_TAB} />}
+          {view === "forgot" && <ForgotPassword setView={setView} />}
+          {view === "update-request" && <UpdateRequestForm setView={setView} />}
+          {view === "validate-doc" && <ValidateDocumentForm setView={setView} />}
+          {view === "register" && SHOW_REGISTER_TAB && <RegisterForm setView={setView} />}
+        </div>
 
-          <CardDescription>
-            {activeTab === 'forgot'
-              ? 'Informe seu e-mail para continuar'
-              : 'Acesse sua conta acadêmica'}
-          </CardDescription>
-        </CardHeader>
-
-        {/* Conteúdo principal */}
-        <CardContent>
-          <Tabs
-            value={authTab}
-            onValueChange={(v) => setAuthTab(v as 'login' | 'register')}
-            className="w-full"
-          >
-            {SHOW_REGISTER_TAB && (
-              <TabsList className="grid w-full grid-cols-2 mb-4">
-                <TabsTrigger value="login">Entrar</TabsTrigger>
-                <TabsTrigger value="register">Registrar</TabsTrigger>
-              </TabsList>
-            )}
-
-            <TabsContent value="login">
-              {activeTab === 'login' && (
-                <>
-                  <LoginForm />
-
-                  <div className="mt-8 text-center">
-                    <Button
-                      variant="link"
-                      className="text-primary font-medium text-base hover:underline"
-                      onClick={() => setActiveTab('forgot')}
-                    >
-                      Esqueceu sua senha?
-                    </Button>
-                  </div>
-                </>
-              )}
-
-              {activeTab === 'forgot' && (
-                <div className="space-y-6">
-                  <ForgotPasswordFlow onBack={() => setActiveTab('login')} />
-                </div>
-              )}
-
-              {activeTab === 'validar' && (
-                <div className="space-y-6">
-                  <ValidarDocumentos onBack={() => setActiveTab('login')} />
-                </div>
-              )}
-            </TabsContent>
-
-            {SHOW_REGISTER_TAB && (
-              <TabsContent value="register">
-                <RegisterForm onSuccess={() => setAuthTab('login')} />
-              </TabsContent>
-            )}
-          </Tabs>
-
-          {/* ─── Link Validar Documentos ─── */}
-          {activeTab === 'login' && (
-            <div className="pt-1 text-center">
-              <button
-                type="button"
-                onClick={() => setActiveTab('validar')}
-                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors underline-offset-4 hover:underline"
-              >
-                <FileSearch className="h-3 w-3" />
-                Validar Documentos
-              </button>
-            </div>
-          )}
-        </CardContent>
-
-        {/* ─── Label de ambiente (só develop / pre-prd) ─── */}
+        {/* Label de ambiente */}
         {showEnvLabel && (
-          <div className="pb-6 pt-2 text-center text-xs text-muted-foreground/50">
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-xs text-muted-foreground/50 text-center">
             {envDisplay}
           </div>
         )}
-      </Card>
+      </main>
     </div>
-  )
+  );
+}
+
+
+
+
+
+
+
+
+export function BackButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+    >
+      <ArrowLeft className="h-3.5 w-3.5" />
+      Voltar
+    </button>
+  );
+}
+
+export function PrimaryButton({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+  return (
+    <Button
+      {...props}
+      className="h-11 w-full rounded-lg text-white transition-all hover:-translate-y-0.5"
+      style={{ backgroundColor: "#E02020", boxShadow: "0 10px 25px -10px rgba(224, 32, 32, 0.55)" }}
+      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#B81818")}
+      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#E02020")}
+    >
+      {children}
+    </Button>
+  );
 }
