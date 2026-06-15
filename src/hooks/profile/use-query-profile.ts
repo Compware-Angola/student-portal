@@ -32,15 +32,14 @@ export function formatDate(dateString?: string | null): string {
 
 export function useQueryProfile() {
   const auth = AuthStorage.get()
-  const { data, isLoading, error, isError, refetch } = useQuery<CurrentUserResponse>(
-    {
+  const { data, isLoading, error, isError, refetch } =
+    useQuery<CurrentUserResponse>({
       queryKey: ['profile'],
       queryFn: getProfile,
       staleTime: Infinity,
       retry: 0,
       enabled: !!auth,
-    },
-  )
+    })
 
   const profileData: ProfileData | null = useMemo(() => {
     const authData = data?.user
@@ -48,7 +47,9 @@ export function useQueryProfile() {
       return null
     }
 
-    const { firstName, lastName } = extractFirstAndLastName(authData.nome_completo)
+    const { firstName, lastName } = extractFirstAndLastName(
+      authData.nome_completo,
+    )
 
     return {
       ...authData,
@@ -73,8 +74,6 @@ export function useQueryProfile() {
       numero_documento: authData?.numero_documento,
       userId: authData?.user_id.toString(),
       estado_aluno: authData?.estado_aluno,
-
-
     }
   }, [data])
 
