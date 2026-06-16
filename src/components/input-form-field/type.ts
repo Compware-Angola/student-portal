@@ -8,4 +8,5 @@ export type InputFormFieldProps<T extends FieldValues> = {
   type?: string
   disabled?: boolean
   autoComplete?: string
+  icon?: React.ComponentType
 }

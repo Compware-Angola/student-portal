@@ -14,24 +14,35 @@ import { ProgressBar } from './components/progress-bar'
 import { Form } from '@/components/ui/form'
 
 import { SpepNavigation } from './components/spep-navigation'
+import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 
 export function PreSubscription() {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Formulário de Candidaturas</h1>
-        <p className="text-muted-foreground mt-2">
-          Preencha o formulário para realizar a pré-inscrição ao exame de acesso
-        </p>
+  const { profileData } = useQueryProfile()
+  if (
+    profileData &&
+    profileData.grau_academico === 'Licenciatura'
+  ) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Formulário de Candidaturas
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Preencha o formulário para realizar a pré-inscrição ao exame de
+            acesso
+          </p>
+        </div>
+        <FormPreSubscriptionProvider>
+          <Licenciatura />
+        </FormPreSubscriptionProvider>
       </div>
-      <FormPreSubscriptionProvider>
-        <Temp />
-      </FormPreSubscriptionProvider>
-    </div>
-  )
+    )
+  }
+  return null
 }
 
-function Temp() {
+function Licenciatura() {
   const { steps, currentStep, form, onSubmit } = useFormPreSubscriptionForm()
   return (
     <>

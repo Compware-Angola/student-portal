@@ -86,12 +86,35 @@ export function Login() {
   }, [portalStudentImage?.filename]);
 
   // ── Prazo de inscrições: botão de registo só aparece se estiver no prazo ──
-  const { data: prazoResponse, isLoading: prazoLoading } = useGetPrazoPorTipo({
-    tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
-  });
+  const { data: prazoResponseLinceiatura, isLoading: prazoLoadingLinceiatura } =
+    useGetPrazoPorTipo({
+      codigo_tipo_candidatura: 1,
+      tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
+    })
+    const { data: prazoResponseMestrado, isLoading: prazoLoadingMestrado } =
+      useGetPrazoPorTipo({
+        codigo_tipo_candidatura: 2,
+        tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
+      })
 
-  // Enquanto carrega, mantém visível (evita flash de desaparecimento)
-  const SHOW_REGISTER_TAB = prazoLoading || (prazoResponse?.podeInscrever ?? false);
+  const { data: prazoResponseDotouramneto, isLoading: prazoLoadingDoutoramneto } =
+    useGetPrazoPorTipo({
+      codigo_tipo_candidatura: 3,
+      tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
+    })
+const prazos = [
+  prazoResponseLinceiatura,
+  prazoResponseMestrado,
+  prazoResponseDotouramneto,
+]
+const loadings = [
+  prazoLoadingLinceiatura,
+  prazoLoadingMestrado,
+  prazoLoadingDoutoramneto,
+]
+
+const SHOW_REGISTER_TAB =
+  loadings.some(Boolean) || prazos.some((prazo) => prazo?.podeInscrever)
 
   const showEnvLabel = isDevelop || isPrePrd;
   const envDisplay = isDevelop

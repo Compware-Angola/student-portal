@@ -9,6 +9,7 @@ export type PrazoData = {
 }
 
 export type PrazoResponse = {
+  codigoTipoCandidatura:number
   status: 'ABERTO' | 'ENCERRADO' | 'NAO_DISPONIVEL' | 'NAO_CONFIGURADO'
   podeInscrever: boolean
   mensagem: string
@@ -18,11 +19,13 @@ export type PrazoResponse = {
 export type PrazoParams = {
   tipo: (typeof TipoCalendario)[keyof typeof TipoCalendario] | string
   anoLectivo?: string | number
+  codigo_tipo_candidatura?:number
 }
 
 export type PrazoByIdParams = {
   id: string | number
   anoLectivo?: string | number
+  codigo_tipo_candidatura?: number
 }
 
 /**
@@ -40,20 +43,21 @@ export type PrazoByIdParams = {
 export async function getPrazoPorTipo(
   params: PrazoParams,
 ): Promise<PrazoResponse> {
-  const { tipo, anoLectivo } = params
+  const { tipo, anoLectivo,codigo_tipo_candidatura } = params
 
-  const queryParams = anoLectivo
-    ? new URLSearchParams({
-        tipo: tipo.toString(),
-        anoLectivo: anoLectivo.toString(),
-      })
-    : new URLSearchParams({
-        tipo: tipo.toString(),
-      })
-
-  return gaApi
-    .get('prazos', { searchParams: queryParams })
-    .json<PrazoResponse>()
+  const queryParams = new URLSearchParams()
+  if (tipo) {
+    queryParams.append('tipo', tipo)
+  }
+  if (anoLectivo) {
+     queryParams.append('anoLectivo', anoLectivo.toString())
+  }
+  if (codigo_tipo_candidatura) {
+    queryParams.append('codigo_tipo_candidatura', codigo_tipo_candidatura.toString())
+  }
+    return gaApi
+      .get('prazos', { searchParams: queryParams })
+      .json<PrazoResponse>()
 }
 
 /**
@@ -71,15 +75,12 @@ export async function getPrazoPorTipo(
 export async function getPrazoPorId(
   params: PrazoByIdParams,
 ): Promise<PrazoResponse> {
-  const { id, anoLectivo } = params
+  const { id, anoLectivo,codigo_tipo_candidatura } = params
 
-  const queryParams = anoLectivo
-    ? new URLSearchParams({
-        anoLectivo: anoLectivo.toString(),
-      })
-    : undefined
-
-  return gaApi
-    .get(`prazos/${id}`, { searchParams: queryParams })
-    .json<PrazoResponse>()
+  const queryParams = new URLSearchParams()
+  if (anoLectivo) { queryParams.append('anoLectivo', anoLectivo.toString()) }
+  if (codigo_tipo_candidatura) {queryParams.append("codigo_tipo_candidatura", codigo_tipo_candidatura.toString())}
+    return gaApi
+      .get(`prazos/${id}`, { searchParams: queryParams })
+      .json<PrazoResponse>()
 }

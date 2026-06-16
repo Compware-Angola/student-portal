@@ -45,7 +45,7 @@ export function AcademicData() {
           name="typeGraduation"
           label="Tipo de Candidatura"
           placeholder="Selecione"
-          items={tipoCandidaturaOptions}
+          items={tipoCandidaturaOptions.filter(t=> Number(t.value)===1)}
           fullWidth
         />
         <FileInput

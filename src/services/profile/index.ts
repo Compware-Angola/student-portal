@@ -16,62 +16,62 @@ export interface Confirmacao {
 }
 
 export interface StudentProfile {
-  user_id: number;
-  nome_completo: string;
-  email: string;
-  telefone: string;
-  numero_documento: string | null;
+  user_id: number
+  nome_completo: string
+  email: string
+  telefone: string
+  numero_documento: string | null
+  grau_academico: 'Mestrado' | 'Doutoramento' | 'Licenciatura'
+  codigo_preinscricao: number
 
-  codigo_preinscricao: number;
+  nome_completo_1: string
+  sexo: string
+  data_nascimento: string
 
-  nome_completo_1: string;
-  sexo: string;
-  data_nascimento: string;
+  email_1: string
+  bilhete_identidade: string
+  contactos_telefonicos: string
 
-  email_1: string;
-  bilhete_identidade: string;
-  contactos_telefonicos: string;
+  saldo_reset: number
+  saldo_reset_anter: number
 
-  saldo_reset: number;
-  saldo_reset_anter: number;
+  codigo_tipo_candidatura: number
+  curso_candidatura: number
 
-  codigo_tipo_candidatura: number;
-  curso_candidatura: number;
+  codigo_admissao: number
+  data_admissao: string
+  media_final: number
 
-  codigo_admissao: number;
-  data_admissao: string;
-  media_final: number;
+  codigo_matricula: number
+  data_matricula: string
+  estado_matricula: string
 
-  codigo_matricula: number;
-  data_matricula: string;
-  estado_matricula: string;
+  codigo_curso: number
+  codigo_aluno: number
 
-  codigo_curso: number;
-  codigo_aluno: number;
+  curso: string
+  max_cadeiras_curso: number
 
-  curso: string;
-  max_cadeiras_curso: number;
+  turma: string | null
+  sala: string | null
 
-  turma: string | null;
-  sala: string | null;
+  periodo: string
+  periodoid: number
 
-  periodo: string;
-  periodoid: number;
+  foto: string
 
-  foto: string;
+  data_actualizacao: string
 
-  data_actualizacao: string;
+  poloid: number
+  curso_duracao: number
+  curso_duracao_candidatura: number
 
-  poloid: number;
-  curso_duracao: number;
-  curso_duracao_candidatura: number;
+  polo: string
+  curso_candidatura_designacao: string
 
-  polo: string;
-  curso_candidatura_designacao: string;
+  estado_aluno: StudentStatusType
 
-  estado_aluno: StudentStatusType;
-
-  confirmacoes: Confirmacao[];
+  confirmacoes: Confirmacao[]
 }
 
 export interface CurrentUserResponse {
