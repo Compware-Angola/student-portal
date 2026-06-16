@@ -14,6 +14,10 @@ import {
   UserPlus,
   ShieldCheck,
   XCircle,
+  Mail,
+  Send,
+  Loader2,
+  ArrowLeft,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -30,45 +34,74 @@ import {
 import logo from "@/assets/logo_uma.png";
 import { useAuthMutation } from "@/auth/use-auth-mutation";
 import { useNavigate } from "react-router-dom";
+import { requestPasswordReset } from "@/services/auth/login.service";
+import { toast } from "sonner";
 
-// Schema de validação
+// ─── Schemas ───────────────────────────────────────────────────────────────
+
 const loginSchema = z.object({
   username: z.string().nonempty(),
   password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
 });
 
+const firstAccessSchema = z.object({
+  email: z.string().email("E-mail inválido"),
+});
+
 type LoginFormData = z.infer<typeof loginSchema>;
+type FirstAccessFormData = z.infer<typeof firstAccessSchema>;
+
+// ─── Props ─────────────────────────────────────────────────────────────────
 
 interface LoginFormProps {
   setView: (view: "login" | "forgot" | "update-request" | "validate-doc" | "register") => void;
   showRegister: boolean;
 }
 
+// ─── Componente principal ──────────────────────────────────────────────────
+
 export function LoginForm({ setView, showRegister }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
-  const navigate = useNavigate();
 
+  // Controla o sub-passo de primeiro acesso
+  const [isFirstAccess, setIsFirstAccess] = useState(false);
+  const [firstAccessLoading, setFirstAccessLoading] = useState(false);
+  const [firstAccessError, setFirstAccessError] = useState<string | null>(null);
+
+  const navigate = useNavigate();
   const authMutation = useAuthMutation();
 
-  const form = useForm<LoginFormData>({
+  // ── Formulário de login ────────────────────────────────────────────────
+  const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: { username: "", password: "" },
   });
 
-  const onSubmit = (data: LoginFormData) => {
+  // ── Formulário de e-mail (primeiro acesso) ─────────────────────────────
+  const firstAccessForm = useForm<FirstAccessFormData>({
+    resolver: zodResolver(firstAccessSchema),
+    defaultValues: { email: "" },
+  });
+
+  // ── Submit do login ────────────────────────────────────────────────────
+  const onLoginSubmit = (data: LoginFormData) => {
     setLoginError(null);
     setSubmitting(true);
-    const credentials = {
-      ...data,
-      platform: 'PORTAL',
-    }
+
+    const credentials = { ...data, platform: "PORTAL" };
 
     authMutation.mutate(credentials, {
-      onSuccess: () => {
-        form.reset();
-        navigate('/comunicado')
+      onSuccess: (response: any) => {
+        // Se a API indicar primeiro acesso, muda para o sub-passo
+        if (response?.user.password_reset_required) {
+          setIsFirstAccess(true);
+          setSubmitting(false);
+          return;
+        }
+        loginForm.reset();
+        navigate("/comunicado");
       },
       onError: (error: Error) => {
         setLoginError(error.message);
@@ -77,15 +110,118 @@ export function LoginForm({ setView, showRegister }: LoginFormProps) {
     });
   };
 
+  // ── Submit do e-mail de primeiro acesso ───────────────────────────────
+  const onFirstAccessSubmit = async (data: FirstAccessFormData) => {
+    setFirstAccessError(null);
+    setFirstAccessLoading(true);
+
+    try {
+      await requestPasswordReset(data.email);
+      toast.success('Link enviado, verifique a sua caixa de e-mail e siga as instruções para redefinir a senha.', {
+        icon: <Mail className="h-5 w-5" />,
+      })
+
+      // Após registar, redireciona para redefinição de senha ou login
+      navigate("/renovar-senha");
+    } catch (error: any) {
+      setFirstAccessError(error.message);
+    } finally {
+      setFirstAccessLoading(false);
+    }
+  };
+
+  // ─── Passo de primeiro acesso ────────────────────────────────────────────
+  if (isFirstAccess) {
+    return (
+      <>
+        {/* Botão voltar */}
+        <button
+          type="button"
+          onClick={() => {
+            setIsFirstAccess(false);
+            setFirstAccessError(null);
+            firstAccessForm.reset();
+          }}
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Voltar
+        </button>
+
+        <div className="space-y-2">
+          <h2 className="text-[28px] font-bold tracking-tight text-foreground leading-tight">
+            Primeiro acesso
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Para concluir o seu primeiro acesso, precisamos do seu e-mail
+            institucional para lhe enviar as instruções de activação.
+          </p>
+        </div>
+
+        <Form {...firstAccessForm}>
+          <form
+            onSubmit={firstAccessForm.handleSubmit(onFirstAccessSubmit)}
+            className="space-y-5"
+          >
+            <FormField
+              control={firstAccessForm.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>E-mail institucional</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        {...field}
+                        type="email"
+                        placeholder="seu.email@metodista.ao"
+                        disabled={firstAccessLoading}
+                        className="h-11 pl-10 rounded-lg bg-slate-50 border-slate-200"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {firstAccessError && (
+              <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 flex items-center gap-2">
+                <XCircle className="h-4 w-4 shrink-0" />
+                {firstAccessError}
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              disabled={firstAccessLoading}
+              className="h-11 w-full rounded-lg text-white transition-all hover:-translate-y-0.5"
+              style={{
+                backgroundColor: "#E02020",
+                boxShadow: "0 10px 25px -10px rgba(224, 32, 32, 0.55)",
+              }}
+            >
+              {firstAccessLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="mr-2 h-4 w-4" />
+              )}
+              {firstAccessLoading ? "A enviar..." : "Continuar"}
+            </Button>
+          </form>
+        </Form>
+      </>
+    );
+  }
+
+  // ─── Formulário de login normal ──────────────────────────────────────────
   return (
     <>
-      {/* Cabeçalho */}
       <div className="space-y-2">
-        {/* Logo Desktop */}
         <div className="hidden lg:flex justify-center">
           <img src={logo} alt="Metodista de Angola" className="h-20 w-auto" />
         </div>
-
         <h2 className="text-[28px] font-bold tracking-tight text-foreground leading-tight">
           Entrar na conta
         </h2>
@@ -94,12 +230,11 @@ export function LoginForm({ setView, showRegister }: LoginFormProps) {
         </p>
       </div>
 
-      {/* Formulário */}
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-          {/* Número de Estudante */}
+      <Form {...loginForm}>
+        <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-5">
+          {/* Username */}
           <FormField
-            control={form.control}
+            control={loginForm.control}
             name="username"
             render={({ field }) => (
               <FormItem>
@@ -120,9 +255,9 @@ export function LoginForm({ setView, showRegister }: LoginFormProps) {
             )}
           />
 
-          {/* Senha com toggle */}
+          {/* Senha */}
           <FormField
-            control={form.control}
+            control={loginForm.control}
             name="password"
             render={({ field }) => (
               <FormItem>
@@ -152,7 +287,7 @@ export function LoginForm({ setView, showRegister }: LoginFormProps) {
             )}
           />
 
-          {/* Mensagem de erro */}
+          {/* Erro de login */}
           {loginError && (
             <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 flex items-center gap-2">
               <XCircle className="h-4 w-4 shrink-0" />
@@ -160,12 +295,14 @@ export function LoginForm({ setView, showRegister }: LoginFormProps) {
             </div>
           )}
 
-          {/* Botão Entrar */}
           <Button
             type="submit"
             disabled={submitting}
             className="h-11 w-full rounded-lg text-white transition-all hover:-translate-y-0.5"
-            style={{ backgroundColor: "#E02020", boxShadow: "0 10px 25px -10px rgba(224, 32, 32, 0.55)" }}
+            style={{
+              backgroundColor: "#E02020",
+              boxShadow: "0 10px 25px -10px rgba(224, 32, 32, 0.55)",
+            }}
           >
             <LogIn className="mr-2 h-4 w-4" />
             {submitting ? "Entrando..." : "Entrar"}
@@ -180,7 +317,6 @@ export function LoginForm({ setView, showRegister }: LoginFormProps) {
             >
               Esqueceu a senha?
             </button>
-
             <button
               type="button"
               onClick={() => setView("validate-doc")}
@@ -191,7 +327,7 @@ export function LoginForm({ setView, showRegister }: LoginFormProps) {
             </button>
           </div>
 
-          {/* Registro */}
+          {/* Registo */}
           {showRegister && (
             <>
               <div className="relative my-2">
