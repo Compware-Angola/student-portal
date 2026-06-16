@@ -89,7 +89,6 @@ export function ForgotPassword({ setView }: LoginFormProps) {
     setApiError("");
 
     try {
-      // const result = await sendPasswordResetWithAI(verifiedEmail);
       await requestPasswordReset(verifiedEmail);
       toast.success('Link enviado!', {
         icon: <Mail className="h-5 w-5" />,

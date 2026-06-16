@@ -54,7 +54,7 @@ export function Login() {
   }, []);
 
   useEffect(() => {
-    const imageUrl = buildImageAssets(portalStudentImage?.filename);
+    const imageUrl = buildImageAssets(portalStudentImage?.filename!);
 
     if (!imageUrl) {
       setLoginBackground(studentsPhoto);
