@@ -14,7 +14,7 @@ export function WalletCard({ balance, onClick }: WalletCardProps) {
             onClick={onClick}
         >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Carteira Digital</CardTitle>
+                <CardTitle className="text-sm font-medium">Reserva</CardTitle>
                 <Wallet className="h-4 w-4 text-success" />
             </CardHeader>
             <CardContent>
