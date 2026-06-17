@@ -82,12 +82,12 @@ export function PersonalDataTab({
         <div className={cn('flex flex-col gap-6')}>
           <FieldGroup className="grid gap-4 md:grid-cols-2">
             <InputFormField
+            disabled={true}
               control={form.control}
               name="name"
               placeholder="Nome Completo"
               label="Nome Completo"
               type="text"
-              disabled={!isEditing}
             />
             <InputFormField
               control={form.control}

@@ -18,6 +18,8 @@ import { LogoBackground } from "./components/logo-background";
 import { useTheme } from "next-themes";
 import heroAsset from "@/assets/hero-comunicados.jpg";
 import { useGetAvisosGeral } from "@/hooks/use-get-aviso-imagem";
+import { useQueryComunicadoBanner } from "@/hooks/use-query-comunicado-banner";
+import { buildImageAssets } from "@/utils/build-image-assets";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -284,27 +286,49 @@ export function Comunicado({ heroImages: propHeroImages }: ComunicadoProps) {
 
   const [filtro, setFiltro] = useState<"todos" | "urgente" | "aviso" | "informativo" | "evento">("todos");
   const { data: apiData, isLoading } = useGetAvisosGeral("EST");
+  const { data: bannerData } = useQueryComunicadoBanner();
+  const [bannerImage, setBannerImage] = useState(heroAsset);
 
-  // ==================== IMAGENS DO CARROSSEL ====================
+  useEffect(() => {
+    const bannerUrl = buildImageAssets(bannerData?.filename!);
+
+    if (!bannerUrl) {
+      setBannerImage(heroAsset);
+      return;
+    }
+
+    let cancelled = false;
+    const image = new Image();
+
+    image.onload = () => {
+      if (!cancelled) {
+        setBannerImage(bannerUrl);
+      }
+    };
+
+    image.onerror = () => {
+      if (!cancelled) {
+        setBannerImage(heroAsset);
+      }
+    };
+
+    image.src = bannerUrl;
+
+    return () => {
+      cancelled = true;
+      image.onload = null;
+      image.onerror = null;
+    };
+  }, [bannerData?.filename]);
+
+  // ==================== IMAGEM DO BANNER ====================
   const heroImages = useMemo(() => {
-    // Prioridade: 1. propHeroImages (se passado manualmente), 2. Imagens da API, 3. Default
     if (propHeroImages && propHeroImages.length > 0) {
       return propHeroImages;
     }
 
-    if (apiData && Array.isArray(apiData)) {
-      const imagesFromApi = apiData
-        .filter((item) => item.file_name && item.file_name.trim() !== "")
-        .map((item) => item.file_name!);
-
-      if (imagesFromApi.length > 0) {
-        return imagesFromApi;
-      }
-    }
-
-    // Fallback default
-    return [heroAsset, heroAsset];
-  }, [propHeroImages, apiData]);
+    return [bannerImage];
+  }, [propHeroImages, bannerImage]);
 
   // ==================== COMUNICADOS ====================
   const comunicados = useMemo(() => {

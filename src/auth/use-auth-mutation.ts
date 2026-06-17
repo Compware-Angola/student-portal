@@ -10,12 +10,14 @@ export function useAuthMutation() {
             throw new Error(error.message)
         },
         onSuccess: (response: AuthResponse) => {
-            AuthStorage.save({
-                codigoPreinscricao: response.user.codigopreinscricao,
-                token: response.access_token,
-                user_id: response.user.id,
-                user_name: response.user.nomecompleto,
-            })
+            if (response.user.password_reset_required == 0) {
+                AuthStorage.save({
+                    codigoPreinscricao: response.user.codigopreinscricao,
+                    token: response.access_token,
+                    user_id: response.user.id,
+                    user_name: response.user.nomecompleto,
+                })
+            }
         }
     })
 }

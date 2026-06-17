@@ -24,6 +24,7 @@ type User = {
   ano_lectivo_id: number;
   codigopreinscricao: number;
   nomecompleto: string;
+  password_reset_required: number;
 };
 
 export type AuthResponse = {

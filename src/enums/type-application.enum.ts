@@ -1,0 +1,5 @@
+export enum APPLICATION_TYPE {
+  LINCECIATURA = 1,
+  MESTRADO = 2,
+  DOUTORADO = 3,
+}
