@@ -1,36 +1,36 @@
 import { FileText, GraduationCap, User } from 'lucide-react'
 import { PersonalDataKeys } from '../schemas/personal-data.schema'
-import { PersonalDetails } from './personal-details'
-import { AcademicData } from './academic-data'
-import { AcademicDataKeys } from '../schemas/academic-data.schema'
+import { PersonalDetailsPostGraduate } from './personal-details'
+// import { AcademicData } from './academic-data'
+// import { AcademicDataKeys } from '../schemas/academic-data.schema'
 import { DocumentKeys } from '../schemas/documents.schema'
-import { AcademicDocument } from './academic-document'
-import { ContactData } from './contact-data'
+import { AcademicDocumentPostGraduate } from './academic-document'
+import { ContactDataPostGraduate } from './contact-data'
 import { ContactKeys } from '../schemas/contact-data.schema'
 import { ResumeDetails } from './resume-details'
 
 export const steps = [
   {
     id: 'personalData',
-    component: <PersonalDetails />,
+    component: PersonalDetailsPostGraduate ,
     fields: PersonalDataKeys,
     number: 0,
     title: 'Dados Pessoais',
     description: 'Preencha as suas informações pessoais',
     icon: User,
   },
-  {
-    id: 'academicData',
-    component: <AcademicData />,
-    fields: AcademicDataKeys,
-    number: 1,
-    title: 'Dados Académicos',
-    description: 'Informações sobre o curso e histórico académico',
-    icon: GraduationCap,
-  },
+  // {
+  //   id: 'academicData',
+  //   component: AcademicData ,
+  //   fields: AcademicDataKeys,
+  //   number: 1,
+  //   title: 'Dados Académicos',
+  //   description: 'Informações sobre o curso e histórico académico',
+  //   icon: GraduationCap,
+  // },
   {
     id: 'documents',
-    component: <AcademicDocument />,
+    component: AcademicDocumentPostGraduate,
     fields: DocumentKeys,
     number: 2,
     title: 'Dados da Candidatura',
@@ -39,7 +39,7 @@ export const steps = [
   },
   {
     id: 'contacts',
-    component: <ContactData />,
+    component: ContactDataPostGraduate ,
     fields: ContactKeys,
     number: 3,
     title: 'Dados de Contactos',
@@ -49,7 +49,7 @@ export const steps = [
   },
   {
     id: 'resume',
-    component: <ResumeDetails />,
+    component: ResumeDetails ,
     fields: [],
     number: 4,
     title: 'Resumo',

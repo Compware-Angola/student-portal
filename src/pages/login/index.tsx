@@ -197,12 +197,6 @@ const SHOW_REGISTER_TAB =
 }
 
 
-
-
-
-
-
-
 export function BackButton({ onClick }: { onClick: () => void }) {
   return (
     <button

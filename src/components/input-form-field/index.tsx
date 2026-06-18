@@ -66,7 +66,7 @@ export function InputFormField<T extends FieldValues>(
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               )}
-            </div>  
+            </div>
           </FormControl>
 
           <FormMessage />

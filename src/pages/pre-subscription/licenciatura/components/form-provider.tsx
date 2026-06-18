@@ -15,7 +15,6 @@ import { DocumentTypeEnum } from '@/enums/document.type.enum'
 type ContextValue = {
   onSubmit: (data: PreSubscriptionSchema) => void
   form: UseFormReturn<PreSubscriptionSchema>
-  //  isLoading: boolean
   currentStep: number
   setCurrentStep: React.Dispatch<React.SetStateAction<number>>
   handleNextOrSubmit: () => Promise<void>
@@ -203,7 +202,7 @@ export function useFormPreSubscriptionForm() {
 
   if (!context) {
     throw new Error(
-      'useFormPreSubscriptionForm deve ser usado dentro de ApplyFormProvider',
+      'useFormPreSubscriptionForm deve ser usado dentro de FormPreSubscriptionProvider',
     )
   }
 
