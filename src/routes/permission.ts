@@ -55,6 +55,7 @@ const homeRouteByStatus: Record<StudentStatusType, string> = {
   [StudentStatus.MATRICULADO]: '/',
   [StudentStatus.CANDIDATO]: '/pre-inscricao',
   [StudentStatus.PREINSCRITO]: '/pre-dashboard',
+  [StudentStatus.PREINSCRITO_MESTRADO_POS_GRADUACAO]: '/pre-dashboard',
 }
 export function getHomeRoute(status: StudentStatusType) {
   return homeRouteByStatus[status] ?? '/'
