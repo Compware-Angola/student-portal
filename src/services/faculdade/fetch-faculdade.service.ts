@@ -1,5 +1,4 @@
 import { apexApi } from "@/lib/apex-api";
-
 export type Faculdade = {
   codigo: number;
   designacao: string;

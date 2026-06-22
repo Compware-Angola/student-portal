@@ -8,15 +8,14 @@ import { useQuery } from '@tanstack/react-query'
 
 export function useGetPrazoPorTipo(params: PrazoParams) {
   return useQuery({
-    queryKey: ['prazo', params.tipo, params.anoLectivo],
+    queryKey: ['prazo', params.tipo, params.anoLectivo, params.codigo_tipo_candidatura],
     queryFn: () => getPrazoPorTipo(params),
   })
 }
 
 export function useGetPrazoPorId(params: PrazoByIdParams) {
   return useQuery({
-    queryKey: ['prazo', params.id, params.anoLectivo],
+    queryKey: ['prazo', params.id, params.anoLectivo, params.codigo_tipo_candidatura],
     queryFn: () => getPrazoPorId(params),
   })
 }
-

@@ -63,6 +63,7 @@ export function useQueryProfile() {
       enrollmentState: authData?.estado_matricula,
       course: authData?.curso ?? authData?.curso_candidatura_designacao,
       polo: authData?.polo,
+      grau_academico: authData?.grau_academico,
       email: authData?.email,
       phone: authData?.telefone,
       address: '',

@@ -16,7 +16,22 @@ import { handleDownload as handleDownloadFicha } from '@/components/uma-ficha-in
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useQueryPreInscricaoFicha } from '@/hooks/pre-registation/use-query-pre-registration'
 import { useQueryInfoGeraisCandidatura } from '@/hooks/pre-registation/use-query-info-gerais-candidatura'
+import { StudentStatus } from '@/enums/student.status.enum'
+const MESSAGES = {
+  [StudentStatus.PREINSCRITO_MESTRADO_POS_GRADUACAO]: {
+    badge: "Pós-graduação",
+    title: "Pré-inscrição realizada com sucesso",
+    description:
+      "O próximo passo é efetuar o pagamento da taxa de inscrição. Após a confirmação do pagamento, os seus documentos serão analisados pela equipa académica.",
+  },
 
+  [StudentStatus.PREINSCRITO]: {
+    badge: "Pré-inscrição confirmada",
+    title: "Prepare-se para o exame de admissão",
+    description:
+      "Os materiais de apoio para o exame de admissão já estão disponíveis. Faça o download e inicie a sua preparação.",
+  },
+} as const;
 const PreInscriptionCard = () => {
   const { profileData } = useQueryProfile()
   const { data } = useQueryPreInscricaoFicha(profileData?.user_id!)
@@ -111,15 +126,14 @@ const PreInscriptionCard = () => {
             <div className="flex items-center gap-2 mb-1">
               <Badge variant="secondary" className="gap-1">
                 <Sparkles className="h-3 w-3" />
-                Pré-inscrição confirmada
+                {MESSAGES[profileData?.estado_aluno ?? StudentStatus.PREINSCRITO].badge}
               </Badge>
             </div>
             <h2 className="text-xl font-semibold mb-1">
-              Prepare-se para o seu exame de admissão
+              {MESSAGES[profileData?.estado_aluno ?? StudentStatus.PREINSCRITO].title}
             </h2>
             <p className="text-sm text-muted-foreground">
-              Reunimos os documentos essenciais para a sua preparação. Faça o
-              download e estude com atenção.
+              {MESSAGES[profileData?.estado_aluno ?? StudentStatus.PREINSCRITO].description}
             </p>
           </div>
         </CardContent>

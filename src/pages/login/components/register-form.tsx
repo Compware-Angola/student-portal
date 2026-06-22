@@ -12,10 +12,8 @@ import {
   Hash,
   User,
   Lock,
-  Eye,
-  EyeOff,
-  GraduationCap,
-  ClipboardList,
+ 
+ ClipboardList,
   IdCard,
   Info,
   UserPlus,
@@ -23,19 +21,10 @@ import {
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import {
   Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
 } from '@/components/ui/form'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
@@ -43,6 +32,9 @@ import { BackButton, PrimaryButton } from '..'
 import { useRegisterForm } from '../use-register-form'
 import { useGetPrazoPorTipo } from '@/hooks/prazos'
 import { TipoCalendario } from '@/enums/tipo-calendario.enum'
+import type { PrazoResponse } from '@/services/prazos'
+import { InputFormField } from '@/components/input-form-field'
+import { SelectFormField } from '@/components/selectFormField'
 
 // ---------------------------------------------------------------------------
 // Types / View
@@ -57,9 +49,8 @@ type View = 'login' | 'forgot' | 'update-request' | 'validate-doc' | 'register'
 const registerSchema = z
   .object({
     nomeCompleto: z.string().min(3, 'Nome obrigatório'),
-    email: z.string().email('E-mail inválido'),
+    email: z.email('E-mail inválido'),
     telefone: z.string().min(9, 'Telefone inválido').max(20),
-    faculdade: z.string().min(1, 'Seleccione a faculdade'),
     tipoCandidatura: z.string().min(1, 'Seleccione o tipo de candidatura'),
     tipoDocumento: z.string().min(1, 'Seleccione o tipo de documento'),
     numeroDocumento: z.string().min(3, 'Número de documento obrigatório'),
@@ -85,22 +76,54 @@ interface RegisterFormProps {
 
 export function RegisterForm({ setView }: RegisterFormProps) {
   const [sent, setSent] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const { data: prazoResponseLinceiatura, isLoading: prazoLoadingLinceiatura } =
+    useGetPrazoPorTipo({
+      codigo_tipo_candidatura: 1,
+      tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
+    })
+  const { data: prazoResponseMestrado, isLoading: prazoLoadingMestrado } =
+    useGetPrazoPorTipo({
+      codigo_tipo_candidatura: 2,
+      tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
+    })
 
-  // Hook com a lógica de API e opções dos selects
+  const {
+    data: prazoResponseDotouramneto,
+    isLoading: prazoLoadingDoutoramneto,
+  } = useGetPrazoPorTipo({
+    codigo_tipo_candidatura: 3,
+    tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
+  })
+  const prazos = [
+    prazoResponseLinceiatura,
+    prazoResponseMestrado,
+    prazoResponseDotouramneto,
+  ]
+  const loadings = [
+    prazoLoadingLinceiatura,
+    prazoLoadingMestrado,
+    prazoLoadingDoutoramneto,
+  ]
+  const REGISTRATION_OPEN =
+    loadings.some(Boolean) || prazos.some((prazo) => prazo?.podeInscrever)
   const {
     onSubmit: submitToApi,
-    faculdadesOptions,
     tipoCandidaturaOptions,
     tipoDocumentoOptions,
     createBeginningStudentProcessPending,
   } = useRegisterForm()
 
-  const { data: prazoResponse } = useGetPrazoPorTipo({
-    tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
+  const prazosPorCandidatura: Record<number, PrazoResponse | undefined> = {
+    1: prazoResponseLinceiatura,
+    2: prazoResponseMestrado,
+    3: prazoResponseDotouramneto,
+  }
+
+  const tiposDisponiveis = tipoCandidaturaOptions.filter((tipo) => {
+    const prazo = prazosPorCandidatura[tipo.value as any]
+    return prazo?.podeInscrever === true
   })
-  const REGISTRATION_OPEN = prazoResponse?.podeInscrever ?? false
+
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
@@ -108,7 +131,6 @@ export function RegisterForm({ setView }: RegisterFormProps) {
       nomeCompleto: '',
       email: '',
       telefone: '',
-      faculdade: '',
       tipoCandidatura: '',
       tipoDocumento: '',
       numeroDocumento: '',
@@ -123,7 +145,6 @@ export function RegisterForm({ setView }: RegisterFormProps) {
         name: data.nomeCompleto,
         email: data.email,
         telefone: data.telefone,
-        faculdade: data.faculdade,
         grauacademico: data.tipoCandidatura,
         tipo_de_documento: data.tipoDocumento,
         numero_documento: data.numeroDocumento,
@@ -176,9 +197,7 @@ export function RegisterForm({ setView }: RegisterFormProps) {
     )
   }
 
-  // -------------------------------------------------------------------------
-  // STATE: Candidatura enviada com sucesso
-  // -------------------------------------------------------------------------
+
 
   if (sent) {
     return (
@@ -205,9 +224,7 @@ export function RegisterForm({ setView }: RegisterFormProps) {
     )
   }
 
-  // -------------------------------------------------------------------------
-  // STATE: Formulário
-  // -------------------------------------------------------------------------
+
 
   const isSubmitting = createBeginningStudentProcessPending || form.formState.isSubmitting
 
@@ -227,268 +244,133 @@ export function RegisterForm({ setView }: RegisterFormProps) {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {/* Nome completo */}
-          <FormField
+          <InputFormField
             control={form.control}
             name="nomeCompleto"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nome completo</FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      {...field}
-                      placeholder="ex: João Manuel Silva"
-                      disabled={isSubmitting}
-                      className="h-11 pl-10 rounded-lg bg-slate-50 border-slate-200"
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
+            placeholder="ex: João Manuel Silva"
+            label="Nome completo"
+            disabled={isSubmitting}
+            icon={() => (
+              <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             )}
           />
 
           {/* E-mail + Telefone */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FormField
+
+            <InputFormField
               control={form.control}
               name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>E-mail</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        {...field}
-                        type="email"
-                        placeholder="seu@mail.com"
-                        disabled={isSubmitting}
-                        className="h-11 pl-10 rounded-lg bg-slate-50 border-slate-200"
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+              placeholder="seu@mail.com"
+              label="E-mail"
+              disabled={isSubmitting}
+              icon={() => (
+                <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               )}
             />
-            <FormField
+            <InputFormField
               control={form.control}
               name="telefone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Telefone</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        {...field}
-                        placeholder="+244 9XX XXX XXX"
-                        disabled={isSubmitting}
-                        className="h-11 pl-10 rounded-lg bg-slate-50 border-slate-200"
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+              placeholder="+244 9XX XXX XXX"
+              label="Telefone"
+              disabled={isSubmitting}
+              icon={() => (
+                <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               )}
             />
-          </div>
+
 
           {/* Tipo de Candidatura + Faculdade */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FormField
+
+            <SelectFormField
+              fullWidth
               control={form.control}
               name="tipoCandidatura"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tipo de candidatura</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    disabled={isSubmitting}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="h-11 rounded-lg bg-slate-50 border-slate-200">
-                        <div className="flex items-center gap-2">
-                          <ClipboardList className="h-4 w-4 text-muted-foreground" />
-                          <SelectValue placeholder="Seleccione o tipo" />
-                        </div>
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {tipoCandidaturaOptions.map((t) => (
-                        <SelectItem key={t.value} value={t.value}>
-                          {t.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
+              items={tiposDisponiveis.map(t=>({label:t.label,value:t.label}))}
+              label="Tipo de candidatura"
+              trigger={() => (
+                <SelectTrigger className="h-11 rounded-lg bg-slate-50 border-slate-200 w-full">
+                  <div className="flex items-center gap-2">
+                    <ClipboardList className="h-4 w-4 text-muted-foreground" />
+                    <SelectValue placeholder="Seleccione o tipo" />
+                  </div>
+                </SelectTrigger>
               )}
             />
-            <FormField
+            {/* <SelectFormField
+              fullWidth
               control={form.control}
               name="faculdade"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Faculdade</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    disabled={isSubmitting}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="h-11 rounded-lg bg-slate-50 border-slate-200">
-                        <div className="flex items-center gap-2">
-                          <GraduationCap className="h-4 w-4 text-muted-foreground" />
-                          <SelectValue placeholder="Seleccione a faculdade" />
-                        </div>
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {faculdadesOptions.map((f) => (
-                        <SelectItem key={f.value} value={f.value}>
-                          {f.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
+              items={faculdadesOptions}
+              label="Faculdade"
+              trigger={() => (
+                <SelectTrigger className="h-11 rounded-lg bg-slate-50 border-slate-200 w-full truncate">
+                  <div className="flex items-center gap-2">
+                    <GraduationCap className="h-4 w-4 text-muted-foreground" />
+                    <SelectValue
+                      placeholder="Seleccione a faculdade"
+                      className="truncate"
+                    />
+                  </div>
+                </SelectTrigger>
               )}
-            />
-          </div>
+            /> */}
+
 
           {/* Tipo de Documento + Número */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FormField
+
+            <SelectFormField
+              fullWidth
               control={form.control}
               name="tipoDocumento"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tipo de documento</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    disabled={isSubmitting}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="h-11 rounded-lg bg-slate-50 border-slate-200">
-                        <div className="flex items-center gap-2">
-                          <IdCard className="h-4 w-4 text-muted-foreground" />
-                          <SelectValue placeholder="Seleccione" />
-                        </div>
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {tipoDocumentoOptions.map((t) => (
-                        <SelectItem key={t.value} value={t.value}>
-                          {t.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
+              items={tipoDocumentoOptions}
+              label="Tipo de documento"
+              disabled={isSubmitting}
+              trigger={() => (
+                <SelectTrigger className="h-11 rounded-lg bg-slate-50 border-slate-200 w-full truncate">
+                  <div className="flex items-center gap-2">
+                    <IdCard className="h-4 w-4 text-muted-foreground" />
+                    <SelectValue
+                      placeholder="Seleccione"
+                      className="truncate"
+                    />
+                  </div>
+                </SelectTrigger>
               )}
             />
-            <FormField
+            <InputFormField
               control={form.control}
               name="numeroDocumento"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nº do documento</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Hash className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        {...field}
-                        placeholder="ex: 000000000LA000"
-                        disabled={isSubmitting}
-                        className="h-11 pl-10 rounded-lg bg-slate-50 border-slate-200"
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+              placeholder="ex: 000000000LA000"
+              label="Nº do documento"
+              disabled={isSubmitting}
+              icon={() => (
+                <Hash className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               )}
             />
-          </div>
 
-          {/* Senha + Confirmar Senha */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FormField
+            <InputFormField
               control={form.control}
               name="senha"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Senha</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        {...field}
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="••••••••"
-                        disabled={isSubmitting}
-                        className="h-11 px-10 rounded-lg bg-slate-50 border-slate-200"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword((v) => !v)}
-                        aria-label={showPassword ? 'Ocultar' : 'Mostrar'}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+              type="password"
+              placeholder="••••••••"
+              label="Senha"
+              disabled={isSubmitting}
+              icon={() => (
+                <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               )}
             />
-            <FormField
+            <InputFormField
               control={form.control}
               name="confirmarSenha"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirmar senha</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        {...field}
-                        type={showConfirmPassword ? 'text' : 'password'}
-                        placeholder="••••••••"
-                        disabled={isSubmitting}
-                        className="h-11 px-10 rounded-lg bg-slate-50 border-slate-200"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword((v) => !v)}
-                        aria-label={showConfirmPassword ? 'Ocultar' : 'Mostrar'}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      >
-                        {showConfirmPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+              type="password"
+              placeholder="••••••••"
+              label="Confirmar senha"
+              disabled={isSubmitting}
+              icon={() => (
+                <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               )}
             />
-          </div>
+
 
           <PrimaryButton type="submit" disabled={isSubmitting}>
             {isSubmitting ? (

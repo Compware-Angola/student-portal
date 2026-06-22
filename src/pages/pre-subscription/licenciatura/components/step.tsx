@@ -12,7 +12,7 @@ import { ResumeDetails } from './resume-details'
 export const steps = [
   {
     id: 'personalData',
-    component: <PersonalDetails />,
+    component: PersonalDetails ,
     fields: PersonalDataKeys,
     number: 0,
     title: 'Dados Pessoais',
@@ -21,7 +21,7 @@ export const steps = [
   },
   {
     id: 'academicData',
-    component: <AcademicData />,
+    component: AcademicData ,
     fields: AcademicDataKeys,
     number: 1,
     title: 'Dados Académicos',
@@ -30,7 +30,7 @@ export const steps = [
   },
   {
     id: 'documents',
-    component: <AcademicDocument />,
+    component: AcademicDocument ,
     fields: DocumentKeys,
     number: 2,
     title: 'Dados da Candidatura',
@@ -39,7 +39,7 @@ export const steps = [
   },
   {
     id: 'contacts',
-    component: <ContactData />,
+    component: ContactData ,
     fields: ContactKeys,
     number: 3,
     title: 'Dados de Contactos',
@@ -49,7 +49,7 @@ export const steps = [
   },
   {
     id: 'resume',
-    component: <ResumeDetails />,
+    component: ResumeDetails ,
     fields: [],
     number: 4,
     title: 'Resumo',

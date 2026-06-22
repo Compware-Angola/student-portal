@@ -52,9 +52,9 @@ export function checkEmail(email: string): Promise<{ exists: boolean }> {
     .json<{ email: string, exists: boolean }>()
 }
 
-export async function requestPasswordReset(email: string): Promise<void> {
+export async function requestPasswordReset(email: string, matricula?: string): Promise<void> {
   await authApi
-    .post('auth/send-change-password', { json: { email, platform: 'PORTAL' } })
+    .post('auth/send-change-password', { json: { email, matricula, platform: 'PORTAL' } })
 }
 
 export async function resetPassword(token: string, newPassword: string): Promise<void> {
