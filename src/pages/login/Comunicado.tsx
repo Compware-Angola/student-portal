@@ -290,7 +290,7 @@ export function Comunicado({ heroImages: propHeroImages }: ComunicadoProps) {
   const [bannerImage, setBannerImage] = useState(heroAsset);
 
   useEffect(() => {
-    const bannerUrl = buildImageAssets(bannerData?.filename);
+    const bannerUrl = buildImageAssets(bannerData?.filename!);
 
     if (!bannerUrl) {
       setBannerImage(heroAsset);

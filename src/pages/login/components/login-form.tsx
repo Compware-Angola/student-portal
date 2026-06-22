@@ -46,6 +46,7 @@ const loginSchema = z.object({
 
 const firstAccessSchema = z.object({
   email: z.string().email("E-mail inválido"),
+  matricula: z.string().nonempty("Matrícula é obrigatória"),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -116,7 +117,7 @@ export function LoginForm({ setView, showRegister }: LoginFormProps) {
     setFirstAccessLoading(true);
 
     try {
-      await requestPasswordReset(data.email);
+      await requestPasswordReset(data.email, data.matricula);
       toast.success('Link enviado, verifique a sua caixa de e-mail e siga as instruções para redefinir a senha.', {
         icon: <Mail className="h-5 w-5" />,
       })
@@ -185,6 +186,30 @@ export function LoginForm({ setView, showRegister }: LoginFormProps) {
                 </FormItem>
               )}
             />
+            {/*Vou adicionar Mas um Campo para verificar se é Aluno (Matricula)*/}
+            <FormField
+              control={firstAccessForm.control}
+              name="matricula"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Matrícula</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        {...field}
+                        type="number"
+                        placeholder="202315631"
+                        disabled={firstAccessLoading}
+                        className="h-11 pl-10 rounded-lg bg-slate-50 border-slate-200"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
 
             {firstAccessError && (
               <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 flex items-center gap-2">

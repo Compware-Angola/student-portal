@@ -8,58 +8,35 @@ import { AdmissionStatus } from '@/enums/admission.status.enum'
 import { FinanceInfo } from './components/finance-info'
 import { ExamLoader } from './components/exam-loader'
 import { useQueryApiStatus } from '@/hooks/pre-registation/use-query-api-status'
+import { useQueryProfile } from '@/hooks/profile/use-query-profile'
+import { useQueryCandidateExam } from '@/hooks/exame/use-query-exame'
+import type { Question } from '@/services/exame-acesso/exame.service'
+import { CheckCircle2 } from 'lucide-react'
 
-const EXAM_DURATION_MIN = 120
+
+
 const FORCE_EXAM_OPEN = false
 const INSTITUTION_NAME = 'Universidade Metodista de Angola'
 const INSTITUTION_WIFI = 'UMA-CAMPUS'
 
 const examInfo = {
-  candidate: 'João Silva',
-  course: 'Engenharia Informática',
   room: 'Auditório A — Bloco 2',
   time: '08:00 — 10:00',
-  subjects: ['Matemática', 'Física', 'Língua Portuguesa'],
 }
 
-const questions = [
-  {
-    id: 1,
-    subject: 'Matemática',
-    statement: 'Qual é o valor de x na equação 2x + 6 = 18?',
-    options: ['x = 4', 'x = 6', 'x = 8', 'x = 12'],
-  },
-  {
-    id: 2,
-    subject: 'Matemática',
-    statement: 'O resultado de (3²) + (4²) é:',
-    options: ['25', '49', '12', '7'],
-  },
-  {
-    id: 3,
-    subject: 'Física',
-    statement: 'A unidade de medida da força no Sistema Internacional é:',
-    options: ['Joule (J)', 'Watt (W)', 'Newton (N)', 'Pascal (Pa)'],
-  },
-  {
-    id: 4,
-    subject: 'Física',
-    statement: 'Qual a velocidade da luz no vácuo (aproximadamente)?',
-    options: ['3 × 10⁵ km/s', '3 × 10⁸ m/s', '3 × 10⁶ m/s', '3 × 10¹⁰ m/s'],
-  },
-  {
-    id: 5,
-    subject: 'Língua Portuguesa',
-    statement: 'Qual das opções apresenta um substantivo coletivo?',
-    options: ['Mesa', 'Cardume', 'Correr', 'Bonito'],
-  },
-  {
-    id: 6,
-    subject: 'Língua Portuguesa',
-    statement: '“Os alunos estudaram muito.” — O sujeito da frase é:',
-    options: ['estudaram', 'muito', 'Os alunos', 'alunos muito'],
-  },
-]
+// Mapeia a pergunta da API para o formato usado pelo componente Questions
+function mapQuestion(q: Question) {
+  return {
+    id: q.id,
+    subject: q.disciplina,
+    statement: q.pergunta,
+    // cada opção carrega o id da resposta para podermos submeter depois
+    options: q.respostas.map((r) => ({
+      id: r.id,
+      label: r.resposta,
+    })),
+  }
+}
 
 function useCountdown(target: Date | null) {
   const [now, setNow] = useState(new Date())
@@ -71,18 +48,10 @@ function useCountdown(target: Date | null) {
   }, [target])
 
   if (!target) {
-    return {
-      diff: null,
-      days: 0,
-      hours: 0,
-      minutes: 0,
-      seconds: 0,
-      hasDate: false,
-    }
+    return { diff: null, days: 0, hours: 0, minutes: 0, seconds: 0, hasDate: false }
   }
 
   const diff = Math.max(0, target.getTime() - now.getTime())
-
   return {
     diff,
     days: Math.floor(diff / 86400000),
@@ -92,20 +61,35 @@ function useCountdown(target: Date | null) {
     hasDate: true,
   }
 }
+
 const ProvaExameAcesso = () => {
   const { data: info, isLoading } = useQueryInfoGeraisCandidatura()
+  const { profileData } = useQueryProfile()
   const isDiaProva = info?.estado_aluno === AdmissionStatus.DIA_DA_PROVA
+  // CALCULAR A DURACAO
+  const horaInicio = info?.hora_inicio
+  const horaFim = info?.hora_fim
+  // converter string para date
+  const dateInicio = horaInicio ? new Date(horaInicio) : null
+  const dateFim = horaFim ? new Date(horaFim) : null
+  const EXAM_DURATION_MIN = dateFim && dateInicio ? Math.floor((dateFim.getTime() - dateInicio.getTime()) / 60000) : 120
 
   const { isLoading: isLoadingApiStatus, isError: isErrorApiStatus } =
     useQueryApiStatus({ enabled: isDiaProva })
 
-  const date = !info?.data_prova ? null : new Date(info?.data_prova)
+  // Busca a prova do candidato via API
+  const { isLoading: isLoadingExam, data: candidateExam } = useQueryCandidateExam(
+    profileData?.codigo_preinscricao!,
+    isDiaProva, // só habilita quando for dia da prova
+  )
+
+  const date = !info?.data_prova ? null : new Date(info.data_prova)
   const { diff, days, hours, minutes, seconds } = useCountdown(date)
   const examOpen = FORCE_EXAM_OPEN || diff === 0
 
-  // Estado da prova
   const [current, setCurrent] = useState(0)
-  const [answers, setAnswers] = useState<Record<number, string>>({})
+  // answers: { [perguntaId]: respostaId }
+  const [answers, setAnswers] = useState<Record<number, number>>({})
   const [submitted, setSubmitted] = useState(false)
   const [remaining, setRemaining] = useState(EXAM_DURATION_MIN * 60)
 
@@ -118,16 +102,20 @@ const ProvaExameAcesso = () => {
   useEffect(() => {
     if (examOpen && !submitted && remaining === 0) {
       setSubmitted(true)
-      toast.success(
-        'Tempo esgotado! A sua prova foi submetida automaticamente.',
-      )
+      toast.success('Tempo esgotado! A sua prova foi submetida automaticamente.')
     }
   }, [remaining, examOpen, submitted])
 
+  // Mapeia perguntas da API para o formato do componente
+  const questions = useMemo(
+    () => (candidateExam?.perguntas ?? []).map(mapQuestion),
+    [candidateExam],
+  )
+
   const answeredCount = Object.keys(answers).length
   const progress = useMemo(
-    () => (answeredCount / questions.length) * 100,
-    [answeredCount],
+    () => (questions.length > 0 ? (answeredCount / questions.length) * 100 : 0),
+    [answeredCount, questions.length],
   )
 
   const formatClock = (s: number) => {
@@ -137,19 +125,15 @@ const ProvaExameAcesso = () => {
     return `${h}:${m}:${sec}`
   }
 
-  const handleSubmit = () => {
-    setSubmitted(true)
-    toast.success(
-      `Prova submetida com sucesso! Você respondeu ${answeredCount} de ${questions.length} perguntas.`,
-    )
-  }
-  if (isLoading || isLoadingApiStatus) {
+  if (isLoading || isLoadingApiStatus || (isDiaProva && isLoadingExam)) {
     return <ExamLoader />
   }
-  if (AdmissionStatus.SEM_ADMISSAO == info?.estado_aluno) {
+
+  if (AdmissionStatus.SEM_ADMISSAO === info?.estado_aluno) {
     return <FinanceInfo />
   }
-  if (AdmissionStatus.AGUARDANDO_DIA_DA_PROVA == info?.estado_aluno) {
+
+  if (AdmissionStatus.AGUARDANDO_DIA_DA_PROVA === info?.estado_aluno) {
     return (
       <WaitingTest
         days={days}
@@ -160,55 +144,75 @@ const ProvaExameAcesso = () => {
       />
     )
   }
-  // ============ TELA: PROVA ATIVA ============
-  if (info?.estado_aluno == AdmissionStatus.DIA_DA_PROVA) {
-    return (
-      <>
-        {isErrorApiStatus ? (
-          <AcessoBloqueado
-            INSTITUTION_WIFI={INSTITUTION_WIFI}
-            INSTITUTION_NAME={INSTITUTION_NAME}
-          />
-        ) : (
-          <Questions
-            current={current}
-            setCurrent={setCurrent}
-            questions={questions}
-            answers={answers}
-            setAnswers={setAnswers}
-            answeredCount={answeredCount}
-            progress={progress}
-            remaining={remaining}
-            formatClock={formatClock}
-            handleSubmit={handleSubmit}
-            examInfo={examInfo}
-          />
-        )}
-      </>
+
+  if (info?.estado_aluno === AdmissionStatus.DIA_DA_PROVA) {
+    return isErrorApiStatus ? (
+      <AcessoBloqueado
+        INSTITUTION_WIFI={INSTITUTION_WIFI}
+        INSTITUTION_NAME={INSTITUTION_NAME}
+      />
+    ) : (
+      <Questions
+        current={current}
+        setCurrent={setCurrent}
+        questions={questions}
+        answers={answers}
+        setAnswers={setAnswers}
+        answeredCount={answeredCount}
+        progress={progress}
+        remaining={remaining}
+        formatClock={formatClock}
+        examInfo={{
+          ...examInfo,
+          candidate: profileData?.nome_completo ?? '',
+          course: profileData?.curso_candidatura_designacao ?? '',
+        }}
+        provaId={candidateExam?.provaId!}
+        candidateId={profileData?.codigo_preinscricao!}
+        onExamFinished={() => setSubmitted(true)}
+      />
     )
   }
 
   if (
-    info?.estado_aluno == AdmissionStatus.ADMITIDO_SEM_MATRICULA ||
-    info?.estado_aluno == AdmissionStatus.NAO_ADMITIDO
-  )
+    info?.estado_aluno === AdmissionStatus.ADMITIDO_SEM_MATRICULA ||
+    info?.estado_aluno === AdmissionStatus.NAO_ADMITIDO
+  ) {
     return (
-      <>
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-blue-800 text-sm flex items-center gap-2">
-          <span className="h-2 w-2 bg-blue-500 rounded-full animate-pulse" />
-          Resuldados Disponibilizados no dashboard ✔
-        </div>
-      </>
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-blue-800 text-sm flex items-center gap-2">
+        <span className="h-2 w-2 bg-blue-500 rounded-full animate-pulse" />
+        Resultados Disponibilizados no dashboard ✔
+      </div>
     )
-  if (info?.estado_aluno == AdmissionStatus.AGUARDANDO_RESULTADO) {
+  }
+
+  if (info?.estado_aluno === AdmissionStatus.AGUARDANDO_RESULTADO) {
     return (
-      <>
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-blue-800 text-sm flex items-center gap-2">
-          <span className="h-2 w-2 bg-blue-500 rounded-full animate-pulse" />A
-          sua prova foi realizada com sucesso. Neste momento, deve aguardar a
-          disponibilização dos resultados, ✔
+      <div className="min-h-[80vh] flex flex-col items-center justify-center px-4">
+
+        <div className="w-18 h-18 rounded-full bg-green-50 flex items-center justify-center mb-8">
+          <CheckCircle2 className="w-9 h-9 text-green-600" />
         </div>
-      </>
+
+        <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground mb-2">
+          Estado da candidatura
+        </p>
+        <h2 className="text-2xl font-semibold text-foreground mb-4 text-center">
+          Prova concluída com sucesso
+        </h2>
+        <p className="text-sm text-muted-foreground leading-relaxed mb-10 max-w-md text-center">
+          A sua prova foi realizada com sucesso. Os resultados serão
+          disponibilizados em breve. Fique atento ao seu painel.
+        </p>
+
+        <div className="flex items-center gap-2 bg-muted border rounded-md px-4 py-3">
+          <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse flex-shrink-0" />
+          <span className="text-sm text-muted-foreground">
+            A aguardar a publicação dos resultados
+          </span>
+        </div>
+
+      </div>
     )
   }
 }
