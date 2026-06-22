@@ -14,6 +14,7 @@ export type ProfileData = {
   email: string
   foto?: string
   numero_documento: string | null
+  grau_academico: 'Mestrado' | 'Doutoramento' | 'Licenciatura'
   telefone: string | null
   address: string
   curso: string

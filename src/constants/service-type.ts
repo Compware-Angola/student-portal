@@ -11,4 +11,9 @@ export const SERVICE_TYPES = {
     description: 'Taxa de Exame de Admissão',
     sigla: 'TdEdA',
   },
+  TAXA_INSCRICAO_MESTRADOS_POS_GRADUACAO: {
+    description: 'Taxa de Inscrição Mestrados e Pós-Graduação',
+    sigla: 'TdIMeP',
+  },
+
 } as const

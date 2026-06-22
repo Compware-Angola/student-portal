@@ -27,6 +27,7 @@ export function SelectFormField<T extends FieldValues>(
     items,
     disabled,
     fullWidth = false,
+     trigger: Trigger,
   } = props;
 
   return (
@@ -42,11 +43,18 @@ export function SelectFormField<T extends FieldValues>(
             onValueChange={field.onChange}
           >
             <FormControl>
-              <SelectTrigger
-                className={cn("cursor-pointer overflow-hidden", fullWidth ? "w-full" : "")}
-              >
-                <SelectValue placeholder={placeholder}   className="cursor-pointer truncate"/>
-              </SelectTrigger>
+              {Trigger ? (
+                <Trigger />
+              ) : (
+                <SelectTrigger
+                  className={cn(
+                    "cursor-pointer overflow-hidden",
+                    fullWidth && "w-full",
+                  )}
+                >
+                  <SelectValue placeholder={placeholder} />
+                </SelectTrigger>
+              )}
             </FormControl>
             <SelectContent>
               {items.map((item, index) => (

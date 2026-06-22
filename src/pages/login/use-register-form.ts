@@ -24,7 +24,6 @@ export const FormSchema = z.object({
     .regex(/[a-z]/, { message: 'A senha deve conter pelo menos uma letra minúscula' })
     .regex(/[0-9]/, { message: 'A senha deve conter pelo menos um número' })
     .regex(/[^A-Za-z0-9]/, { message: 'A senha deve conter pelo menos um caractere especial' }),
-  faculdade: z.string().min(1, { message: 'Faculdade é obrigatório' }),
   grauacademico: z.string().min(1, { message: 'Faculdade é obrigatório' }),
   confirmar_senha: z.string().min(1, { message: 'Confirmação de senha é obrigatória' }),
 
@@ -47,7 +46,6 @@ export function useRegisterForm() {
       password: '',
       confirmar_senha: '',
       tipo_de_documento: '',
-      faculdade: '',
       grauacademico: '',
     },
   })
@@ -75,7 +73,7 @@ export function useRegisterForm() {
     })) ?? []
 
   async function onSubmit(data: RegisterFormData) {
-   
+
     try {
       await createBeginningStudentProcessAsync({
         name: data.name,
@@ -86,10 +84,9 @@ export function useRegisterForm() {
         password: data.password,
         canal: 3,
         grauacademico: data.grauacademico,
-        faculdade: data.faculdade,
       })
       toast.success('Autenticado com sucesso!')
-     
+
       //navigate('/')
     } catch (error) {
       throw new Error("Erro ao fazer registro")

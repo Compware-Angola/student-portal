@@ -9,7 +9,7 @@ export type BeginningStudentProcessPayload = {
   password: string
   canal: number
   grauacademico: string
-  faculdade: string
+  faculdade?: string
 }
 
 export type BeginningStudentProcessResponse = {

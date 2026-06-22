@@ -27,10 +27,11 @@ import { routePermissions } from '@/routes/permission'
 import { useQueryProfile } from './profile/use-query-profile'
 
 export function useMenuNavigation() {
+  const {profileData} = useQueryProfile()
   const { hasEnrolmentCode, isLoading } = useStudentSituation()
   const { isLoading: isLoadingProfile, studentStatus } = useQueryProfile()
 
-  if (isLoading || isLoadingProfile || !studentStatus) {
+  if (isLoading || isLoadingProfile || !studentStatus || !profileData) {
     return { navMain: [] }
   }
 

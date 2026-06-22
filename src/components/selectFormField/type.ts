@@ -8,4 +8,6 @@ export type SelectFormFieldProps<T extends FieldValues> = {
   items: { value: string; label: string }[];
   disabled?: boolean;
   fullWidth?: boolean;
+  trigger?: React.ComponentType;
 };
+
