@@ -1,8 +1,7 @@
-
-import { useQueryTipoCandidatura } from "@/hooks/queries/use-query-tipo-candidatura";
-
+import { useQueryTipoCandidatura } from "@/hooks/dropdowns/use-query-tipo-candidatura";
 import { useId, useMemo } from "react";
-import { FormSelect } from "../FormSelect";
+import { FormCommandSelect } from "./FormCommandSelect";
+
 
 interface TipoCandidaturaProps {
   value: string;
@@ -37,10 +36,10 @@ export function TipoCandidaturaSelect({
     return tiposCandidatura.filter((tipo) => tipo.codigo !== 1);
   }, [tiposCandidatura]);
   return (
-    <FormSelect
+    <FormCommandSelect
       disabled={isLoading || disabled}
-      loading={isLoading}
       label={label}
+      isLoading={isLoading}
       defaultSelectItem={defaultSelectItem}
       value={value}
       onChange={(v) => onChangeValue(v)}

@@ -12,8 +12,8 @@ import {
   Hash,
   User,
   Lock,
-  GraduationCap,
-  ClipboardList,
+ 
+ ClipboardList,
   IdCard,
   Info,
   UserPlus,

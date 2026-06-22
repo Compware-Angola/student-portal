@@ -1,4 +1,4 @@
-import { FileText, GraduationCap, User } from 'lucide-react'
+import { FileText, User } from 'lucide-react'
 import { PersonalDataKeys } from '../schemas/personal-data.schema'
 import { PersonalDetailsPostGraduate } from './personal-details'
 // import { AcademicData } from './academic-data'
