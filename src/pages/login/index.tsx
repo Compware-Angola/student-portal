@@ -124,13 +124,13 @@ const SHOW_REGISTER_TAB =
       : '';
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-[6fr_4fr] bg-white">
+    <div className="min-h-screen grid lg:grid-cols-2 bg-white">
       {/* LEFT — foto + overlay */}
-      <aside className="relative hidden lg:flex flex-col justify-between overflow-hidden text-white p-12 min-h-screen">
+      <aside className="relative hidden lg:flex flex-col justify-between overflow-hidden text-white p-12">
         <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${loginBackground})` }} aria-hidden />
         <div className="absolute inset-0" style={{ backgroundColor: "rgba(110, 15, 15, 0.65)" }} aria-hidden />
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40" aria-hidden />
-
+      <div className="relative z-10 h-12" />
         <div className="relative z-10 max-w-xl">
           <h1 className="text-5xl font-bold leading-[1.05] tracking-tight">
             Bem-vindo ao<br />
@@ -161,7 +161,7 @@ const SHOW_REGISTER_TAB =
       </aside>
 
       {/* RIGHT — formulário dinâmico */}
-      <main className="relative flex items-center justify-center p-6 sm:p-10 bg-white overflow-hidden">
+      <main className="relative flex items-center justify-center p-6 sm:p-10 bg-white">
         <LogoBackground top="2.5rem" right="2.5rem" />
         <LogoBackground bottom="2.5rem" left="2.5rem" />
 
