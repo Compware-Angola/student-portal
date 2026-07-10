@@ -92,10 +92,8 @@ export function LoginForm({ setView, showRegister }: LoginFormProps) {
     setSubmitting(true);
 
     const credentials = { ...data, platform: "PORTAL" };
-
     authMutation.mutate(credentials, {
       onSuccess: (response: any) => {
-        // Se a API indicar primeiro acesso, muda para o sub-passo
         if (response?.user.password_reset_required) {
           setIsFirstAccess(true);
           setSubmitting(false);

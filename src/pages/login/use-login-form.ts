@@ -32,6 +32,7 @@ export function useLoginForm() {
       }
 
       const response = await login(credentials)
+      console.log({response})
 
       AuthStorage.save({
         codigoPreinscricao: response.user.codigopreinscricao,
