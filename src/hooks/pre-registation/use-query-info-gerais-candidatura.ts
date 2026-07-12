@@ -1,15 +1,16 @@
-import { type InfoGeraisCandidaturaResponse, getInfoGeraisCandidaturaService } from "@/services/pre-inscrition/fetch-info-gerais-candidatura.service";
-import { useQuery } from "@tanstack/react-query";
-
+import {
+  type InfoGeraisCandidaturaResponse,
+  getInfoGeraisCandidaturaService,
+} from '@/services/pre-inscrition/fetch-info-gerais-candidatura.service'
+import { useQuery } from '@tanstack/react-query'
 
 export const useQueryInfoGeraisCandidatura = (options?: {
-  enabled?: boolean;
+  enabled?: boolean
 }) => {
-  const enabled =
-    typeof options?.enabled === "boolean" ? options.enabled : true;
+  const enabled = typeof options?.enabled === 'boolean' ? options.enabled : true
 
   return useQuery<InfoGeraisCandidaturaResponse>({
-    queryKey: ["info-gerais-candidatura"],
+    queryKey: ['info-gerais-candidatura'],
     queryFn: getInfoGeraisCandidaturaService,
     enabled,
     staleTime: 1000 * 60 * 5,
@@ -17,5 +18,5 @@ export const useQueryInfoGeraisCandidatura = (options?: {
     retry: 2,
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
-  });
-};
+  })
+}

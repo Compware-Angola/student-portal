@@ -37,7 +37,11 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     marginBottom: 14,
   },
-  logo: { width: 90, height: 90 },
+  logo: {
+    width: 150,
+    height: 63, // mantém a proporção real do logo (~2.4:1)
+    objectFit: 'contain', // suportado em versões recentes do react-pdf
+  },
   companyBlock: { alignItems: 'flex-end' },
   companyName: { fontSize: 13, fontFamily: 'Helvetica-Bold', color: NAVY },
   companyLine: { fontSize: 8.5, color: '#444', marginTop: 3 },
@@ -257,7 +261,11 @@ function EnrollmentSheetDocument({
             value={fmt(dados_pessoais.estado_civil)}
             alt
           />
-          <Field label="Género" value={fmt(dados_pessoais.sexo)} />
+          <Field
+            label="Género"
+            value={fmt(dados_pessoais.sexo == '1' ? 'Masculino' : 'Feminino')}
+            alt
+          />
           <Field label="E-mail" value={fmt(dados_pessoais.email)} alt />
           <Field
             label="Telefone"
@@ -419,7 +427,6 @@ export function EnrollmentSheet({
 }: {
   data: PreInscricaoFichaResponse | undefined
   showDownloadButton?: boolean
-
 }) {
   //const document = <EnrollmentSheetDocument data={data} />
 
@@ -442,7 +449,13 @@ export function EnrollmentSheet({
   return (
     <div className="flex items-center justify-end gap-2">
       {showDownloadButton && (
-        <Button type='button' disabled={!data}  onClick={() => handleDownload(data)} className="flex-1" aria-label="Descarregar PDF">
+        <Button
+          type="button"
+          disabled={!data}
+          onClick={() => handleDownload(data)}
+          className="flex-1"
+          aria-label="Descarregar PDF"
+        >
           <Download className="mr-2 h-4 w-4" />
           {!data ? 'A gerar...' : 'Descarregar Ficha'}
         </Button>
