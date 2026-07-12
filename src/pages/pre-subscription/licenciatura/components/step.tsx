@@ -1,4 +1,4 @@
-import { FileText, GraduationCap, Search, User } from 'lucide-react'
+import { FileText, GraduationCap, User } from 'lucide-react'
 import { PersonalDataKeys } from '../schemas/personal-data.schema'
 import { PersonalDetails } from './personal-details'
 import { AcademicData } from './academic-data'
@@ -7,14 +7,12 @@ import { DocumentKeys } from '../schemas/documents.schema'
 import { AcademicDocument } from './academic-document'
 import { ContactData } from './contact-data'
 import { ContactKeys } from '../schemas/contact-data.schema'
-import { SurveyData } from './survey-data'
-import { SurveyDataKeys } from '../schemas/survey-data.schema'
 import { ResumeDetails } from './resume-details'
 
 export const steps = [
   {
     id: 'personalData',
-    component: PersonalDetails,
+    component: PersonalDetails ,
     fields: PersonalDataKeys,
     number: 0,
     title: 'Dados Pessoais',
@@ -23,7 +21,7 @@ export const steps = [
   },
   {
     id: 'academicData',
-    component: AcademicData,
+    component: AcademicData ,
     fields: AcademicDataKeys,
     number: 1,
     title: 'Dados Académicos',
@@ -32,7 +30,7 @@ export const steps = [
   },
   {
     id: 'documents',
-    component: AcademicDocument,
+    component: AcademicDocument ,
     fields: DocumentKeys,
     number: 2,
     title: 'Dados da Candidatura',
@@ -41,28 +39,19 @@ export const steps = [
   },
   {
     id: 'contacts',
-    component: ContactData,
+    component: ContactData ,
     fields: ContactKeys,
     number: 3,
     title: 'Dados de Contactos',
     description: 'Informações sobre Dados da Contactos',
     icon: FileText,
-  },
-  {
-    id: 'survey',
-    component: SurveyData,
-    fields: SurveyDataKeys,
-    number: 4,
-    title: 'Inquérito',
-    description: 'Como você chegou até a Universidade Metodista?',
-    icon: Search,
     submitOnStep: true,
   },
   {
     id: 'resume',
-    component: ResumeDetails,
+    component: ResumeDetails ,
     fields: [],
-    number: 5,
+    number: 4,
     title: 'Resumo',
     description: 'Informações sobre Candidatura',
     icon: FileText,
