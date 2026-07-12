@@ -47,7 +47,6 @@ export const steps = [
     title: 'Dados de Contactos',
     description: 'Informações sobre Dados da Contactos',
     icon: FileText,
-    submitOnStep: true,
   },
   {
     id: 'survey',
@@ -57,6 +56,7 @@ export const steps = [
     title: 'Inquérito',
     description: 'Como você chegou até a Universidade Metodista?',
     icon: Search,
+    submitOnStep: true,
   },
   {
     id: 'resume',

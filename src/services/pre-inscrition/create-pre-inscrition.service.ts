@@ -21,6 +21,7 @@ export type PreInscricaoPayload = {
   poloId: number
   cursoOpcional1Id: number
   cursoOpcional2Id: number
+  inquerito: string
 }
 
 export type PreInscricaoResponse = {
@@ -33,9 +34,7 @@ export type PreInscricaoResponse = {
 
 import { gaApi } from '@/lib/ga-api'
 
-export async function createPreInscricao(
-  payload: PreInscricaoPayload,
-) {
+export async function createPreInscricao(payload: PreInscricaoPayload) {
   return gaApi
     .post('pre-inscricoes', {
       json: payload,

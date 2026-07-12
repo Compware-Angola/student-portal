@@ -1,4 +1,3 @@
-import { authApi } from '@/lib/auth-api'
 import { gaApi } from '@/lib/ga-api'
 
 type User = {

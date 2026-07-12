@@ -13,12 +13,14 @@ const howDidYouKnowValues = howDidYouKnowOptions.map((o) => o.value) as [
   ...string[],
 ]
 
-// objeto base, sem refine — usado pro merge no schema principal
 export const surveyDataSchema = z.object({
   howDidYouKnow: z.enum(howDidYouKnowValues, {
-    required_error: 'Selecione como conheceu a Universidade',
+    error: 'Selecione como conheceu a Universidade',
   }),
-  howDidYouKnowOther: z.string().optional(),
+  howDidYouKnowOther: z
+    .string()
+    .max(600, { message: 'Este campo deve ter no máximo 600 caracteres' })
+    .optional(),
 })
 
 // regra condicional exportada à parte, pra aplicar via .superRefine no schema final
