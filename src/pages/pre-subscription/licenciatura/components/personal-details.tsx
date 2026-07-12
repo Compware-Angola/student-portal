@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { useFormPreSubscriptionForm } from './form-provider'
 import { InputFormField } from '@/components/input-form-field'
 import { SelectFormField } from '@/components/selectFormField'
@@ -8,7 +7,6 @@ import { useQueryNecessidadesEspeciais } from '@/hooks/dropdowns/use-query-neces
 import { useQuerySex } from '@/hooks/dropdowns/use-query-sex'
 import { useQueryTipoDocumento } from '@/hooks/dropdowns/use-query-tipo-documento'
 import { RegisterAvatarSelector } from '@/pages/login/components/register-avatar-selector'
-import { useQueryUser } from '@/hooks/candidate/use-query-user'
 
 export function PersonalDetails() {
   const { form } = useFormPreSubscriptionForm()
@@ -17,35 +15,6 @@ export function PersonalDetails() {
   const { data: tipoNacionalidades } = useQueryNacionalidade()
   const { data: estadoCivil } = useQueryEstadoCivil()
   const { data: necessidadeEspeciais } = useQueryNecessidadesEspeciais()
-  const { data: user } = useQueryUser()
-
-  // Preenche os campos vindos do usuário assim que os dados chegam,
-  // sem sobrescrever o que já tiver sido digitado/alterado no form.
-  useEffect(() => {
-    if (!user) return
-
-    if (!form.getValues('fullName')) {
-      form.setValue('fullName', user.name, {
-        shouldValidate: true,
-        shouldDirty: false,
-      })
-    }
-
-    if (user.tipo_de_documento && !form.getValues('documentType')) {
-      form.setValue('documentType', String(user.tipo_de_documento), {
-        shouldDirty: false,
-      })
-    }
-
-    if (user.numero_documento && !form.getValues('documentNumber')) {
-      form.setValue('documentNumber', user.numero_documento, {
-        shouldDirty: false,
-      })
-    }
-  }, [user, form])
-
-  // form.setValue('documentType', '1')
-
   const documentoOptions =
     tipoDocumentos?.map((t) => ({
       label: t.designacao,
@@ -72,7 +41,6 @@ export function PersonalDetails() {
       label: t.label,
       value: String(t.value),
     })) ?? []
-
   return (
     <>
       <RegisterAvatarSelector
@@ -89,7 +57,6 @@ export function PersonalDetails() {
         name="fullName"
         label="Nome Completo"
         placeholder="Digite o nome completo"
-        disabled
       />
 
       {/* Data de nascimento e género */}
@@ -156,14 +123,12 @@ export function PersonalDetails() {
           placeholder="Selecione"
           items={documentoOptions}
           fullWidth
-          disabled
         />
         <InputFormField
           control={form.control}
           name="documentNumber"
           label="Número do Documento"
           placeholder="Digite o número"
-          disabled
         />
       </div>
 

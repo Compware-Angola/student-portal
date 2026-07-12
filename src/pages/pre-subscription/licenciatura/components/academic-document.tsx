@@ -6,7 +6,7 @@ import { usePoloDropdown } from '@/hooks/dropdowns/use-query-polo'
 import { FileInput } from '@/components/input-file'
 
 export function AcademicDocument() {
-  const { form } = useFormPreSubscriptionForm()
+  const { form, } = useFormPreSubscriptionForm()
   //OPCIONAIS
   const { data: courses } = useCursos()
 
@@ -30,7 +30,6 @@ export function AcademicDocument() {
       value: String(t.id),
     })) ?? []
 
-  // form.setValue('pole', '1')
   return (
     <>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
