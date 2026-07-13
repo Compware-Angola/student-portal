@@ -85,6 +85,7 @@ export function FormPreSubscriptionPostGraduateProvider({
       documentos: docs,
       codigoNacionalidade: Number(data.codigoNacionalidade),
       codigoTipoCandidatura: Number(data.intendedGraduation),
+      inquerito: data.howDidYouKnow,
     }
   }
 
@@ -113,6 +114,7 @@ export function FormPreSubscriptionPostGraduateProvider({
       phoneAlt: '',
       street: '',
       codigoNacionalidade: '',
+      howDidYouKnow: '',
     },
     mode: 'onChange',
   })
