@@ -77,8 +77,8 @@ export type Invoice = {
   codigo_preinscricao: string | null
   numSequenciaFactura: number
   tipo_documento_factura_id: number
-  NomeCompleto: string
-  BI_Aluno: string
+  nome_completo_aluno: string
+  bi_aluno: string
   EmailAluno: string | null
   Contactos_Telefonicos: string
   Data_Nascimento: string // ISO string

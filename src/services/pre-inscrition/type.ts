@@ -74,7 +74,7 @@ export interface Candidatura {
   codigo_preinscricao: number
   data_candidatura: string
   data_ultima_atualizacao: string
-  estado: number
+  estado: string
   estado_candidato: string
   permitir_inscricao: boolean
   canal: number

@@ -14,6 +14,7 @@ export type PreInscricaoPayload = {
   email: string
   instituicaoFormacaoAcesso?: number
   dataConclusao: string
+  cursoFormacao: string
   mediaFinal: number
   pai: string
   mae: string

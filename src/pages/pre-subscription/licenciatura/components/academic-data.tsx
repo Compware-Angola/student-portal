@@ -50,13 +50,23 @@ export function AcademicData() {
 
   return (
     <>
-      <InputFormField
-        label="Instituição de Ensino"
-        control={form.control}
-        name="previousSchool"
-        placeholder="Nome da escola"
-        type="text"
-      />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <InputFormField
+          label="Instituição de Ensino"
+          control={form.control}
+          name="previousSchool"
+          placeholder="Nome da escola"
+          type="text"
+        />
+
+        <InputFormField
+          label="Curso do Ensino Médio"
+          control={form.control}
+          name="previousCourse"
+          placeholder="Nome do curso"
+          type="text"
+        />
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <InputFormField
           label="Ano de Conclusão"

@@ -187,16 +187,23 @@ export function DetailedInvoiceStyledPDF({
   return (
     <Document>
       <Page size="A4" style={S.page}>
-
         {/* ── CABEÇALHO ── */}
         <View style={S.header}>
           <Image style={S.logo} src="/logo_uma.png" />
           <View style={S.headerRight}>
             <Text style={S.orgName}>Universidade Metodista de Angola</Text>
-            <Text style={S.orgDecree}>(Aprovado pelo Decreto nº 30/07 de 07/05)</Text>
-            <Text style={S.orgDetail}>Rua Nossa Senhora da Muxima Nº 10, Bairro Kinaxixi, Luanda</Text>
-            <Text style={S.orgDetail}>Telefone: +244 912131138 / +244 947716133 / +244 942364667</Text>
-            <Text style={S.orgDetail}>NIF: 5401150865  |  Email: geral@uma.co.ao</Text>
+            <Text style={S.orgDecree}>
+              (Aprovado pelo Decreto nº 30/07 de 07/05)
+            </Text>
+            <Text style={S.orgDetail}>
+              Rua Nossa Senhora da Muxima Nº 10, Bairro Kinaxixi, Luanda
+            </Text>
+            <Text style={S.orgDetail}>
+              Telefone: +244 912131138 / +244 947716133 / +244 942364667
+            </Text>
+            <Text style={S.orgDetail}>
+              NIF: 5401150865 | Email: geral@uma.co.ao
+            </Text>
           </View>
         </View>
 
@@ -240,11 +247,43 @@ export function DetailedInvoiceStyledPDF({
         {/* ── TABELA ── */}
         <View style={S.tableContainer}>
           <View style={S.tableHeaderRow}>
-            <Text style={[S.tableHeaderCell, { width: COL_SERVICE }]}>Serviço</Text>
-            <Text style={[S.tableHeaderCell, { width: COL_REF, textAlign: 'center' }]}>Referência</Text>
-            <Text style={[S.tableHeaderCell, { width: COL_QTY, textAlign: 'center' }]}>Qtd</Text>
-            <Text style={[S.tableHeaderCell, { width: COL_MULTA, textAlign: 'right' }]}>Multa</Text>
-            <Text style={[S.tableHeaderCell, { width: COL_SUBTOTAL, textAlign: 'right', borderRightWidth: 0 }]}>
+            <Text style={[S.tableHeaderCell, { width: COL_SERVICE }]}>
+              Serviço
+            </Text>
+            <Text
+              style={[
+                S.tableHeaderCell,
+                { width: COL_REF, textAlign: 'center' },
+              ]}
+            >
+              Referência
+            </Text>
+            <Text
+              style={[
+                S.tableHeaderCell,
+                { width: COL_QTY, textAlign: 'center' },
+              ]}
+            >
+              Qtd
+            </Text>
+            <Text
+              style={[
+                S.tableHeaderCell,
+                { width: COL_MULTA, textAlign: 'right' },
+              ]}
+            >
+              Multa
+            </Text>
+            <Text
+              style={[
+                S.tableHeaderCell,
+                {
+                  width: COL_SUBTOTAL,
+                  textAlign: 'right',
+                  borderRightWidth: 0,
+                },
+              ]}
+            >
               Subtotal
             </Text>
           </View>
@@ -253,13 +292,33 @@ export function DetailedInvoiceStyledPDF({
             const RowStyle = i % 2 === 0 ? S.tableRow : S.tableRowAlt
             return (
               <View key={i} style={RowStyle}>
-                <Text style={[S.tableCell, { width: COL_SERVICE }]}>{item.SERVICO}</Text>
-                <Text style={[S.tableCell, { width: COL_REF, textAlign: 'center' }]}>{item.REFERENCIA}</Text>
-                <Text style={[S.tableCell, { width: COL_QTY, textAlign: 'center' }]}>{item.QUANTIDADE}</Text>
-                <Text style={[S.tableCell, { width: COL_MULTA, textAlign: 'right' }]}>
+                <Text style={[S.tableCell, { width: COL_SERVICE }]}>
+                  {item.SERVICO}
+                </Text>
+                <Text
+                  style={[S.tableCell, { width: COL_REF, textAlign: 'center' }]}
+                >
+                  {item.REFERENCIA}
+                </Text>
+                <Text
+                  style={[S.tableCell, { width: COL_QTY, textAlign: 'center' }]}
+                >
+                  {item.QUANTIDADE}
+                </Text>
+                <Text
+                  style={[
+                    S.tableCell,
+                    { width: COL_MULTA, textAlign: 'right' },
+                  ]}
+                >
                   {item.MULTA.toLocaleString('pt-AO')} Kz
                 </Text>
-                <Text style={[S.tableCellLast, { width: COL_SUBTOTAL, textAlign: 'right' }]}>
+                <Text
+                  style={[
+                    S.tableCellLast,
+                    { width: COL_SUBTOTAL, textAlign: 'right' },
+                  ]}
+                >
                   {item.TOTAL.toLocaleString('pt-AO')} Kz
                 </Text>
               </View>
@@ -267,7 +326,9 @@ export function DetailedInvoiceStyledPDF({
           })}
 
           <View style={S.tableTotalRow}>
-            <Text style={[S.tableTotalLabel, { width: '80%' }]}>Total Geral</Text>
+            <Text style={[S.tableTotalLabel, { width: '80%' }]}>
+              Total Geral
+            </Text>
             <Text style={[S.tableTotalValue, { width: COL_SUBTOTAL }]}>
               {totalGeral.toLocaleString('pt-AO')} Kz
             </Text>
@@ -278,17 +339,20 @@ export function DetailedInvoiceStyledPDF({
         <View style={S.nonFiscalBox}>
           <Text style={S.nonFiscalTitle}>Documento Não Fiscal</Text>
           <Text style={S.nonFiscalText}>
-            Este documento serve apenas como comprovativo informativo. Não possui validade
-            fiscal para efeitos contabilísticos.
+            Este documento serve apenas como comprovativo informativo. Não
+            possui validade fiscal para efeitos contabilísticos.
           </Text>
         </View>
 
         {/* ── RODAPÉ ── */}
         <View style={S.pageFooter} fixed>
-          <Text style={S.footerText}>Recibo nº {studentPayment.CodigoFactura}</Text>
+          <Text style={S.footerText}>
+            Recibo nº {studentPayment.CodigoFactura}
+          </Text>
           <Text style={S.footerText}>Emitido em {emittedAt}</Text>
           <Text style={S.footerText}>
-            Documento emitido automaticamente — UMA © {new Date().getFullYear()}
+            Documento emitido automaticamente — UMA ©{' '}
+            {new Date().getFullYear()}
           </Text>
         </View>
       </Page>

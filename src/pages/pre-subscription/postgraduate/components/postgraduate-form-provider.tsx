@@ -36,7 +36,7 @@ export function FormPreSubscriptionPostGraduateProvider({
   children: React.ReactNode
 }) {
   const [currentStep, setCurrentStep] = React.useState(0)
-  const progress = (currentStep / steps.length) * 100
+  const progress = (currentStep + 1 / steps.length) * 100
   const { createPreInscricaoAsync, createPreInscricaoPending } =
     useMutationPreInscricao()
 

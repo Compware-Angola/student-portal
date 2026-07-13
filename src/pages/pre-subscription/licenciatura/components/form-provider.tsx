@@ -33,7 +33,7 @@ export function FormPreSubscriptionProvider({
   children: React.ReactNode
 }) {
   const [currentStep, setCurrentStep] = React.useState(0)
-  const progress = (currentStep / steps.length) * 100
+  const progress = ((currentStep + 1) / steps.length) * 100
   const { createPreInscricaoAsync, createPreInscricaoPending } =
     useMutationPreInscricao()
 
@@ -73,6 +73,7 @@ export function FormPreSubscriptionProvider({
       moradaCompleta: data.street,
       email: data.email,
       instituicaoFormacao: data.previousSchool,
+      cursoFormacao: data.previousCourse,
       dataConclusao: data.graduationYear,
       mediaFinal: Number(data.averageGrade),
       pai: data.fatherName,
@@ -108,6 +109,7 @@ export function FormPreSubscriptionProvider({
       averageGrade: '0',
       graduationYear: '',
       previousSchool: '',
+      previousCourse: '',
       intendedCourse: '',
       intendedCourseSecond: '',
       intendedCourseThird: '',

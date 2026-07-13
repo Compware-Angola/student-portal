@@ -259,7 +259,8 @@ function PaymentReceiptDocument({
         {/* ---------- Dados do Estudante ---------- */}
         <View style={styles.section}>
           <Text style={styles.label}>Dados do Estudante</Text>
-          <Text>Nome: {invoice.NomeCompleto}</Text>
+          <Text>Nome: {invoice.nome_completo_aluno}</Text>
+          <Text>BI: {invoice.bi_aluno}</Text>
           <Text>Matrícula: {invoice.CodigoMatricula}</Text>
         </View>
 

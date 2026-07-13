@@ -39,8 +39,9 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: 150,
-    height: 63, // mantém a proporção real do logo (~2.4:1)
-    objectFit: 'contain', // suportado em versões recentes do react-pdf
+    height: 63,
+    objectFit: 'contain',
+    marginLeft: -15,
   },
   companyBlock: { alignItems: 'flex-end' },
   companyName: { fontSize: 13, fontFamily: 'Helvetica-Bold', color: NAVY },
@@ -370,7 +371,10 @@ function EnrollmentSheetDocument({
           />
           <Field
             label="Estado do Candidato"
-            value={candidatura.estado_candidato}
+            value={fmt(
+              candidatura.estado == '1' ? 'ACTIVO' : candidatura.estado,
+            )}
+            alt
           />
         </SectionBlock>
 

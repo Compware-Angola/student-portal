@@ -1,4 +1,3 @@
-/*
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Receipt } from 'lucide-react'
@@ -6,8 +5,6 @@ import { useFinance } from '../hooks/use-finance'
 
 export function ServicesList() {
   const { payments, getStatusBadge, handleGenerateReference } = useFinance()
-
-
 
   // Vou listar Todos os pagamentos como "Serviços"
 
@@ -54,4 +51,3 @@ export function ServicesList() {
     </Card>
   )
 }
-  */
