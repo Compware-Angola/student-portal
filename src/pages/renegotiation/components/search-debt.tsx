@@ -59,7 +59,7 @@ export function SearchDebt({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Search className="h-5 w-5" />
-          Buscar Dívidas em Aberto
+          Negociação de Dívidas em Aberto
         </CardTitle>
         <CardDescription>
           Informe seus dados para consultar as dívidas pendentes
