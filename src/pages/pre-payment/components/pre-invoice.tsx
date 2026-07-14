@@ -291,7 +291,7 @@ function InvoiceDetailsDialog({
                       )}
                     </div>
                   </div>
-                  <div className="absolute top-4 right-4">
+                  <div className="absolute bottom-4 right-4">
                     <InvoiceStatusBadge status={item.estado} />
                   </div>
                 </Card>

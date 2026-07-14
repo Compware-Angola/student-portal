@@ -207,6 +207,10 @@ function PaymentReceiptDocument({
             <Text>
               <Text style={styles.label}>Codigo:</Text> {invoice.Codigo}
             </Text>
+            <Text>
+              <Text style={styles.label}>Estado:</Text>{' '}
+              {invoice.estado == 1 ? 'Pago' : 'Pendente'}
+            </Text>
           </View>
 
           <View style={styles.infoRow}>
@@ -236,27 +240,33 @@ function PaymentReceiptDocument({
 
         {/* ---------- Dados do Estudante ---------- */}
         <View style={styles.section}>
-          <Text style={styles.label}>Dados do Estudante</Text>
-          <Text>Nome: {invoice.nome_completo_aluno}</Text>
-          <Text>BI: {invoice.bi_aluno}</Text>
-          <Text>Matrícula: {invoice.CodigoMatricula}</Text>
+          <Text style={styles.label}>
+            Dados do {invoice.CodigoMatricula ? 'Estudante' : 'Candidato'}{' '}
+          </Text>
+          <Text>Nome: {invoice.NomeCompleto}</Text>
+          <Text>BI: {invoice.BI}</Text>
+          {invoice.CodigoMatricula && (
+            <Text>Matrícula: {invoice.CodigoMatricula}</Text>
+          )}
         </View>
 
         {/* ---------- Dados de Pagamento ---------- */}
-        <View style={styles.paymentBox}>
-          <Text style={styles.paymentTitle}>DADOS PARA PAGAMENTO</Text>
-          <View style={styles.paymentInfo}>
-            <Text>
-              Entidade: {invoice.referencias_pagamento[0]?.ENTITY_ID || '10065'}
-            </Text>
-            <Text>
-              Referência:{' '}
-              {invoice.referencias_pagamento[0]?.REFERENCE ||
-                invoice.Referencia}
-            </Text>
+        {invoice.estado != 1 && (
+          <View style={styles.paymentBox}>
+            <Text style={styles.paymentTitle}>DADOS PARA PAGAMENTO</Text>
+            <View style={styles.paymentInfo}>
+              <Text>
+                Entidade:{' '}
+                {invoice.referencias_pagamento[0]?.ENTITY_ID || '10065'}
+              </Text>
+              <Text>
+                Referência:{' '}
+                {invoice.referencias_pagamento[0]?.REFERENCE ||
+                  invoice.Referencia}
+              </Text>
+            </View>
           </View>
-        </View>
-
+        )}
         {/* ---------- Tabela de itens ---------- */}
         <View style={styles.table}>
           <View style={[styles.tableRow, styles.tableHeader]}>
@@ -311,7 +321,7 @@ function PaymentReceiptDocument({
                 ? `Total pago: ${Number(invoice.TotalPreco).toFixed(2)} Kz`
                 : `Valor: ${Number(invoice.TotalPreco).toFixed(2)} Kz`}
           </Text>
-          <Text>({invoice.ValorAPagarExtenso})</Text>
+          {/* <Text>({invoice.ValorAPagarExtenso})</Text> */}
         </View>
         <View style={styles.nonFiscalBox}>
           <Text style={styles.nonFiscalTitle}>Documento Não Fiscal</Text>

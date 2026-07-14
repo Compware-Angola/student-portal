@@ -30,7 +30,7 @@ export function AcademicDocument() {
       value: String(t.id),
     })) ?? []
 
-  form.setValue('pole', '1')
+  // form.setValue('pole', '1')
   return (
     <>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
