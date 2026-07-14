@@ -21,14 +21,16 @@ type PaymentDialogProps = {
   onOpenChange?(open: boolean): void
 }
 
-const presetTypeService = (code: number) => {
-  if (code === 1) return SERVICE_TYPES.TAXA_EXAME_ADMISSAO
-  if (code === 2 || code === 3)
-    return SERVICE_TYPES.TAXA_INSCRICAO_MESTRADOS_POS_GRADUACAO
+const presetTypeService = (code:number)=> {
+
+  if(code ===1) return SERVICE_TYPES.TAXA_EXAME_ADMISSAO
+  if(code === 2 || code === 3) return SERVICE_TYPES.TAXA_INSCRICAO_MESTRADOS_POS_GRADUACAO
   throw new Error('Invalid code')
 }
+  
 
 export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
+
   const { profileData } = useQueryProfile()
 
   const { data: currentAcademicYear } = useQueryCurrentAcademicYear()
@@ -37,10 +39,11 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
   const queryClient = useQueryClient()
   const { data: taxaAdmissao } = useTypeServiceSingle({
     currentYearCode: Number(currentAcademicYear?.codigo),
-
+    
     ...presetTypeService(Number(profileData?.codigo_tipo_candidatura)),
   })
 
+  
   function createItem(serviceType: TypeServiceResponse | null) {
     if (!serviceType) return null
     const MAX_OBS_LENGTH = 45
@@ -75,7 +78,7 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
       if (!totalApagar || !item) return
 
       const invoice: CreateInvoiceBody = {
-        polo_id: profileData?.poloid ?? 1,
+        polo_id: profileData?.poloid?? 1,
         TotalPreco: totalApagar,
         codigo_descricao: 101,
         ValorAPagar: totalApagar,
@@ -86,9 +89,7 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
         Desconto: 0,
         totalIVA: 0,
         TotalMulta: 0,
-        Descricao: presetTypeService(
-          Number(profileData?.codigo_tipo_candidatura),
-        ).description.substring(0, 44),
+        Descricao: presetTypeService(Number(profileData?.codigo_tipo_candidatura)).description.substring(0, 44),
         tipo_documento_factura_id: 1,
         canal: 3,
         DataFactura: now.toISOString(),
@@ -114,7 +115,7 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
             Declaro que todas as informações a serem prestadas no acto de envio
             de pagamento são verdadeiros e{' '}
             <span className="font-semibold">
-              comprometo-me em assumir qualquer responsabilidade jurídica caso
+              comprometo-me em assumir qualquer responsabilidade juridica caso
               preste alguma informação falsa!
             </span>
           </p>
