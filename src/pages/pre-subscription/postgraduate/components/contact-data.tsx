@@ -6,9 +6,10 @@ import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 export function ContactDataPostGraduate() {
   const { form } = useFormPreSubscriptionPostGraduateForm()
   const { profileData } = useQueryProfile()
- useEffect(() => {
+  useEffect(() => {
     if (!profileData) return
     form.setValue('email', profileData.email)
+    form.setValue('phone', profileData.telefone)
   }, [profileData, form])
   return (
     <>
@@ -26,6 +27,7 @@ export function ContactDataPostGraduate() {
           label="Telefone"
           control={form.control}
           name="phone"
+          disabled
           placeholder="Telefone"
           type="text"
         />

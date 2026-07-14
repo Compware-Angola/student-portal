@@ -36,10 +36,9 @@ export function FormPreSubscriptionPostGraduateProvider({
   children: React.ReactNode
 }) {
   const [currentStep, setCurrentStep] = React.useState(0)
-  const progress = (currentStep + 1 / steps.length) * 100
+  const progress = ((currentStep + 1) / steps.length) * 100
   const { createPreInscricaoAsync, createPreInscricaoPending } =
     useMutationPreInscricao()
-
   const uploadMutation = useUploadSingle()
   const isLoadingPreInscription =
     createPreInscricaoPending || uploadMutation.isPending
@@ -179,7 +178,9 @@ export function FormPreSubscriptionPostGraduateProvider({
       try {
         await form.handleSubmit(async (data) => {
           await onSubmit(data)
-          setCurrentStep((prev) => prev + 1)
+          if (currentStep < steps.length - 1) {
+            setCurrentStep((prev) => prev + 1)
+          }
         })()
       } catch (error: any) {
         toast.error(error?.message || 'Erro ao fazer a pre inscrição.')

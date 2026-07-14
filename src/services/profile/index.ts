@@ -23,6 +23,7 @@ export interface StudentProfile {
   email: string
   telefone: string
   numero_documento: string | null
+  tipo_documento: string | null
   grau_academico: 'Mestrado' | 'Doutoramento' | 'Licenciatura'
   codigo_preinscricao: number
 

@@ -291,29 +291,28 @@ function EnrollmentSheetDocument({
             value={fmt(dados_pessoais.necessidade_especial)}
           />
         </SectionBlock>
-
-        {/* ── Dados Académicos ── */}
-        <SectionBlock title="Dados Académicos">
-          <Field
-            label="Média Final do Curso"
-            value={formacao_anterior?.media_final ?? '-'}
-          />
-          <Field
-            label="Data de Conclusão"
-            value={fmt(formacao_anterior?.data_conclusao)}
-            alt
-          />
-          <Field
-            label="Instituição de Provenência"
-            value={fmt(formacao_anterior?.instituicao_formacao)}
-          />
-          <Field
-            label="Curso de Ensino Médio"
-            value={fmt(formacao_anterior?.curso_ensino_medio)}
-            alt
-          />
-        </SectionBlock>
-
+        {candidatura.codigo_tipo_candidatura == 1 && (
+          <SectionBlock title="Dados Académicos">
+            <Field
+              label="Média Final do Curso"
+              value={formacao_anterior?.media_final ?? '-'}
+            />
+            <Field
+              label="Data de Conclusão"
+              value={fmt(formacao_anterior?.data_conclusao)}
+              alt
+            />
+            <Field
+              label="Instituição de Provenência"
+              value={fmt(formacao_anterior?.instituicao_formacao)}
+            />
+            <Field
+              label="Curso de Ensino Médio"
+              value={fmt(formacao_anterior?.curso_ensino_medio)}
+              alt
+            />
+          </SectionBlock>
+        )}
         {/* ── Dados da Candidatura ── */}
         <SectionBlock title="Dados da Candidatura">
           {/* Tabela de opções */}
