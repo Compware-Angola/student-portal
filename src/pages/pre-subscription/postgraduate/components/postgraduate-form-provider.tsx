@@ -58,9 +58,9 @@ export function FormPreSubscriptionPostGraduateProvider({
   }
 
   function buildInscricaoPayload(data: any, docs: any) {
-    console.log({ data: data.typeGraduation })
     return {
       cursoCandidatura: Number(data.intendedCourse),
+      cursoFormacao: data.typeGraduation,
       modalidadeFrequencia: 2,
       codigoTurno: parseInt(data.period),
       codigoTurnoOptional: parseInt(data.periodSecondOption),

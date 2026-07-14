@@ -400,14 +400,11 @@ function PaymentReferenceDocument({ invoice }: { invoice: Invoice }) {
 
           <View style={styles.referenceRow}>
             <Text style={styles.referenceLabel}>Entidade:</Text>
-            <Text style={styles.referenceValue}>{invoice.entidade || '—'}</Text>
           </View>
 
           <View style={styles.referenceRow}>
             <Text style={styles.referenceLabel}>Referência:</Text>
-            <Text style={styles.referenceValue}>
-              {invoice.referenciaPagamento || invoice.Referencia}
-            </Text>
+            <Text style={styles.referenceValue}></Text>
           </View>
 
           <View style={styles.referenceRow}>
@@ -459,7 +456,7 @@ export function PaymentReceipt2({
     <div className="flex flex-wrap gap-3 pt-4">
       <PDFDownloadLink
         document={cashDocument}
-        fileName={`Nota_de_pagamento_UMA_${invoice.Codigo}.pdf`}
+        fileName={`Nota_de_pagamento_UMA_${academicYear}_${invoice.Codigo}.pdf`}
       >
         {({ loading }) => (
           <Button
@@ -488,7 +485,7 @@ export function PaymentReceipt2({
       {isReferencePaymentEnabled ? (
         <PDFDownloadLink
           document={referenceDocument}
-          fileName={`Nota_de_pagamento_Referencia_UMA_${invoice.Codigo}.pdf`}
+          fileName={`Nota_de_pagamento_Referencia_UMA_${academicYear}_${invoice.Codigo}.pdf`}
         >
           {({ loading }) => (
             <Button

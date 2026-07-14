@@ -316,12 +316,16 @@ function InvoiceDetailsDialog({
             {invoice.estado === 1 ? (
               <PaymentReceipt
                 invoice={invoice}
-                academicYear={findAcademicYearDesignation(invoice?.ano_lectivo)}
+                academicYear={findAcademicYearDesignation(
+                  Number(invoice?.ano_lectivo),
+                )}
               />
             ) : (
               <PaymentReceipt2
                 invoice={invoice}
-                academicYear={findAcademicYearDesignation(invoice?.ano_lectivo)}
+                academicYear={findAcademicYearDesignation(
+                  Number(invoice?.ano_lectivo),
+                )}
               />
             )}
           </div>
@@ -721,7 +725,9 @@ const ActionCell = ({
       ) : (
         <PaymentReceipt
           invoice={invoice}
-          academicYear={findAcademicYearDesignation(invoice?.ano_lectivo)}
+          academicYear={findAcademicYearDesignation(
+            Number(invoice?.ano_lectivo),
+          )}
           showPrintButton={true}
         />
       )}
