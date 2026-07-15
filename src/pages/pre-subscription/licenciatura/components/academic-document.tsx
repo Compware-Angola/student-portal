@@ -117,7 +117,11 @@ export function AcademicDocument() {
             required
             accept=".pdf"
             maxSizeMB={5}
-            error={form.formState.errors.publicUniversityDocument?.message}
+            error={
+              form.formState.errors.publicUniversityDocument?.message as
+                | string
+                | undefined
+            }
             onChange={(file) =>
               form.setValue('publicUniversityDocument', file!, {
                 shouldValidate: true,
