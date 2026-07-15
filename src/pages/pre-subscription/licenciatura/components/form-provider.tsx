@@ -89,6 +89,7 @@ export function FormPreSubscriptionProvider({
         data.howDidYouKnow === 'outros'
           ? data.howDidYouKnowOther
           : data.howDidYouKnow,
+      tentou_universidade_publica: Number(data.natureInscription),
     }
   }
 
@@ -123,6 +124,7 @@ export function FormPreSubscriptionProvider({
       typeGraduation: '',
       codigoNacionalidade: '',
       howDidYouKnow: '',
+      natureInscription: '',
     },
     mode: 'onChange',
   })
@@ -131,6 +133,7 @@ export function FormPreSubscriptionProvider({
     let photoPath: string | undefined = undefined
     let documentPath: string | undefined = undefined
     let certificatePath: string | undefined = undefined
+    let publicUniversityDocumentPath: string | undefined = undefined
     const docs = []
     if (data.photo) {
       photoPath = await uploadFile(data.photo)
@@ -153,6 +156,16 @@ export function FormPreSubscriptionProvider({
         fileName: certificatePath,
       })
     }
+    if (data.publicUniversityDocument) {
+      publicUniversityDocumentPath = await uploadFile(
+        data.publicUniversityDocument,
+      )
+      docs.push({
+        typeDocumentId: DocumentTypeEnum.UNIVERSIDADE_PUBLICA_DOC,
+        fileName: publicUniversityDocumentPath,
+      })
+    }
+
     const payload = buildInscricaoPayload(data, docs)
     await createPreInscricaoAsync(payload)
   }, [])

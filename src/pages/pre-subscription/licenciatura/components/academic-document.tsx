@@ -30,7 +30,14 @@ export function AcademicDocument() {
       value: String(t.id),
     })) ?? []
 
-  // form.setValue('pole', '1')
+  const natureInscriptionOptions = [
+    { label: 'Sim', value: '1' },
+    { label: 'Não', value: '0' },
+  ]
+
+  // observa o valor selecionado para renderizar o input condicional
+  const camePublicUniversity = form.watch('natureInscription')
+
   return (
     <>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -95,6 +102,30 @@ export function AcademicDocument() {
             })
           }
         />
+        <SelectFormField
+          name="natureInscription"
+          control={form.control}
+          placeholder="Selecione um valor"
+          fullWidth
+          label="Veio de uma Universidade Pública?"
+          items={natureInscriptionOptions}
+        />
+
+        {camePublicUniversity === '1' && (
+          <FileInput
+            label="Documento Comprovativo"
+            required
+            accept=".pdf"
+            maxSizeMB={5}
+            error={form.formState.errors.publicUniversityDocument?.message}
+            onChange={(file) =>
+              form.setValue('publicUniversityDocument', file!, {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+            }
+          />
+        )}
       </div>
     </>
   )
