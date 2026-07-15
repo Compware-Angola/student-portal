@@ -3,17 +3,18 @@ import { getPreInscricaoFicha } from '@/services/pre-inscrition/pre-inscrition.s
 import { useQuery } from '@tanstack/react-query'
 
 export function useQueryPreInscricaoFicha(userId: number | string) {
-    const { data, isLoading, error, isError } = useQuery<PreInscricaoFichaResponse>({
-        queryKey: ['pre-inscricao-ficha', userId],
-        queryFn: () => getPreInscricaoFicha({ userId }),
-        staleTime: Infinity,
-        retry: 0,
+  const { data, isLoading, error, isError } =
+    useQuery<PreInscricaoFichaResponse>({
+      queryKey: ['pre-inscricao-ficha', userId],
+      queryFn: () => getPreInscricaoFicha({ userId }),
+      staleTime: Infinity,
+      retry: 0,
     })
 
-    return {
-        data,
-        isLoading,
-        error,
-        isError,
-    }
+  return {
+    data,
+    isLoading,
+    error,
+    isError,
+  }
 }

@@ -40,9 +40,7 @@ export function InputFormField<T extends FieldValues>(
           <FormLabel>{label}</FormLabel>
           <FormControl>
             <div className="relative">
-              {Icon && (
-                <Icon  />
-              )}
+              {Icon && <Icon />}
 
               <Input
                 {...field}
@@ -51,7 +49,7 @@ export function InputFormField<T extends FieldValues>(
                 placeholder={placeholder}
                 type={inputType}
                 className={cn(
-                  "h-11 px-10 rounded-lg bg-slate-50 border-slate-200",
+                  'h-11 px-10 rounded-lg bg-slate-50 border-slate-200',
                   Icon ? 'pl-10' : '',
                   isPassword ? 'pr-10' : '',
                 )}

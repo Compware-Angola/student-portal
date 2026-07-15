@@ -32,7 +32,6 @@ export function AcademicDocumentPostGraduate() {
       }))
   }, [tipoCandidaturas, graduationTypeValue])
 
-
   const { data: courses } = useCursos(
     {
       tipoCandidaturaId: Number(form.watch('intendedGraduation')),
@@ -41,19 +40,18 @@ export function AcademicDocumentPostGraduate() {
   )
 
   useEffect(() => {
-    if (!profileData) return
-    form.setValue(
-      'intendedGraduation',
-      GRADUATION_TYPE[profileData.grau_academico as GraduationKey],
-    )
-  }, [profileData])
+    if (!profileData || !graduationTypeValue) return
+    form.setValue('intendedGraduation', graduationTypeValue, {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
+  }, [profileData, graduationTypeValue])
 
   const courseOptions =
     courses?.map((t) => ({
       label: t.designacao,
       value: String(t.codigo),
     })) ?? []
-
 
   const { data: periods } = useQueryPeriod()
 
@@ -70,16 +68,18 @@ export function AcademicDocumentPostGraduate() {
         placeholder="Tipo de Candidatura"
         control={form.control}
         fullWidth
+        disabled
         label="Tipo de Candidatura"
         items={tipoCandidaturaOptions}
       />
+
       <SelectFormField
         name="intendedCourse"
         placeholder="Selecione Curso"
         control={form.control}
         fullWidth
         label="Curso Pretendido"
-        disabled={!Boolean(Number(form.watch('intendedGraduation')))}
+        disabled={!Number(form.watch('intendedGraduation'))}
         items={courseOptions}
       />
 

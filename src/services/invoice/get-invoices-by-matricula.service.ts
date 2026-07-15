@@ -46,10 +46,10 @@ export type Invoice = {
   Codigo: number
   DataFactura: string
   TotalPreco: number
-  CodigoMatricula: number
+  CodigoMatricula: number | null
   Referencia: string
   Desconto: number
-  Troco: number
+  Troco: number | null
   polo: string
   totalIVA: number
   TotalMulta: number
@@ -57,7 +57,7 @@ export type Invoice = {
   total_retencao: number
   ValorAPagar: number
   ValorEntregue: number
-  ValorAPagarExtenso: string
+  ValorAPagarExtenso: string | null
   Descricao: string
   ValorEntregueMltCX: number
   codigo_descricao: string | null
@@ -71,17 +71,17 @@ export type Invoice = {
   contaCorrente: string | null
   faturaReference: string | null
   canal: number
-  ano_lectivo: number
+  ano_lectivo: string // <- era number, agora string ("2025-2026")
   estado: number
   corrente: number
   codigo_preinscricao: string | null
   numSequenciaFactura: number
   tipo_documento_factura_id: number
-  NomeCompleto: string
-  BI_Aluno: string
-  EmailAluno: string | null
-  Contactos_Telefonicos: string
-  Data_Nascimento: string // ISO string
+  NomeCompleto: string // <- era nome_completo_aluno
+  BI: string // <- era bi_aluno
+  Email: string | null // <- era EmailAluno
+  Contactos: string // <- era Contactos_Telefonicos
+  DataNascimento: string // <- era Data_Nascimento
   itens: ItemFatura[]
   referencias_pagamento: ReferenciaPagamento[]
 }

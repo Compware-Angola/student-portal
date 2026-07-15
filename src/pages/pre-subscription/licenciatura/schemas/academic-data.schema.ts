@@ -2,6 +2,7 @@ import z from 'zod'
 
 export const academicDataSchema = z.object({
   previousSchool: z.string().min(1, 'Escola anterior é obrigatória'),
+  previousCourse: z.string().min(1, 'Curso anterior é obrigatória'),
   graduationYear: z.string().min(1, 'Ano de conclusão é obrigatório'),
   typeGraduation: z.string().min(1, 'Tipo de documento é obrigatório'),
   certificate: z.instanceof(File, {

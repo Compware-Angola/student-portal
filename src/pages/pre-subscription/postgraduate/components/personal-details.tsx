@@ -1,16 +1,15 @@
-import { useQueryProfile } from "@/hooks/profile/use-query-profile"
+import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 
-import { useQueryTipoDocumento } from "@/hooks/dropdowns/use-query-tipo-documento"
-import { useQuerySex } from "@/hooks/dropdowns/use-query-sex"
-import { useQueryNacionalidade } from "@/hooks/dropdowns/use-query-nacionalidade"
-import { useQueryEstadoCivil } from "@/hooks/dropdowns/use-query-estado-civil"
-import { useQueryNecessidadesEspeciais } from "@/hooks/dropdowns/use-query-necessidade-especial"
-import { useEffect } from "react"
-import { RegisterAvatarSelector } from "@/pages/login/components/register-avatar-selector"
-import { InputFormField } from "@/components/input-form-field"
-import { SelectFormField } from "@/components/selectFormField"
-import { useFormPreSubscriptionPostGraduateForm } from "./hook"
-
+import { useQueryTipoDocumento } from '@/hooks/dropdowns/use-query-tipo-documento'
+import { useQuerySex } from '@/hooks/dropdowns/use-query-sex'
+import { useQueryNacionalidade } from '@/hooks/dropdowns/use-query-nacionalidade'
+import { useQueryEstadoCivil } from '@/hooks/dropdowns/use-query-estado-civil'
+import { useQueryNecessidadesEspeciais } from '@/hooks/dropdowns/use-query-necessidade-especial'
+import { useEffect } from 'react'
+import { RegisterAvatarSelector } from '@/pages/login/components/register-avatar-selector'
+import { InputFormField } from '@/components/input-form-field'
+import { SelectFormField } from '@/components/selectFormField'
+import { useFormPreSubscriptionPostGraduateForm } from './hook'
 
 export function PersonalDetailsPostGraduate() {
   const { profileData } = useQueryProfile()
@@ -20,6 +19,8 @@ export function PersonalDetailsPostGraduate() {
   const { data: tipoNacionalidades } = useQueryNacionalidade()
   const { data: estadoCivil } = useQueryEstadoCivil()
   const { data: necessidadeEspeciais } = useQueryNecessidadesEspeciais()
+
+  console.table(profileData)
   const documentoOptions =
     tipoDocumentos?.map((t) => ({
       label: t.designacao,
@@ -28,6 +29,8 @@ export function PersonalDetailsPostGraduate() {
   useEffect(() => {
     if (!profileData) return
     form.setValue('fullName', profileData.fullName)
+    form.setValue('documentNumber', String(profileData.numero_documento))
+    form.setValue('documentType', String(profileData.tipo_documento))
   }, [profileData, form])
   const tipoSexoOptions =
     tipoSexos?.map((t) => ({
@@ -132,12 +135,14 @@ export function PersonalDetailsPostGraduate() {
           placeholder="Selecione"
           items={documentoOptions}
           fullWidth
+          disabled
         />
         <InputFormField
           control={form.control}
           name="documentNumber"
           label="Número do Documento"
           placeholder="Digite o número"
+          disabled
         />
       </div>
 
@@ -154,7 +159,6 @@ export function PersonalDetailsPostGraduate() {
           name="expirationDate"
           label="Data de Validade"
           type="date"
-
         />
       </div>
       <SelectFormField

@@ -8,10 +8,7 @@ import {
 } from '@/components/ui/card'
 import { Form } from '@/components/ui/form'
 import { SpepNavigation } from './components/spep-navigation'
-import {
-  FormPreSubscriptionPostGraduateProvider,
-
-} from './components/postgraduate-form-provider'
+import { FormPreSubscriptionPostGraduateProvider } from './components/postgraduate-form-provider'
 import { useFormPreSubscriptionPostGraduateForm } from './components/hook'
 
 export function PreSubscriptionPostgraduate() {
@@ -33,7 +30,7 @@ export function PreSubscriptionPostgraduate() {
 function Postgraduate() {
   const { steps, currentStep, form, onSubmit } =
     useFormPreSubscriptionPostGraduateForm()
-    const StepComponent = steps[currentStep].component
+  const StepComponent = steps[currentStep].component
   return (
     <>
       <ProgressBar />

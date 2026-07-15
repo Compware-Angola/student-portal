@@ -33,7 +33,7 @@ export function FormPreSubscriptionProvider({
   children: React.ReactNode
 }) {
   const [currentStep, setCurrentStep] = React.useState(0)
-  const progress = (currentStep / steps.length) * 100
+  const progress = ((currentStep + 1) / steps.length) * 100
   const { createPreInscricaoAsync, createPreInscricaoPending } =
     useMutationPreInscricao()
 
@@ -43,10 +43,10 @@ export function FormPreSubscriptionProvider({
   const currentStepConfig = steps[currentStep]
 
   const updateStudentPhoto = useUpdateStudentPhoto({
-    skipInvalidate: true
-  });
+    skipInvalidate: true,
+  })
 
-  const {profileData} = useQueryProfile()
+  const { profileData } = useQueryProfile()
 
   const uploadFile = async (data: File) => {
     const formData = new FormData()
@@ -59,8 +59,8 @@ export function FormPreSubscriptionProvider({
     return {
       cursoCandidatura: Number(data.intendedCourse),
       modalidadeFrequencia: 2,
-      codigoTurno: parseInt (data.period),
-      codigoTurnoOptional:parseInt(data.periodSecondOption),
+      codigoTurno: parseInt(data.period),
+      codigoTurnoOptional: parseInt(data.periodSecondOption),
       nomeCompleto: data.fullName,
       bilheteIdentidade: data.documentNumber,
       dataEmissaoBI: data.issueDate,
@@ -72,7 +72,8 @@ export function FormPreSubscriptionProvider({
       contactoDeEmergencia: data.phoneAlt || '',
       moradaCompleta: data.street,
       email: data.email,
-      instituicaoFormacao:data.previousSchool,
+      instituicaoFormacao: data.previousSchool,
+      cursoFormacao: data.previousCourse,
       dataConclusao: data.graduationYear,
       mediaFinal: Number(data.averageGrade),
       pai: data.fatherName,
@@ -83,7 +84,11 @@ export function FormPreSubscriptionProvider({
       cursoOpcional2Id: Number(data.intendedCourseThird),
       documentos: docs,
       codigoNacionalidade: Number(data.codigoNacionalidade),
-      codigoTipoCandidatura: Number(data.typeGraduation)
+      codigoTipoCandidatura: Number(data.typeGraduation),
+      inquerito:
+        data.howDidYouKnow === 'outros'
+          ? data.howDidYouKnowOther
+          : data.howDidYouKnow,
     }
   }
 
@@ -104,6 +109,7 @@ export function FormPreSubscriptionProvider({
       averageGrade: '0',
       graduationYear: '',
       previousSchool: '',
+      previousCourse: '',
       intendedCourse: '',
       intendedCourseSecond: '',
       intendedCourseThird: '',
@@ -115,7 +121,8 @@ export function FormPreSubscriptionProvider({
       phoneAlt: '',
       street: '',
       typeGraduation: '',
-      codigoNacionalidade: ''
+      codigoNacionalidade: '',
+      howDidYouKnow: '',
     },
     mode: 'onChange',
   })
@@ -123,56 +130,56 @@ export function FormPreSubscriptionProvider({
   const onSubmit = React.useCallback(async (data: PreSubscriptionSchema) => {
     let photoPath: string | undefined = undefined
     let documentPath: string | undefined = undefined
-    let certificatePath : string | undefined = undefined
-    let docs = []
+    let certificatePath: string | undefined = undefined
+    const docs = []
     if (data.photo) {
       photoPath = await uploadFile(data.photo)
-      updateStudentPhoto.mutateAsync({ file: photoPath, userId : profileData?.userId! }, {})
+      updateStudentPhoto.mutateAsync(
+        { file: photoPath, userId: profileData?.userId! },
+        {},
+      )
     }
     if (data.document) {
       documentPath = await uploadFile(data.document)
-      docs.push( {
+      docs.push({
         typeDocumentId: parseInt(data.documentType),
-        fileName: documentPath
+        fileName: documentPath,
       })
     }
     if (data.certificate) {
       certificatePath = await uploadFile(data.certificate)
-      docs.push( {
-        typeDocumentId :DocumentTypeEnum.CERTIFICADO_COM_NOTAS,
-        fileName: certificatePath
+      docs.push({
+        typeDocumentId: DocumentTypeEnum.CERTIFICADO_COM_NOTAS,
+        fileName: certificatePath,
       })
     }
-    const payload = buildInscricaoPayload(data,docs)
+    const payload = buildInscricaoPayload(data, docs)
     await createPreInscricaoAsync(payload)
   }, [])
 
- const handleNextOrSubmit = React.useCallback(async () => {
-  const valid = await form.trigger(currentStepConfig.fields, {
-    shouldFocus: true,
-  })
+  const handleNextOrSubmit = React.useCallback(async () => {
+    const valid = await form.trigger(currentStepConfig.fields, {
+      shouldFocus: true,
+    })
 
-  if (!valid) return
+    if (!valid) return
 
-   if (currentStepConfig.submitOnStep) {
-     try {
-      await form.handleSubmit(async (data) => {
-      await onSubmit(data)
-      setCurrentStep((prev) => prev + 1)
-    })()
-     } catch (error: any) {
-       toast.error(
-        error?.message ||
-          'Erro ao fazer a pre inscrição.',
-      )
+    if (currentStepConfig.submitOnStep) {
+      try {
+        await form.handleSubmit(async (data) => {
+          await onSubmit(data)
+          setCurrentStep((prev) => prev + 1)
+        })()
+      } catch (error: any) {
+        toast.error(error?.message || 'Erro ao fazer a pre inscrição.')
+      }
+      return
     }
-    return
-  }
 
-  if (!currentStepConfig.isSummary) {
-    setCurrentStep((prev) => prev + 1)
-  }
-}, [currentStep, form, onSubmit])
+    if (!currentStepConfig.isSummary) {
+      setCurrentStep((prev) => prev + 1)
+    }
+  }, [currentStep, form, onSubmit])
 
   const handleBack = React.useCallback(() => {
     setCurrentStep((prev) => prev - 1)

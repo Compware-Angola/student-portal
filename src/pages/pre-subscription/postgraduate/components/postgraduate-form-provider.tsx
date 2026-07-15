@@ -1,16 +1,19 @@
 'use client'
 console.log('Provider loaded')
-import { useForm, type UseFormReturn } from "react-hook-form"
-import { preSubscriptionPostGraduateSchema, type PreSubscriptionPostGraduateSchema } from "../schemas"
-import { steps } from "./step"
-import React from "react"
-import { useUploadSingle } from "@/hooks/upload/use-upload-single"
-import { useMutationPreInscricao } from "@/hooks/pre-registation/use-mutation-pre-registration"
-import { useQueryProfile } from "@/hooks/profile/use-query-profile"
-import { useUpdateStudentPhoto } from "@/hooks/student/use-mutation-update-student-photo"
-import { DocumentTypeEnum } from "@/enums/document.type.enum"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { toast } from "sonner"
+import { useForm, type UseFormReturn } from 'react-hook-form'
+import {
+  preSubscriptionPostGraduateSchema,
+  type PreSubscriptionPostGraduateSchema,
+} from '../schemas'
+import { steps } from './step'
+import React from 'react'
+import { useUploadSingle } from '@/hooks/upload/use-upload-single'
+import { useMutationPreInscricao } from '@/hooks/pre-registation/use-mutation-pre-registration'
+import { useQueryProfile } from '@/hooks/profile/use-query-profile'
+import { useUpdateStudentPhoto } from '@/hooks/student/use-mutation-update-student-photo'
+import { DocumentTypeEnum } from '@/enums/document.type.enum'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { toast } from 'sonner'
 
 type PostGraduateContextValue = {
   onSubmit: (data: PreSubscriptionPostGraduateSchema) => void
@@ -33,10 +36,9 @@ export function FormPreSubscriptionPostGraduateProvider({
   children: React.ReactNode
 }) {
   const [currentStep, setCurrentStep] = React.useState(0)
-  const progress = (currentStep / steps.length) * 100
+  const progress = ((currentStep + 1) / steps.length) * 100
   const { createPreInscricaoAsync, createPreInscricaoPending } =
     useMutationPreInscricao()
-
   const uploadMutation = useUploadSingle()
   const isLoadingPreInscription =
     createPreInscricaoPending || uploadMutation.isPending
@@ -56,9 +58,9 @@ export function FormPreSubscriptionPostGraduateProvider({
   }
 
   function buildInscricaoPayload(data: any, docs: any) {
-    console.log({data:data.typeGraduation})
     return {
       cursoCandidatura: Number(data.intendedCourse),
+      cursoFormacao: data.typeGraduation,
       modalidadeFrequencia: 2,
       codigoTurno: parseInt(data.period),
       codigoTurnoOptional: parseInt(data.periodSecondOption),
@@ -85,6 +87,7 @@ export function FormPreSubscriptionPostGraduateProvider({
       documentos: docs,
       codigoNacionalidade: Number(data.codigoNacionalidade),
       codigoTipoCandidatura: Number(data.intendedGraduation),
+      inquerito: data.howDidYouKnow,
     }
   }
 
@@ -113,22 +116,23 @@ export function FormPreSubscriptionPostGraduateProvider({
       phoneAlt: '',
       street: '',
       codigoNacionalidade: '',
+      howDidYouKnow: '',
     },
     mode: 'onChange',
   })
 
   const onSubmit = React.useCallback(
     async (data: PreSubscriptionPostGraduateSchema) => {
-      let docs = []
+      const docs = []
       if (data.photo) {
-      const  photoPath = await uploadFile(data.photo)
+        const photoPath = await uploadFile(data.photo)
         updateStudentPhoto.mutateAsync(
           { file: photoPath, userId: profileData?.userId! },
           {},
         )
       }
       if (data.document) {
-       const documentPath = await uploadFile(data.document)
+        const documentPath = await uploadFile(data.document)
         docs.push({
           typeDocumentId: parseInt(data.documentType),
           fileName: documentPath,
@@ -149,7 +153,9 @@ export function FormPreSubscriptionPostGraduateProvider({
         })
       }
       if (data.scientificInvestigationProject) {
-        const projectPath = await uploadFile(data.scientificInvestigationProject)
+        const projectPath = await uploadFile(
+          data.scientificInvestigationProject,
+        )
         docs.push({
           typeDocumentId: DocumentTypeEnum.PROJECTO_DE_INVESTIGACAO_CIENTIFICA,
           fileName: projectPath,
@@ -172,7 +178,9 @@ export function FormPreSubscriptionPostGraduateProvider({
       try {
         await form.handleSubmit(async (data) => {
           await onSubmit(data)
-          setCurrentStep((prev) => prev + 1)
+          if (currentStep < steps.length - 1) {
+            setCurrentStep((prev) => prev + 1)
+          }
         })()
       } catch (error: any) {
         toast.error(error?.message || 'Erro ao fazer a pre inscrição.')

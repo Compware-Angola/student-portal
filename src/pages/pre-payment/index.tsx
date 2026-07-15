@@ -4,5 +4,10 @@ import { PreInvoice } from './components/pre-invoice'
 export const PrePayment = () => {
   const { profileData } = useQueryProfile()
 
-  return <PreInvoice enrollmentCode={profileData?.preEnrollmentCode!} selectedYear="23" />
+  return (
+    <PreInvoice
+      enrollmentCode={String(profileData?.codigo_preinscricao)}
+      selectedYear="23"
+    />
+  )
 }

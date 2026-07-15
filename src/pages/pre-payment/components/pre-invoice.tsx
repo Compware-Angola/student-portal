@@ -140,6 +140,7 @@ function InvoiceDetailsDialog({
   const totalMultas = invoice.itens.reduce((s, i) => s + i.Multa, 0)
   const totalPago = invoice.itens.reduce((s, i) => s + i.valor_pago, 0)
 
+  console.table(invoice)
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -290,7 +291,7 @@ function InvoiceDetailsDialog({
                       )}
                     </div>
                   </div>
-                  <div className="absolute top-4 right-4">
+                  <div className="absolute bottom-4 right-4">
                     <InvoiceStatusBadge status={item.estado} />
                   </div>
                 </Card>
@@ -302,12 +303,16 @@ function InvoiceDetailsDialog({
             {invoice.estado === 1 ? (
               <PaymentReceipt
                 invoice={invoice}
-                academicYear={findAcademicYearDesignation(invoice?.ano_lectivo)}
+                academicYear={findAcademicYearDesignation(
+                  Number(invoice?.ano_lectivo),
+                )}
               />
             ) : (
               <PaymentReceipt2
                 invoice={invoice}
-                academicYear={findAcademicYearDesignation(invoice?.ano_lectivo)}
+                academicYear={findAcademicYearDesignation(
+                  Number(invoice?.ano_lectivo),
+                )}
               />
             )}
           </div>
@@ -428,13 +433,15 @@ export function PreInvoice({
                       })}
                     </TableRow>
                   ))
-                )  : (
+                ) : (
                   <TableRow>
                     <TableCell
                       colSpan={7}
                       className="h-32 text-center text-muted-foreground"
                     >
-                      <Button onClick={()=> setIsOpenPaymentDialog(true)}>Efectuar Pagamento por referência</Button>
+                      <Button onClick={() => setIsOpenPaymentDialog(true)}>
+                        Efectuar Pagamento por referência
+                      </Button>
                     </TableCell>
                   </TableRow>
                 )}
@@ -572,10 +579,9 @@ const ActionCell = ({
               <Button
                 size="sm"
                 variant="outline"
-               
                 className="h-8 text-xs"
                 disabled={
-                //  gerarRefMutation.isPending || isPolling
+                  //  gerarRefMutation.isPending || isPolling
                   true
                 }
               >
@@ -605,16 +611,14 @@ const ActionCell = ({
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => {
-                    toast.info("Desculpe, esta desabilitada no momento!")
+                    toast.info('Desculpe, esta desabilitada no momento!')
                     // TODO: Remove this after testing
                     return
                     gerarRefMutation.mutate({
                       codigoFactura: invoice.Codigo,
                     })
                   }}
-                  disabled={
-                    gerarRefMutation.isPending || isPolling
-                  }
+                  disabled={gerarRefMutation.isPending || isPolling}
                 >
                   {gerarRefMutation.isPending || isPolling ? (
                     <>
@@ -632,7 +636,9 @@ const ActionCell = ({
       ) : (
         <PaymentReceipt
           invoice={invoice}
-          academicYear={findAcademicYearDesignation(invoice?.ano_lectivo)}
+          academicYear={findAcademicYearDesignation(
+            Number(invoice?.ano_lectivo),
+          )}
           showPrintButton={true}
         />
       )}

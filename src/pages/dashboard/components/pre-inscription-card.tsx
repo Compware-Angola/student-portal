@@ -5,9 +5,7 @@ import {
   Sparkles,
   GraduationCap as GradCap,
   ScrollText,
-
   BookMarked,
-
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -19,19 +17,19 @@ import { useQueryInfoGeraisCandidatura } from '@/hooks/pre-registation/use-query
 import { StudentStatus } from '@/enums/student.status.enum'
 const MESSAGES = {
   [StudentStatus.PREINSCRITO_MESTRADO_POS_GRADUACAO]: {
-    badge: "Pós-graduação",
-    title: "Pré-inscrição realizada com sucesso",
+    badge: 'Pós-graduação',
+    title: 'Pré-inscrição realizada com sucesso',
     description:
-      "O próximo passo é efetuar o pagamento da taxa de inscrição. Após a confirmação do pagamento, os seus documentos serão analisados pela equipa académica.",
+      'O próximo passo é efetuar o pagamento da taxa de inscrição. Após a confirmação do pagamento, os seus documentos serão analisados pela equipa académica.',
   },
 
   [StudentStatus.PREINSCRITO]: {
-    badge: "Pré-inscrição confirmada",
-    title: "Prepare-se para o exame de admissão",
+    badge: 'Pré-inscrição confirmada',
+    title: 'Prepare-se para o exame de admissão',
     description:
-      "Os materiais de apoio para o exame de admissão já estão disponíveis. Faça o download e inicie a sua preparação.",
+      'Os materiais de apoio para o exame de admissão já estão disponíveis. Faça o download e inicie a sua preparação.',
   },
-} as const;
+} as const
 const PreInscriptionCard = () => {
   const { profileData } = useQueryProfile()
   const { data } = useQueryPreInscricaoFicha(profileData?.user_id!)
@@ -40,7 +38,7 @@ const PreInscriptionCard = () => {
     isLoading: isLoadingInfo,
     isError: isErrorInfo,
   } = useQueryInfoGeraisCandidatura()
-
+  console.table(profileData)
   const showModal = () =>
     !isLoadingInfo && !isErrorInfo && !info?.payments?.has_invoice
 
@@ -126,14 +124,24 @@ const PreInscriptionCard = () => {
             <div className="flex items-center gap-2 mb-1">
               <Badge variant="secondary" className="gap-1">
                 <Sparkles className="h-3 w-3" />
-                {MESSAGES[profileData?.estado_aluno ?? StudentStatus.PREINSCRITO].badge}
+                {
+                  MESSAGES[
+                    profileData?.estado_aluno ?? StudentStatus.PREINSCRITO
+                  ].badge
+                }
               </Badge>
             </div>
             <h2 className="text-xl font-semibold mb-1">
-              {MESSAGES[profileData?.estado_aluno ?? StudentStatus.PREINSCRITO].title}
+              {
+                MESSAGES[profileData?.estado_aluno ?? StudentStatus.PREINSCRITO]
+                  .title
+              }
             </h2>
             <p className="text-sm text-muted-foreground">
-              {MESSAGES[profileData?.estado_aluno ?? StudentStatus.PREINSCRITO].description}
+              {
+                MESSAGES[profileData?.estado_aluno ?? StudentStatus.PREINSCRITO]
+                  .description
+              }
             </p>
           </div>
         </CardContent>

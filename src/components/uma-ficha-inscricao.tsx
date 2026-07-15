@@ -37,7 +37,12 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     marginBottom: 14,
   },
-  logo: { width: 90, height: 90 },
+  logo: {
+    width: 150,
+    height: 63,
+    objectFit: 'contain',
+    marginLeft: -15,
+  },
   companyBlock: { alignItems: 'flex-end' },
   companyName: { fontSize: 13, fontFamily: 'Helvetica-Bold', color: NAVY },
   companyLine: { fontSize: 8.5, color: '#444', marginTop: 3 },
@@ -257,7 +262,11 @@ function EnrollmentSheetDocument({
             value={fmt(dados_pessoais.estado_civil)}
             alt
           />
-          <Field label="Género" value={fmt(dados_pessoais.sexo)} />
+          <Field
+            label="Género"
+            value={fmt(dados_pessoais.sexo == '1' ? 'Masculino' : 'Feminino')}
+            alt
+          />
           <Field label="E-mail" value={fmt(dados_pessoais.email)} alt />
           <Field
             label="Telefone"
@@ -282,29 +291,28 @@ function EnrollmentSheetDocument({
             value={fmt(dados_pessoais.necessidade_especial)}
           />
         </SectionBlock>
-
-        {/* ── Dados Académicos ── */}
-        <SectionBlock title="Dados Académicos">
-          <Field
-            label="Média Final do Curso"
-            value={formacao_anterior?.media_final ?? '-'}
-          />
-          <Field
-            label="Data de Conclusão"
-            value={fmt(formacao_anterior?.data_conclusao)}
-            alt
-          />
-          <Field
-            label="Instituição de Provenência"
-            value={fmt(formacao_anterior?.instituicao_formacao)}
-          />
-          <Field
-            label="Curso de Ensino Médio"
-            value={fmt(formacao_anterior?.curso_ensino_medio)}
-            alt
-          />
-        </SectionBlock>
-
+        {candidatura.codigo_tipo_candidatura == 1 && (
+          <SectionBlock title="Dados Académicos">
+            <Field
+              label="Média Final do Curso"
+              value={formacao_anterior?.media_final ?? '-'}
+            />
+            <Field
+              label="Data de Conclusão"
+              value={fmt(formacao_anterior?.data_conclusao)}
+              alt
+            />
+            <Field
+              label="Instituição de Provenência"
+              value={fmt(formacao_anterior?.instituicao_formacao)}
+            />
+            <Field
+              label="Curso de Ensino Médio"
+              value={fmt(formacao_anterior?.curso_ensino_medio)}
+              alt
+            />
+          </SectionBlock>
+        )}
         {/* ── Dados da Candidatura ── */}
         <SectionBlock title="Dados da Candidatura">
           {/* Tabela de opções */}
@@ -362,7 +370,10 @@ function EnrollmentSheetDocument({
           />
           <Field
             label="Estado do Candidato"
-            value={candidatura.estado_candidato}
+            value={fmt(
+              candidatura.estado == '1' ? 'ACTIVO' : candidatura.estado,
+            )}
+            alt
           />
         </SectionBlock>
 
@@ -419,7 +430,6 @@ export function EnrollmentSheet({
 }: {
   data: PreInscricaoFichaResponse | undefined
   showDownloadButton?: boolean
-
 }) {
   //const document = <EnrollmentSheetDocument data={data} />
 
@@ -442,7 +452,13 @@ export function EnrollmentSheet({
   return (
     <div className="flex items-center justify-end gap-2">
       {showDownloadButton && (
-        <Button type='button' disabled={!data}  onClick={() => handleDownload(data)} className="flex-1" aria-label="Descarregar PDF">
+        <Button
+          type="button"
+          disabled={!data}
+          onClick={() => handleDownload(data)}
+          className="flex-1"
+          aria-label="Descarregar PDF"
+        >
           <Download className="mr-2 h-4 w-4" />
           {!data ? 'A gerar...' : 'Descarregar Ficha'}
         </Button>

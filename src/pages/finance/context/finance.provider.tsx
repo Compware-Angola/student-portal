@@ -15,9 +15,7 @@ export const FinanceProvider = ({ children }: { children: ReactNode }) => {
     isError: isProfileError,
   } = useQueryProfile()
 
-
   const handleGenerateReference = (id: number) =>
-
     alert(`Gerando referência para pagamento:${id}`)
 
   const handleDownloadInvoice = (id: number) =>
@@ -53,12 +51,11 @@ export const FinanceProvider = ({ children }: { children: ReactNode }) => {
   return (
     <FinanceContext.Provider
       value={{
-       
         profileData,
         profileError,
         isProfileError,
         isLoadingProfileData,
-       
+
         handleGenerateReference,
         handleDownloadInvoice,
         handleDownloadReference,

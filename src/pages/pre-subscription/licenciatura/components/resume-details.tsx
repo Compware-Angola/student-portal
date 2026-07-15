@@ -5,7 +5,7 @@ import { useQueryPreInscricaoFicha } from '@/hooks/pre-registation/use-query-pre
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { fmt } from '@/utils/fmt'
 import { useQueryClient } from '@tanstack/react-query'
-import {  CheckCircle2, GraduationCap, PartyPopper } from 'lucide-react'
+import { CheckCircle2, GraduationCap, PartyPopper } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 export function ResumeDetails() {
@@ -14,7 +14,7 @@ export function ResumeDetails() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
-   async function handleGoToPayments() {
+  async function handleGoToPayments() {
     await queryClient.invalidateQueries({ queryKey: ['profile'] })
     navigate('/pre-inscricao')
   }
@@ -33,9 +33,11 @@ export function ResumeDetails() {
         </h2>
 
         <p className="text-sm text-muted-foreground max-w-md">
-          A sua pré-inscrição foi registada com sucesso. <span className=' font-semibold text-destructive'>Para que a sua
-          candidatura seja validada e a admissão confirmada, deverá proceder ao
-          pagamento da taxa de admissão.</span>
+          A sua pré-inscrição foi registada com sucesso.{' '}
+          <span className=" font-semibold text-destructive">
+            Para que a sua candidatura seja validada e a admissão confirmada,
+            deverá proceder ao pagamento da taxa de admissão.
+          </span>
         </p>
       </div>
       {/* Info box (substitui Card) */}
@@ -62,13 +64,9 @@ export function ResumeDetails() {
         </div>
       </div>
       <div className="flex space-x-1">
-        <EnrollmentSheet
-          data={data}
-          showDownloadButton={true}
-       
-        />
+        <EnrollmentSheet data={data} showDownloadButton={true} />
         <Button
-          type='button'
+          type="button"
           onClick={() => handleGoToPayments()}
           className="flex-1"
           variant="outline"

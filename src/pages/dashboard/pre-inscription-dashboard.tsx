@@ -8,12 +8,13 @@ import { ExamLoader } from '../prova-exame-acesso/components/exam-loader'
 
 const PreIncriptionDashboard = () => {
   const { profileData } = useQueryProfile()
-  
+
   const { data: info, isLoading } = useQueryInfoGeraisCandidatura()
   const status = info?.estado_aluno
   if (isLoading) {
-    return <ExamLoader/>
+    return <ExamLoader />
   }
+  console.table(profileData)
   return (
     <div className="space-y-6">
       <div>

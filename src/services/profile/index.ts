@@ -1,18 +1,20 @@
-import type { StudentStatusType } from '@/enums/student.status.enum';
+import type { StudentStatusType } from '@/enums/student.status.enum'
 import { authApi } from '@/lib/auth-api'
 
 export async function getProfile(): Promise<CurrentUserResponse> {
-  return await authApi.get(`auth/current-user?platform=PORTAL`).json<CurrentUserResponse>()
+  return await authApi
+    .get(`auth/current-user?platform=PORTAL`)
+    .json<CurrentUserResponse>()
 }
 
 export interface Confirmacao {
-  codigo: number;
-  codigo_matricula: number;
-  ano_lectivo: number;
-  estado: number;
-  classe: number;
-  cadeirante: string;
-  canal: number;
+  codigo: number
+  codigo_matricula: number
+  ano_lectivo: number
+  estado: number
+  classe: number
+  cadeirante: string
+  canal: number
 }
 
 export interface StudentProfile {
@@ -21,6 +23,7 @@ export interface StudentProfile {
   email: string
   telefone: string
   numero_documento: string | null
+  tipo_documento: string | null
   grau_academico: 'Mestrado' | 'Doutoramento' | 'Licenciatura'
   codigo_preinscricao: number
 
@@ -75,7 +78,7 @@ export interface StudentProfile {
 }
 
 export interface CurrentUserResponse {
-  isAuthenticated: boolean;
-  user: StudentProfile;
-  message: string;
+  isAuthenticated: boolean
+  user: StudentProfile
+  message: string
 }
