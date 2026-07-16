@@ -25,6 +25,7 @@ import { ValidateDocumentForm } from "./components/ValidarDocumentos";
 import { RegisterForm } from "./components/register-form";
 import { useQueryPortalStudentImage } from "@/hooks/use-query-portal-student-image";
 import { buildImageAssets } from "@/utils/build-image-assets";
+import { useSearchParams } from "react-router-dom";
 
 
 type View = "login" | "forgot" | "update-request" | "validate-doc" | "register";
@@ -43,7 +44,16 @@ const FEATURES = [
 // COMPONENTE PRINCIPAL
 // ─────────────────────────────────────────────────────────────
 export function Login() {
-  const [view, setView] = useState<View>("login");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const view =
+  (searchParams.get("tab") as
+    View) ?? "login";
+
+const setView = (
+  value: View
+) => {
+  setSearchParams({ tab: value });
+};
   const { data: portalStudentImage } = useQueryPortalStudentImage();
   const [loginBackground, setLoginBackground] = useState(studentsPhoto);
 
