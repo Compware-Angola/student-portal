@@ -7,9 +7,12 @@ export const documentsSchema = z.object({
   intendedCourseThird: z.string().optional(),
   period: z.string().min(1, 'Periodo é obrigatório'),
   periodSecondOption: z.string().optional(),
-  document:  z.instanceof(File, {
-  message: 'Documento é obrigatório',
-}),
+  document: z.instanceof(File, {
+    message: 'Documento é obrigatório',
+  }),
+  natureInscription: z.string().min(1, 'Este campo é obrigatório'),
+
+  publicUniversityDocument: z.any().optional(),
 })
 export const DocumentKeys = Object.keys(
   documentsSchema.shape,
