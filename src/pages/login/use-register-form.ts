@@ -1,7 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { toast } from 'sonner'
 import { useQueryFetchFaculdades } from '@/hooks/faculdade/use-query-faculdade'
 import { useQueryTipoCandidatura } from '@/hooks/dropdowns/use-query-tipo-candidatura'
 import { useQueryTipoDocumento } from '@/hooks/dropdowns/use-query-tipo-documento'
@@ -85,7 +84,6 @@ export function useRegisterForm() {
         grauacademico: data.grauacademico,
         ano_lectivo_id: data.ano_lectivo_id
       })
-      //navigate('/')
     } catch (error) {
       throw new Error("Erro ao fazer registro")
     }
