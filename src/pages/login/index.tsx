@@ -26,6 +26,9 @@ import { RegisterForm } from "./components/register-form";
 import { useQueryPortalStudentImage } from "@/hooks/use-query-portal-student-image";
 import { buildImageAssets } from "@/utils/build-image-assets";
 import { useSearchParams } from "react-router-dom";
+import { RegistrationClosed } from "./components/registration-closed";
+import  { useQueryUsableAcademicYear } from "@/hooks/academic-year/use-query-usable-academic-year";
+import { PortalLoading } from "./components/portal-loading";
 
 
 type View = "login" | "forgot" | "update-request" | "validate-doc" | "register";
@@ -95,23 +98,35 @@ const setView = (
     };
   }, [portalStudentImage?.filename]);
 
-  // ── Prazo de inscrições: botão de registo só aparece se estiver no prazo ──
+
+  const { data: licenciatura, isLoading: licenciaturaLoading } = useQueryUsableAcademicYear(1)
+  const { data: mestrado, isLoading: mestradoLoading } = useQueryUsableAcademicYear(2)
+  const { data: doutoramento, isLoading: doutoramentoLoading } = useQueryUsableAcademicYear(3)
   const { data: prazoResponseLinceiatura, isLoading: prazoLoadingLinceiatura } =
     useGetPrazoPorTipo({
       codigo_tipo_candidatura: 1,
       tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
-    })
+      anoLectivo:licenciatura?.data?.codigo
+    },
+   Boolean(licenciatura?.data?.codigo)
+  )
     const { data: prazoResponseMestrado, isLoading: prazoLoadingMestrado } =
       useGetPrazoPorTipo({
         codigo_tipo_candidatura: 2,
         tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
-      })
+        anoLectivo:mestrado?.data?.codigo
+      },
+      Boolean(mestrado?.data?.codigo)
+      )
 
   const { data: prazoResponseDotouramneto, isLoading: prazoLoadingDoutoramneto } =
     useGetPrazoPorTipo({
       codigo_tipo_candidatura: 3,
       tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
-    })
+      anoLectivo:doutoramento?.data?.codigo
+    },
+    Boolean(doutoramento?.data?.codigo)
+  )
 const prazos = [
   prazoResponseLinceiatura,
   prazoResponseMestrado,
@@ -122,6 +137,13 @@ const loadings = [
   prazoLoadingMestrado,
   prazoLoadingDoutoramneto,
 ]
+const isLoadingPortal =
+  licenciaturaLoading ||
+  mestradoLoading ||
+  doutoramentoLoading ||
+  prazoLoadingLinceiatura ||
+  prazoLoadingMestrado ||
+  prazoLoadingDoutoramneto
 
 const SHOW_REGISTER_TAB =
   loadings.some(Boolean) || prazos.some((prazo) => prazo?.podeInscrever)
@@ -188,14 +210,39 @@ const SHOW_REGISTER_TAB =
             </div>
           </div>
 
-          {view === "login" && <LoginForm setView={setView} showRegister={SHOW_REGISTER_TAB} />}
-          {view === "forgot" && <ForgotPassword setView={setView} />}
-          {view === "update-request" && <UpdateRequestForm setView={setView} />}
-          {view === "validate-doc" && <ValidateDocumentForm setView={setView} />}
-          {view === "register" && SHOW_REGISTER_TAB && <RegisterForm setView={setView} />}
+          {isLoadingPortal ? (
+    <PortalLoading />
+  ) : (
+    <>
+      {view === "login" && (
+        <LoginForm
+          setView={setView}
+          showRegister={SHOW_REGISTER_TAB}
+        />
+      )}
+
+      {view === "forgot" && (
+        <ForgotPassword setView={setView} />
+      )}
+
+      {view === "update-request" && (
+        <UpdateRequestForm setView={setView} />
+      )}
+
+      {view === "validate-doc" && (
+        <ValidateDocumentForm setView={setView} />
+      )}
+
+      {view === "register" &&
+        (SHOW_REGISTER_TAB ? (
+          <RegisterForm setView={setView} />
+        ) : (
+          <RegistrationClosed setView={setView} />
+        ))}
+    </>
+  )}
         </div>
 
-        {/* Label de ambiente */}
         {showEnvLabel && (
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-xs text-muted-foreground/50 text-center">
             {envDisplay}
