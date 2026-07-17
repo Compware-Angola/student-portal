@@ -1,5 +1,6 @@
 export type PreInscricaoPayload = {
   cursoCandidatura: number
+  tentou_universidade_publica: number
   modalidadeFrequencia: number
   nomeCompleto: string
   bilheteIdentidade: string
