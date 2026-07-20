@@ -10,6 +10,7 @@ export type BeginningStudentProcessPayload = {
   canal: number
   grauacademico: string
   faculdade?: string
+  ano_lectivo_id?: number
 }
 
 export type BeginningStudentProcessResponse = {
