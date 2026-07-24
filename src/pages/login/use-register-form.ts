@@ -1,7 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { toast } from 'sonner'
 import { useQueryFetchFaculdades } from '@/hooks/faculdade/use-query-faculdade'
 import { useQueryTipoCandidatura } from '@/hooks/dropdowns/use-query-tipo-candidatura'
 import { useQueryTipoDocumento } from '@/hooks/dropdowns/use-query-tipo-documento'
@@ -16,7 +15,7 @@ export const FormSchema = z.object({
     .min(1, { message: 'Número de documento é obrigatório' }),
   name: z.string().min(1, { message: 'Nome de usuário é obrigatório' }),
   telefone: z.string().min(1, { message: 'Telefone é obrigatório' }),
-  email: z.string().email({ message: 'Email inválido' }).optional(),
+  email: z.email({ message: 'Email inválido' }).optional(),
   password: z
     .string()
     .min(8, { message: 'A senha deve ter pelo menos 8 caracteres' })
@@ -35,7 +34,6 @@ export const FormSchema = z.object({
 export type RegisterFormData = z.infer<typeof FormSchema>
 
 export function useRegisterForm() {
-
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -72,7 +70,7 @@ export function useRegisterForm() {
       value: String(t.codigo),
     })) ?? []
 
-  async function onSubmit(data: RegisterFormData) {
+  async function onSubmit(data: RegisterFormData & {ano_lectivo_id?: number}) {
 
     try {
       await createBeginningStudentProcessAsync({
@@ -84,10 +82,8 @@ export function useRegisterForm() {
         password: data.password,
         canal: 3,
         grauacademico: data.grauacademico,
+        ano_lectivo_id: data.ano_lectivo_id
       })
-      toast.success('Autenticado com sucesso!')
-
-      //navigate('/')
     } catch (error) {
       throw new Error("Erro ao fazer registro")
     }

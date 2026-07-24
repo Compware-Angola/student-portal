@@ -35,6 +35,7 @@ import { TipoCalendario } from '@/enums/tipo-calendario.enum'
 import type { PrazoResponse } from '@/services/prazos'
 import { InputFormField } from '@/components/input-form-field'
 import { SelectFormField } from '@/components/selectFormField'
+import { useQueryUsableAcademicYear } from '@/hooks/academic-year/use-query-usable-academic-year'
 
 // ---------------------------------------------------------------------------
 // Types / View
@@ -70,22 +71,31 @@ interface RegisterFormProps {
   setView: (v: View) => void
 }
 
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
+
 
 export function RegisterForm({ setView }: RegisterFormProps) {
   const [sent, setSent] = useState(false)
-  const { data: prazoResponseLinceiatura, isLoading: prazoLoadingLinceiatura } =
-    useGetPrazoPorTipo({
-      codigo_tipo_candidatura: 1,
-      tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
-    })
+
+    const { data: licenciatura } = useQueryUsableAcademicYear(1)
+    const { data: mestrado } = useQueryUsableAcademicYear(2)
+    const { data: doutoramento } = useQueryUsableAcademicYear(3)
+    const { data: prazoResponseLinceiatura, isLoading: prazoLoadingLinceiatura } =
+      useGetPrazoPorTipo({
+        codigo_tipo_candidatura: 1,
+        tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
+        anoLectivo:licenciatura?.data?.codigo
+      },
+    Boolean(licenciatura?.data?.codigo)
+  )
+
   const { data: prazoResponseMestrado, isLoading: prazoLoadingMestrado } =
     useGetPrazoPorTipo({
       codigo_tipo_candidatura: 2,
       tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
-    })
+      anoLectivo:mestrado?.data?.codigo
+    },
+    Boolean(mestrado?.data?.codigo)
+  )
 
   const {
     data: prazoResponseDotouramneto,
@@ -93,7 +103,10 @@ export function RegisterForm({ setView }: RegisterFormProps) {
   } = useGetPrazoPorTipo({
     codigo_tipo_candidatura: 3,
     tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
-  })
+    anoLectivo:doutoramento?.data?.codigo
+  },
+  Boolean(doutoramento?.data?.codigo)
+  )
   const prazos = [
     prazoResponseLinceiatura,
     prazoResponseMestrado,
@@ -141,6 +154,18 @@ export function RegisterForm({ setView }: RegisterFormProps) {
 
   const onSubmit = async (data: z.infer<typeof registerSchema>) => {
     try {
+      let anoLectivoId: number |undefined =undefined
+      const tipoCandidatura = Number(tiposDisponiveis.find((t) => t.label === data.tipoCandidatura)?.value)
+      if(tipoCandidatura === 1){
+        anoLectivoId = licenciatura?.data?.codigo
+      }
+      if(tipoCandidatura === 2){
+        anoLectivoId = mestrado?.data?.codigo
+      }
+      if(tipoCandidatura === 3){
+        anoLectivoId = doutoramento?.data?.codigo
+      }
+      
       await submitToApi({
         name: data.nomeCompleto,
         email: data.email,
@@ -150,17 +175,16 @@ export function RegisterForm({ setView }: RegisterFormProps) {
         numero_documento: data.numeroDocumento,
         password: data.senha,
         confirmar_senha: data.confirmarSenha,
+        ano_lectivo_id: anoLectivoId
+
       })
+
       form.reset()
       setSent(true)
     } catch {
-      // erros tratados dentro do hook
+      
     }
   }
-
-  // -------------------------------------------------------------------------
-  // STATE: Período fechado
-  // -------------------------------------------------------------------------
 
   if (!REGISTRATION_OPEN) {
     return (
@@ -279,7 +303,7 @@ export function RegisterForm({ setView }: RegisterFormProps) {
             />
 
 
-          {/* Tipo de Candidatura + Faculdade */}
+          
 
             <SelectFormField
               fullWidth
@@ -296,28 +320,6 @@ export function RegisterForm({ setView }: RegisterFormProps) {
                 </SelectTrigger>
               )}
             />
-            {/* <SelectFormField
-              fullWidth
-              control={form.control}
-              name="faculdade"
-              items={faculdadesOptions}
-              label="Faculdade"
-              trigger={() => (
-                <SelectTrigger className="h-11 rounded-lg bg-slate-50 border-slate-200 w-full truncate">
-                  <div className="flex items-center gap-2">
-                    <GraduationCap className="h-4 w-4 text-muted-foreground" />
-                    <SelectValue
-                      placeholder="Seleccione a faculdade"
-                      className="truncate"
-                    />
-                  </div>
-                </SelectTrigger>
-              )}
-            /> */}
-
-
-          {/* Tipo de Documento + Número */}
-
             <SelectFormField
               fullWidth
               control={form.control}
