@@ -3,7 +3,7 @@ import { authApi } from '@/lib/auth-api'
 
 export async function getProfile(): Promise<CurrentUserResponse> {
   return await authApi
-    .get(`auth/current-user?platform=PORTAL`)
+    .get(`auth/current-user`)
     .json<CurrentUserResponse>()
 }
 
@@ -34,7 +34,7 @@ export interface StudentProfile {
   email_1: string
   bilhete_identidade: string
   contactos_telefonicos: string
-
+sigla_tipo_candidatura:string,
   saldo_reset: number
   saldo_reset_anter: number
 
