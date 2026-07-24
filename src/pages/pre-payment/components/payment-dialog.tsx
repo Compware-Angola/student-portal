@@ -127,7 +127,7 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
             pagamento
           </p>
           <div className="flex justify-end">
-            <Button onClick={() => handleFactura()}>
+            <Button onClick={() => handleFactura()} disabled={createInvoicePending}>
               {createInvoicePending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}

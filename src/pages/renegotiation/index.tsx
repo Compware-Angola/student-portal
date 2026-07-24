@@ -218,7 +218,7 @@ export const Renegociation = () => {
           obs: 'Mensalidade',
         })),
         OutrosServicos: debtData.OutrosServicos.map((s: OutroServico) => ({
-          codgradecurricular: s.codgradecurricular,
+          codgradecurricular: Number(s.codgradecurricular),
           codfacturaoutrosservicos: s.codfacturaoutrosservicos,
           codidigo_servico: String(s.codidigo_servico),
           ano_lectivo: s.codigo_anolectivo,
