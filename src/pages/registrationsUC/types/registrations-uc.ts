@@ -1,3 +1,4 @@
+import type { FecthCurriculumPlanGradesResponse } from '@/services/curriculum/fetch-curriculum-plan.service'
 import type { DebtNegotiationResponse } from '@/services/renegotiation/renegotiation.service'
 import type { StudentDashboardStatistics } from '@/services/statistics/dashboard'
 import type { StudentSituationResponse } from '@/services/students/situation.service'
@@ -47,6 +48,7 @@ export type RegistrationsUCContextType = {
   totalPagar: number
   studentSituation?: StudentSituationResponse
   semestreActual : number | undefined
+  curriculumPlan?: FecthCurriculumPlanGradesResponse 
 }
 export type SectionKey = 'new' | 'pendents'
 

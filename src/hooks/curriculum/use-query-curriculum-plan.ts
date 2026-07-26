@@ -99,10 +99,12 @@ export function useQueryCurriculumPlanCurrentYear(
 
 
 export function useFetchQueryCurriculum(paramns:CurriculumPlanPendentProps) {
+  console.log({paramns})
+  const {newStudent} = paramns
   return useQuery({
     queryKey: ['fetch-curriculum-plan',paramns],
     queryFn: async () => fetchCurriculumPlanService(paramns),
-    enabled: Boolean(paramns.academicYear),
+    enabled: Boolean(paramns.academicYear) && (newStudent ? paramns.preEnrollmentCode !== undefined : paramns.enrollmentCode !== undefined && paramns.semestre !== undefined),
     staleTime: 1000 * 60 * 50,
   })
 }

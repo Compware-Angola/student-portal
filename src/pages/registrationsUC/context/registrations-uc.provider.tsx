@@ -4,9 +4,8 @@ import { RegistrationsUCContext } from './registrations-uc.context'
 import { toast } from 'sonner'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import type { Grade } from '@/types/grade'
-import { useQueryCurriculumPlan } from '@/hooks/curriculum/use-query-curriculum-plan'
+import { useFetchQueryCurriculum } from '@/hooks/curriculum/use-query-curriculum-plan'
 import type { SectionKey, SelectedSchedule } from '../types/registrations-uc'
-import { useQueryCurriculumPlanPendents } from '@/hooks/curriculum/use-query-curriculum-plan-pendents'
 import { useMutationConfirmOldStudentEnrollment } from '@/hooks/enrollment/use-mutation-confirm-old-student-enrollment'
 import { useMutationCreateInvoice } from '@/hooks/invoice/use-mutation-create-invoice'
 import type { CreateInvoiceBody } from '@/services/invoice/post-invoice.service'
@@ -23,6 +22,8 @@ import { useTypeServiceSingle } from '@/hooks/service/use-query-type-service'
 import { SERVICE_TYPES } from '@/constants/service-type'
 import { useQueryStudentSituation } from '@/hooks/student/use-query-student-situation'
 import { useQueryPrazoMatricula } from '@/hooks/prazos-matriculas/use-query-prazos-matricula'
+import { useGradeMapper } from '../hooks/use-grade-mapper'
+
 type ToggleState = {
   new: boolean
   pendents: boolean
@@ -61,14 +62,7 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
   const { isLoading: isLoadingStudenttatistics, data: studentStatistics } =
     useQueryStudentDashboardStatistics(profileData?.enrollmentCode)
 
-  const {
-    data: pendentsGrades,
-    isLoading: isLoadingStudentCurriculumPlanPendents,
-    isError: isErrorStudentCurriculumPlanPendents,
-  } = useQueryCurriculumPlanPendents({
-    preEnrollmentCode: profileData?.preEnrollmentCode,
-    semestre: prazosMatricula?.semestre
-  })
+  const {mapGrades} = useGradeMapper()
   const { data: studentSituation } = useQueryStudentSituation({
     preErrolmentCode: profileData?.preEnrollmentCode,
   })
@@ -78,25 +72,18 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
       candidacyType: profileData?.codigo_tipo_candidatura,
       type: 'old',
     })
-  const generateClasse = useMemo(() => {
-    const classe = profileData?.confirmacoes?.[0]?.classe
-    const newClass = Number(classe) + 1
-   // return `${newClass > 5 ? classe : newClass}`
-   return newClass > 5 ? classe : newClass
-  }, [profileData])
 
-  const {
-    data: grades,
-    isLoading: isLoadingStudentCurriculumPlan,
-    isError: isErrorStudentCurriculumPlan,
+
+
   
-  } = useQueryCurriculumPlan({
-    class: generateClasse,
-    course: profileData?.codigo_curso,
-    semestre: prazosMatricula?.semestre,
-    type: "old"
-  })
-  
+  const {data: curriculumPlan, isLoading: isLoadingCurriculumPlan, isError: isErrorCurriculumPlan} = useFetchQueryCurriculum({
+    academicYear: currentAcademicYear?.codigo!,
+    enrollmentCode: profileData?.codigo_matricula!,
+    newStudent: false,
+    semestre: prazosMatricula?.semestre!,
+    })
+
+    console.log({curriculumPlan,isLoadingCurriculumPlan})
   const { data: foraPrazo } = useTypeServiceSingle({
     currentYearCode: Number(currentAcademicYear?.codigo),
     ...SERVICE_TYPES.INSCRICAO_FORA_PRAZO,
@@ -117,7 +104,8 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     })
 
   const { createInvoiceAsync } = useMutationCreateInvoice()
-
+  const pendentsGrades = mapGrades(curriculumPlan?.gradesPendentes?? [])
+  const grades = mapGrades(curriculumPlan?.gradesAFazer?? [])
   const {
     confirmOldStudentEnrollmentAsync,
     confirmOldStudentEnrollmentPending,
@@ -388,11 +376,11 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
         totalPagar,
         selectedSubjects,
         isErrorProfileData,
-        isErrorStudentCurriculumPlan,
-        isErrorStudentCurriculumPlanPendents,
+        isErrorStudentCurriculumPlan: isErrorCurriculumPlan,
+        isErrorStudentCurriculumPlanPendents: isErrorCurriculumPlan,
         isLoadingProfileData,
-        isLoadingStudentCurriculumPlan,
-        isLoadingStudentCurriculumPlanPendents,
+        isLoadingStudentCurriculumPlan: isLoadingCurriculumPlan,
+        isLoadingStudentCurriculumPlanPendents: isLoadingCurriculumPlan,
         isExpanded,
         subject: grades ?? [],
         pendingSubjects: pendentsGrades ?? [],
@@ -419,7 +407,8 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
         isLoadingDebit,
         studentSituation,
         debit,
-        semestreActual: prazosMatricula?.semestre
+        semestreActual: prazosMatricula?.semestre,
+        curriculumPlan
       }}
     >
       {children}
