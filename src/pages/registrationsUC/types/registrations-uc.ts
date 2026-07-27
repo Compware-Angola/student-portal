@@ -1,6 +1,7 @@
 import type { FecthCurriculumPlanGradesResponse } from '@/services/curriculum/fetch-curriculum-plan.service'
 import type { DebtNegotiationResponse } from '@/services/renegotiation/renegotiation.service'
 import type { StudentDashboardStatistics } from '@/services/statistics/dashboard'
+import type { GetConfirmationResponse } from '@/services/students/confirmation.service'
 import type { StudentSituationResponse } from '@/services/students/situation.service'
 import type { Grade } from '@/types/grade'
 import type { ProfileData } from '@/types/profile'
@@ -48,7 +49,11 @@ export type RegistrationsUCContextType = {
   totalPagar: number
   studentSituation?: StudentSituationResponse
   semestreActual : number | undefined
-  curriculumPlan?: FecthCurriculumPlanGradesResponse 
+  curriculumPlan?: FecthCurriculumPlanGradesResponse,
+  currentAcademicYear: number
+  confirmationData: GetConfirmationResponse | undefined
+  isLoadingConfirmation: boolean
+  isErrorConfirmation: boolean
 }
 export type SectionKey = 'new' | 'pendents'
 

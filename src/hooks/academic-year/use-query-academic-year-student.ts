@@ -1,7 +1,7 @@
 import {
   getAcademicYearStudent,
   type AdemicsYear,
-} from '@/services/academic-year/get-academic-year-student'
+} from '@/services/academic-year/get-academic-year-student.service'
 import { useQuery } from '@tanstack/react-query'
 
 export function useQueryAcademicYearStudent(enrollmentCode?: string) {

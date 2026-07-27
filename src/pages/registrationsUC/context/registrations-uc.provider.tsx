@@ -23,6 +23,7 @@ import { SERVICE_TYPES } from '@/constants/service-type'
 import { useQueryStudentSituation } from '@/hooks/student/use-query-student-situation'
 import { useQueryPrazoMatricula } from '@/hooks/prazos-matriculas/use-query-prazos-matricula'
 import { useGradeMapper } from '../hooks/use-grade-mapper'
+import { useQueryConfirmation } from '@/hooks/student/use-query-confirmation'
 
 type ToggleState = {
   new: boolean
@@ -111,7 +112,7 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     confirmOldStudentEnrollmentPending,
   } = useMutationConfirmOldStudentEnrollment()
 
-  // Horários selecionados por disciplina (mapeados pelo código da grade)
+    const {data:confirmationData,isLoading:isLoadingConfirmation,isError:isErrorConfirmation} = useQueryConfirmation({studentId:Number(profileData?.enrollmentCode!),academicYearCode:currentAcademicYear?.codigo!,semesterCode:prazosMatricula?.semestre!})
   const [selectedSchedules, setSelectedSchedules] = useState<
     Record<string, SelectedSchedule>
   >({})
@@ -408,13 +409,18 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
         studentSituation,
         debit,
         semestreActual: prazosMatricula?.semestre,
-        curriculumPlan
+        curriculumPlan,
+        currentAcademicYear:currentAcademicYear?.codigo!,
+        confirmationData,
+        isLoadingConfirmation,
+        isErrorConfirmation
       }}
     >
       {children}
     </RegistrationsUCContext.Provider>
   )
 }
+
 
 function generateDisciplineItem(grade: Grade) {
   const MAX_OBS_LENGTH = 45

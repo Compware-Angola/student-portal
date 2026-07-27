@@ -29,6 +29,7 @@ function RegistrationsUCContent() {
     isLoadingDebit,
     debit,
     profileData,
+    confirmationData
 
   } = useRegistrationsUC()
   const isDiplomado = profileData?.estado_matricula === 'diplomado'
@@ -66,16 +67,13 @@ function RegistrationsUCContent() {
     return <RegistrationsUCSkeleton />
   }
   if (debit && (debit?.totalDivida ?? 0) > 0) return <PaymentAlert />
-
+  if (isDiplomado) return <GraduatedBanner />
   return (
     <div className="space-y-6">
-      {isDiplomado ? (
-        <GraduatedBanner />
-      ) : (
-        <>
+  <>
           <RegistrationsUCtHeader />
           <EnrollmentSummaryCards />
-          {!enrollmentState && (
+          {confirmationData && confirmationData.informacoes.podeConfirmar && (
             <>
               <div>
                 <div>
@@ -101,7 +99,6 @@ function RegistrationsUCContent() {
             </>
           )}
         </>
-      )}
     </div>
   )
 }

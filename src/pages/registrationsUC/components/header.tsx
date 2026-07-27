@@ -4,6 +4,7 @@ import { useRegistrationsUC } from '../hooks/use-registrations-uc'
 import { definirSemestreLabel } from '../util/semstre-label'
 import { Badge } from '@/components/ui/badge'
 
+
 export function RegistrationsUCtHeader() {
   const {
     selectAll,
@@ -15,8 +16,6 @@ export function RegistrationsUCtHeader() {
   const enrollmentState =
     StudentSituation.OLD_WITH_CURRENT_CONFIRMATION ===
     Number(studentSituation?.codigo_status)
-
-
 
   return (
     <div className="flex items-center justify-between">
