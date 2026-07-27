@@ -4,7 +4,7 @@ import { toast } from 'sonner'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useMutationConfirmNewStudentEnrollment } from '@/hooks/enrollment/use-mutation-confirm-new-student-enrollment'
 import type { Grade } from '@/types/grade'
-import { useQueryCurriculumPlan } from '@/hooks/curriculum/use-query-curriculum-plan'
+import { useFetchQueryCurriculum } from '@/hooks/curriculum/use-query-curriculum-plan'
 import type { SectionKey, SelectedSchedule } from '../types/enrollment'
 
 import { useMutationCreateInvoice } from '@/hooks/invoice/use-mutation-create-invoice'
@@ -21,6 +21,7 @@ import { useQueryStudentDashboardStatistics } from '@/hooks/statics/use-query-st
 import { useTypeServiceSingle } from '@/hooks/service/use-query-type-service'
 import { SERVICE_TYPES } from '@/constants/service-type'
 import type { TypeServiceResponse } from '@/services/type-service/type-service.service'
+import { useGradeMapper } from '@/pages/registrationsUC/hooks/use-grade-mapper'
 
 type ToggleState = {
   new: boolean
@@ -67,23 +68,20 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
   const isNewStudentWithOutEnrollment =
     StudentSituation.NEW_WITHOUT_ENROLLMENT ===
     Number(studentSituation?.codigo_status)
-
+const {mapGrades} = useGradeMapper()
   const { data: confirmationNewStudent } =
     useQueryActivityAcademicConfirmationStudent({
       academicYearCode: currentAcademicYear?.codigo,
       candidacyType: profileData?.codigo_tipo_candidatura,
       type: 'new',
     })
-
-  const {
-    data: grades,
-    isLoading: isLoadingStudentCurriculumPlan,
-    isError: isErrorStudentCurriculumPlan,
-  } = useQueryCurriculumPlan({
-    class: 1,
-    course: profileData?.codigo_curso,
-    type:"new"
-  })
+  const {data: curriculumPlan, isLoading: isLoadingCurriculumPlan, isError: isErrorCurriculumPlan} = useFetchQueryCurriculum({
+    academicYear: currentAcademicYear?.codigo!,
+    preEnrollmentCode: Number(profileData?.preEnrollmentCode!),
+    newStudent: true,
+   
+    })
+ const grades = mapGrades(curriculumPlan?.gradesAFazer?? [])
 
   const enrollmentStatus = useMemo(
     () => getEnrollmentStatus(confirmationNewStudent[0]),
@@ -364,9 +362,9 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
         totalPagar,
         selectedSubjects,
         isErrorProfileData,
-        isErrorStudentCurriculumPlan,
+        isErrorStudentCurriculumPlan:isErrorCurriculumPlan,
         isLoadingProfileData,
-        isLoadingStudentCurriculumPlan,
+        isLoadingStudentCurriculumPlan:isLoadingCurriculumPlan,
         isExpanded,
         subject: grades ?? [],
         totalValue,
