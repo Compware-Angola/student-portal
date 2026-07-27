@@ -11,6 +11,6 @@ export function useQueryPrazoMatricula(params: Params) {
     queryFn: () => fetchPrazosMatriculaService({
       anoLectivo: params.anoLectivo!
     }),
-    enabled: !! params.anoLectivo
+    enabled: !!params.anoLectivo
   })
 }

@@ -15,5 +15,13 @@ export const SERVICE_TYPES = {
     description: 'Taxa de Inscrição Mestrados e Pós-Graduação',
     sigla: 'TdIMeP',
   },
-
+  IPU_CICLULAR_ANUAL: {
+    description: 'Inscrição Prova Unificada Cicular',
+    sigla: 'IpuCricular(Anual)',
+  },
+    IPU_CICLULAR_SEMESTRAL: {
+    description: 'Inscrição Prova Unificada Cicular',
+    sigla: 'IpuCricular(Anual)',
+  },
+  
 } as const

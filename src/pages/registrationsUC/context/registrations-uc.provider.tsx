@@ -13,7 +13,7 @@ import { useMutationCreatePaymentReferenceMensalidades } from '@/hooks/invoice/u
 import type { CreatePaymentReferenceBody } from '@/services/invoice/post-invoice-monthly.service'
 import { useQueryMonthlyFeesValue } from '@/hooks/finance/use-query-monthly-fee'
 import { useQueryActivityAcademicConfirmationStudent } from '@/hooks/academic/use-quer-activity-academic-confirmation'
-import { getEnrollmentStatus } from '@/utils'
+import { getEnrollmentStatus, parseFilter } from '@/utils'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 import { useQueryStudentDashboardStatistics } from '@/hooks/statics/use-query-student-dashboard-statistics'
 import { useQueryGetDebit } from '@/hooks/renegotiation/use-query-renegotiation'
@@ -57,7 +57,7 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
   })
 
   const {data : prazosMatricula } = useQueryPrazoMatricula({
-    anoLectivo: currentAcademicYear?.codigo
+    anoLectivo: parseFilter(currentAcademicYear?.codigo?.toString())
   })
 
   const { isLoading: isLoadingStudenttatistics, data: studentStatistics } =
