@@ -65,7 +65,7 @@ export function AcademicServices() {
     isLoading: loadingServices,
     isError: errorServices,
   } = useQueryAvailableServices({
-    academicYear: academicYearData?.codigo,
+    academicYear: academicYearData?.codigo.toString(),
     poloId: profileData?.poloid.toString() ?? '1',
   })
 

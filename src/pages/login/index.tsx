@@ -106,26 +106,26 @@ const setView = (
     useGetPrazoPorTipo({
       codigo_tipo_candidatura: 1,
       tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
-      anoLectivo:licenciatura?.data?.codigo
+      anoLectivo:licenciatura?.codigo 
     },
-   Boolean(licenciatura?.data?.codigo)
+   Boolean(licenciatura?.codigo)
   )
     const { data: prazoResponseMestrado, isLoading: prazoLoadingMestrado } =
       useGetPrazoPorTipo({
         codigo_tipo_candidatura: 2,
         tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
-        anoLectivo:mestrado?.data?.codigo
+        anoLectivo:mestrado?.codigo
       },
-      Boolean(mestrado?.data?.codigo)
+      Boolean(mestrado?.codigo)
       )
 
   const { data: prazoResponseDotouramneto, isLoading: prazoLoadingDoutoramneto } =
     useGetPrazoPorTipo({
       codigo_tipo_candidatura: 3,
       tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
-      anoLectivo:doutoramento?.data?.codigo
+      anoLectivo:doutoramento?.codigo
     },
-    Boolean(doutoramento?.data?.codigo)
+    Boolean(doutoramento?.codigo)
   )
 const prazos = [
   prazoResponseLinceiatura,

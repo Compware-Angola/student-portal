@@ -20,7 +20,7 @@ export function useYearSelect(enrollmentCode?: string) {
 
       if (!exists) {
         years.push({
-          codigo: currentAcademicYear.codigo,
+          codigo: currentAcademicYear.codigo?.toString(),
           designacao: currentAcademicYear.designacao,
           estado: 'Activo',
         })

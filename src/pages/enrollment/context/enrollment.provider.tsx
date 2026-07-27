@@ -71,12 +71,12 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
 const {mapGrades} = useGradeMapper()
   const { data: confirmationNewStudent } =
     useQueryActivityAcademicConfirmationStudent({
-      academicYearCode: currentAcademicYear?.codigo,
+      academicYearCode: currentAcademicYear?.codigo?.toString(),
       candidacyType: profileData?.codigo_tipo_candidatura,
       type: 'new',
     })
   const {data: curriculumPlan, isLoading: isLoadingCurriculumPlan, isError: isErrorCurriculumPlan} = useFetchQueryCurriculum({
-    academicYear: currentAcademicYear?.codigo!,
+    academicYear: currentAcademicYear?.codigo?.toString()!,
     preEnrollmentCode: Number(profileData?.preEnrollmentCode!),
     newStudent: true,
    
@@ -94,7 +94,7 @@ const {mapGrades} = useGradeMapper()
     useQueryMonthlyFeesValue({
       curso: profileData?.codigo_curso,
       polo: profileData?.poloid,
-      anoLetivo: currentAcademicYear?.codigo ? parseInt(currentAcademicYear?.codigo!) : 23
+      anoLetivo: currentAcademicYear?.codigo ? parseInt(currentAcademicYear?.codigo!.toString()) : 23
     })
 
   const {

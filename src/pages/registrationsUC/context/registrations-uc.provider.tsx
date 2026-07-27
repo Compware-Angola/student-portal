@@ -68,7 +68,7 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
   })
   const { data: confirmationNewStudent } =
     useQueryActivityAcademicConfirmationStudent({
-      academicYearCode: currentAcademicYear?.codigo ?? '23',
+      academicYearCode: currentAcademicYear?.codigo?.toString(),
       candidacyType: profileData?.codigo_tipo_candidatura,
       type: 'old',
     })
@@ -77,7 +77,7 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
 
   
   const {data: curriculumPlan, isLoading: isLoadingCurriculumPlan, isError: isErrorCurriculumPlan} = useFetchQueryCurriculum({
-    academicYear: currentAcademicYear?.codigo!,
+    academicYear: currentAcademicYear?.codigo?.toString()!,
     enrollmentCode: profileData?.codigo_matricula!,
     newStudent: false,
     semestre: prazosMatricula?.semestre!,
@@ -100,7 +100,7 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     useQueryMonthlyFeesValue({
       curso: profileData?.codigo_curso,
       polo: profileData?.poloid,
-      anoLetivo: currentAcademicYear?.codigo ? parseInt(currentAcademicYear?.codigo!) : 23
+      anoLetivo: currentAcademicYear?.codigo 
     })
 
   const { createInvoiceAsync } = useMutationCreateInvoice()

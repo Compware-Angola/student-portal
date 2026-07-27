@@ -83,18 +83,18 @@ export function RegisterForm({ setView }: RegisterFormProps) {
       useGetPrazoPorTipo({
         codigo_tipo_candidatura: 1,
         tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
-        anoLectivo:licenciatura?.data?.codigo
+        anoLectivo:licenciatura?.codigo
       },
-    Boolean(licenciatura?.data?.codigo)
+    Boolean(licenciatura?.codigo)
   )
 
   const { data: prazoResponseMestrado, isLoading: prazoLoadingMestrado } =
     useGetPrazoPorTipo({
       codigo_tipo_candidatura: 2,
       tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
-      anoLectivo:mestrado?.data?.codigo
+      anoLectivo:mestrado?.codigo
     },
-    Boolean(mestrado?.data?.codigo)
+    Boolean(mestrado?.codigo)
   )
 
   const {
@@ -103,9 +103,9 @@ export function RegisterForm({ setView }: RegisterFormProps) {
   } = useGetPrazoPorTipo({
     codigo_tipo_candidatura: 3,
     tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
-    anoLectivo:doutoramento?.data?.codigo
+    anoLectivo:doutoramento?.codigo
   },
-  Boolean(doutoramento?.data?.codigo)
+  Boolean(doutoramento?.codigo)
   )
   const prazos = [
     prazoResponseLinceiatura,
@@ -157,13 +157,13 @@ export function RegisterForm({ setView }: RegisterFormProps) {
       let anoLectivoId: number |undefined =undefined
       const tipoCandidatura = Number(tiposDisponiveis.find((t) => t.label === data.tipoCandidatura)?.value)
       if(tipoCandidatura === 1){
-        anoLectivoId = licenciatura?.data?.codigo
+        anoLectivoId = licenciatura?.codigo
       }
       if(tipoCandidatura === 2){
-        anoLectivoId = mestrado?.data?.codigo
+        anoLectivoId = mestrado?.codigo
       }
       if(tipoCandidatura === 3){
-        anoLectivoId = doutoramento?.data?.codigo
+        anoLectivoId = doutoramento?.codigo
       }
       
       await submitToApi({

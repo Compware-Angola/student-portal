@@ -10,7 +10,6 @@ import { Badge } from '@/components/ui/badge'
 import {
   Clock,
   MapPin,
-  User,
   CalendarDays,
   AlertCircle,
   RefreshCw,
@@ -137,7 +136,7 @@ export const ScheduleSelectionDialog = ({
     refetch,
   } = useQueryCurriculumSchedule(
     {
-      academicYear: currentAcademicYear?.codigo,
+      academicYear: currentAcademicYear?.codigo?.toString(),
       gradeCurricular: subject?.codigoGrade,
       preocidade: profileData?.periodoid,
     },

@@ -63,17 +63,18 @@ export const Dashboard = () => {
   const { data: academicYear } = useQueryCurrentAcademicYear()
   const { data: atividades = [], isLoading: loadingAtividades } =
     useQueryAcademicActivity({
-      academicYear: academicYear?.codigo,
+      academicYear: academicYear?.codigo?.toString(),
       applicationType: profileData?.codigo_tipo_candidatura,
     })
   const { data: exams = [], isLoading: loadingExams } =
     useQueryAcademicTestSchedule({
-      academicYear: academicYear?.codigo,
+      academicYear: academicYear?.codigo?.toString(),
       semester: '1',
       enrollmentCode: profileData?.enrollmentCode,
     })
 
   const greeting = `${profileData?.sexo === 'Feminino' ? 'Bem-vinda' : 'Bem-vindo'}, ${profileData?.firstName} ${profileData?.lastName}`
+  // TODO:MELHORAR -> BUSCAR DO CURRENT JOSE MANUEL 
   const confirmationYear = profileData?.confirmacoes?.[0]?.ano_lectivo;
 
   // === Normalização ===
