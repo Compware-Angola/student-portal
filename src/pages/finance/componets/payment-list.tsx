@@ -5,7 +5,7 @@ import {
   CardContent,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Calendar, CheckCircle2, XCircle } from 'lucide-react'
+import { Calendar, CheckCircle2, XCircle, Loader2, AlertTriangle } from 'lucide-react'
 import { useState } from 'react'
 import { useQueryFinanceMonthlyFee } from '@/hooks/finance/use-query-finance-monthly-fee'
 import {
@@ -40,7 +40,7 @@ export function PaymentList({
   const limit = 12
 
   // AQUI ESTÁ A MÁGICA: filtro vai pro backend!
-  const { data: monthlyFeeData, isLoading, isError } = useQueryFinanceMonthlyFee({
+  const { data: monthlyFeeData, isLoading, isError, isFetching } = useQueryFinanceMonthlyFee({
     academicYear: Number(selectedYear),
     enrollmentCode,
     status: statusFilter,
@@ -63,28 +63,6 @@ export function PaymentList({
     setPage(1) // reseta página ao filtrar
   }
 
-  if (isLoading) {
-    return (
-      <Card>
-        <CardHeader><CardTitle>Meses de Pagamento</CardTitle></CardHeader>
-        <CardContent className="py-12 text-center">
-          <div className="animate-pulse text-muted-foreground">A carregar...</div>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  if (isError) {
-    return (
-      <Card>
-        <CardHeader><CardTitle className="text-destructive">Erro</CardTitle></CardHeader>
-        <CardContent className="text-center py-8 text-muted-foreground">
-          Não foi possível carregar as mensalidades.
-        </CardContent>
-      </Card>
-    )
-  }
-
   return (
     <Card className="overflow-hidden">
       <CardHeader className="border-b bg-muted/30">
@@ -99,7 +77,10 @@ export function PaymentList({
               onChange={handleYearChange}
             />
 
-            <Select value={statusFilter} onValueChange={handleStatusChange}>
+            <Select
+              value={statusFilter}
+              onValueChange={(value) => handleStatusChange(value as PaymentStatusFilter)}
+            >
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Estado" />
               </SelectTrigger>
@@ -116,7 +97,7 @@ export function PaymentList({
                     Pagas
                   </div>
                 </SelectItem>
-                <SelectItem value="pending">
+                <SelectItem value="unpaid">
                   <div className="flex items-center gap-2">
                     <XCircle className="h-4 w-4 text-red-600" />
                     Não pagas
@@ -129,7 +110,18 @@ export function PaymentList({
       </CardHeader>
 
       <CardContent className="p-6">
-        {payments.length === 0 ? (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
+            <Loader2 className="h-8 w-8 animate-spin" />
+            <p className="text-sm font-medium">A carregar mensalidades...</p>
+          </div>
+        ) : isError ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-16 text-destructive">
+            <AlertTriangle className="h-8 w-8" />
+            <p className="text-sm font-medium">Erro ao carregar as mensalidades</p>
+            <p className="text-xs text-muted-foreground">Tenta novamente mais tarde.</p>
+          </div>
+        ) : payments.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground">
             <p className="text-lg font-medium">Nenhuma mensalidade encontrada</p>
             <p className="text-sm mt-2">
@@ -139,13 +131,11 @@ export function PaymentList({
                 ? 'Não há mensalidades pagas.'
                 : 'Todas as mensalidades já foram pagas.'}
             </p>
-
-
           </div>
         ) : (
           <>
-            <div className="space-y-4">
-              <PaymentListMonthly payments={payments}/>
+            <div className={`space-y-4 transition-opacity ${isFetching ? 'opacity-50' : 'opacity-100'}`}>
+              <PaymentListMonthly payments={payments} />
             </div>
 
             {/* Paginação */}
@@ -154,7 +144,7 @@ export function PaymentList({
                 <Button
                   variant="outline"
                   onClick={() => setPage(p => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
+                  disabled={currentPage === 1 || isFetching}
                 >
                   Anterior
                 </Button>
@@ -164,7 +154,7 @@ export function PaymentList({
                 <Button
                   variant="outline"
                   onClick={() => setPage(p => p + 1)}
-                  disabled={currentPage === totalPages}
+                  disabled={currentPage === totalPages || isFetching}
                 >
                   Próxima
                 </Button>
