@@ -51,6 +51,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     isError: isErrorAcademicYear,
     isLoading: isLoadingAcademmicYear,
   } = useQueryCurrentAcademicYear()
+  console.log('currentAcademicYear', currentAcademicYear)
 
   const { data: taxaMatricula } = useTypeServiceSingle({
     currentYearCode: Number(currentAcademicYear?.codigo),
