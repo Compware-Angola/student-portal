@@ -9,9 +9,9 @@ import type { SectionKey, SelectedSchedule } from '../types/registrations-uc'
 import { useMutationConfirmOldStudentEnrollment } from '@/hooks/enrollment/use-mutation-confirm-old-student-enrollment'
 import { useMutationCreateInvoice } from '@/hooks/invoice/use-mutation-create-invoice'
 import type { CreateInvoiceBody } from '@/services/invoice/post-invoice.service'
-import { useMutationCreatePaymentReferenceMensalidades } from '@/hooks/invoice/use-mutation-payment-monthly'
-import type { CreatePaymentReferenceBody } from '@/services/invoice/post-invoice-monthly.service'
-import { useQueryMonthlyFeesValue } from '@/hooks/finance/use-query-monthly-fee'
+// import { useMutationCreatePaymentReferenceMensalidades } from '@/hooks/invoice/use-mutation-payment-monthly'
+// import type { CreatePaymentReferenceBody } from '@/services/invoice/post-invoice-monthly.service'
+// import { useQueryMonthlyFeesValue } from '@/hooks/finance/use-query-monthly-fee'
 import { useQueryActivityAcademicConfirmationStudent } from '@/hooks/academic/use-quer-activity-academic-confirmation'
 import { getEnrollmentStatus, parseFilter } from '@/utils'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
@@ -94,15 +94,15 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     () => getEnrollmentStatus(confirmationNewStudent[0]),
     [confirmationNewStudent],
   )
-  const { createPaymentReference } =
-    useMutationCreatePaymentReferenceMensalidades()
+  // const { createPaymentReference } =
+  //   useMutationCreatePaymentReferenceMensalidades()
 
-  const { data: monthlyFeeValue, isError: isMonthlyFeeValueErro } =
-    useQueryMonthlyFeesValue({
-      curso: profileData?.codigo_curso,
-      polo: profileData?.poloid,
-      anoLetivo: currentAcademicYear?.codigo 
-    })
+  // const { data: monthlyFeeValue, isError: isMonthlyFeeValueErro } =
+  //   useQueryMonthlyFeesValue({
+  //     curso: profileData?.codigo_curso,
+  //     polo: profileData?.poloid,
+  //     anoLetivo: currentAcademicYear?.codigo 
+  //   })
 
   const { createInvoiceAsync } = useMutationCreateInvoice()
   const pendentsGrades = mapGrades(curriculumPlan?.gradesPendentes?? [])
@@ -274,48 +274,48 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     await createInvoiceAsync(invoice)
   }
 
-  const createMonthlyPayments = async (enrollmentCode: number) => {
-    if (isMonthlyFeeValueErro) {
-      throw new Error('Erro ao gerar as mensalidades')
-    }
-    const monthlyValue = monthlyFeeValue[0]
-    if (!profileData) {
-      throw new Error('profile data nont found')
-    }
-    const invoiceData: CreatePaymentReferenceBody = {
-      amount: parseFloat(monthlyValue.preco),
-      currency: 'AOA',
-      description: 'Pagamento da mensalidade académica',
-      enrollment: {
-        CodigoMatricula: enrollmentCode,
-        codigo_preinscricao: parseInt(profileData?.preEnrollmentCode),
-      },
-      itens: [
-        {
-          CodigoProduto: parseInt(monthlyValue.codigo),
-          Quantidade: 2,
-          preco: parseFloat(monthlyValue.preco),
-          Total: parseFloat(monthlyValue.preco),
-          valor_pago: parseFloat(monthlyValue.preco),
-          obs: '',
-          taxaIva: 0,
-          valorIva: 0,
-          retencao: 0,
-          incidencia: 0,
-          valorDesconto: 0,
-          descontoProduto: 0,
-          mes: '',
-          multa: 0,
-          mesTempId: 0,
-          estado: 0,
-          valorPago: 0,
-          valorATransportar: 0,
-          codigoFactura: 1023,
-        },
-      ],
-    }
-    createPaymentReference(invoiceData)
-  }
+  // const createMonthlyPayments = async (enrollmentCode: number) => {
+  //   if (isMonthlyFeeValueErro) {
+  //     throw new Error('Erro ao gerar as mensalidades')
+  //   }
+  //   const monthlyValue = monthlyFeeValue[0]
+  //   if (!profileData) {
+  //     throw new Error('profile data nont found')
+  //   }
+  //   const invoiceData: CreatePaymentReferenceBody = {
+  //     amount: parseFloat(monthlyValue.preco),
+  //     currency: 'AOA',
+  //     description: 'Pagamento da mensalidade académica',
+  //     enrollment: {
+  //       CodigoMatricula: enrollmentCode,
+  //       codigo_preinscricao: parseInt(profileData?.preEnrollmentCode),
+  //     },
+  //     itens: [
+  //       {
+  //         CodigoProduto: parseInt(monthlyValue.codigo),
+  //         Quantidade: 2,
+  //         preco: parseFloat(monthlyValue.preco),
+  //         Total: parseFloat(monthlyValue.preco),
+  //         valor_pago: parseFloat(monthlyValue.preco),
+  //         obs: '',
+  //         taxaIva: 0,
+  //         valorIva: 0,
+  //         retencao: 0,
+  //         incidencia: 0,
+  //         valorDesconto: 0,
+  //         descontoProduto: 0,
+  //         mes: '',
+  //         multa: 0,
+  //         mesTempId: 0,
+  //         estado: 0,
+  //         valorPago: 0,
+  //         valorATransportar: 0,
+  //         codigoFactura: 1023,
+  //       },
+  //     ],
+  //   }
+  //   createPaymentReference(invoiceData)
+  // }
 
   const confirmStudentEnrollment = async () => {
     if (selectedSubjects.length === 0) {
@@ -363,11 +363,12 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     const payload = getOldStudentEnrollmentPayload()
     await confirmOldStudentEnrollmentAsync({
       selectedGrades: payload.selectedGrades,
-      semestre: prazosMatricula?.semestre!
+      semestre: prazosMatricula?.semestre!,
+      anoLectivo:currentAcademicYear?.codigo!
     })
     delay(6000)
     await createInvoiceWithPayload(Number(profileData?.codigo_matricula!))
-    createMonthlyPayments(Number(profileData?.codigo_matricula!))
+    // createMonthlyPayments(Number(profileData?.codigo_matricula!))
   }
 
   return (

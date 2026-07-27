@@ -8,6 +8,7 @@ export type ConfirmEnrollmentPayload = {
   codPreInscricao: number
   grades: EnrollmentGrade[]
   semestre: number
+  anoLectivo:number
 }
 
 import { gaApi } from '@/lib/ga-api'
