@@ -15,6 +15,7 @@ export interface UsableAcademicYear {
   codigo_tipo_candidatura: number
   fase_anolectivo: string
   tipo_candidatura: string
+  semestre: number
 }
 
 export interface GetUsableAcademicYearResponse {

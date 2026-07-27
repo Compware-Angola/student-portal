@@ -32,7 +32,10 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
   const { profileData } = useQueryProfile()
 
   const { data: currentAcademicYear } = useQueryCurrentAcademicYear()
-  console.log(currentAcademicYear)
+ if (!currentAcademicYear) {
+  return <> </>
+ } 
+
   const { createInvoiceAsync, createInvoicePending } =
     useMutationCreateInvoice()
   const queryClient = useQueryClient()
@@ -64,13 +67,13 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
       mesTempId: 3,
       estado: 0,
       valorPago: 0,
+      codigo_anoLectivo: currentAcademicYear?.codigo,
       valorATransportar: 0,
     }
   }
 
   const handleFactura = async () => {
-    console.log('Taxa Admissão')
-    console.table(taxaAdmissao)
+  
     try {
       const totalApagar = taxaAdmissao?.preco
       const item = createItem(taxaAdmissao)
@@ -89,6 +92,7 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
         Desconto: 0,
         totalIVA: 0,
         TotalMulta: 0,
+        codigo_anoLectivo: currentAcademicYear?.codigo,
         Descricao: presetTypeService(
           Number(profileData?.codigo_tipo_candidatura),
         ).description.substring(0, 44),

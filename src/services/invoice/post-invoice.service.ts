@@ -37,6 +37,7 @@ export type CreateInvoiceBody = {
   TotalMulta: number
   Descricao: string
   tipo_documento_factura_id: number
+  codigo_anoLectivo: number
   canal: number
   itens: InvoiceItem[]
 }
