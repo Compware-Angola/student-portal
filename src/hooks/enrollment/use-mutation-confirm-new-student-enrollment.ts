@@ -1,20 +1,23 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
-import { AuthStorage } from '@/storage/auth-storage'
-
 import type { Grade } from '@/types/grade'
 import { useNavigate } from 'react-router-dom'
 import { enrollmentService, type EnrollmentDiscipline } from '@/services/enrolment/confirm-enrollment-new-student.service'
+
+type ConfirmNewStudentEnrollmentParams = {
+  selectedSubjects: Grade[]
+  codPreInscricao: string
+  anoLectivo: number
+}
 
 export function useMutationConfirmNewStudentEnrollment() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   const { mutate, isSuccess, mutateAsync, isPending } = useMutation({
-    mutationFn: async (selectedSubjects: Grade[]) => {
-      const pre = AuthStorage.get()?.codigoPreinscricao
-      if (!pre) throw new Error('Código de pré-inscrição não encontrado.')
+    mutationFn: async ({ selectedSubjects, codPreInscricao, anoLectivo }: ConfirmNewStudentEnrollmentParams) => {
+      if (!codPreInscricao) throw new Error('Código de pré-inscrição não encontrado.')
 
       const grades = selectedSubjects.map<EnrollmentDiscipline>((s) => ({
        codigo: parseInt(s.codigoGrade),
@@ -22,7 +25,8 @@ export function useMutationConfirmNewStudentEnrollment() {
        semestre: s.semestreId
       }))
       return await enrollmentService({
-        codPreInscricao: pre.toString(),
+        codPreInscricao,
+        anoLectivo,
         grades
       })
     },

@@ -8,6 +8,7 @@ export type EnrollmentDiscipline = {
 
 export type EnrollmentPayload = {
   codPreInscricao: string
+  anoLectivo:number
   grades: EnrollmentDiscipline[]
 }
 

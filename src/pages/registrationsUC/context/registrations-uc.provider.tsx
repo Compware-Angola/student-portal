@@ -251,7 +251,7 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
         ? [createItem(foraPrazo)]
         : []),
 
-      ...selectedSubjects.map(generateDisciplineItem),
+      ...selectedSubjects.map((subject)=>generateDisciplineItem(subject,currentAcademicYear?.codigo!)),
     ]
     const invoice: CreateInvoiceBody = {
       polo_id: profileData?.poloid ?? 1,
@@ -265,6 +265,7 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
       Desconto: 0,
       totalIVA: 0,
       TotalMulta: 0,
+      codigo_anoLectivo:currentAcademicYear?.codigo!,
       Descricao: 'Inscrição em uc + Inscrição em Disciplinas'.substring(0, 44),
       tipo_documento_factura_id: 1,
       canal: 3,
@@ -423,7 +424,7 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
 }
 
 
-function generateDisciplineItem(grade: Grade) {
+function generateDisciplineItem(grade: Grade,currentAcademicYear: number) {
   const MAX_OBS_LENGTH = 45
   const nomeCompleto =
     grade.disciplina || grade.codigoDisciplina || 'Disciplina'
@@ -458,6 +459,7 @@ function generateDisciplineItem(grade: Grade) {
     estado: 0,
     valorPago: 0,
     valorATransportar: 0,
+    codigo_anoLectivo:currentAcademicYear
   }
 }
 function createItem(serviceType: TypeServiceResponse) {
