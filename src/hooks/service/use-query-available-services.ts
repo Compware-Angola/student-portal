@@ -1,29 +1,49 @@
 import {
   getAcademicService,
   type AvailableServicesResponse,
+  type GetAcademicServiceParams,
 } from '@/services/academicService/academic-service.service'
 import { useQuery } from '@tanstack/react-query'
 
-interface UseAvailableServicesParams {
-  academicYear?: string
-  poloId?: string
-}
+type UseAvailableServicesParams = GetAcademicServiceParams
 
 export function useQueryAvailableServices({
-  academicYear,
-  poloId,
+  descricao,
+  codigoAnoLectivo,
+  estado,
+  visualizarNoPortal,
+  tipoCandidatura,
+  page = 1,
+  limit = 10,
 }: UseAvailableServicesParams) {
-  const isEnabled = !!academicYear && !!poloId
+  const isEnabled = !!codigoAnoLectivo
 
   const { data, isLoading, error, isError } =
     useQuery<AvailableServicesResponse>({
-      queryKey: ['availableServices', academicYear, poloId],
+      queryKey: [
+        'availableServices',
+        descricao,
+        codigoAnoLectivo,
+        estado,
+        visualizarNoPortal,
+        tipoCandidatura,
+        page,
+        limit,
+      ],
 
       queryFn: async () => {
-        if (!academicYear || !poloId) {
+        if (!codigoAnoLectivo) {
           throw new Error('Academic services data is not available')
         }
-        return getAcademicService(academicYear, poloId)
+        return getAcademicService({
+          descricao,
+          codigoAnoLectivo,
+          estado,
+          visualizarNoPortal,
+          tipoCandidatura,
+          page,
+          limit,
+        })
       },
 
       enabled: isEnabled,
