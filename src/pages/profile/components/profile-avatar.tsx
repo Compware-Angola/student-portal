@@ -12,7 +12,7 @@ import {
 import { Slider } from '@/components/ui/slider'
 import Cropper, { type Area } from 'react-easy-crop'
 import { Upload, Loader2 } from 'lucide-react'
-import { useUploadSingle } from '@/hooks/upload/use-upload-single'
+import { useUploadSingle } from '@/hooks/upload/use-upload'
 import { toast } from 'sonner'
 import { useUpdateStudentPhoto } from '@/hooks/student/use-mutation-update-student-photo'
 import { FileFolder } from '@/enums/file-folder'

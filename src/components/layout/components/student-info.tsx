@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
-import { useGetFileUrl } from '@/hooks/upload/use-upload-single'
+import { useGetFileUrl } from '@/hooks/upload/use-upload'
 
 export function StudentInfo() {
   const { profileData, isLoading } = useQueryProfile()

@@ -8,7 +8,7 @@ import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { Button } from '@/components/ui/button'
 import { Edit } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { useGetFileUrl } from '@/hooks/upload/use-upload-single'
+import { useGetFileUrl } from '@/hooks/upload/use-upload'
 
 export function Profile() {
   const {
@@ -17,7 +17,7 @@ export function Profile() {
     error: profileError,
     profileData,
   } = useQueryProfile()
-  console.log(profileData);
+
   
 
   const [isEditing, setIsEditing] = useState(false)

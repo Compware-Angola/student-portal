@@ -7,7 +7,7 @@ import {
 } from '../schemas'
 import { steps } from './step'
 import React from 'react'
-import { useUploadSingle } from '@/hooks/upload/use-upload-single'
+import { useUploadSingle } from '@/hooks/upload/use-upload'
 import { useMutationPreInscricao } from '@/hooks/pre-registation/use-mutation-pre-registration'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useUpdateStudentPhoto } from '@/hooks/student/use-mutation-update-student-photo'

@@ -24,7 +24,7 @@ import {
   useQuerySupportTypes,
 } from '@/hooks/support/use-query-support'
 import type { SupportPayload } from '@/services/support/support.service'
-import { useUploadSingle } from '@/hooks/upload/use-upload-single'
+import { useUploadSingle } from '@/hooks/upload/use-upload'
 
 export const Suporte = () => {
   const [formData, setFormData] = useState({
