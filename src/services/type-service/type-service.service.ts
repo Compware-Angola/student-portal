@@ -24,6 +24,7 @@ export type GetTypeServiceParams = {
   descricao?: string
   codigoAnoLectivo?: number
   estado?: string
+  tipoCandidatura?: number
 }
 
 export async function getTypeService(params?: GetTypeServiceParams) {
