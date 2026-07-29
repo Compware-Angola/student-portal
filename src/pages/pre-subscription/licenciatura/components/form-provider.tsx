@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { steps } from './step'
 import { preSubscriptionSchema, type PreSubscriptionSchema } from '../schemas'
 import { useMutationPreInscricao } from '@/hooks/pre-registation/use-mutation-pre-registration'
-import { useUploadSingle } from '@/hooks/upload/use-upload-single'
+import { useUploadSingle } from '@/hooks/upload/use-upload'
 import { toast } from 'sonner'
 import { useUpdateStudentPhoto } from '@/hooks/student/use-mutation-update-student-photo'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
@@ -51,8 +51,8 @@ export function FormPreSubscriptionProvider({
   const uploadFile = async (data: File) => {
     const formData = new FormData()
     formData.append('file', data)
-    const response = await uploadMutation.mutateAsync(data)
-    return response.file.filename
+    const response = await uploadMutation.mutateAsync({file:data})
+    return response.key ?? ''
   }
 
   function buildInscricaoPayload(data: any, docs: any) {
@@ -138,7 +138,7 @@ export function FormPreSubscriptionProvider({
     if (data.photo) {
       photoPath = await uploadFile(data.photo)
       updateStudentPhoto.mutateAsync(
-        { file: photoPath, userId: profileData?.userId! },
+        { file: photoPath!, userId: profileData?.userId! },
         {},
       )
     }

@@ -10,7 +10,6 @@ import { Badge } from '@/components/ui/badge'
 import {
   Clock,
   MapPin,
-  User,
   CalendarDays,
   AlertCircle,
   RefreshCw,
@@ -137,7 +136,7 @@ export const ScheduleSelectionDialog = ({
     refetch,
   } = useQueryCurriculumSchedule(
     {
-      academicYear: currentAcademicYear?.codigo,
+      academicYear: currentAcademicYear?.codigo?.toString(),
       gradeCurricular: subject?.codigoGrade,
       preocidade: profileData?.periodoid,
     },
@@ -239,15 +238,6 @@ export const ScheduleSelectionDialog = ({
                     </div>
 
                     <div className="flex flex-wrap gap-3">
-                      <div className="flex items-center gap-2 bg-muted/50 px-3 py-2 rounded-md">
-                        <User className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-medium">
-                          Capacidade:{' '}
-                          <span className="text-primary">
-                            {horario.capacidade}
-                          </span>
-                        </span>
-                      </div>
                       <Badge variant="outline" className="px-3 py-2 text-sm">
                         {horario.semestre}
                       </Badge>
@@ -316,14 +306,6 @@ export const ScheduleSelectionDialog = ({
                                     >
                                       {aula.tipo.toUpperCase()}
                                     </Badge>
-                                    {aula.docente !== 'n/a' && (
-                                      <div className="flex items-center gap-2">
-                                        <User className="h-4 w-4 text-muted-foreground" />
-                                        <span className="text-sm text-muted-foreground">
-                                          {aula.docente}
-                                        </span>
-                                      </div>
-                                    )}
                                   </div>
                                 ))}
                             </div>

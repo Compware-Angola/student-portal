@@ -26,7 +26,7 @@ export type Aula = {
 
 export type ScheduleDetailsResponse = {
   codigo: number
-  designacao: string // "AGT.1.TAS.D-H1"
+  designacao: string 
   unidadeCurricularId: number
   unidadeCurricular: string
   curso: string
@@ -51,7 +51,7 @@ export async function getScheduleDetailsService(
   turmaId: number,
 ): Promise<ScheduleDetailsResponse> {
   const data = await gaApi
-    .get<ScheduleDetailsResponse>(`schedule/${turmaId}`)
+    .get<ScheduleDetailsResponse>(`schedule-portal/${turmaId}`)
     .json()
   return data
 }

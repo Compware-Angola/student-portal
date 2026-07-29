@@ -8,7 +8,7 @@ import { RegistrationsUCProvider } from './context/registrations-uc.provider'
 import { RegistrationsUCSkeleton } from './components/skeleton'
 
 import { useEffect } from 'react'
-import { StudentSituation } from '@/constants/student-situation'
+
 import { PaymentAlert } from '@/components/payment-alert'
 import { GraduatedBanner } from './components/graduated-banner'
 import { useRegistrationsUC } from './hooks/use-registrations-uc'
@@ -24,11 +24,12 @@ function RegistrationsUCContent() {
     isErrorStudentCurriculumPlanPendents,
     pendingSubjects,
     isLoadingAcademmicYear,
-    studentSituation,
+   
     isLoadingStudenttatistics,
     isLoadingDebit,
     debit,
     profileData,
+    confirmationData
 
   } = useRegistrationsUC()
   const isDiplomado = profileData?.estado_matricula === 'diplomado'
@@ -48,11 +49,8 @@ function RegistrationsUCContent() {
     isErrorStudentCurriculumPlan,
     isErrorStudentCurriculumPlanPendents,
   ])
-  const enrollmentState =
-    StudentSituation.NEW_WITH_CURRENT_CONFIRMATION ===
-      Number(studentSituation?.codigo_status) ||
-    StudentSituation.OLD_WITH_CURRENT_CONFIRMATION ===
-      Number(studentSituation?.codigo_status)
+
+      
   if (
     isLoadingProfileData ||
     isErrorProfileData ||
@@ -66,16 +64,13 @@ function RegistrationsUCContent() {
     return <RegistrationsUCSkeleton />
   }
   if (debit && (debit?.totalDivida ?? 0) > 0) return <PaymentAlert />
-
+  if (isDiplomado) return <GraduatedBanner />
   return (
     <div className="space-y-6">
-      {isDiplomado ? (
-        <GraduatedBanner />
-      ) : (
-        <>
+  <>
           <RegistrationsUCtHeader />
           <EnrollmentSummaryCards />
-          {!enrollmentState && (
+          {confirmationData && confirmationData.informacoes.podeConfirmar && (
             <>
               <div>
                 <div>
@@ -101,7 +96,6 @@ function RegistrationsUCContent() {
             </>
           )}
         </>
-      )}
     </div>
   )
 }

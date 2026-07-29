@@ -37,7 +37,7 @@ export function useQueryFinanceMonthlyFee({
   // 2. A queryKey deve incluir todos os parâmetros que afetam o resultado
   const queryKey = ['finance-monthly-fee', params] // Usar o objeto params inteiro é mais limpo
 
-  const { data, isLoading, error, isError } = useQuery<MonthlyFeeDataResponse>({
+  const { data, isLoading, error, isError, isFetching } = useQuery<MonthlyFeeDataResponse>({
     queryKey: queryKey,
     queryFn: async () => {
       if (!isEnabled) {
@@ -60,5 +60,6 @@ export function useQueryFinanceMonthlyFee({
     isLoading,
     error,
     isError,
+    isFetching
   }
 }

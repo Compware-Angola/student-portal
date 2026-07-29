@@ -55,7 +55,7 @@ export function AcademicCalendar() {
     isLoading: isAtividadesLoading,
     error: atividadesError,
   } = useQueryAcademicActivity({
-    academicYear: academicYear?.codigo,
+    academicYear: academicYear?.codigo?.toString(),
     applicationType: profileData?.codigo_tipo_candidatura,
   })
 

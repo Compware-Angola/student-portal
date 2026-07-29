@@ -1,4 +1,5 @@
 import { curriculumPlanService } from '@/services/curriculum/curriculumPlan.Service'
+import { fetchCurriculumPlanService, type CurriculumPlanPendentProps } from '@/services/curriculum/fetch-curriculum-plan.service'
 import type { CurriculumPlan } from '@/types/curriculum-plan'
 
 import { useQuery } from '@tanstack/react-query'
@@ -94,3 +95,17 @@ export function useQueryCurriculumPlanCurrentYear(
     isError,
   }
 }
+
+
+
+export function useFetchQueryCurriculum(paramns:CurriculumPlanPendentProps) {
+  console.log({paramns})
+  const {newStudent} = paramns
+  return useQuery({
+    queryKey: ['fetch-curriculum-plan',paramns],
+    queryFn: async () => fetchCurriculumPlanService(paramns),
+    enabled: Boolean(paramns.academicYear) && (newStudent ? paramns.preEnrollmentCode !== undefined : paramns.enrollmentCode !== undefined && paramns.semestre !== undefined),
+    staleTime: 1000 * 60 * 50,
+  })
+}
+  

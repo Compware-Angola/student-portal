@@ -15,6 +15,7 @@ export interface UsableAcademicYear {
   codigo_tipo_candidatura: number
   fase_anolectivo: string
   tipo_candidatura: string
+  semestre: number
 }
 
 export interface GetUsableAcademicYearResponse {
@@ -24,8 +25,9 @@ export interface GetUsableAcademicYearResponse {
 
 export async function getUsableAcademicYear(
     candidateType: number,
-  ): Promise<GetUsableAcademicYearResponse> {
-    return gaApi
+  ): Promise<UsableAcademicYear | null> {
+    const data = await gaApi
       .get(`academic-calendar/usable-anolectivo/${candidateType}`)
       .json<GetUsableAcademicYearResponse>()
+    return data.data
   }

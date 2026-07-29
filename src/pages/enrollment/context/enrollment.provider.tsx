@@ -4,14 +4,16 @@ import { toast } from 'sonner'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useMutationConfirmNewStudentEnrollment } from '@/hooks/enrollment/use-mutation-confirm-new-student-enrollment'
 import type { Grade } from '@/types/grade'
-import { useQueryCurriculumPlan } from '@/hooks/curriculum/use-query-curriculum-plan'
+import { useFetchQueryCurriculum } from '@/hooks/curriculum/use-query-curriculum-plan'
 import type { SectionKey, SelectedSchedule } from '../types/enrollment'
 
 import { useMutationCreateInvoice } from '@/hooks/invoice/use-mutation-create-invoice'
 import type { CreateInvoiceBody } from '@/services/invoice/post-invoice.service'
+{/**
 import { useMutationCreatePaymentReferenceMensalidades } from '@/hooks/invoice/use-mutation-payment-monthly'
 import type { CreatePaymentReferenceBody } from '@/services/invoice/post-invoice-monthly.service'
 import { useQueryMonthlyFeesValue } from '@/hooks/finance/use-query-monthly-fee'
+*/} 
 import { useQueryStudentSituation } from '@/hooks/student/use-query-student-situation'
 import { StudentSituation } from '@/constants/student-situation'
 import { useQueryActivityAcademicConfirmationStudent } from '@/hooks/academic/use-quer-activity-academic-confirmation'
@@ -21,6 +23,7 @@ import { useQueryStudentDashboardStatistics } from '@/hooks/statics/use-query-st
 import { useTypeServiceSingle } from '@/hooks/service/use-query-type-service'
 import { SERVICE_TYPES } from '@/constants/service-type'
 import type { TypeServiceResponse } from '@/services/type-service/type-service.service'
+import { useGradeMapper } from '@/pages/registrationsUC/hooks/use-grade-mapper'
 
 type ToggleState = {
   new: boolean
@@ -50,6 +53,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     isError: isErrorAcademicYear,
     isLoading: isLoadingAcademmicYear,
   } = useQueryCurrentAcademicYear()
+  console.log('currentAcademicYear', currentAcademicYear)
 
   const { data: taxaMatricula } = useTypeServiceSingle({
     currentYearCode: Number(currentAcademicYear?.codigo),
@@ -67,28 +71,26 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
   const isNewStudentWithOutEnrollment =
     StudentSituation.NEW_WITHOUT_ENROLLMENT ===
     Number(studentSituation?.codigo_status)
-
+const {mapGrades} = useGradeMapper()
   const { data: confirmationNewStudent } =
     useQueryActivityAcademicConfirmationStudent({
-      academicYearCode: currentAcademicYear?.codigo,
+      academicYearCode: currentAcademicYear?.codigo?.toString(),
       candidacyType: profileData?.codigo_tipo_candidatura,
       type: 'new',
     })
-
-  const {
-    data: grades,
-    isLoading: isLoadingStudentCurriculumPlan,
-    isError: isErrorStudentCurriculumPlan,
-  } = useQueryCurriculumPlan({
-    class: 1,
-    course: profileData?.codigo_curso,
-    type:"new"
-  })
+  const {data: curriculumPlan, isLoading: isLoadingCurriculumPlan, isError: isErrorCurriculumPlan} = useFetchQueryCurriculum({
+    academicYear: currentAcademicYear?.codigo?.toString()!,
+    preEnrollmentCode: Number(profileData?.preEnrollmentCode!),
+    newStudent: true,
+   
+    })
+ const grades = mapGrades(curriculumPlan?.gradesAFazer?? [])
 
   const enrollmentStatus = useMemo(
     () => getEnrollmentStatus(confirmationNewStudent[0]),
     [confirmationNewStudent],
   )
+  {/** 689182081-001
   const { createPaymentReference } =
     useMutationCreatePaymentReferenceMensalidades()
 
@@ -96,9 +98,9 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     useQueryMonthlyFeesValue({
       curso: profileData?.codigo_curso,
       polo: profileData?.poloid,
-      anoLetivo: currentAcademicYear?.codigo ? parseInt(currentAcademicYear?.codigo!) : 23
+      anoLetivo: currentAcademicYear?.codigo ? parseInt(currentAcademicYear?.codigo!.toString()) : 23
     })
-
+ */}
   const {
     confirmNewStudentEnrollmentPending,
     confirmNewStudentEnrollmentAsync,
@@ -269,7 +271,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
         ? [createItem(foraPrazo)]
         : []),
       createItem(taxaMatricula!),
-      ...selectedSubjects.map(generateDisciplineItem),
+      ...selectedSubjects.map((subject)=>generateDisciplineItem(subject,currentAcademicYear?.codigo!)),
     ]
     const invoice: CreateInvoiceBody = {
       polo_id: profileData?.poloid,
@@ -287,11 +289,17 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
       tipo_documento_factura_id: 1,
       canal: 3,
       DataFactura: now.toISOString(),
+      codigo_anoLectivo:currentAcademicYear?.codigo!,
       itens: itens,
     }
 
     return createInvoiceAsync(invoice)
   }
+   {/** 689182081-001
+   const { createPaymentReference } =
+     useMutationCreatePaymentReferenceMensalidades()
+
+  
   const createMonthlyPayments = async (enrollmentCode: number) => {
     if (isMonthlyFeeValueErro) {
       throw new Error('Erro ao gerar as mensalidades')
@@ -334,26 +342,44 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     }
     createPaymentReference(invoiceData)
   }
-
+ */}
   function delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms))
   }
 
-  const confirmStudentEnrollment = async () => {
+const confirmStudentEnrollment = async () => {
     const isSelectedAllSubjects = grades.length === selectedSubjects.length
 
     if (!isSelectedAllSubjects) {
       toast.warning('Selecione todas as disciplinas obrigatórias.')
       return
     }
-    const response = await confirmNewStudentEnrollmentAsync(selectedSubjects)
+
+    if (!profileData?.codigo_preinscricao) {
+      toast.error('Código de pré-inscrição não encontrado.')
+      return
+    }
+
+    if (!currentAcademicYear?.codigo) {
+      toast.error('Ano lectivo não encontrado.')
+      return
+    }
+
+    const response = await confirmNewStudentEnrollmentAsync({
+      selectedSubjects,
+      codPreInscricao: profileData.codigo_preinscricao.toString(),
+      anoLectivo: Number(currentAcademicYear.codigo),
+    })
+
     console.log(response.data.codMatricula)
-    const enrollmentCode =  response.data.codMatricula //response.Codigo_Matricula
+    const enrollmentCode = response.data.codMatricula
     await delay(6000)
-    const responseInvoice = await createInvoiceWithPayload(enrollmentCode)
+    await createInvoiceWithPayload(enrollmentCode)
+    {/** 689182081-001
     if (responseInvoice) {
       await createMonthlyPayments(enrollmentCode)
     }
+  */}
   }
 
   return (
@@ -364,9 +390,9 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
         totalPagar,
         selectedSubjects,
         isErrorProfileData,
-        isErrorStudentCurriculumPlan,
+        isErrorStudentCurriculumPlan:isErrorCurriculumPlan,
         isLoadingProfileData,
-        isLoadingStudentCurriculumPlan,
+        isLoadingStudentCurriculumPlan:isLoadingCurriculumPlan,
         isExpanded,
         subject: grades ?? [],
         totalValue,
@@ -397,7 +423,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     </EnrollmentContext.Provider>
   )
 }
-function generateDisciplineItem(grade: Grade) {
+function generateDisciplineItem(grade: Grade,currentAcademicYear: number) {
   const MAX_OBS_LENGTH = 45
   const nomeCompleto =
     grade.disciplina || grade.codigoDisciplina || 'Disciplina'
@@ -432,6 +458,7 @@ function generateDisciplineItem(grade: Grade) {
     estado: 0,
     valorPago: 0,
     valorATransportar: 0,
+    codigo_anoLectivo:currentAcademicYear,
   }
 }
 function createItem(serviceType: TypeServiceResponse) {

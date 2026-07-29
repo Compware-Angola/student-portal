@@ -7,19 +7,21 @@ import { confirmOldEnrollmentService, type EnrollmentGrade } from '@/services/en
 type ConfirmOldStudentEnrollmentProps =  {
   selectedGrades: EnrollmentGrade[],
   semestre: number
+  anoLectivo:number
 }
 export function useMutationConfirmOldStudentEnrollment() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   const { mutate, mutateAsync, isPending, isSuccess } = useMutation({
-    mutationFn: async ({selectedGrades,semestre}: ConfirmOldStudentEnrollmentProps) => {
+    mutationFn: async ({selectedGrades,semestre,anoLectivo}: ConfirmOldStudentEnrollmentProps) => {
       const pre = AuthStorage.get()?.codigoPreinscricao
       if (!pre) throw new Error('Código de pré-inscrição não encontrado.')
       return await confirmOldEnrollmentService({
         codPreInscricao: pre,
         grades: selectedGrades,
-        semestre: semestre!
+        semestre: semestre!,
+        anoLectivo
       })
     },
 

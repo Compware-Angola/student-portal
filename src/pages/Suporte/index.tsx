@@ -24,7 +24,7 @@ import {
   useQuerySupportTypes,
 } from '@/hooks/support/use-query-support'
 import type { SupportPayload } from '@/services/support/support.service'
-import { useUploadSingle } from '@/hooks/upload/use-upload-single'
+import { useUploadSingle } from '@/hooks/upload/use-upload'
 
 export const Suporte = () => {
   const [formData, setFormData] = useState({
@@ -59,8 +59,10 @@ export const Suporte = () => {
       let uploadedFileName: string | null = null
 
       if (formData.arquivo) {
-        const result = await uploadMutation.mutateAsync(formData.arquivo)
-        uploadedFileName = result.file.filename
+        const result = await uploadMutation.mutateAsync({
+          file: formData.arquivo,
+        })
+        uploadedFileName = result.key
       }
 
       const payload: SupportPayload = {

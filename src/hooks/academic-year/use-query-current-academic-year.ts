@@ -1,21 +1,13 @@
-import {
-  getCurrentAcademicYear,
-  type CurrentAcademicYear,
-} from '@/services/academic-year/get-current-academic-year.service'
+import { getUsableAcademicYear } from '@/services/academic/academic-calendar.service'
 import { useQuery } from '@tanstack/react-query'
 
-export function useQueryCurrentAcademicYear() {
-  const { data, isLoading, error, isError } = useQuery<CurrentAcademicYear>({
+export function useQueryCurrentAcademicYear(candidateType=1) {
+ return useQuery({
     queryKey: ['current-academic-year'],
-    queryFn: () => getCurrentAcademicYear(),
+   queryFn: () => getUsableAcademicYear(candidateType),
     staleTime: Infinity,
     retry: 0,
   })
 
-  return {
-    data,
-    isLoading,
-    error,
-    isError,
-  }
+
 }

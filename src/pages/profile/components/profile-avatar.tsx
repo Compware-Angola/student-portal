@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react'
+import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -12,9 +12,10 @@ import {
 import { Slider } from '@/components/ui/slider'
 import Cropper, { type Area } from 'react-easy-crop'
 import { Upload, Loader2 } from 'lucide-react'
-import { useUploadSingle } from '@/hooks/upload/use-upload-single'
+import { useUploadSingle } from '@/hooks/upload/use-upload'
 import { toast } from 'sonner'
 import { useUpdateStudentPhoto } from '@/hooks/student/use-mutation-update-student-photo'
+import { FileFolder } from '@/enums/file-folder'
 
 type ProfileAvatarProps = {
   firstName: string
@@ -99,39 +100,62 @@ export function ProfileAvatar({
   const [zoom, setZoom] = useState(1)
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const objectUrlRef = useRef<string | null>(null)
 
   const uploadMutation = useUploadSingle()
   const updateStudentPhoto = useUpdateStudentPhoto()
   const displayText = curriculumYear || enrollmentState
 
+useEffect(() => {
+  setCroppedImageUrl(currentPhotoUrl ?? null)
+
+  return () => {
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current)
+    }
+  }
+}, [currentPhotoUrl])
+
   const onCropComplete = useCallback((_: Area, croppedAreaPixels: Area) => {
     setCroppedAreaPixels(croppedAreaPixels)
   }, [])
 
+  const resetFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-    if (file) {
-      // Validar tipo de arquivo
-      if (!file.type.startsWith('image/')) {
-        toast.error('Por favor, selecione um arquivo de imagem válido.')
-        return
-      }
+    if (!file) return
 
-      // Validar tamanho (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        toast('A imagem deve ter no máximo 5MB.')
-        return
-      }
-
-      const reader = new FileReader()
-      reader.onload = () => {
-        setSelectedImage(reader.result as string)
-        setIsDialogOpen(true)
-        setCrop({ x: 0, y: 0 })
-        setZoom(1)
-      }
-      reader.readAsDataURL(file)
+    // Validar tipo de arquivo
+    if (!file.type.startsWith('image/')) {
+      toast.error('Por favor, selecione um arquivo de imagem válido.')
+      resetFileInput()
+      return
     }
+
+    // Validar tamanho (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('A imagem deve ter no máximo 5MB.')
+      resetFileInput()
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      setSelectedImage(reader.result as string)
+      setIsDialogOpen(true)
+      setCrop({ x: 0, y: 0 })
+      setZoom(1)
+    }
+    reader.onerror = () => {
+      toast.error('Não foi possível ler a imagem selecionada.')
+      resetFileInput()
+    }
+    reader.readAsDataURL(file)
   }
 
   const handleCropConfirm = async () => {
@@ -153,35 +177,46 @@ export function ProfileAvatar({
         },
       )
 
-      // Fazer upload usando a mutation
-      const response = await uploadMutation.mutateAsync(croppedFile)
+      // Fazer upload usando a mutation (novo formato do hook)
+      const response = await uploadMutation.mutateAsync({
+        file: croppedFile,
+        options: { folder: FileFolder.FOTOS_PERFIL },
+      })
 
-      // Criar URL temporária para preview imediato
-      const croppedUrl = URL.createObjectURL(croppedImageBlob)
-      setCroppedImageUrl(croppedUrl)
+      // Libera a URL de preview anterior antes de criar uma nova
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current)
+      }
+      const previewUrl = URL.createObjectURL(croppedImageBlob)
+      objectUrlRef.current = previewUrl
+      setCroppedImageUrl(previewUrl)
 
-      // Chamar callback com o path do arquivo no servidor
-      if (response.file.path) {
-        updateStudentPhoto.mutateAsync({ file: response.file.filename, userId })
+      // A API retorna { key, url } — usamos o "key" para vincular ao perfil
+      if (response.key) {
+        await updateStudentPhoto.mutateAsync({
+          file: response.key,
+          userId,
+        })
       }
 
-      toast('Foto atualizada com sucesso!')
+      toast.success('Foto atualizada com sucesso!')
 
       setIsDialogOpen(false)
       setSelectedImage(null)
+      resetFileInput()
     } catch (error) {
       console.error('Erro ao fazer upload da imagem:', error)
-      toast('Foto atualizada com sucesso!')
+      toast.error('Não foi possível atualizar a foto. Tente novamente.')
     }
   }
 
   const handleCancel = () => {
     setIsDialogOpen(false)
     setSelectedImage(null)
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-    }
+    resetFileInput()
   }
+
+  const isPending = uploadMutation.isPending || updateStudentPhoto.isPending
 
   return (
     <>
@@ -192,26 +227,25 @@ export function ProfileAvatar({
         <CardContent className="space-y-4">
           <div className="flex justify-center">
             <div className="relative">
-            <Avatar className="h-32 w-32">
-  {croppedImageUrl ? (
-    <AvatarImage
-      src={croppedImageUrl}
-      alt={`${firstName ?? ""} ${lastName ?? ""}`.trim()}
-    />
-  ) : (
-    <AvatarFallback className="text-3xl font-semibold uppercase">
-      {(() => {
-        // fallback seguro mesmo se firstName/lastName forem undefined
-        const f = (firstName ?? "").trim()[0] ?? "";
-        const l = (lastName ?? "").trim()[0] ?? "";
-        const initials = `${f}${l}`.toUpperCase();
+              <Avatar className="h-32 w-32">
+                {croppedImageUrl ? (
+                  <AvatarImage
+                    src={croppedImageUrl}
+                    alt={`${firstName ?? ''} ${lastName ?? ''}`.trim()}
+                  />
+                ) : (
+                  <AvatarFallback className="text-3xl font-semibold uppercase">
+                    {(() => {
+                      // fallback seguro mesmo se firstName/lastName forem undefined
+                      const f = (firstName ?? '').trim()[0] ?? ''
+                      const l = (lastName ?? '').trim()[0] ?? ''
+                      const initials = `${f}${l}`.toUpperCase()
 
-        return initials || "?";
-      })()}
-    </AvatarFallback>
-  )}
-</Avatar>
-
+                      return initials || '?'
+                    })()}
+                  </AvatarFallback>
+                )}
+              </Avatar>
             </div>
           </div>
 
@@ -230,16 +264,16 @@ export function ProfileAvatar({
             accept="image/*"
             onChange={handleFileSelect}
             className="hidden"
-            disabled={!isEditing || uploadMutation.isPending}
+            disabled={!isEditing || isPending}
           />
 
           <Button
             className="w-full"
-            disabled={!isEditing || uploadMutation.isPending}
+            disabled={!isEditing || isPending}
             variant="outline"
             onClick={() => fileInputRef.current?.click()}
           >
-            {uploadMutation.isPending ? (
+            {isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Enviando...
@@ -281,7 +315,7 @@ export function ProfileAvatar({
               <label className="text-sm font-medium">Zoom</label>
               <Slider
                 value={[zoom]}
-                onValueChange={(value:any) => setZoom(value[0])}
+                onValueChange={(value: number[]) => setZoom(value[0])}
                 min={1}
                 max={3}
                 step={0.1}
@@ -294,15 +328,12 @@ export function ProfileAvatar({
             <Button
               variant="outline"
               onClick={handleCancel}
-              disabled={uploadMutation.isPending}
+              disabled={isPending}
             >
               Cancelar
             </Button>
-            <Button
-              onClick={handleCropConfirm}
-              disabled={uploadMutation.isPending}
-            >
-              {uploadMutation.isPending ? (
+            <Button onClick={handleCropConfirm} disabled={isPending}>
+              {isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Enviando...

@@ -13,6 +13,7 @@ import {
   AlertCircle,
   Hourglass,
   ArrowRight,
+  CheckCircle,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
@@ -33,6 +34,8 @@ import { Button } from '@/components/ui/button'
 import { MonthlyCard } from './components/monthly-card'
 import { WalletCard } from './components/wallet-card'
 import { getGrauBadge } from './components/get-grau-badge'
+import { useQueryConfirmation } from '@/hooks/student/use-query-confirmation'
+import { parseFilter } from '@/utils'
 
 // === Tipos ===
 interface Notification {
@@ -58,22 +61,29 @@ export const Dashboard = () => {
   const { data: mensagens, isLoading: loadingMensagens } = useQueryMessage({
     userId: userId.toString(),
   })
+
   const { data: comunicados, isLoading: loadingComunicados } =
     useQueryAnnouncement({ pre_inscricao })
   const { data: academicYear } = useQueryCurrentAcademicYear()
+  const { data: conf } = useQueryConfirmation({
+    studentId: parseFilter(profileData?.enrollmentCode ?? '')!,
+    academicYearCode: parseFilter(academicYear?.codigo?.toString()!)!,
+    semesterCode: academicYear?.semestre!,
+  })
   const { data: atividades = [], isLoading: loadingAtividades } =
     useQueryAcademicActivity({
-      academicYear: academicYear?.codigo,
+      academicYear: academicYear?.codigo?.toString(),
       applicationType: profileData?.codigo_tipo_candidatura,
     })
   const { data: exams = [], isLoading: loadingExams } =
     useQueryAcademicTestSchedule({
-      academicYear: academicYear?.codigo,
+      academicYear: academicYear?.codigo?.toString(),
       semester: '1',
       enrollmentCode: profileData?.enrollmentCode,
     })
 
   const greeting = `${profileData?.sexo === 'Feminino' ? 'Bem-vinda' : 'Bem-vindo'}, ${profileData?.firstName} ${profileData?.lastName}`
+  // TODO:MELHORAR -> BUSCAR DO CURRENT JOSE MANUEL 
   const confirmationYear = profileData?.confirmacoes?.[0]?.ano_lectivo;
 
   // === Normalização ===
@@ -128,6 +138,8 @@ export const Dashboard = () => {
     latestMensagens.length > 0 || latestComunicados.length > 0
   const hasCalendar = latestCalendar.length > 0
   const hasExams = latestExams.length > 0
+  const podeConfirmar = conf?.informacoes?.confirmacao_status ===0  || conf?.informacoes?.podeConfirmar
+ 
 
   // === Funções auxiliares ===
   const getIcon = (type: string) => {
@@ -178,7 +190,7 @@ export const Dashboard = () => {
 </div>
 
 
-      {(profileData.estado_aluno !== "DIPLOMADO" && profileData.confirmacoes?.length === 0 || profileData.confirmacoes[0]?.estado === 0) && (
+      {(profileData.estado_aluno !== "DIPLOMADO" && profileData?.confirmacoes?.length !== 0 &&  profileData?.confirmacoes[0]?.estado === 0 ) && (
         <Card className="border-l-4 border-l-amber-500 bg-amber-500/5">
           <CardContent className="p-5">
             <div className="flex items-start gap-4">
@@ -220,7 +232,48 @@ export const Dashboard = () => {
           </CardContent>
         </Card>
       )}
+   {conf?.informacoes.podeConfirmar && (
+  <Card className="border-l-4 border-l-amber-500 bg-amber-500/5">
+    <CardContent className="p-5">
+      <div className="flex items-start gap-4">
+        <div className="hidden sm:flex h-11 w-11 items-center justify-center rounded-lg bg-amber-500/15 shrink-0">
+          <AlertCircle className="h-5 w-5 text-amber-600" />
+        </div>
+        <div className="flex-1 space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge className="bg-amber-500 hover:bg-amber-500 text-white gap-1">
+              <Hourglass className="h-3 w-3" />
+              Inscrição por confirmar
+            </Badge>
+            <span className="text-xs text-muted-foreground">
+              Estado: <strong className="text-foreground">Pendente</strong>
+            </span>
+          </div>
+          <h3 className="text-base font-semibold leading-snug">
+            A sua inscrição ainda não foi confirmada
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Para activar o seu acesso completo (horários, avaliações e disciplinas), é necessário confirmar a sua inscrição.
+          </p>
+          <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1 pl-1">
+            <li>Reveja os seus dados e confirme a inscrição para este período lectivo.</li>
+          </ul>
+          <div className="flex flex-wrap gap-2 pt-2">
+            <Button size="sm" onClick={() => navigate("/inscricao-uc")} className="gap-1.5">
+              <CheckCircle className="h-4 w-4" />
+              Confirmar inscrição
+            </Button>
 
+            <Button size="sm" variant="ghost" onClick={() => navigate("/suporte")} className="gap-1.5">
+              Contactar Suporte
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+)}
       {/* Estatísticas */}
       <div className="grid gap-6 md:grid-cols-3">
 
@@ -234,6 +287,7 @@ export const Dashboard = () => {
           onClick={() => navigate('/financas')}
           enrollmentCode={profileData.enrollmentCode}
           selectedYear={confirmationYear}
+          unavailable={podeConfirmar}
         />
         <CompletedSubjectsCard enrollmentCode={profileData.enrollmentCode} />
       </div>

@@ -59,6 +59,7 @@ export function EnrollmentSummaryCards() {
     enrollmentStatus,
     studentSituation,
     maxCourseGrade,
+    confirmationData
   } = useRegistrationsUC()
 
   const { data: academicYear } = useQueryCurrentAcademicYear()
@@ -112,11 +113,18 @@ export function EnrollmentSummaryCards() {
     },
   ]
 
+
+if(confirmationData?.informacoes.podeConfirmar){
+  return <div className={cn('grid gap-4', 'md:grid-cols-3')}>
+          {cards.map((card, index) => (
+            <SummaryCard key={index} {...card} />
+          ))}
+  </div>
+}
   return (
     <div className="space-y-3">
-      {enrollmentState ? (
         <>
-          {profileData?.confirmacoes && profileData.confirmacoes.length > 0 ? (
+          {!confirmationData?.informacoes.podeConfirmar ? (
             <div>
               <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
                 <CardHeader>
@@ -131,7 +139,7 @@ export function EnrollmentSummaryCards() {
                       <br />
                       <CardDescription>
                         <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                          {profileData.confirmacoes[0]?.classe ?? '—'}º Ano
+                          {profileData?.confirmacoes[0]?.classe ?? '—'}º Ano
                           Ativo
                         </Badge>{' '}
                         - {profileData?.curso ?? '—'}
@@ -200,13 +208,7 @@ export function EnrollmentSummaryCards() {
             </Card>
           )}
         </>
-      ) : (
-        <div className={cn('grid gap-4', 'md:grid-cols-3')}>
-          {cards.map((card, index) => (
-            <SummaryCard key={index} {...card} />
-          ))}
-        </div>
-      )}
+      
     </div>
   )
 }

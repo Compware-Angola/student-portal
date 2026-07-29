@@ -7,8 +7,8 @@ import { toast } from 'sonner'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { Button } from '@/components/ui/button'
 import { Edit } from 'lucide-react'
-import { useState } from 'react'
-import { buildImageAssets } from '@/utils/build-image-assets'
+import { useEffect, useState } from 'react'
+import { useGetFileUrl } from '@/hooks/upload/use-upload'
 
 export function Profile() {
   const {
@@ -17,7 +17,42 @@ export function Profile() {
     error: profileError,
     profileData,
   } = useQueryProfile()
+
+  
+
   const [isEditing, setIsEditing] = useState(false)
+  const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string>('')
+
+  const {
+    mutateAsync: getFileUrlAsync,
+  } = useGetFileUrl()
+
+
+  useEffect(() => {
+    async function loadPhotoUrl() {
+      if (!profileData?.foto) {
+        setCurrentPhotoUrl('')
+        return
+      }
+
+      try {
+        const response = await getFileUrlAsync({
+          key: profileData.foto,
+          expiry: 3600,
+        })
+
+        setCurrentPhotoUrl(response.url)
+
+      } catch (error) {
+        console.error('Erro ao carregar foto:', error)
+        setCurrentPhotoUrl('')
+      }
+    }
+
+    loadPhotoUrl()
+
+  }, [profileData?.foto])
+
 
   if (isProfileLoading || isProfileError || !profileData) {
     if (profileError) {
@@ -30,6 +65,7 @@ export function Profile() {
           <Skeleton className="h-9 w-32 mb-2" />
           <Skeleton className="h-5 w-64" />
         </div>
+
         <div className="grid gap-6 lg:grid-cols-3">
           <ProfileCardSkeleton />
           <InfoCardSkeleton />
@@ -37,6 +73,7 @@ export function Profile() {
       </div>
     )
   }
+
 
   const {
     enrollmentState,
@@ -51,27 +88,37 @@ export function Profile() {
     polo,
     codigo_matricula,
     userId,
-    foto,
   } = profileData
-  const currentPhotoUrl = buildImageAssets(foto)
+
+
   return (
     <div className="space-y-6">
+
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Perfil</h1>
-          <p className="text-muted-foreground">Gerencie as suas informações</p>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Perfil
+          </h1>
+
+          <p className="text-muted-foreground">
+            Gerencie as suas informações
+          </p>
         </div>
+
 
         <Button
           variant={isEditing ? 'default' : 'outline'}
           onClick={() => setIsEditing(!isEditing)}
         >
           <Edit className="mr-2 h-4 w-4" />
+
           {isEditing ? 'Cancelar' : 'Editar Dados'}
         </Button>
       </div>
 
+
       <div className="grid gap-6 lg:grid-cols-3">
+
         <ProfileAvatar
           firstName={firstName}
           lastName={lastName}
@@ -82,6 +129,8 @@ export function Profile() {
           isEditing={isEditing}
           currentPhotoUrl={currentPhotoUrl}
         />
+
+
         <InformationCard
           studentId={codigo_matricula}
           name={fullName}
@@ -93,7 +142,9 @@ export function Profile() {
           isEditing={isEditing}
           userId={userId!}
         />
+
       </div>
+
     </div>
   )
 }
