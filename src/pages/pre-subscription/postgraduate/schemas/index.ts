@@ -16,7 +16,7 @@ export const preSubscriptionPostGraduateSchema = _preSubscriptionSchema.extend({
   averageGrade: z.string(),
   howDidYouKnow: z.string(),
   publicUniversityDocument: z.string(),
-  faculty: z.string(),
+  // faculty: z.string(),
 })
 
 export type PreSubscriptionPostGraduateSchema = z.infer<

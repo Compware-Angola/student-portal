@@ -108,6 +108,7 @@ export function FormPreSubscriptionProvider({
       motherName: '',
       needs: '',
       averageGrade: '0',
+      faculty: undefined,
       graduationYear: '',
       previousSchool: '',
       previousCourse: '',

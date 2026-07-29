@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useCursos } from '@/hooks/dropdowns/use-query-cursos'
 import { useFormPreSubscriptionForm } from './form-provider'
 import { SelectFormField } from '@/components/selectFormField'
@@ -7,10 +6,10 @@ import { usePoloDropdown } from '@/hooks/dropdowns/use-query-polo'
 import { FileInput } from '@/components/input-file'
 import { InputFormField } from '@/components/input-form-field'
 import { FacultySelect } from '@/components/selects/FacultySelect'
+import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 
 export function AcademicDocument() {
   const { form } = useFormPreSubscriptionForm()
-  const [faculdade, setFaculdade] = useState("");
 
   //OPCIONAIS
   const { data: courses } = useCursos()
@@ -35,8 +34,8 @@ export function AcademicDocument() {
       value: String(t.id),
     })) ?? []
 
-    console.log(polos)
-    console.log(poloOptions)
+  console.log(polos)
+  console.log(poloOptions)
 
   const natureInscriptionOptions = [
     { label: 'Sim', value: '1' },
@@ -66,14 +65,30 @@ export function AcademicDocument() {
           items={courseOptions}
         />
 
-       <FacultySelect
-  value={faculdade}
-  onChangeValue={setFaculdade}
-  allOption
-  showLabel
-  placeholder="Selecione a faculdade"
-  width="full"
-/>
+        <FormField
+          control={form.control}
+          name="faculty"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <FacultySelect
+                  value={field.value?.toString()}
+                  onChangeValue={(v) => field.onChange(parseInt(v))}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* <FacultySelect
+          value={faculdade}
+          onChangeValue={setFaculdade}
+          allOption
+          showLabel
+          placeholder="Selecione a faculdade"
+          width="full"
+        /> */}
         <SelectFormField
           name="intendedCourseSecond"
           placeholder="Selecione Curso"
@@ -119,6 +134,7 @@ export function AcademicDocument() {
             })
           }
         />
+
         <SelectFormField
           name="natureInscription"
           control={form.control}
@@ -136,8 +152,8 @@ export function AcademicDocument() {
             maxSizeMB={5}
             error={
               form.formState.errors.publicUniversityDocument?.message as
-                | string
-                | undefined
+              | string
+              | undefined
             }
             onChange={(file) =>
               form.setValue('publicUniversityDocument', file!, {
