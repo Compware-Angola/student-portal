@@ -8,7 +8,7 @@ import { RegistrationsUCProvider } from './context/registrations-uc.provider'
 import { RegistrationsUCSkeleton } from './components/skeleton'
 
 import { useEffect } from 'react'
-import { StudentSituation } from '@/constants/student-situation'
+
 import { PaymentAlert } from '@/components/payment-alert'
 import { GraduatedBanner } from './components/graduated-banner'
 import { useRegistrationsUC } from './hooks/use-registrations-uc'
@@ -24,7 +24,7 @@ function RegistrationsUCContent() {
     isErrorStudentCurriculumPlanPendents,
     pendingSubjects,
     isLoadingAcademmicYear,
-    studentSituation,
+   
     isLoadingStudenttatistics,
     isLoadingDebit,
     debit,
@@ -49,11 +49,8 @@ function RegistrationsUCContent() {
     isErrorStudentCurriculumPlan,
     isErrorStudentCurriculumPlanPendents,
   ])
-  const enrollmentState =
-    StudentSituation.NEW_WITH_CURRENT_CONFIRMATION ===
-      Number(studentSituation?.codigo_status) ||
-    StudentSituation.OLD_WITH_CURRENT_CONFIRMATION ===
-      Number(studentSituation?.codigo_status)
+
+      
   if (
     isLoadingProfileData ||
     isErrorProfileData ||
