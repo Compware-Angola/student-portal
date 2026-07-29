@@ -53,8 +53,8 @@ export function FormPreSubscriptionPostGraduateProvider({
   const uploadFile = async (data: File) => {
     const formData = new FormData()
     formData.append('file', data)
-    const response = await uploadMutation.mutateAsync(data)
-    return response.file.filename
+    const response = await uploadMutation.mutateAsync({file:data})
+    return response.key ?? ''
   }
 
   function buildInscricaoPayload(data: any, docs: any) {

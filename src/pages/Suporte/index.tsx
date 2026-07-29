@@ -59,8 +59,10 @@ export const Suporte = () => {
       let uploadedFileName: string | null = null
 
       if (formData.arquivo) {
-        const result = await uploadMutation.mutateAsync(formData.arquivo)
-        uploadedFileName = result.file.filename
+        const result = await uploadMutation.mutateAsync({
+          file: formData.arquivo,
+        })
+        uploadedFileName = result.key
       }
 
       const payload: SupportPayload = {
