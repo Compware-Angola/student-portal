@@ -52,7 +52,7 @@ export function FormPreSubscriptionProvider({
     const formData = new FormData()
     formData.append('file', data)
     const response = await uploadMutation.mutateAsync(data)
-    return response.file.filename
+    return response.file.filename ?? ''
   }
 
   function buildInscricaoPayload(data: any, docs: any) {
@@ -138,7 +138,7 @@ export function FormPreSubscriptionProvider({
     if (data.photo) {
       photoPath = await uploadFile(data.photo)
       updateStudentPhoto.mutateAsync(
-        { file: photoPath, userId: profileData?.userId! },
+        { file: photoPath!, userId: profileData?.userId! },
         {},
       )
     }
