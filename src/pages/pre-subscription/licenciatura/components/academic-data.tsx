@@ -95,7 +95,6 @@ export function AcademicData() {
         />
         <FileInput
           label="Certificado"
-          required
           accept=".pdf"
           maxSizeMB={5}
           error={form.formState.errors.certificate?.message}

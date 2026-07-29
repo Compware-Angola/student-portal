@@ -1,12 +1,17 @@
+import { useState } from "react";
 import { useCursos } from '@/hooks/dropdowns/use-query-cursos'
 import { useFormPreSubscriptionForm } from './form-provider'
 import { SelectFormField } from '@/components/selectFormField'
 import { useQueryPeriod } from '@/hooks/dropdowns/use-query-period'
 import { usePoloDropdown } from '@/hooks/dropdowns/use-query-polo'
 import { FileInput } from '@/components/input-file'
+import { InputFormField } from '@/components/input-form-field'
+import { FacultySelect } from '@/components/selects/FacultySelect'
 
 export function AcademicDocument() {
   const { form } = useFormPreSubscriptionForm()
+  const [faculdade, setFaculdade] = useState("");
+
   //OPCIONAIS
   const { data: courses } = useCursos()
 
@@ -57,6 +62,15 @@ export function AcademicDocument() {
           label="Curso Pretendido"
           items={courseOptions}
         />
+
+       <FacultySelect
+  value={faculdade}
+  onChangeValue={setFaculdade}
+  allOption
+  showLabel
+  placeholder="Selecione a faculdade"
+  width="full"
+/>
         <SelectFormField
           name="intendedCourseSecond"
           placeholder="Selecione Curso"
@@ -107,13 +121,13 @@ export function AcademicDocument() {
           control={form.control}
           placeholder="Selecione um valor"
           fullWidth
-          label="Veio de uma Universidade Pública?"
+          label="Já fez prova na pública e teve positiva?"
           items={natureInscriptionOptions}
         />
 
         {camePublicUniversity === '1' && (
           <FileInput
-            label="Documento Comprovativo"
+            label="Anexa a pauta da pública"
             required
             accept=".pdf"
             maxSizeMB={5}
