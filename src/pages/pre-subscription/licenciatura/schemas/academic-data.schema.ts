@@ -21,7 +21,6 @@ export const academicDataSchema = z.object({
     .number('Média final é obrigatória')
     .min(10, 'O valor mínimo é 10')
     .max(20, 'O valor máximo é 20'),
-  // faculty: z.string().min(1, 'Faculdade é obrigatório'),
   
     
 })

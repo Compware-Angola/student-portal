@@ -35,6 +35,9 @@ export function AcademicDocument() {
       value: String(t.id),
     })) ?? []
 
+    console.log(polos)
+    console.log(poloOptions)
+
   const natureInscriptionOptions = [
     { label: 'Sim', value: '1' },
     { label: 'Não', value: '0' },

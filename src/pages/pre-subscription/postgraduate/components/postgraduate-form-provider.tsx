@@ -89,6 +89,7 @@ export function FormPreSubscriptionPostGraduateProvider({
       codigoTipoCandidatura: Number(data.intendedGraduation),
       inquerito: data.howDidYouKnow,
       tentou_universidade_publica: data.publicUniversityDocument,
+      faculty: data.faculty,
     }
   }
 
@@ -119,6 +120,7 @@ export function FormPreSubscriptionPostGraduateProvider({
       codigoNacionalidade: '',
       howDidYouKnow: '',
       publicUniversityDocument: '',
+      faculty: '',
     },
     mode: 'onChange',
   })
