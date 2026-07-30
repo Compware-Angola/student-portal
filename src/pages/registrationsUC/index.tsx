@@ -15,6 +15,9 @@ import { StandardTimeframe } from './components/standard-timeframe'
 import { RegistrationsUCAvailable } from './components/RegistrationsUCAvailable'
 import { RegistrationsDeadlineExpired } from './components/RegistrationsDeadlineExpired'
 
+
+
+
 function RegistrationsUCContent() {
   const {
     subject,
@@ -26,22 +29,19 @@ function RegistrationsUCContent() {
     isErrorStudentCurriculumPlanPendents,
     pendingSubjects,
     isLoadingAcademmicYear,
-    isLoadingStudenttatistics,
+   
     isLoadingDebit,
     debit,
     profileData,
     confirmationData,
-    prazosMatricula
+   
+    prazoValido,
+    foraDoPrazo,
+    aindaNaoComecou,
   } = useRegistrationsUC()
 
   const isDiplomado = profileData?.estado_matricula === 'diplomado'
 
-  const prazoValido = prazosMatricula?.calendario &&
-    prazosMatricula.calendario.some(
-      prazo =>
-        new Date(prazo.data_inicio) <= new Date() &&
-        new Date(prazo.data_termino) >= new Date()
-    )
 
 
   const isLoadingPage =
@@ -50,13 +50,21 @@ function RegistrationsUCContent() {
     isLoadingStudentCurriculumPlan ||
     isLoadingStudentCurriculumPlanPendents ||
     isLoadingAcademmicYear ||
-    isLoadingStudenttatistics ||
+
     isLoadingDebit ||
     !profileData
 
- 
   const podeConfirmar = confirmationData?.informacoes.podeConfirmar ?? false
-  const podeMatricularAgora = podeConfirmar && prazoValido
+  console.log(podeConfirmar);
+  
+
+  // Pode se inscrever tanto dentro do prazo (grátis) quanto fora do prazo (pagando taxa)
+  const podeInscrever = podeConfirmar && (prazoValido || foraDoPrazo)
+
+  
+
+  // Fora do prazo mas ainda pode se inscrever mediante taxa
+  const requerTaxa = podeConfirmar && foraDoPrazo
 
   useEffect(() => {
     if (isErrorProfileData) {
@@ -86,26 +94,30 @@ function RegistrationsUCContent() {
       <RegistrationsUCtHeader />
 
       {confirmationData && (
-        podeMatricularAgora ? (
-          <EnrollmentSummaryCards /> // Pode Matricular card
+        podeInscrever ? (
+          <EnrollmentSummaryCards /> // Pode inscrição (dentro ou fora do prazo, com ou sem taxa)
         ) : (
-          <StandardTimeframe /> // Tela Do dia a dia sem poder confirmar
+          <StandardTimeframe /> // Dia a dia sem poder confirmar (ex: ainda não começou o período)
         )
       )}
 
-      {confirmationData && confirmationData.informacoes.podeConfirmar && (
-        podeMatricularAgora ? (
+      {confirmationData && podeConfirmar && (
+        podeInscrever ? (
           <RegistrationsUCAvailable
             pendingSubjects={pendingSubjects}
             subject={subject}
-          />  // Tela de Confirmação  onde tras as cadeiras
+            requerTaxa={requerTaxa} // sinaliza pro componente que essa inscrição exige pagamento de taxa
+          />
         ) : (
-          <RegistrationsDeadlineExpired /> // Tela do dia a dia sem poder confirmar
+          <RegistrationsDeadlineExpired
+            aindaNaoComecou={aindaNaoComecou} // opcional: diferenciar mensagem "ainda não começou" de outros casos
+          />
         )
       )}
     </div>
   )
 }
+
 export function RegistrationsUC() {
   return (
     <RegistrationsUCProvider>

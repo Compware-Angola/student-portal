@@ -1,44 +1,78 @@
-/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
+
 import { useState, type ReactNode, useMemo } from 'react'
-import { RegistrationsUCContext } from './registrations-uc.context'
 import { toast } from 'sonner'
-import { useQueryProfile } from '@/hooks/profile/use-query-profile'
+import { RegistrationsUCContext } from './registrations-uc.context'
 import type { Grade } from '@/types/grade'
-import { useFetchQueryCurriculum } from '@/hooks/curriculum/use-query-curriculum-plan'
 import type { SectionKey, SelectedSchedule } from '../types/registrations-uc'
+import type { CreateInvoiceBody } from '@/services/invoice/post-invoice.service'
+import type { TypeServiceResponse } from '@/services/type-service/type-service.service'
+import { useQueryProfile } from '@/hooks/profile/use-query-profile'
+import { useFetchQueryCurriculum } from '@/hooks/curriculum/use-query-curriculum-plan'
 import { useMutationConfirmOldStudentEnrollment } from '@/hooks/enrollment/use-mutation-confirm-old-student-enrollment'
 import { useMutationCreateInvoice } from '@/hooks/invoice/use-mutation-create-invoice'
-import type { CreateInvoiceBody } from '@/services/invoice/post-invoice.service'
-// import { useMutationCreatePaymentReferenceMensalidades } from '@/hooks/invoice/use-mutation-payment-monthly'
-// import type { CreatePaymentReferenceBody } from '@/services/invoice/post-invoice-monthly.service'
-// import { useQueryMonthlyFeesValue } from '@/hooks/finance/use-query-monthly-fee'
-import { useQueryActivityAcademicConfirmationStudent } from '@/hooks/academic/use-quer-activity-academic-confirmation'
-import { getEnrollmentStatus, parseFilter } from '@/utils'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
-import { useQueryStudentDashboardStatistics } from '@/hooks/statics/use-query-student-dashboard-statistics'
 import { useQueryGetDebit } from '@/hooks/renegotiation/use-query-renegotiation'
-import type { TypeServiceResponse } from '@/services/type-service/type-service.service'
 import { useTypeServiceSingle } from '@/hooks/service/use-query-type-service'
-import { SERVICE_TYPES } from '@/constants/service-type'
-import { useQueryStudentSituation } from '@/hooks/student/use-query-student-situation'
-import { useQueryPrazoMatricula } from '@/hooks/prazos-matriculas/use-query-prazos-matricula'
-import { useGradeMapper } from '../hooks/use-grade-mapper'
 import { useQueryConfirmation } from '@/hooks/student/use-query-confirmation'
+import { useGradeMapper } from '../hooks/use-grade-mapper'
+import { getEnrollmentStatus, parseFilter } from '@/utils'
+import { SERVICE_TYPES } from '@/constants/service-type'
+import { UseQueryEnrollmentAndRegistrationDeadlines } from '@/hooks/prazos-inscricao-antigos/use-query-prazos-matricula'
 
 type ToggleState = {
   new: boolean
   pendents: boolean
 }
+
 type EnrollmentProviderProps = {
   children: ReactNode
 }
 
+interface Prazo {
+  data_inicio: string
+  data_termino: string
+}
+
+// =====================
+// 📅 Utilitário de prazo
+// =====================
+function getStatusPrazo(calendario?: Prazo[]) {
+  const agora = new Date()
+
+  if (!calendario || calendario.length === 0) {
+    return { prazoValido: false, foraDoPrazo: false, aindaNaoComecou: false }
+  }
+
+  const prazoValido = calendario.some(
+    (p) => new Date(p.data_inicio) <= agora && new Date(p.data_termino) >= agora,
+  )
+
+  const foraDoPrazo =
+    !prazoValido && calendario.some((p) => new Date(p.data_termino) < agora)
+
+  const aindaNaoComecou = !prazoValido && !foraDoPrazo
+
+  return { prazoValido, foraDoPrazo, aindaNaoComecou }
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
+  // =====================
+  // 🔀 Estado local (UI)
+  // =====================
   const [isExpanded, setIsExpanded] = useState<ToggleState>({
     new: true,
     pendents: true,
   })
+  const [selectedSchedules, setSelectedSchedules] = useState<Record<string, SelectedSchedule>>({})
+  const [selectedSubjects, setSelectedSubjects] = useState<Grade[]>([])
 
+  // =====================
+  // 📡 Queries
+  // =====================
   const {
     profileData,
     isLoading: isLoadingProfileData,
@@ -50,85 +84,97 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     isError: isErrorAcademicYear,
     isLoading: isLoadingAcademmicYear,
   } = useQueryCurrentAcademicYear()
+
+
+
+  const { data: enrollmentPeriodStudentsOld } = UseQueryEnrollmentAndRegistrationDeadlines({
+    anoLectivo: parseFilter(currentAcademicYear?.codigo?.toString()),
+    isNewStudent: 0,
+    codigoTipoCandidatura: profileData?.codigo_tipo_candidatura,
+    
+  })
   const { data: debit, isLoading: isLoadingDebit } = useQueryGetDebit({
     type: '1',
     enrollmentCode: profileData?.codigo_matricula,
     preinscricao: profileData?.codigo_preinscricao,
+    enabled:!!enrollmentPeriodStudentsOld?.calendario?.length && !!profileData?.codigo_matricula
   })
 
-  const {data : prazosMatricula } = useQueryPrazoMatricula({
-    anoLectivo: parseFilter(currentAcademicYear?.codigo?.toString())
-  })
 
-  const { isLoading: isLoadingStudenttatistics, data: studentStatistics } =
-    useQueryStudentDashboardStatistics(profileData?.enrollmentCode)
-
-  const {mapGrades} = useGradeMapper()
-  const { data: studentSituation } = useQueryStudentSituation({
-    preErrolmentCode: profileData?.preEnrollmentCode,
-  })
-  const { data: confirmationNewStudent } =
-    useQueryActivityAcademicConfirmationStudent({
-      academicYearCode: currentAcademicYear?.codigo?.toString(),
-      candidacyType: profileData?.codigo_tipo_candidatura,
-      type: 'old',
-    })
-
-
-
-  
-  const {data: curriculumPlan, isLoading: isLoadingCurriculumPlan, isError: isErrorCurriculumPlan} = useFetchQueryCurriculum({
+  const {
+    data: curriculumPlan,
+    isLoading: isLoadingCurriculumPlan,
+    isError: isErrorCurriculumPlan,
+  } = useFetchQueryCurriculum({
     academicYear: currentAcademicYear?.codigo?.toString()!,
     enrollmentCode: profileData?.codigo_matricula!,
     newStudent: false,
-    semestre: prazosMatricula?.semestre!,
-    })
+    semestre: currentAcademicYear?.semestre!,
+  })
 
-    console.log({curriculumPlan,isLoadingCurriculumPlan})
-  const { data: foraPrazo } = useTypeServiceSingle({
+  // Serviço/taxa cobrado quando a confirmação acontece fora do prazo
+  const { data: lateConfirmationService } = useTypeServiceSingle({
     currentYearCode: Number(currentAcademicYear?.codigo),
     ...SERVICE_TYPES.INSCRICAO_FORA_PRAZO,
   })
 
-  const enrollmentStatus = useMemo(
-    () => getEnrollmentStatus(confirmationNewStudent[0]),
-    [confirmationNewStudent],
-  )
-  // const { createPaymentReference } =
-  //   useMutationCreatePaymentReferenceMensalidades()
+  const {
+    data: confirmationData,
+    isLoading: isLoadingConfirmation,
+    isError: isErrorConfirmation,
+  } = useQueryConfirmation({
+    studentId: Number(profileData?.enrollmentCode!),
+    academicYearCode: currentAcademicYear?.codigo!,
+    semesterCode: currentAcademicYear?.semestre!,
+  })
 
-  // const { data: monthlyFeeValue, isError: isMonthlyFeeValueErro } =
-  //   useQueryMonthlyFeesValue({
-  //     curso: profileData?.codigo_curso,
-  //     polo: profileData?.poloid,
-  //     anoLetivo: currentAcademicYear?.codigo 
-  //   })
-
+  // =====================
+  // 🧮 Mutations
+  // =====================
   const { createInvoiceAsync } = useMutationCreateInvoice()
-  const pendentsGrades = mapGrades(curriculumPlan?.gradesPendentes?? [])
-  const grades = mapGrades(curriculumPlan?.gradesAFazer?? [])
   const {
     confirmOldStudentEnrollmentAsync,
     confirmOldStudentEnrollmentPending,
   } = useMutationConfirmOldStudentEnrollment()
 
-    const {data:confirmationData,isLoading:isLoadingConfirmation,isError:isErrorConfirmation} = useQueryConfirmation({studentId:Number(profileData?.enrollmentCode!),academicYearCode:currentAcademicYear?.codigo!,semesterCode:prazosMatricula?.semestre!})
-  const [selectedSchedules, setSelectedSchedules] = useState<
-    Record<string, SelectedSchedule>
-  >({})
-
-  const [selectedSubjects, setSelectedSubjects] = useState<Grade[]>([])
+  // =====================
+  // 🧠 Valores derivados
+  // =====================
+  const { mapGrades } = useGradeMapper()
+  const pendentsGrades = mapGrades(curriculumPlan?.gradesPendentes ?? [])
+  const grades = mapGrades(curriculumPlan?.gradesAFazer ?? [])
 
   const maxCourseGrade = Number(profileData?.max_cadeiras_curso)
 
+  // Status "textual" da inscrição (usado no badge da UI)
+  const enrollmentStatus = useMemo(
+    () => getEnrollmentStatus(enrollmentPeriodStudentsOld),
+    [enrollmentPeriodStudentsOld],
+  )
+
+  // Fonte da verdade sobre o prazo: calendário real de confirmação
+  const { prazoValido, foraDoPrazo, aindaNaoComecou } = useMemo(
+    () => getStatusPrazo(enrollmentPeriodStudentsOld?.calendario),
+    [enrollmentPeriodStudentsOld],
+  )
+
+  // Aplica a taxa de fora do prazo com base no calendário real (não no enrollmentStatus)
+  const lateConfirmationValue = foraDoPrazo ? lateConfirmationService?.preco ?? 0 : 0
+
+  const totalValue = selectedSubjects.reduce(
+    (sum, s) => sum + parseInt(s.valorInscricao),
+    0,
+  )
+
+  const totalPagar = totalValue + lateConfirmationValue
+
+  // =====================
+  // 🧩 Helpers de seleção
+  // =====================
   const toggleSection = (section: SectionKey) => {
-    setIsExpanded((prev) => {
-      return {
-        ...prev,
-        [section]: !prev[section],
-      }
-    })
+    setIsExpanded((prev) => ({ ...prev, [section]: !prev[section] }))
   }
+
   const isSelected = (subject: Grade) =>
     selectedSubjects.some((s) => s.codigoGrade === subject.codigoGrade)
 
@@ -136,24 +182,18 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     const all = [...grades, ...pendentsGrades]
     return (
       all.length > 0 &&
-      all.every((s) =>
-        selectedSubjects.some((x) => x.codigoGrade === s.codigoGrade),
-      )
+      all.every((s) => selectedSubjects.some((x) => x.codigoGrade === s.codigoGrade))
     )
   }
+
   const toggleSubject = (subject: Grade) => {
-    const alreadySelected = selectedSubjects.some(
-      (s) => s.codigoGrade === subject.codigoGrade,
-    )
+    const alreadySelected = isSelected(subject)
 
     if (alreadySelected) {
-      // Remove o horário vinculado
       removeScheduleForSubject(subject.codigoGrade)
-
       setSelectedSubjects((prev) =>
         prev.filter((s) => s.codigoGrade !== subject.codigoGrade),
       )
-
       return
     }
 
@@ -165,42 +205,6 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     setSelectedSubjects((prev) => [...prev, subject])
   }
 
-  const selectScheduleForSubject = (
-    codigoGrade: string,
-    horario: SelectedSchedule,
-  ) => {
-    setSelectedSchedules((prev) => ({
-      ...prev,
-      [codigoGrade]: horario,
-    }))
-  }
-
-  const removeScheduleForSubject = (codigoGrade: string) => {
-    setSelectedSchedules((prev) => {
-      const updated = { ...prev }
-      delete updated[codigoGrade]
-      return updated
-    })
-  }
-
-  // =====================
-  // 📦 Gerar payload final
-  // =====================
-
-  const getOldStudentEnrollmentPayload = () => {
-    const selectedGrades = selectedSubjects.map((subject) => {
-      const horario = selectedSchedules[subject.codigoGrade]
-      return {
-        codigoGrade: parseInt (subject.codigoGrade),
-        codigoHorario:parseInt ( horario?.codigoHorario) || null,
-        descHorario: horario?.descHorario || '',
-      }
-    })
-    if (!profileData?.enrollmentCode) {
-      throw new Error('Enrollment code is missing')
-    }
-    return { enrollmentCode: profileData?.enrollmentCode, selectedGrades }
-  }
   const selectAll = () => {
     const allSubjects = [...grades, ...pendentsGrades]
     const allSelected = isAllSelected()
@@ -211,12 +215,8 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
       return
     }
 
-    const totalToSelect = allSubjects.length
-
-    if (totalToSelect > maxCourseGrade) {
-      toast.error(
-        `Você pode selecionar no máximo ${maxCourseGrade} disciplinas.`,
-      )
+    if (allSubjects.length > maxCourseGrade) {
+      toast.error(`Você pode selecionar no máximo ${maxCourseGrade} disciplinas.`)
       return
     }
 
@@ -229,32 +229,63 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     if (subject) toggleSubject(subject)
   }
 
-  const removeAll = () => {
-    setSelectedSubjects([])
+  const removeAll = () => setSelectedSubjects([])
+
+  const selectScheduleForSubject = (
+    codigoGrade: string,
+    horario: SelectedSchedule,
+  ) => {
+    setSelectedSchedules((prev) => ({ ...prev, [codigoGrade]: horario }))
   }
 
-  const totalValue = selectedSubjects.reduce(
-    (sum, s) => sum + parseInt(s.valorInscricao),
-    0,
-  )
-  const foraPrazoValue =
-    enrollmentStatus === 'closed' ? (foraPrazo?.preco ?? 0) : 0
+  const removeScheduleForSubject = (codigoGrade: string) => {
+    setSelectedSchedules((prev) => {
+      const updated = { ...prev }
+      delete updated[codigoGrade]
+      return updated
+    })
+  }
 
-  const totalPagar = totalValue + foraPrazoValue
+  // =====================
+  // 📦 Payload / Fatura
+  // =====================
+  const getOldStudentEnrollmentPayload = () => {
+    if (!profileData?.enrollmentCode) {
+      throw new Error('Enrollment code is missing')
+    }
+
+    const selectedGrades = selectedSubjects.map((subject) => {
+      const horario = selectedSchedules[subject.codigoGrade]
+      return {
+        codigoGrade: parseInt(subject.codigoGrade),
+        codigoHorario: horario?.codigoHorario ? parseInt(horario.codigoHorario) : null,
+        descHorario: horario?.descHorario || '',
+      }
+    })
+
+    return { enrollmentCode: profileData.enrollmentCode, selectedGrades }
+  }
+
   const createInvoiceWithPayload = async (enrollmentCode: number) => {
     if (!profileData) {
       throw new Error('dados do perfil nao encontrado')
     }
-    const now = new Date()
-    const itens = [
-      ...(enrollmentStatus === 'closed' && foraPrazo
-        ? [createItem(foraPrazo)]
-        : []),
+    if (!currentAcademicYear?.codigo) {
+      throw new Error('ano lectivo não encontrado')
+    }
 
-      ...selectedSubjects.map((subject)=>generateDisciplineItem(subject,currentAcademicYear?.codigo!)),
+    const itens = [
+      // Taxa de inscrição fora do prazo, quando aplicável
+      ...(foraDoPrazo && lateConfirmationService
+        ? [createServiceItem(lateConfirmationService)]
+        : []),
+      ...selectedSubjects.map((subject) =>
+        generateDisciplineItem(subject, currentAcademicYear.codigo),
+      ),
     ]
+
     const invoice: CreateInvoiceBody = {
-      polo_id: profileData?.poloid ?? 1,
+      polo_id: profileData.poloid ?? 1,
       TotalPreco: totalPagar,
       codigo_descricao: 101,
       ValorAPagar: totalPagar,
@@ -265,59 +296,20 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
       Desconto: 0,
       totalIVA: 0,
       TotalMulta: 0,
-      codigo_anoLectivo:currentAcademicYear?.codigo!,
+      codigo_anoLectivo: currentAcademicYear.codigo,
       Descricao: 'Inscrição em uc + Inscrição em Disciplinas'.substring(0, 44),
       tipo_documento_factura_id: 1,
       canal: 3,
-      DataFactura: now.toISOString(),
-      itens: itens,
+      DataFactura: new Date().toISOString(),
+      itens,
     }
+
     await createInvoiceAsync(invoice)
   }
 
-  // const createMonthlyPayments = async (enrollmentCode: number) => {
-  //   if (isMonthlyFeeValueErro) {
-  //     throw new Error('Erro ao gerar as mensalidades')
-  //   }
-  //   const monthlyValue = monthlyFeeValue[0]
-  //   if (!profileData) {
-  //     throw new Error('profile data nont found')
-  //   }
-  //   const invoiceData: CreatePaymentReferenceBody = {
-  //     amount: parseFloat(monthlyValue.preco),
-  //     currency: 'AOA',
-  //     description: 'Pagamento da mensalidade académica',
-  //     enrollment: {
-  //       CodigoMatricula: enrollmentCode,
-  //       codigo_preinscricao: parseInt(profileData?.preEnrollmentCode),
-  //     },
-  //     itens: [
-  //       {
-  //         CodigoProduto: parseInt(monthlyValue.codigo),
-  //         Quantidade: 2,
-  //         preco: parseFloat(monthlyValue.preco),
-  //         Total: parseFloat(monthlyValue.preco),
-  //         valor_pago: parseFloat(monthlyValue.preco),
-  //         obs: '',
-  //         taxaIva: 0,
-  //         valorIva: 0,
-  //         retencao: 0,
-  //         incidencia: 0,
-  //         valorDesconto: 0,
-  //         descontoProduto: 0,
-  //         mes: '',
-  //         multa: 0,
-  //         mesTempId: 0,
-  //         estado: 0,
-  //         valorPago: 0,
-  //         valorATransportar: 0,
-  //         codigoFactura: 1023,
-  //       },
-  //     ],
-  //   }
-  //   createPaymentReference(invoiceData)
-  // }
-
+  // =====================
+  // ✅ Confirmação de matrícula
+  // =====================
   const confirmStudentEnrollment = async () => {
     if (selectedSubjects.length === 0) {
       toast.warning('Nenhuma disciplina selecionada.')
@@ -329,12 +321,10 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
       return
     }
 
-    // 2️⃣ Verifica se há pendentes ainda não selecionadas
-    const unselectedPendents = (pendentsGrades ?? []).filter(
+    const unselectedPendents = pendentsGrades.filter(
       (p) => !selectedSubjects.some((s) => s.codigoGrade === p.codigoGrade),
     )
-
-    const selectedNews = (grades ?? []).filter((g) =>
+    const selectedNews = grades.filter((g) =>
       selectedSubjects.some((s) => s.codigoGrade === g.codigoGrade),
     )
 
@@ -345,7 +335,6 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
       return
     }
 
-    // 3️⃣ Verifica se todas as disciplinas selecionadas têm horário
     const missingSchedules = selectedSubjects.filter(
       (subject) => !selectedSchedules[subject.codigoGrade]?.codigoHorario,
     )
@@ -353,70 +342,99 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     if (missingSchedules.length > 0) {
       const missingNames = missingSchedules.map((s) => s.disciplina).join(', ')
       toast.warning(`Selecione o horário para: ${missingNames}`, {
-        description:
-          'Cada disciplina precisa ter um horário definido antes de continuar.',
+        description: 'Cada disciplina precisa ter um horário definido antes de continuar.',
       })
       return
     }
-    function delay(ms: number): Promise<void> {
-      return new Promise((resolve) => setTimeout(resolve, ms))
+
+    if (!currentAcademicYear?.semestre || !currentAcademicYear?.codigo) {
+      toast.error('Ano lectivo não encontrado.')
+      return
     }
+    if (!profileData?.codigo_matricula) {
+      toast.error('Matrícula não encontrada.')
+      return
+    }
+
     const payload = getOldStudentEnrollmentPayload()
+
     await confirmOldStudentEnrollmentAsync({
       selectedGrades: payload.selectedGrades,
-      semestre: prazosMatricula?.semestre!,
-      anoLectivo:currentAcademicYear?.codigo!
+      semestre: currentAcademicYear.semestre,
+      anoLectivo: currentAcademicYear.codigo,
     })
-    delay(6000)
-    await createInvoiceWithPayload(Number(profileData?.codigo_matricula!))
-    // createMonthlyPayments(Number(profileData?.codigo_matricula!))
+
+    await delay(6000)
+    await createInvoiceWithPayload(Number(profileData.codigo_matricula))
   }
 
+  // =====================
+  // 🧾 Contexto exposto
+  // =====================
   return (
     <RegistrationsUCContext.Provider
       value={{
-        foraPrazoValue,
+        // Taxa / prazo
+        LateConfirmationValue: lateConfirmationValue,
+        LateConfirmation: lateConfirmationService,
+        prazoValido,
+        foraDoPrazo,
+        aindaNaoComecou,
+        enrollmentPeriodStudentsOld,
+
+        // Totais
         totalPagar,
+        totalValue,
+
+        // Disciplinas
         selectedSubjects,
+        subject: grades,
+        pendingSubjects: pendentsGrades,
+        toggleSubject,
+        isSelected,
+        selectAll,
+        isAllSelected,
+        remove,
+        removeAll,
+
+        // Horários
+        selectedSchedules,
+        selectScheduleForSubject,
+        removeScheduleForSubject,
+
+        // UI
+        isExpanded,
+        toggleSection,
+
+        // Confirmação
+        confirmStudentEnrollment,
+        confirmStudentEnrollmentState: confirmOldStudentEnrollmentPending,
+        confirmationData,
+        isLoadingConfirmation,
+        isErrorConfirmation,
+        enrollmentStatus,
+
+        // Loading / erro
         isErrorProfileData,
         isErrorStudentCurriculumPlan: isErrorCurriculumPlan,
         isErrorStudentCurriculumPlanPendents: isErrorCurriculumPlan,
         isLoadingProfileData,
         isLoadingStudentCurriculumPlan: isLoadingCurriculumPlan,
         isLoadingStudentCurriculumPlanPendents: isLoadingCurriculumPlan,
-        isExpanded,
-        subject: grades ?? [],
-        pendingSubjects: pendentsGrades ?? [],
-        totalValue,
-        toggleSubject,
-        isSelected,
-        toggleSection,
-        selectAll,
-        isAllSelected,
-        remove,
-        removeAll,
-        confirmStudentEnrollment,
-        confirmStudentEnrollmentState: confirmOldStudentEnrollmentPending,
-        removeScheduleForSubject,
-        selectScheduleForSubject,
-        selectedSchedules,
-        enrollmentStatus,
         isLoadingAcademmicYear,
         isErrorAcademicYear,
-        isLoadingStudenttatistics,
-        studentStatistics,
+     
+        isLoadingDebit,
+
+        // Dados gerais
         profileData,
         maxCourseGrade,
-        isLoadingDebit,
-        studentSituation,
+      
+      
         debit,
-        semestreActual: prazosMatricula?.semestre,
+        semestreActual: currentAcademicYear?.semestre,
         curriculumPlan,
-        currentAcademicYear:currentAcademicYear?.codigo!,
-        confirmationData,
-        isLoadingConfirmation,
-        isErrorConfirmation,
-        prazosMatricula
+        currentAcademicYear: currentAcademicYear?.codigo!,
       }}
     >
       {children}
@@ -424,22 +442,19 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
   )
 }
 
-
-function generateDisciplineItem(grade: Grade,currentAcademicYear: number) {
+// =====================
+// 🧱 Builders de item de fatura
+// =====================
+function generateDisciplineItem(grade: Grade, currentAcademicYear: number) {
   const MAX_OBS_LENGTH = 45
-  const nomeCompleto =
-    grade.disciplina || grade.codigoDisciplina || 'Disciplina'
-
+  const nomeCompleto = grade.disciplina || grade.codigoDisciplina || 'Disciplina'
   const prefixo = 'Insc. '
+
   let obs = prefixo + nomeCompleto
-
   if (obs.length > MAX_OBS_LENGTH) {
-    const espacoParaNome = MAX_OBS_LENGTH - prefixo.length - 3 // -3 para ...
-    const nomeCortado = nomeCompleto.substring(0, espacoParaNome)
-    obs = prefixo + nomeCortado + '...'
+    const espacoParaNome = MAX_OBS_LENGTH - prefixo.length - 3 // -3 para "..."
+    obs = prefixo + nomeCompleto.substring(0, espacoParaNome) + '...'
   }
-
-  // Garantia absoluta: nunca mais de 45
   obs = obs.substring(0, MAX_OBS_LENGTH)
 
   return {
@@ -448,7 +463,7 @@ function generateDisciplineItem(grade: Grade,currentAcademicYear: number) {
     preco: Number(grade.valorInscricao),
     Total: Number(grade.valorInscricao),
     valor_pago: 0,
-    obs: obs,
+    obs,
     taxaIva: 1,
     valorIva: 0,
     retencao: 0,
@@ -460,10 +475,11 @@ function generateDisciplineItem(grade: Grade,currentAcademicYear: number) {
     estado: 0,
     valorPago: 0,
     valorATransportar: 0,
-    codigo_anoLectivo:currentAcademicYear
+    codigo_anoLectivo: currentAcademicYear,
   }
 }
-function createItem(serviceType: TypeServiceResponse) {
+
+function createServiceItem(serviceType: TypeServiceResponse) {
   const MAX_OBS_LENGTH = 45
 
   return {

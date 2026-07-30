@@ -17,6 +17,15 @@ import {
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 
+function formatDate(date?: string) {
+  if (!date) return '—'
+  return new Date(date).toLocaleDateString('pt-PT', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
 export function StandardTimeframe() {
   const { data: academicYear } = useQueryCurrentAcademicYear()
   const { profileData } = useQueryProfile()
@@ -35,6 +44,21 @@ export function StandardTimeframe() {
   const classeMaxima = confirmacoes.length
     ? Math.max(...confirmacoes.map((c) => c.classe))
     : undefined
+
+  // Datas do ano lectivo (1º semestre ao 2º semestre)
+  const inicioAnoLectivo = academicYear?.datainicioprimeirosemestre
+  const fimAnoLectivo = academicYear?.datafimsegundosemestre
+
+  // Datas do semestre corrente, se disponível
+  const inicioSemestreAtual =
+    academicYear?.semestre === 2
+      ? academicYear?.datainiciosegundosemestre
+      : academicYear?.datainicioprimeirosemestre
+
+  const fimSemestreAtual =
+    academicYear?.semestre === 2
+      ? academicYear?.datafimsegundosemestre
+      : academicYear?.datafimprimeirosemestre
 
   return (
     <div className="space-y-3">
@@ -61,8 +85,25 @@ export function StandardTimeframe() {
                     </Badge>
                     <span>{profileData?.curso ?? '—'}</span>
                   </CardDescription>
+
+                  {/* Período do ano lectivo */}
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {formatDate(inicioAnoLectivo)} — {formatDate(fimAnoLectivo)}
+                  </p>
                 </div>
               </div>
+
+              {/* Datas do semestre corrente */}
+              {academicYear?.semestre && (
+                <div className="rounded-lg border bg-background/60 px-4 py-2 text-right">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    {academicYear.semestre}º Semestre
+                  </p>
+                  <p className="text-sm font-semibold">
+                    {formatDate(inicioSemestreAtual)} — {formatDate(fimSemestreAtual)}
+                  </p>
+                </div>
+              )}
             </div>
           </CardHeader>
 

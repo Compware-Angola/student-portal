@@ -9,21 +9,18 @@ import type { SectionKey, SelectedSchedule } from '../types/enrollment'
 
 import { useMutationCreateInvoice } from '@/hooks/invoice/use-mutation-create-invoice'
 import type { CreateInvoiceBody } from '@/services/invoice/post-invoice.service'
-{/**
-import { useMutationCreatePaymentReferenceMensalidades } from '@/hooks/invoice/use-mutation-payment-monthly'
-import type { CreatePaymentReferenceBody } from '@/services/invoice/post-invoice-monthly.service'
-import { useQueryMonthlyFeesValue } from '@/hooks/finance/use-query-monthly-fee'
-*/} 
+
 import { useQueryStudentSituation } from '@/hooks/student/use-query-student-situation'
 import { StudentSituation } from '@/constants/student-situation'
-import { useQueryActivityAcademicConfirmationStudent } from '@/hooks/academic/use-quer-activity-academic-confirmation'
-import { getEnrollmentStatus } from '@/utils'
+
+import { getEnrollmentStatus, parseFilter } from '@/utils'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 import { useQueryStudentDashboardStatistics } from '@/hooks/statics/use-query-student-dashboard-statistics'
 import { useTypeServiceSingle } from '@/hooks/service/use-query-type-service'
 import { SERVICE_TYPES } from '@/constants/service-type'
 import type { TypeServiceResponse } from '@/services/type-service/type-service.service'
 import { useGradeMapper } from '@/pages/registrationsUC/hooks/use-grade-mapper'
+import { UseQueryEnrollmentAndRegistrationDeadlines } from '@/hooks/prazos-inscricao-antigos/use-query-prazos-matricula'
 
 type ToggleState = {
   new: boolean
@@ -53,7 +50,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     isError: isErrorAcademicYear,
     isLoading: isLoadingAcademmicYear,
   } = useQueryCurrentAcademicYear()
-  console.log('currentAcademicYear', currentAcademicYear)
+
 
   const { data: taxaMatricula } = useTypeServiceSingle({
     currentYearCode: Number(currentAcademicYear?.codigo),
@@ -72,12 +69,13 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     StudentSituation.NEW_WITHOUT_ENROLLMENT ===
     Number(studentSituation?.codigo_status)
 const {mapGrades} = useGradeMapper()
-  const { data: confirmationNewStudent } =
-    useQueryActivityAcademicConfirmationStudent({
-      academicYearCode: currentAcademicYear?.codigo?.toString(),
-      candidacyType: profileData?.codigo_tipo_candidatura,
-      type: 'new',
-    })
+    // ADICIONAR PARA OS NOVOS
+  const { data: enrollmentPeriodStudentsOld } = UseQueryEnrollmentAndRegistrationDeadlines({
+    anoLectivo: parseFilter(currentAcademicYear?.codigo?.toString()),
+    isNewStudent: 1,
+    codigoTipoCandidatura: Number(profileData?.codigo_tipo_candidatura),
+    
+  })
   const {data: curriculumPlan, isLoading: isLoadingCurriculumPlan, isError: isErrorCurriculumPlan} = useFetchQueryCurriculum({
     academicYear: currentAcademicYear?.codigo?.toString()!,
     preEnrollmentCode: Number(profileData?.preEnrollmentCode!),
@@ -87,20 +85,10 @@ const {mapGrades} = useGradeMapper()
  const grades = mapGrades(curriculumPlan?.gradesAFazer?? [])
 
   const enrollmentStatus = useMemo(
-    () => getEnrollmentStatus(confirmationNewStudent[0]),
-    [confirmationNewStudent],
+    () => getEnrollmentStatus(enrollmentPeriodStudentsOld),
+    [enrollmentPeriodStudentsOld],
   )
-  {/** 689182081-001
-  const { createPaymentReference } =
-    useMutationCreatePaymentReferenceMensalidades()
-
-  const { data: monthlyFeeValue, isError: isMonthlyFeeValueErro } =
-    useQueryMonthlyFeesValue({
-      curso: profileData?.codigo_curso,
-      polo: profileData?.poloid,
-      anoLetivo: currentAcademicYear?.codigo ? parseInt(currentAcademicYear?.codigo!.toString()) : 23
-    })
- */}
+ 
   const {
     confirmNewStudentEnrollmentPending,
     confirmNewStudentEnrollmentAsync,
@@ -109,9 +97,7 @@ const {mapGrades} = useGradeMapper()
   const { createInvoiceAsync } = useMutationCreateInvoice()
 
   // Horários selecionados por disciplina (mapeados pelo código da grade)
-  const [selectedSchedules, setSelectedSchedules] = useState<
-    Record<string, SelectedSchedule>
-  >({})
+  const [selectedSchedules, setSelectedSchedules] = useState<Record<string, SelectedSchedule>>({})
 
   const [selectedSubjects, setSelectedSubjects] = useState<Grade[]>([])
   useEffect(() => {
@@ -295,54 +281,7 @@ const {mapGrades} = useGradeMapper()
 
     return createInvoiceAsync(invoice)
   }
-   {/** 689182081-001
-   const { createPaymentReference } =
-     useMutationCreatePaymentReferenceMensalidades()
 
-  
-  const createMonthlyPayments = async (enrollmentCode: number) => {
-    if (isMonthlyFeeValueErro) {
-      throw new Error('Erro ao gerar as mensalidades')
-    }
-    const monthlyValue = monthlyFeeValue[0]
-    if (!profileData) {
-      throw new Error('profile data nont found')
-    }
-    const invoiceData: CreatePaymentReferenceBody = {
-      amount: parseFloat(monthlyValue.preco),
-      currency: 'AOA',
-      description: 'Pagamento da mensalidade académica',
-      enrollment: {
-        CodigoMatricula: enrollmentCode,
-        codigo_preinscricao: parseInt(profileData?.preEnrollmentCode),
-      },
-      itens: [
-        {
-          CodigoProduto: parseInt(monthlyValue.codigo),
-          Quantidade: 2,
-          preco: parseFloat(monthlyValue.preco),
-          Total: parseFloat(monthlyValue.preco),
-          valor_pago: parseFloat(monthlyValue.preco),
-          obs: 'Pagamento da propina do mês de Outubro.',
-          taxaIva: 0,
-          valorIva: 0,
-          retencao: 0,
-          incidencia: 0,
-          valorDesconto: 0,
-          descontoProduto: 0,
-          mes: 'Outubro',
-          multa: 0,
-          mesTempId: 3,
-          estado: 0,
-          valorPago: 0,
-          valorATransportar: 0,
-          codigoFactura: 1023,
-        },
-      ],
-    }
-    createPaymentReference(invoiceData)
-  }
- */}
   function delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms))
   }
@@ -375,11 +314,7 @@ const confirmStudentEnrollment = async () => {
     const enrollmentCode = response.data.codMatricula
     await delay(6000)
     await createInvoiceWithPayload(enrollmentCode)
-    {/** 689182081-001
-    if (responseInvoice) {
-      await createMonthlyPayments(enrollmentCode)
-    }
-  */}
+   
   }
 
   return (

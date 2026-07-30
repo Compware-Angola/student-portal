@@ -7,24 +7,30 @@ export type PrazoMatriculaCalendario = {
   descricao: string
 }
 
-export type FetchPrazosMatriculaResponse = {
+export type FetchEnrollmentPeriodStudentsOldResponse = {
   semestre: number
   calendario: PrazoMatriculaCalendario[]
 }
 
-type FetchPrazosMatriculaParams = {
-  anoLectivo: number | string
+type FetchEnrollmentPeriodStudentsOldParams = {
+  anoLectivo: number 
+  codigoTipoCandidatura?: number
+  isNewStudent?: number
 }
 
-export async function fetchPrazosMatriculaService({
+export async function fetchEnrollmentAndRegistrationDeadlines({
   anoLectivo,
-}: FetchPrazosMatriculaParams): Promise<FetchPrazosMatriculaResponse> {
+  codigoTipoCandidatura,
+  isNewStudent
+}: FetchEnrollmentPeriodStudentsOldParams): Promise<FetchEnrollmentPeriodStudentsOldResponse> {
    const response =  gaApi
-    .get('academic-activities/prazos-matricula', {
+    .get('academic-activities/enrollment-and-registration-deadlines', {
       searchParams: {
-        anoLectivo: String(anoLectivo),
+        anoLectivo: anoLectivo,
+        codigoTipoCandidatura:codigoTipoCandidatura,
+        isNewStudent:isNewStudent,
       },
     })
-     .json<FetchPrazosMatriculaResponse>()
+     .json<FetchEnrollmentPeriodStudentsOldResponse>()
   return response
 }
