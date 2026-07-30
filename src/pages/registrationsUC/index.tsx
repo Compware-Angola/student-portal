@@ -56,7 +56,7 @@ function RegistrationsUCContent() {
 
  
   const podeConfirmar = confirmationData?.informacoes.podeConfirmar ?? false
-  const podeMatricularAgora = podeConfirmar && !prazoValido
+  const podeMatricularAgora = podeConfirmar && prazoValido
 
   useEffect(() => {
     if (isErrorProfileData) {
