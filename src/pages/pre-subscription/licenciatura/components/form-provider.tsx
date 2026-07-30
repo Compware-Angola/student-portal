@@ -33,7 +33,7 @@ export function FormPreSubscriptionProvider({
 }: {
   children: React.ReactNode
 }) {
-  const [currentStep, setCurrentStep] = React.useState(2)
+  const [currentStep, setCurrentStep] = React.useState(0)
   const progress = ((currentStep + 1) / steps.length) * 100
   const { createPreInscricaoAsync, createPreInscricaoPending } =
     useMutationPreInscricao()
