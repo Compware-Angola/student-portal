@@ -2,8 +2,8 @@ import { formatCurrency } from '@/utils'
 import type { Grade } from '@/types/grade'
 import { Checkbox } from '@/components/ui/checkbox'
 
-import { ScheduleSelectionDialog } from '../schedule'
-import { useEnrollment } from '../hooks/use-enrollment'
+
+
 import { cn } from '@/lib/utils'
 type SubjectCardProps = {
   state?: 'enrollment' | 'registrationUC'
@@ -13,13 +13,12 @@ type SubjectCardProps = {
 }
 
 export function SubjectCard({
-  state = 'enrollment',
   subject,
   isSelected,
   toggleSubject,
 }: SubjectCardProps) {
   const selected = isSelected(subject)
-  const { isNewStudentWithOutEnrollment } = useEnrollment()
+ 
 
   return (
     <div className="rounded-lg border p-4 space-y-4">
@@ -29,13 +28,12 @@ export function SubjectCard({
         <div className="flex-1 space-y-3">
           <div>
             <button
-              disabled={state === 'enrollment'}
+              disabled={true}
               onClick={() => toggleSubject(subject)}
               className={cn(
                 'font-semibold',
-                state === 'enrollment'
-                  ? 'cursor-not-allowed '
-                  : 'cursor-pointer',
+                  'cursor-not-allowed '
+                
               )}
             >
               {subject.disciplina}
@@ -50,14 +48,7 @@ export function SubjectCard({
             </p>
           </div>
 
-          {!isNewStudentWithOutEnrollment && (
-            <div className="space-y-2">
-              <p className="text-sm font-medium">
-                Selecionar Horário (Obrigatório)
-              </p>
-              <ScheduleSelectionDialog subject={subject} />
-            </div>
-          )}
+        
         </div>
       </div>
     </div>

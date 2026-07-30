@@ -17,7 +17,7 @@ import { useQueryConfirmation } from '@/hooks/student/use-query-confirmation'
 import { useGradeMapper } from '../hooks/use-grade-mapper'
 import { getEnrollmentStatus, parseFilter } from '@/utils'
 import { SERVICE_TYPES } from '@/constants/service-type'
-import { UseQueryEnrollmentAndRegistrationDeadlines } from '@/hooks/prazos-inscricao-antigos/use-query-prazos-matricula'
+import { UseQueryEnrollmentAndRegistrationDeadlines } from '@/hooks/enrollment-and-registration-deadlines/use-query-enrollment-and-registration-deadlines'
 
 type ToggleState = {
   new: boolean

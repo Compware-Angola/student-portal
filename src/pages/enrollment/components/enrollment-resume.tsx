@@ -1,30 +1,30 @@
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { AlertCircle } from 'lucide-react'
 
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner'
 import { formatCurrency } from '@/utils'
 
 import { useEnrollment } from '../hooks/use-enrollment'
-import { SubjectItem } from './subject-item'
 import { ResumoItem } from './resumo-item'
+import { SubjectItem } from './subject-item'
 
 export function EnrollmentResume() {
   const {
     selectedSubjects,
     totalValue,
-    remove,
-    removeAll,
     confirmStudentEnrollment,
     confirmStudentEnrollmentState,
     enrollmentStatus,
-    isNewStudentWithOutEnrollment,
     totalPagar,
     foraPrazoValue,
     taxaMatriculaValue,
   } = useEnrollment()
 
   if (selectedSubjects.length === 0) return null
+
+  const isSubmitting = confirmStudentEnrollmentState
+  const isForaDePrazo = enrollmentStatus === 'closed'
 
   return (
     <Card>
@@ -38,16 +38,11 @@ export function EnrollmentResume() {
       <CardContent className="space-y-4">
         <ul className="space-y-1 text-sm">
           {selectedSubjects.map((subject) => (
-            <SubjectItem
-              key={subject.codigoGrade}
-              subject={subject}
-              disabled={isNewStudentWithOutEnrollment}
-              onRemove={remove}
-            />
+            <SubjectItem key={subject.codigoGrade} subject={subject} />
           ))}
         </ul>
 
-        <div className="pt-4 space-y-2">
+        <div className="space-y-2 pt-4">
           <ResumoItem
             label="Taxa de inscrição por disciplina"
             value={formatCurrency(totalValue)}
@@ -58,7 +53,7 @@ export function EnrollmentResume() {
             value={formatCurrency(taxaMatriculaValue)}
           />
 
-          {enrollmentStatus === 'closed' && (
+          {isForaDePrazo && (
             <ResumoItem
               label="Taxa de inscrição fora de época"
               value={formatCurrency(foraPrazoValue)}
@@ -72,29 +67,14 @@ export function EnrollmentResume() {
           />
         </div>
 
-        <div className="flex gap-3">
-          <Button
-            className="flex-1"
-            size="lg"
-            onClick={confirmStudentEnrollment}
-            disabled={confirmStudentEnrollmentState}
-          >
-            {confirmStudentEnrollmentState ? (
-              <Spinner />
-            ) : (
-              'Confirmar Matrícula'
-            )}
-          </Button>
-
-          <Button
-            variant="outline"
-            size="lg"
-            disabled={isNewStudentWithOutEnrollment}
-            onClick={removeAll}
-          >
-            Limpar Seleção
-          </Button>
-        </div>
+        <Button
+          className="w-full"
+          size="lg"
+          onClick={confirmStudentEnrollment}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? <Spinner /> : 'Confirmar Matrícula'}
+        </Button>
       </CardContent>
     </Card>
   )

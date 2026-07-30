@@ -1,13 +1,15 @@
+// enrollment.tsx
 import { toast } from 'sonner'
+import { useEffect } from 'react'
+
 import { EnrollmentHeader } from './components/enrollment-header'
-import { EnrollmentResume } from './components/enrollment-resume'
-import { EnrollmentSection } from './components/enrollment-section'
 import { EnrollmentSummaryCards } from './components/enrollment-summary-cards'
+import { EnrollmentSkeleton } from './components/enrollment-skeleton'
+import { EnrollmentAvailable } from './components/enrollment-available'
+import { EnrollmentDeadlineExpired } from './components/enrollment-deadline-expired'
+import { EnrollmentStandardTimeframe } from './components/enrollment-standard-timeframe'
 import { EnrollmentProvider } from './context/enrollment.provider'
 import { useEnrollment } from './hooks/use-enrollment'
-import { EnrollmentSkeleton } from './components/enrollment-skeleton'
-import { useEffect } from 'react'
-import { StudentSituation } from '@/constants/student-situation'
 
 function EnrollmentContent() {
   const {
@@ -17,10 +19,27 @@ function EnrollmentContent() {
     isErrorProfileData,
     isErrorStudentCurriculumPlan,
     isLoadingAcademmicYear,
-    studentSituation,
     isLoadingStudenttatistics,
     profileData,
+    prazoValido,
+    foraDoPrazo,
+    aindaNaoComecou,
   } = useEnrollment()
+
+  const isLoadingPage =
+    isLoadingProfileData ||
+    isErrorProfileData ||
+    isLoadingStudentCurriculumPlan ||
+    isLoadingAcademmicYear ||
+    isLoadingStudenttatistics ||
+    !profileData
+
+  // Pode se matricular tanto dentro do prazo (grátis) quanto fora do prazo (pagando taxa)
+  const podeMatricular = prazoValido || foraDoPrazo
+
+  // Fora do prazo mas ainda pode se matricular mediante taxa
+  const requerTaxa = foraDoPrazo
+
   useEffect(() => {
     if (isErrorProfileData) {
       toast.error('Erro ao carregar dados do estudante')
@@ -29,40 +48,30 @@ function EnrollmentContent() {
       toast.error('Erro ao carregar as grades curriculares')
     }
   }, [isErrorProfileData, isErrorStudentCurriculumPlan])
-  const enrollmentState =
-    StudentSituation.NEW_WITH_CURRENT_CONFIRMATION ===
-      Number(studentSituation?.codigo_status) ||
-    StudentSituation.OLD_WITH_CURRENT_CONFIRMATION ===
-      Number(studentSituation?.codigo_status)
-  if (
-    isLoadingProfileData ||
-    isErrorProfileData ||
-    isLoadingStudentCurriculumPlan ||
-    isLoadingAcademmicYear ||
-    isLoadingStudenttatistics ||
-    !profileData
-  ) {
+
+  if (isLoadingPage) {
     return <EnrollmentSkeleton />
   }
 
   return (
     <div className="space-y-6">
       <EnrollmentHeader />
-      <EnrollmentSummaryCards />
-      {!enrollmentState && (
-        <>
-          <div>
-            <div className="space-y-6">
-              <EnrollmentSection
-                label="Disciplinas Disponíveis"
-                subjects={subject}
-                sectionKey="new"
-              />
-            </div>
-          </div>
 
-          <EnrollmentResume />
-        </>
+      {podeMatricular ? (
+        <EnrollmentSummaryCards /> // Pode matricular (dentro ou fora do prazo, com ou sem taxa)
+      ) : (
+        <EnrollmentStandardTimeframe /> // Ainda não começou ou fora do prazo sem possibilidade de matrícula
+      )}
+
+      {podeMatricular ? (
+        <EnrollmentAvailable
+          subject={subject}
+          requerTaxa={requerTaxa} // sinaliza pro componente que essa matrícula exige pagamento de taxa
+        />
+      ) : (
+        <EnrollmentDeadlineExpired
+          aindaNaoComecou={aindaNaoComecou} // diferencia mensagem "ainda não começou" de "prazo expirado"
+        />
       )}
     </div>
   )
