@@ -14,6 +14,7 @@ import { useUpdateStudentPhoto } from '@/hooks/student/use-mutation-update-stude
 import { DocumentTypeEnum } from '@/enums/document.type.enum'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
+import { FileFolder } from '@/enums/file-folder'
 
 type PostGraduateContextValue = {
   onSubmit: (data: PreSubscriptionPostGraduateSchema) => void
@@ -50,10 +51,10 @@ export function FormPreSubscriptionPostGraduateProvider({
 
   const { profileData } = useQueryProfile()
 
-  const uploadFile = async (data: File) => {
-    const formData = new FormData()
-    formData.append('file', data)
-    const response = await uploadMutation.mutateAsync({file:data})
+  const uploadFile = async (data: File, folder: FileFolder = FileFolder.CANDIDATURA) => {
+    // const formData = new FormData()
+    // formData.append('file', data)
+    const response = await uploadMutation.mutateAsync({file:data, options: {folder}})
     return response.key ?? ''
   }
 
@@ -129,7 +130,7 @@ export function FormPreSubscriptionPostGraduateProvider({
     async (data: PreSubscriptionPostGraduateSchema) => {
       const docs = []
       if (data.photo) {
-        const photoPath = await uploadFile(data.photo)
+        const photoPath = await uploadFile(data.photo, FileFolder.FOTOS_PERFIL)
         updateStudentPhoto.mutateAsync(
           { file: photoPath, userId: profileData?.userId! },
           {},

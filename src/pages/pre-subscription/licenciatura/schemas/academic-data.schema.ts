@@ -18,7 +18,7 @@ export const academicDataSchema = z.object({
     z.literal(""),
   ]).optional(),
   averageGrade: z.coerce
-    .number('Média final é obrigatória')
+    .number({ message: 'Média final é obrigatória' })
     .min(10, 'O valor mínimo é 10')
     .max(20, 'O valor máximo é 20'),
   
