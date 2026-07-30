@@ -3,7 +3,7 @@ import z from 'zod'
 export const documentsSchema = z.object({
 
 
-  intendedCourse: z.string('Polo é obrigatório').min(1, 'Curso é obrigatório'),
+  intendedCourse: z.string().min(1, 'Curso é obrigatório'),
   intendedCourseSecond: z.string().optional(),
   intendedCourseThird: z.string().optional(),
   period: z.string().min(1, 'Periodo é obrigatório'),

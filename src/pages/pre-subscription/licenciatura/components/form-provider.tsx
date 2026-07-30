@@ -49,10 +49,10 @@ export function FormPreSubscriptionProvider({
 
   const { profileData } = useQueryProfile()
 
-const uploadFile = async (data: File, folder: FileFolder = FileFolder.CANDIDATURA) => {
-  const response = await uploadMutation.mutateAsync({ file: data, options: { folder } })
-  return response.key ?? ''
-}
+  const uploadFile = async (data: File, folder: FileFolder = FileFolder.CANDIDATURA) => {
+    const response = await uploadMutation.mutateAsync({ file: data, options: { folder } })
+    return response.key ?? ''
+  }
 
   function buildInscricaoPayload(data: any, docs: any) {
     return {
@@ -89,6 +89,7 @@ const uploadFile = async (data: File, folder: FileFolder = FileFolder.CANDIDATUR
           ? data.howDidYouKnowOther
           : data.howDidYouKnow,
       tentou_universidade_publica: Number(data.natureInscription),
+      codigoFaculdade: Number(data.faculty)
     }
   }
 
@@ -106,7 +107,7 @@ const uploadFile = async (data: File, folder: FileFolder = FileFolder.CANDIDATUR
       maritalStatus: '',
       motherName: '',
       needs: '',
-      averageGrade: 0 ,
+      averageGrade: 0,
       graduationYear: '',
       previousSchool: '',
       previousCourse: '',
@@ -124,50 +125,51 @@ const uploadFile = async (data: File, folder: FileFolder = FileFolder.CANDIDATUR
       codigoNacionalidade: '',
       howDidYouKnow: '',
       natureInscription: '',
+      faculty: 0
     },
     mode: 'onChange',
   })
 
- const onSubmit = React.useCallback(async (data: PreSubscriptionSchema) => {
-  let photoPath: string | undefined = undefined
-  let documentPath: string | undefined = undefined
-  let certificatePath: string | undefined = undefined
-  let publicUniversityDocumentPath: string | undefined = undefined
-  const docs = []
+  const onSubmit = React.useCallback(async (data: PreSubscriptionSchema) => {
+    let photoPath: string | undefined = undefined
+    let documentPath: string | undefined = undefined
+    let certificatePath: string | undefined = undefined
+    let publicUniversityDocumentPath: string | undefined = undefined
+    const docs = []
 
-  if (data.photo) {
-    photoPath = await uploadFile(data.photo, FileFolder.FOTOS_PERFIL)
-    updateStudentPhoto.mutateAsync(
-      { file: photoPath!, userId: profileData?.userId! },
-    )
-  }
-  if (data.document) {
-    documentPath = await uploadFile(data.document)
-    docs.push({
-      typeDocumentId: parseInt(data.documentType),
-      fileName: documentPath,
-    })
-  }
-  if (data.certificate) {
-    certificatePath = await uploadFile(data.certificate)
-    docs.push({
-      typeDocumentId: DocumentTypeEnum.CERTIFICADO_COM_NOTAS,
-      fileName: certificatePath,
-    })
-  }
-  if (data.publicUniversityDocument) {
-    publicUniversityDocumentPath = await uploadFile(
-      data.publicUniversityDocument,
-    )
-    docs.push({
-      typeDocumentId: DocumentTypeEnum.UNIVERSIDADE_PUBLICA_DOC,
-      fileName: publicUniversityDocumentPath,
-    })
-  }
+    if (data.photo) {
+      photoPath = await uploadFile(data.photo, FileFolder.FOTOS_PERFIL)
+      updateStudentPhoto.mutateAsync(
+        { file: photoPath!, userId: profileData?.userId! },
+      )
+    }
+    if (data.document) {
+      documentPath = await uploadFile(data.document)
+      docs.push({
+        typeDocumentId: parseInt(data.documentType),
+        fileName: documentPath,
+      })
+    }
+    if (data.certificate) {
+      certificatePath = await uploadFile(data.certificate)
+      docs.push({
+        typeDocumentId: DocumentTypeEnum.CERTIFICADO_COM_NOTAS,
+        fileName: certificatePath,
+      })
+    }
+    if (data.publicUniversityDocument) {
+      publicUniversityDocumentPath = await uploadFile(
+        data.publicUniversityDocument,
+      )
+      docs.push({
+        typeDocumentId: DocumentTypeEnum.UNIVERSIDADE_PUBLICA_DOC,
+        fileName: publicUniversityDocumentPath,
+      })
+    }
 
-  const payload = buildInscricaoPayload(data, docs)
-  await createPreInscricaoAsync(payload)
-}, [])
+    const payload = buildInscricaoPayload(data, docs)
+    await createPreInscricaoAsync(payload)
+  }, [])
 
   const handleNextOrSubmit = React.useCallback(async () => {
     const valid = await form.trigger(currentStepConfig.fields, {

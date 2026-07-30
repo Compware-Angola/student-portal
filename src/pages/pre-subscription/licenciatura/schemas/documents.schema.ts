@@ -13,6 +13,8 @@ export const documentsSchema = z.object({
   natureInscription: z.string().min(1, 'Este campo é obrigatório'),
 
   publicUniversityDocument: z.any().optional(),
+  faculty: z.number().min(1, 'Faculdade é obrigatório'),
+
 })
 export const DocumentKeys = Object.keys(
   documentsSchema.shape,
