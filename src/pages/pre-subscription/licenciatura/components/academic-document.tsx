@@ -4,11 +4,19 @@ import { SelectFormField } from '@/components/selectFormField'
 import { useQueryPeriod } from '@/hooks/dropdowns/use-query-period'
 import { usePoloDropdown } from '@/hooks/dropdowns/use-query-polo'
 import { FileInput } from '@/components/input-file'
+import { FacultySelect } from '@/components/selects/FacultySelect'
+import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 
 export function AcademicDocument() {
   const { form } = useFormPreSubscriptionForm()
+
+  const faculdadeId = form.watch('faculty')
+  const { data: courses } = useCursos({
+    faculdadeId
+  })
+
+  
   //OPCIONAIS
-  const { data: courses } = useCursos()
 
   const courseOptions =
     courses?.map((t) => ({
@@ -40,15 +48,33 @@ export function AcademicDocument() {
 
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <SelectFormField
           placeholder="Selecione Polo"
           control={form.control}
           fullWidth
           name="pole"
           label="Polo"
-          items={poloOptions.filter((p) => p.value !== "3" && p.value !== "4" )}
+          items={poloOptions.filter((p) => p.value !== "3" && p.value !== "4")}
         />
+
+
+        <FormField
+          control={form.control}
+          name="faculty"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <FacultySelect
+                  value={field.value?.toString()}
+                  onChangeValue={(v) => field.onChange(parseInt(v))}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <SelectFormField
           name="intendedCourse"
           placeholder="Selecione Curso"
@@ -56,7 +82,9 @@ export function AcademicDocument() {
           fullWidth
           label="Curso Pretendido"
           items={courseOptions}
+          disabled={!faculdadeId}
         />
+
         <SelectFormField
           name="intendedCourseSecond"
           placeholder="Selecione Curso"
@@ -64,6 +92,7 @@ export function AcademicDocument() {
           fullWidth
           label="2º Opção (Opcional)"
           items={courseOptions}
+          disabled={!faculdadeId}
         />
         <SelectFormField
           placeholder="Selecione Curso"
@@ -72,6 +101,7 @@ export function AcademicDocument() {
           fullWidth
           label="3º Opção (Opcional)"
           items={courseOptions}
+          disabled={!faculdadeId}
         />
         <SelectFormField
           name="period"
@@ -102,25 +132,26 @@ export function AcademicDocument() {
             })
           }
         />
+
         <SelectFormField
           name="natureInscription"
           control={form.control}
           placeholder="Selecione um valor"
           fullWidth
-          label="Veio de uma Universidade Pública?"
+          label="Já fez prova na pública e teve positiva?"
           items={natureInscriptionOptions}
         />
 
         {camePublicUniversity === '1' && (
           <FileInput
-            label="Documento Comprovativo"
+            label="Anexa a pauta da pública"
             required
             accept=".pdf"
             maxSizeMB={5}
             error={
               form.formState.errors.publicUniversityDocument?.message as
-                | string
-                | undefined
+              | string
+              | undefined
             }
             onChange={(file) =>
               form.setValue('publicUniversityDocument', file!, {

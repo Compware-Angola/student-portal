@@ -1,8 +1,10 @@
 import type { FecthCurriculumPlanGradesResponse } from '@/services/curriculum/fetch-curriculum-plan.service'
+import type { FetchEnrollmentPeriodStudentsOldResponse } from '@/services/prazos-matriculas/get-prazos-matriculas.service'
 import type { DebtNegotiationResponse } from '@/services/renegotiation/renegotiation.service'
-import type { StudentDashboardStatistics } from '@/services/statistics/dashboard'
+
 import type { GetConfirmationResponse } from '@/services/students/confirmation.service'
 import type { StudentSituationResponse } from '@/services/students/situation.service'
+import type { TypeServiceResponse } from '@/services/type-service/type-service.service'
 import type { Grade } from '@/types/grade'
 import type { ProfileData } from '@/types/profile'
 
@@ -39,13 +41,19 @@ export type RegistrationsUCContextType = {
   enrollmentStatus: 'not_yet_open' | 'open' | 'closed'
   isLoadingAcademmicYear: boolean
   isErrorAcademicYear: boolean
-  studentStatistics?: StudentDashboardStatistics
-  isLoadingStudenttatistics: boolean
+
+  
   profileData: ProfileData | null
   maxCourseGrade: number
   isLoadingDebit: boolean
   debit?: DebtNegotiationResponse
-  foraPrazoValue: number
+  LateConfirmationValue: number
+  LateConfirmation: TypeServiceResponse | null
+
+    prazoValido:boolean,
+        foraDoPrazo:boolean,
+        aindaNaoComecou:boolean,
+       
   totalPagar: number
   studentSituation?: StudentSituationResponse
   semestreActual : number | undefined
@@ -54,6 +62,7 @@ export type RegistrationsUCContextType = {
   confirmationData: GetConfirmationResponse | undefined
   isLoadingConfirmation: boolean
   isErrorConfirmation: boolean
+  enrollmentPeriodStudentsOld?: FetchEnrollmentPeriodStudentsOldResponse
 }
 export type SectionKey = 'new' | 'pendents'
 

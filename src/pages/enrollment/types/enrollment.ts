@@ -1,5 +1,4 @@
 import type { StudentDashboardStatistics } from '@/services/statistics/dashboard'
-import type { StudentSituationResponse } from '@/services/students/situation.service'
 import type { Grade } from '@/types/grade'
 import type { ProfileData } from '@/types/profile'
 
@@ -9,15 +8,18 @@ export type EnrollmentContextType = {
     new: boolean
     pendents: boolean
   }
-  isNewStudentWithOutEnrollment: boolean
+
   totalValue: number
   toggleSubject: (subject: Grade) => void
   isSelected: (subject: Grade) => boolean
   toggleSection: (section: SectionKey) => void
   selectAll: () => void
   isAllSelected: () => boolean
-  remove: (codigoGrade: string) => void
-  removeAll: () => void
+
+  prazoValido: boolean,
+  foraDoPrazo: boolean,
+  aindaNaoComecou: boolean
+  
   subject: Grade[]
   confirmStudentEnrollment: () => void
   confirmStudentEnrollmentState: boolean
@@ -31,7 +33,7 @@ export type EnrollmentContextType = {
   isErrorStudentCurriculumPlan: boolean
   isLoadingProfileData: boolean
   isErrorProfileData: boolean
-  studentSituation: StudentSituationResponse | undefined
+
   enrollmentStatus: 'not_yet_open' | 'open' | 'closed'
   isLoadingAcademmicYear: boolean
   isErrorAcademicYear: boolean

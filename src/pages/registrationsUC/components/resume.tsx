@@ -17,7 +17,7 @@ export function RegistrationsUCResume() {
     confirmStudentEnrollmentState,
     enrollmentStatus,
     totalPagar,
-    foraPrazoValue,
+   
   } = useRegistrationsUC()
 
   if (selectedSubjects.length === 0) return null
@@ -76,7 +76,7 @@ export function RegistrationsUCResume() {
           {enrollmentStatus === 'closed' && (
             <ResumoItem
               label="Taxa de inscrição fora de época"
-              value={formatCurrency(foraPrazoValue)}
+              
             />
           )}
 
@@ -118,7 +118,7 @@ function ResumoItem({
   destaque = false,
 }: {
   label: string
-  value: string
+  value?: string
   destaque?: boolean
 }) {
   return (

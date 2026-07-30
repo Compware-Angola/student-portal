@@ -1,18 +1,18 @@
 import { isBefore, isAfter, parseISO } from 'date-fns'
 
-import type { AcademicActivity } from '@/services/academic/activity-academic-confirmation-student.service'
+
 import { EnrollmentStatus } from '@/constants/enrollment-status'
+import type { FetchEnrollmentPeriodStudentsOldResponse } from '@/services/prazos-matriculas/get-prazos-matriculas.service'
 
 /**
  * Determina o estado da matrícula com base nas datas
  */
-export function getEnrollmentStatus(data: AcademicActivity) {
-  if (!data) {
+export function getEnrollmentStatus(data: FetchEnrollmentPeriodStudentsOldResponse | undefined | null) {
+  if (!data || !data?.calendario?.length) {
     return EnrollmentStatus.CLOSED
   }
-  const atividade = data
-  const inicio = parseISO(atividade.data_inicio)
-  const termino = parseISO(atividade.data_termino)
+  const inicio = parseISO(data.calendario[0].data_inicio)
+  const termino = parseISO(data.calendario[0].data_termino)
   const hoje = new Date()
 
   if (isBefore(hoje, inicio)) {
