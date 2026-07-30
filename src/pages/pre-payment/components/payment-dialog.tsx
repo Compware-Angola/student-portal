@@ -32,18 +32,19 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
   const { profileData } = useQueryProfile()
 
   const { data: currentAcademicYear } = useQueryCurrentAcademicYear()
- if (!currentAcademicYear) {
-  return <> </>
- } 
-
-  const { createInvoiceAsync, createInvoicePending } =
-    useMutationCreateInvoice()
-  const queryClient = useQueryClient()
   const { data: taxaAdmissao } = useTypeServiceSingle({
     currentYearCode: Number(currentAcademicYear?.codigo),
 
     ...presetTypeService(Number(profileData?.codigo_tipo_candidatura)),
   })
+
+  const { createInvoiceAsync, createInvoicePending } =
+    useMutationCreateInvoice()
+  const queryClient = useQueryClient()
+
+  if (!currentAcademicYear) {
+    return <> </>
+  }
 
   function createItem(serviceType: TypeServiceResponse | null) {
     if (!serviceType) return null
@@ -73,7 +74,6 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
   }
 
   const handleFactura = async () => {
-  
     try {
       const totalApagar = taxaAdmissao?.preco
       const item = createItem(taxaAdmissao)
@@ -131,7 +131,10 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
             pagamento
           </p>
           <div className="flex justify-end">
-            <Button onClick={() => handleFactura()} disabled={createInvoicePending}>
+            <Button
+              onClick={() => handleFactura()}
+              disabled={createInvoicePending}
+            >
               {createInvoicePending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}

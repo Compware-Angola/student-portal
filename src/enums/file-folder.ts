@@ -6,4 +6,5 @@ export enum FileFolder {
   PAYMENTS = 'payments',
   CONTRACTS = 'contracts',
   REPORTS = 'reports',
+  CANDIDATURA = 'candidaturas',
 }
