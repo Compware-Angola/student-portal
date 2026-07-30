@@ -1,7 +1,6 @@
 import { toast } from 'sonner'
 import { RegistrationsUCtHeader } from './components/header'
-import { RegistrationsUCResume } from './components/resume'
-import { RegistrationsUCSection } from './components/section'
+
 import { EnrollmentSummaryCards } from './components/summary-cards'
 import { RegistrationsUCProvider } from './context/registrations-uc.provider'
 
@@ -12,6 +11,9 @@ import { useEffect } from 'react'
 import { PaymentAlert } from '@/components/payment-alert'
 import { GraduatedBanner } from './components/graduated-banner'
 import { useRegistrationsUC } from './hooks/use-registrations-uc'
+import { StandardTimeframe } from './components/standard-timeframe'
+import { RegistrationsUCAvailable } from './components/RegistrationsUCAvailable'
+import { RegistrationsDeadlineExpired } from './components/RegistrationsDeadlineExpired'
 
 function RegistrationsUCContent() {
   const {
@@ -24,15 +26,37 @@ function RegistrationsUCContent() {
     isErrorStudentCurriculumPlanPendents,
     pendingSubjects,
     isLoadingAcademmicYear,
-   
     isLoadingStudenttatistics,
     isLoadingDebit,
     debit,
     profileData,
-    confirmationData
-
+    confirmationData,
+    prazosMatricula
   } = useRegistrationsUC()
+
   const isDiplomado = profileData?.estado_matricula === 'diplomado'
+
+  const prazoValido = prazosMatricula?.calendario &&
+    prazosMatricula.calendario.some(
+      prazo =>
+        new Date(prazo.data_inicio) <= new Date() &&
+        new Date(prazo.data_termino) >= new Date()
+    )
+
+
+  const isLoadingPage =
+    isLoadingProfileData ||
+    isErrorProfileData ||
+    isLoadingStudentCurriculumPlan ||
+    isLoadingStudentCurriculumPlanPendents ||
+    isLoadingAcademmicYear ||
+    isLoadingStudenttatistics ||
+    isLoadingDebit ||
+    !profileData
+
+ 
+  const podeConfirmar = confirmationData?.informacoes.podeConfirmar ?? false
+  const podeMatricularAgora = podeConfirmar && !prazoValido
 
   useEffect(() => {
     if (isErrorProfileData) {
@@ -50,56 +74,38 @@ function RegistrationsUCContent() {
     isErrorStudentCurriculumPlanPendents,
   ])
 
-      
-  if (
-    isLoadingProfileData ||
-    isErrorProfileData ||
-    isLoadingStudentCurriculumPlan ||
-    isLoadingStudentCurriculumPlanPendents ||
-    isLoadingAcademmicYear ||
-    isLoadingStudenttatistics ||
-    !profileData ||
-    isLoadingDebit
-  ) {
+  if (isLoadingPage) {
     return <RegistrationsUCSkeleton />
   }
+
   if (debit && (debit?.totalDivida ?? 0) > 0) return <PaymentAlert />
   if (isDiplomado) return <GraduatedBanner />
+
   return (
     <div className="space-y-6">
-  <>
-          <RegistrationsUCtHeader />
-          <EnrollmentSummaryCards />
-          {confirmationData && confirmationData.informacoes.podeConfirmar && (
-            <>
-              <div>
-                <div>
-                  <div className="flex items-center justify-between my-2">
-                    <p>Disciplinas Disponíveis</p>
-                  </div>
-                </div>
-                <div className="space-y-6">
-                  <RegistrationsUCSection
-                    label="Pendentes"
-                    subjects={pendingSubjects}
-                    secktionKey="pendents"
-                  />
-                  <RegistrationsUCSection
-                    label="Novas"
-                    subjects={subject}
-                    secktionKey="new"
-                  />
-                </div>
-              </div>
+      <RegistrationsUCtHeader />
 
-              <RegistrationsUCResume />
-            </>
-          )}
-        </>
+      {confirmationData && (
+        podeMatricularAgora ? (
+          <EnrollmentSummaryCards /> // Pode Matricular card
+        ) : (
+          <StandardTimeframe /> // Tela Do dia a dia sem poder confirmar
+        )
+      )}
+
+      {confirmationData && confirmationData.informacoes.podeConfirmar && (
+        podeMatricularAgora ? (
+          <RegistrationsUCAvailable
+            pendingSubjects={pendingSubjects}
+            subject={subject}
+          />  // Tela de Confirmação  onde tras as cadeiras
+        ) : (
+          <RegistrationsDeadlineExpired /> // Tela do dia a dia sem poder confirmar
+        )
+      )}
     </div>
   )
 }
-
 export function RegistrationsUC() {
   return (
     <RegistrationsUCProvider>

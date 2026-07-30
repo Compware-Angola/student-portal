@@ -415,7 +415,8 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
         currentAcademicYear:currentAcademicYear?.codigo!,
         confirmationData,
         isLoadingConfirmation,
-        isErrorConfirmation
+        isErrorConfirmation,
+        prazosMatricula
       }}
     >
       {children}

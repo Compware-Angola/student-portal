@@ -1,4 +1,5 @@
 import type { FecthCurriculumPlanGradesResponse } from '@/services/curriculum/fetch-curriculum-plan.service'
+import type { FetchPrazosMatriculaResponse } from '@/services/prazos-matriculas/get-prazos-matriculas.service'
 import type { DebtNegotiationResponse } from '@/services/renegotiation/renegotiation.service'
 import type { StudentDashboardStatistics } from '@/services/statistics/dashboard'
 import type { GetConfirmationResponse } from '@/services/students/confirmation.service'
@@ -54,6 +55,7 @@ export type RegistrationsUCContextType = {
   confirmationData: GetConfirmationResponse | undefined
   isLoadingConfirmation: boolean
   isErrorConfirmation: boolean
+  prazosMatricula?: FetchPrazosMatriculaResponse
 }
 export type SectionKey = 'new' | 'pendents'
 
