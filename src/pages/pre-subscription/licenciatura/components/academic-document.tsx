@@ -53,14 +53,7 @@ export function AcademicDocument() {
           label="Polo"
           items={poloOptions.filter((p) => p.value !== "3" && p.value !== "4" )}
         />
-        <SelectFormField
-          name="intendedCourse"
-          placeholder="Selecione Curso"
-          control={form.control}
-          fullWidth
-          label="Curso Pretendido"
-          items={courseOptions}
-        />
+
 
         <FormField
           control={form.control}
@@ -77,6 +70,16 @@ export function AcademicDocument() {
             </FormItem>
           )}
         />
+        
+        <SelectFormField
+          name="intendedCourse"
+          placeholder="Selecione Curso"
+          control={form.control}
+          fullWidth
+          label="Curso Pretendido"
+          items={courseOptions}
+        />
+
         <SelectFormField
           name="intendedCourseSecond"
           placeholder="Selecione Curso"

@@ -76,15 +76,15 @@ export function AcademicData() {
           placeholder="2024"
           type="date"
         />
-       <NumberInputFormField
-  label="Media Final"
-  control={form.control}
-  name="averageGrade"
-  placeholder="16.5"
-  min={10}
-  max={20}
-  step={0.1}
-/>
+        <NumberInputFormField
+          label="Media Final"
+          control={form.control}
+          name="averageGrade"
+          placeholder="16.5"
+          min={10}
+          max={20}
+          step={0.1}
+        />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <SelectFormField

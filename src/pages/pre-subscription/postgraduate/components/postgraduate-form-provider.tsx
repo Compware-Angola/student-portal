@@ -54,7 +54,7 @@ export function FormPreSubscriptionPostGraduateProvider({
   const uploadFile = async (data: File, folder: FileFolder = FileFolder.CANDIDATURA) => {
     // const formData = new FormData()
     // formData.append('file', data)
-    const response = await uploadMutation.mutateAsync({file:data, options: {folder}})
+    const response = await uploadMutation.mutateAsync({ file: data, options: { folder } })
     return response.key ?? ''
   }
 
@@ -90,7 +90,8 @@ export function FormPreSubscriptionPostGraduateProvider({
       codigoTipoCandidatura: Number(data.intendedGraduation),
       inquerito: data.howDidYouKnow,
       tentou_universidade_publica: data.publicUniversityDocument,
-      faculty: data.faculty,
+      codigoFaculdade: Number(data.faculty)
+
     }
   }
 
@@ -121,7 +122,7 @@ export function FormPreSubscriptionPostGraduateProvider({
       codigoNacionalidade: '',
       howDidYouKnow: '',
       publicUniversityDocument: '',
-      faculty: '',
+      faculty: 0,
     },
     mode: 'onChange',
   })
