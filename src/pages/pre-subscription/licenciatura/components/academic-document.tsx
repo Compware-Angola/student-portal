@@ -47,7 +47,7 @@ export function AcademicDocument() {
           fullWidth
           name="pole"
           label="Polo"
-          items={poloOptions}
+          items={poloOptions.filter((p) => p.value !== "3" && p.value !== "4" )}
         />
         <SelectFormField
           name="intendedCourse"

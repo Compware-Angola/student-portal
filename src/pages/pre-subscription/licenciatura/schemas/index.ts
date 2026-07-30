@@ -18,8 +18,13 @@ export const _preSubscriptionSchema = z.object({
 
 export const preSubscriptionSchema = _preSubscriptionSchema
   .extend({
-    averageGrade: z.string(),
+     averageGrade: z.coerce
+        .number({ message: 'Média final é obrigatória' })
+        .min(10, 'O valor mínimo é 10')
+        .max(20, 'O valor máximo é 20'),
+    
   })
   .superRefine(refineHowDidYouKnowOther)
 
-export type PreSubscriptionSchema = z.infer<typeof preSubscriptionSchema>
+export type PreSubscriptionSchema = z.input<typeof preSubscriptionSchema>
+export type PreSubscriptionSchemaOutput = z.output<typeof preSubscriptionSchema>

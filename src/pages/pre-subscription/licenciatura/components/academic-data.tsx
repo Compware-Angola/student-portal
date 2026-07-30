@@ -5,6 +5,7 @@ import { useQueryTipoCandidatura } from '@/hooks/dropdowns/use-query-tipo-candid
 import { FileInput } from '@/components/input-file'
 import { useQueryUser } from '@/hooks/candidate/use-query-user'
 import { useEffect, useMemo } from 'react'
+import { NumberInputFormField } from '@/components/input-form-field/NumberInputFormField'
 
 export function AcademicData() {
   const { form } = useFormPreSubscriptionForm()
@@ -75,13 +76,15 @@ export function AcademicData() {
           placeholder="2024"
           type="date"
         />
-        <InputFormField
-          label="Media Final"
-          control={form.control}
-          name="averageGrade"
-          placeholder="16.5"
-          type="number"
-        />
+       <NumberInputFormField
+  label="Media Final"
+  control={form.control}
+  name="averageGrade"
+  placeholder="16.5"
+  min={10}
+  max={20}
+  step={0.1}
+/>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <SelectFormField

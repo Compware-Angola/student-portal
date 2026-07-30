@@ -9,14 +9,16 @@ export const gaApi = ky.create({
   prefixUrl: VITE_API_URL_GA,
   timeout: false,
   hooks: {
-    beforeRequest: [
-      (request) => {
-        const token = AuthStorage.getToken()
-        if (token) {
-          request.headers.set('Authorization', `Bearer ${token}`)
-        }
-      },
-    ],
+  beforeRequest: [
+  (request) => {
+
+    const token = AuthStorage.getToken();
+
+    if (token) {
+      request.headers.set("Authorization", `Bearer ${token}`);
+    }
+  },
+],
     afterResponse: [
       async (_request, _options, response) => {
         if (!response.ok) {
