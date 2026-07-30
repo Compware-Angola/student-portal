@@ -10,8 +10,8 @@ export const personalDataSchema = z.object({
   gender: z.string().min(1, 'Género é obrigatório'),
   maritalStatus: z.string().min(1, 'Género é obrigatório'),
   needs: z.string().min(1, 'Género é obrigatório'),
-  motherName: z.string().min(1, 'Nome da mãe é obrigatório'),
-  fatherName: z.string().min(1, 'Nome da pai é obrigatório'),
+  motherName: z.string(),
+  fatherName: z.string(),
   photo: z.instanceof(File).nullable().optional(),
   codigoNacionalidade:  z.string().min(1, 'Nacionalidade é obrigatório'),
 })

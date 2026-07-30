@@ -15,8 +15,6 @@ export const _preSubscriptionSchema = z.object({
 export const preSubscriptionPostGraduateSchema = _preSubscriptionSchema.extend({
   averageGrade: z.string(),
   howDidYouKnow: z.string(),
-  publicUniversityDocument: z.string(),
-  faculty: z.number().min(1, 'Faculdade é obrigatório'),
 })
 
 export type PreSubscriptionPostGraduateSchema = z.infer<
