@@ -380,6 +380,7 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
         prazoValido,
         foraDoPrazo,
         aindaNaoComecou,
+       
         enrollmentPeriodStudentsOld,
 
         // Totais

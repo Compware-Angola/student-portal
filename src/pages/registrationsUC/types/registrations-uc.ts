@@ -53,6 +53,7 @@ export type RegistrationsUCContextType = {
     prazoValido:boolean,
         foraDoPrazo:boolean,
         aindaNaoComecou:boolean,
+       
   totalPagar: number
   studentSituation?: StudentSituationResponse
   semestreActual : number | undefined
