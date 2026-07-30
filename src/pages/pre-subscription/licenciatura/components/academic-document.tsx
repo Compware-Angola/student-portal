@@ -4,15 +4,19 @@ import { SelectFormField } from '@/components/selectFormField'
 import { useQueryPeriod } from '@/hooks/dropdowns/use-query-period'
 import { usePoloDropdown } from '@/hooks/dropdowns/use-query-polo'
 import { FileInput } from '@/components/input-file'
-import { InputFormField } from '@/components/input-form-field'
 import { FacultySelect } from '@/components/selects/FacultySelect'
 import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 
 export function AcademicDocument() {
   const { form } = useFormPreSubscriptionForm()
 
+  const faculdadeId = form.watch('faculty')
+  const { data: courses } = useCursos({
+    faculdadeId
+  })
+
+  
   //OPCIONAIS
-  const { data: courses } = useCursos()
 
   const courseOptions =
     courses?.map((t) => ({
@@ -51,7 +55,7 @@ export function AcademicDocument() {
           fullWidth
           name="pole"
           label="Polo"
-          items={poloOptions.filter((p) => p.value !== "3" && p.value !== "4" )}
+          items={poloOptions.filter((p) => p.value !== "3" && p.value !== "4")}
         />
 
 
@@ -70,7 +74,7 @@ export function AcademicDocument() {
             </FormItem>
           )}
         />
-        
+
         <SelectFormField
           name="intendedCourse"
           placeholder="Selecione Curso"
@@ -78,6 +82,7 @@ export function AcademicDocument() {
           fullWidth
           label="Curso Pretendido"
           items={courseOptions}
+          disabled={!faculdadeId}
         />
 
         <SelectFormField
@@ -87,6 +92,7 @@ export function AcademicDocument() {
           fullWidth
           label="2º Opção (Opcional)"
           items={courseOptions}
+          disabled={!faculdadeId}
         />
         <SelectFormField
           placeholder="Selecione Curso"
@@ -95,6 +101,7 @@ export function AcademicDocument() {
           fullWidth
           label="3º Opção (Opcional)"
           items={courseOptions}
+          disabled={!faculdadeId}
         />
         <SelectFormField
           name="period"
