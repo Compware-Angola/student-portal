@@ -47,7 +47,7 @@ export function AcademicDocument() {
 
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <SelectFormField
           placeholder="Selecione Polo"
           control={form.control}
@@ -80,15 +80,6 @@ export function AcademicDocument() {
             </FormItem>
           )}
         />
-
-        {/* <FacultySelect
-          value={faculdade}
-          onChangeValue={setFaculdade}
-          allOption
-          showLabel
-          placeholder="Selecione a faculdade"
-          width="full"
-        /> */}
         <SelectFormField
           name="intendedCourseSecond"
           placeholder="Selecione Curso"
