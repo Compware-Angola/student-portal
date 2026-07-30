@@ -11,6 +11,7 @@ import { toast } from 'sonner'
 import { useUpdateStudentPhoto } from '@/hooks/student/use-mutation-update-student-photo'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { DocumentTypeEnum } from '@/enums/document.type.enum'
+import { FileFolder } from '@/enums/file-folder'
 
 type ContextValue = {
   onSubmit: (data: PreSubscriptionSchema) => void
@@ -48,12 +49,10 @@ export function FormPreSubscriptionProvider({
 
   const { profileData } = useQueryProfile()
 
-  const uploadFile = async (data: File) => {
-    const formData = new FormData()
-    formData.append('file', data)
-    const response = await uploadMutation.mutateAsync({file:data})
-    return response.key ?? ''
-  }
+const uploadFile = async (data: File, folder: FileFolder = FileFolder.CANDIDATURA) => {
+  const response = await uploadMutation.mutateAsync({ file: data, options: { folder } })
+  return response.key ?? ''
+}
 
   function buildInscricaoPayload(data: any, docs: any) {
     return {
@@ -107,7 +106,7 @@ export function FormPreSubscriptionProvider({
       maritalStatus: '',
       motherName: '',
       needs: '',
-      averageGrade: '0',
+      averageGrade: 0 ,
       graduationYear: '',
       previousSchool: '',
       previousCourse: '',
@@ -129,46 +128,46 @@ export function FormPreSubscriptionProvider({
     mode: 'onChange',
   })
 
-  const onSubmit = React.useCallback(async (data: PreSubscriptionSchema) => {
-    let photoPath: string | undefined = undefined
-    let documentPath: string | undefined = undefined
-    let certificatePath: string | undefined = undefined
-    let publicUniversityDocumentPath: string | undefined = undefined
-    const docs = []
-    if (data.photo) {
-      photoPath = await uploadFile(data.photo)
-      updateStudentPhoto.mutateAsync(
-        { file: photoPath!, userId: profileData?.userId! },
-        {},
-      )
-    }
-    if (data.document) {
-      documentPath = await uploadFile(data.document)
-      docs.push({
-        typeDocumentId: parseInt(data.documentType),
-        fileName: documentPath,
-      })
-    }
-    if (data.certificate) {
-      certificatePath = await uploadFile(data.certificate)
-      docs.push({
-        typeDocumentId: DocumentTypeEnum.CERTIFICADO_COM_NOTAS,
-        fileName: certificatePath,
-      })
-    }
-    if (data.publicUniversityDocument) {
-      publicUniversityDocumentPath = await uploadFile(
-        data.publicUniversityDocument,
-      )
-      docs.push({
-        typeDocumentId: DocumentTypeEnum.UNIVERSIDADE_PUBLICA_DOC,
-        fileName: publicUniversityDocumentPath,
-      })
-    }
+ const onSubmit = React.useCallback(async (data: PreSubscriptionSchema) => {
+  let photoPath: string | undefined = undefined
+  let documentPath: string | undefined = undefined
+  let certificatePath: string | undefined = undefined
+  let publicUniversityDocumentPath: string | undefined = undefined
+  const docs = []
 
-    const payload = buildInscricaoPayload(data, docs)
-    await createPreInscricaoAsync(payload)
-  }, [])
+  if (data.photo) {
+    photoPath = await uploadFile(data.photo, FileFolder.FOTOS_PERFIL)
+    updateStudentPhoto.mutateAsync(
+      { file: photoPath!, userId: profileData?.userId! },
+    )
+  }
+  if (data.document) {
+    documentPath = await uploadFile(data.document)
+    docs.push({
+      typeDocumentId: parseInt(data.documentType),
+      fileName: documentPath,
+    })
+  }
+  if (data.certificate) {
+    certificatePath = await uploadFile(data.certificate)
+    docs.push({
+      typeDocumentId: DocumentTypeEnum.CERTIFICADO_COM_NOTAS,
+      fileName: certificatePath,
+    })
+  }
+  if (data.publicUniversityDocument) {
+    publicUniversityDocumentPath = await uploadFile(
+      data.publicUniversityDocument,
+    )
+    docs.push({
+      typeDocumentId: DocumentTypeEnum.UNIVERSIDADE_PUBLICA_DOC,
+      fileName: publicUniversityDocumentPath,
+    })
+  }
+
+  const payload = buildInscricaoPayload(data, docs)
+  await createPreInscricaoAsync(payload)
+}, [])
 
   const handleNextOrSubmit = React.useCallback(async () => {
     const valid = await form.trigger(currentStepConfig.fields, {
