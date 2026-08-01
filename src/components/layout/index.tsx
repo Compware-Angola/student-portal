@@ -4,6 +4,7 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
+  BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { Separator } from '@/components/ui/separator'
@@ -12,12 +13,45 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
-import { Outlet } from 'react-router-dom'
+import { Link, Outlet, useLocation } from 'react-router-dom'
 import { ModeToggle } from '../mode-toggle'
 import { StudentInfo } from './components/student-info'
 import { StudentNotifications } from './components/student-notification'
 
+// Mapeia o "slug" da rota para um label amigável.
+// Se a rota não estiver aqui, o label é gerado automaticamente a partir do path.
+const breadcrumbLabels: Record<string, string> = {
+  disciplinas: 'Disciplinas',
+  notas: 'Notas',
+  frequencia: 'Frequência',
+  financeiro: 'Financeiro',
+  perfil: 'Perfil',
+  configuracoes: 'Configurações',
+}
+
+function formatLabel(segment: string) {
+  // Fallback: transforma "minha-rota" em "Minha rota"
+  const withSpaces = segment.replace(/-/g, ' ')
+  return withSpaces.charAt(0).toUpperCase() + withSpaces.slice(1)
+}
+
+function useBreadcrumbs() {
+  const location = useLocation()
+  const segments = location.pathname.split('/').filter(Boolean)
+
+  let path = ''
+  return segments.map((segment) => {
+    path += `/${segment}`
+    return {
+      label: breadcrumbLabels[segment] ?? formatLabel(segment),
+      href: path,
+    }
+  })
+}
+
 export default function Layout() {
+  const breadcrumbs = useBreadcrumbs()
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -33,12 +67,28 @@ export default function Layout() {
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem className="hidden md:block">
-                    <BreadcrumbLink href="#">Uma</BreadcrumbLink>
+                    <BreadcrumbLink asChild>
+                      <Link to="/">Portal do Aluno</Link>
+                    </BreadcrumbLink>
                   </BreadcrumbItem>
-                  <BreadcrumbSeparator className="hidden md:block" />
-                  <BreadcrumbItem>
-                    {/* <BreadcrumbPage>Inicio</BreadcrumbPage> */}
-                  </BreadcrumbItem>
+
+                  {breadcrumbs.map((crumb, index) => {
+                    const isLast = index === breadcrumbs.length - 1
+                    return (
+                      <div key={crumb.href} className="flex items-center gap-2">
+                        <BreadcrumbSeparator className="hidden md:block" />
+                        <BreadcrumbItem>
+                          {isLast ? (
+                            <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                          ) : (
+                            <BreadcrumbLink asChild>
+                              <Link to={crumb.href}>{crumb.label}</Link>
+                            </BreadcrumbLink>
+                          )}
+                        </BreadcrumbItem>
+                      </div>
+                    )
+                  })}
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
