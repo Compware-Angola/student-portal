@@ -12,8 +12,7 @@ import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useQueryCandidateExam } from '@/hooks/exame/use-query-exame'
 import type { Question } from '@/services/exame-acesso/exame.service'
 import { CheckCircle2 } from 'lucide-react'
-
-
+import { ExamPendingInfo } from './components/aguardar-atribuicao-prova'
 
 const FORCE_EXAM_OPEN = false
 const INSTITUTION_NAME = 'Universidade Metodista de Angola'
@@ -30,7 +29,6 @@ function mapQuestion(q: Question) {
     id: q.id,
     subject: q.disciplina,
     statement: q.pergunta,
-    // cada opção carrega o id da resposta para podermos submeter depois
     options: q.respostas.map((r) => ({
       id: r.id,
       label: r.resposta,
@@ -38,8 +36,40 @@ function mapQuestion(q: Question) {
   }
 }
 
+// Monta a data/hora real do INÍCIO da prova a partir de data_prova (UTC) + hora_inicio ("HH:mm")
+function getExamDateTime(dataProva?: string | null, horaStr?: string | null): Date | null {
+  if (!dataProva) return null
+
+  const base = new Date(dataProva)
+  if (isNaN(base.getTime())) return null
+
+  // Extrai o dia real da prova a partir dos componentes UTC
+  // (evita o deslocamento causado pelo timezone do browser)
+  const year = base.getUTCFullYear()
+  const month = base.getUTCMonth()
+  const day = base.getUTCDate()
+
+  let hours = 0
+  let minutes = 0
+  if (horaStr) {
+    const [h, m] = horaStr.split(':').map(Number)
+    hours = isNaN(h) ? 0 : h
+    minutes = isNaN(m) ? 0 : m
+  }
+
+  // Monta no timezone LOCAL do browser — correto aqui porque hora_inicio/hora_fim
+  // já são "hora local de Angola" e o candidato acessa de Angola/WAT
+  return new Date(year, month, day, hours, minutes, 0, 0)
+}
+
+function getSecondsRemaining(end: Date | null): number {
+  if (!end) return 0
+  return Math.max(0, Math.floor((end.getTime() - Date.now()) / 1000))
+}
+
+// Contador regressivo até uma data-alvo (usado para "aguardando início da prova")
 function useCountdown(target: Date | null) {
-  const [now, setNow] = useState(new Date())
+  const [now, setNow] = useState(() => new Date())
 
   useEffect(() => {
     if (!target) return
@@ -66,47 +96,56 @@ const ProvaExameAcesso = () => {
   const { data: info, isLoading } = useQueryInfoGeraisCandidatura()
   const { profileData } = useQueryProfile()
   const isDiaProva = info?.estado_aluno === AdmissionStatus.DIA_DA_PROVA
-  // CALCULAR A DURACAO
-  const horaInicio = info?.hora_inicio
-  const horaFim = info?.hora_fim
-  // converter string para date
-  const dateInicio = horaInicio ? new Date(horaInicio) : null
-  const dateFim = horaFim ? new Date(horaFim) : null
-  const EXAM_DURATION_MIN = dateFim && dateInicio ? Math.floor((dateFim.getTime() - dateInicio.getTime()) / 60000) : 120
 
   const { isLoading: isLoadingApiStatus, isError: isErrorApiStatus } =
     useQueryApiStatus({ enabled: isDiaProva })
 
-  // Busca a prova do candidato via API
   const { isLoading: isLoadingExam, data: candidateExam } = useQueryCandidateExam(
     profileData?.codigo_preinscricao!,
-    isDiaProva, // só habilita quando for dia da prova
+    isDiaProva,
   )
 
-  const date = !info?.data_prova ? null : new Date(info.data_prova)
-  const { diff, days, hours, minutes, seconds } = useCountdown(date)
+  // Memoizado: só recria a referência de Date quando os dados da API realmente mudam.
+  // Sem isso, o useEffect do useCountdown reinicia o setInterval a cada render e o
+  // contador trava (nunca completa um ciclo de 1000ms).
+  const examStart = useMemo(
+    () => getExamDateTime(info?.data_prova, info?.hora_inicio),
+    [info?.data_prova, info?.hora_inicio],
+  )
+  const examEnd = useMemo(
+    () => getExamDateTime(info?.data_prova, info?.hora_fim),
+    [info?.data_prova, info?.hora_fim],
+  )
+
+  const { diff, days, hours, minutes, seconds } = useCountdown(examStart)
   const examOpen = FORCE_EXAM_OPEN || diff === 0
 
   const [current, setCurrent] = useState(0)
-  // answers: { [perguntaId]: respostaId }
   const [answers, setAnswers] = useState<Record<number, number>>({})
   const [submitted, setSubmitted] = useState(false)
-  const [remaining, setRemaining] = useState(EXAM_DURATION_MIN * 60)
 
-  useEffect(() => {
-    if (!examOpen || submitted) return
-    const t = setInterval(() => setRemaining((r) => Math.max(0, r - 1)), 1000)
-    return () => clearInterval(t)
-  }, [examOpen, submitted])
+  // Contador regressivo DURANTE a prova, baseado no horário real de término
+  // (examEnd fixo) — não em "tempo desde que abriu a página". Quem entra
+  // atrasado tem menos tempo, mas todos terminam à mesma hora.
+  const [remaining, setRemaining] = useState(() => getSecondsRemaining(examEnd))
 
-  useEffect(() => {
-    if (examOpen && !submitted && remaining === 0) {
+ useEffect(() => {
+  if (!examOpen || submitted || !examEnd) return
+
+  const tick = () => {
+    const secs = getSecondsRemaining(examEnd)
+    setRemaining(secs)
+    if (secs === 0) {
       setSubmitted(true)
       toast.success('Tempo esgotado! A sua prova foi submetida automaticamente.')
     }
-  }, [remaining, examOpen, submitted])
+  }
 
-  // Mapeia perguntas da API para o formato do componente
+  tick() // calcula e verifica imediatamente ao abrir, sem esperar o primeiro tick de 1s
+  const t = setInterval(tick, 1000)
+  return () => clearInterval(t)
+}, [examOpen, submitted, examEnd])
+
   const questions = useMemo(
     () => (candidateExam?.perguntas ?? []).map(mapQuestion),
     [candidateExam],
@@ -129,8 +168,12 @@ const ProvaExameAcesso = () => {
     return <ExamLoader />
   }
 
-  if (AdmissionStatus.SEM_ADMISSAO === info?.estado_aluno) {
+  if (AdmissionStatus.SEM_ADMISSAO === info?.estado_aluno && !info?.payments?.is_payed) {
     return <FinanceInfo />
+  }
+
+  if (AdmissionStatus.SEM_ADMISSAO === info?.estado_aluno && info?.payments?.is_payed) {
+    return <ExamPendingInfo />
   }
 
   if (AdmissionStatus.AGUARDANDO_DIA_DA_PROVA === info?.estado_aluno) {
@@ -189,7 +232,6 @@ const ProvaExameAcesso = () => {
   if (info?.estado_aluno === AdmissionStatus.AGUARDANDO_RESULTADO) {
     return (
       <div className="min-h-[80vh] flex flex-col items-center justify-center px-4">
-
         <div className="w-18 h-18 rounded-full bg-green-50 flex items-center justify-center mb-8">
           <CheckCircle2 className="w-9 h-9 text-green-600" />
         </div>
@@ -211,7 +253,6 @@ const ProvaExameAcesso = () => {
             A aguardar a publicação dos resultados
           </span>
         </div>
-
       </div>
     )
   }
