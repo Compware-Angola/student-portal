@@ -7,7 +7,7 @@ export const PrePayment = () => {
   return (
     <PreInvoice
       enrollmentCode={String(profileData?.codigo_preinscricao)}
-      selectedYear="23"
+      selectedYear="244"
     />
   )
 }
