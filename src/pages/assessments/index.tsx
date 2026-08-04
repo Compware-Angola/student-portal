@@ -16,7 +16,7 @@ import Lottie from 'lottie-react'
 
 export function Assessments() {
   const { profileData, isError, isLoading } = useQueryProfile()
-  const { estado_aluno, codigo_matricula, codigo_preinscricao } = profileData || {}
+  const { estado_aluno, codigo_matricula } = profileData || {}
   const isDiplomado = estado_aluno === 'DIPLOMADO'
   const isConfirmacaoPendente =
     profileData?.confirmacoes?.length === 0 ||
@@ -155,7 +155,6 @@ export function Assessments() {
             </div>
           ) : (
             <CurriculumCard
-              preEnrollmentCode={codigo_preinscricao?.toString()!}
               enrollmentCode={codigo_matricula?.toString()!}
             />
           )}

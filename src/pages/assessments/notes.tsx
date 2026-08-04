@@ -60,26 +60,36 @@ export const Notes = ({ codigoMatricula,  }: NotesProps) => {
       }
     }, [academicYears, selectedYear])
   const getResultadoBadge = (resultado: string) => {
-    if (resultado === "Aprovado") {
-      return (
-        <Badge className="bg-green-500/20 text-green-600 border-green-500/30">
-          Aprovado
-        </Badge>
-      );
-    }
-    if (resultado === "Sem Avaliações") {
-      return (
-        <Badge className="bg-amber-500/20 text-amber-500 border-amber-500/30">
-          Aguardando Resuldado
-        </Badge>
-      );
-    }
+  if (resultado === "Aprovado") {
     return (
-      <Badge className="bg-red-500/20 text-red-600 border-red-500/30">
-        Reprovado
+      <Badge className="bg-green-500/20 text-green-600 border-green-500/30">
+        Aprovado
       </Badge>
     );
-  };
+  }
+
+  if (resultado === "Sem Avaliações") {
+    return (
+      <Badge className="bg-amber-500/20 text-amber-500 border-amber-500/30">
+        Aguardando Resultado
+      </Badge>
+    );
+  }
+
+  if (resultado === "nota_bloqueada") {
+    return (
+      <Badge className="bg-blue-500/20 text-blue-600 border-blue-500/30">
+        Aguardando Pagamento
+      </Badge>
+    );
+  }
+
+  return (
+    <Badge className="bg-red-500/20 text-red-600 border-red-500/30">
+      Reprovado
+    </Badge>
+  );
+};
   const pautas = pautaResponse?.data ?? [];
   return (
     <>

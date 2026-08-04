@@ -14,6 +14,8 @@ import { SemesterSelect } from '@/components/SemesterSelect'
 
 
 import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-academic-year-student'
+import { Info } from 'lucide-react'
+import { toast } from 'sonner'
 
 /* =======================
    Componente Badge de Estado
@@ -61,7 +63,25 @@ function CurriculumRow({
       <TableCell>{subject?.ano_lectivo}</TableCell>
       <TableCell>{subject.semestre}</TableCell>
       {/* <TableCell><StatusBadgeCustom media={Number(subject?.nota)} /></TableCell> */}
-      <TableCell className="text-right font-medium">{subject.nota}</TableCell>
+      
+<TableCell className="text-right font-medium">
+  {subject.nota === "-" ? (
+    <button
+      type="button"
+      onClick={() =>
+        toast.info("Nota indisponível", {
+          description:
+            "Inscrição no recurso pendente de pagamento.",
+        })
+      }
+      className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"
+    >
+      <Info className="h-3.5 w-3.5" />
+    </button>
+  ) : (
+    subject.nota
+  )}
+</TableCell>
 
     </TableRow>
   )
@@ -71,10 +91,8 @@ function CurriculumRow({
    Componente Principal
 ======================= */
 export function CurriculumCard({
-  preEnrollmentCode,
   enrollmentCode,
 }: {
-  preEnrollmentCode: string
   enrollmentCode: string
 }) {
   const [selectedYear, setSelectedYear] = useState<string | undefined>(
@@ -89,7 +107,7 @@ export function CurriculumCard({
     isLoading: isStudentCurriculumPlanLoading,
   } = useQueryCurrentCurriculumPlanSudent({
     academicYearCode: selectedYear,
-    preEnrollmentCode,
+    enrollmentCode,
     semester: selectedSemester
 
   })
