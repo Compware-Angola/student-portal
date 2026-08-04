@@ -22,6 +22,7 @@ import { useMutationUnlockTest } from '@/hooks/pre-registation/use-mutation-vali
 import { useQueryInfoGeraisCandidatura } from '@/hooks/pre-registation/use-query-info-gerais-candidatura'
 import { calculateDuration } from '@/utils/calcular-duracao'
 import { useSubmitCandidateExam, useSubmitCandidateExamFinal } from '@/hooks/exame/subamte-exame-mutation'
+import { LatexText } from '@/utils/latex-text'
 
 // Formato mapeado pelo pai
 export type MappedOption = {
@@ -229,8 +230,9 @@ function Questions({
               <span className="text-sm text-muted-foreground">
                 Pergunta {current + 1} de {questions.length}
               </span>
-            </div>
-            <CardTitle className="text-xl pt-2">{q.statement}</CardTitle>
+            </div><CardTitle className="text-xl pt-2">
+  <LatexText text={q.statement} />
+</CardTitle>
           </CardHeader>
           <CardContent>
             <RadioGroup
@@ -251,12 +253,12 @@ function Questions({
                   >
                     {/* O value agora é o id da resposta */}
                     <RadioGroupItem value={String(opt.id)} id={inputId} />
-                    <span className="text-base font-normal">
-                      <span className="font-semibold mr-2">
-                        {String.fromCharCode(65 + idx)}.
-                      </span>
-                      {opt.label}
-                    </span>
+                  <span className="text-base font-normal">
+  <span className="font-semibold mr-2">
+    {String.fromCharCode(65 + idx)}.
+  </span>
+  <LatexText text={opt.label} />
+</span>
                   </Label>
                 )
               })}
