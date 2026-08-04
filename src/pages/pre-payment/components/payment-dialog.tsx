@@ -31,18 +31,21 @@ const presetTypeService = (code: number) => {
 export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
   const { profileData } = useQueryProfile()
 
-  const { data: currentAcademicYear } = useQueryCurrentAcademicYear()
+  const { data: currentAcademicYearGetTaxa } = useQueryCurrentAcademicYear()
+  const { data: currentAcademicYear } = useQueryCurrentAcademicYear(profileData?.codigo_tipo_candidatura)
   const { data: taxaAdmissao } = useTypeServiceSingle({
-    currentYearCode: Number(currentAcademicYear?.codigo),
-
+    currentYearCode: Number(currentAcademicYearGetTaxa?.codigo),
     ...presetTypeService(Number(profileData?.codigo_tipo_candidatura)),
   })
+
+  console.log("Buscar TAxa",currentAcademicYearGetTaxa)
+  console.log("Ano ",currentAcademicYear)
 
   const { createInvoiceAsync, createInvoicePending } =
     useMutationCreateInvoice()
   const queryClient = useQueryClient()
 
-  if (!currentAcademicYear) {
+  if (!currentAcademicYearGetTaxa) {
     return <> </>
   }
 
@@ -68,7 +71,7 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
       mesTempId: 3,
       estado: 0,
       valorPago: 0,
-      codigo_anoLectivo: currentAcademicYear?.codigo,
+      codigo_anoLectivo: currentAcademicYearGetTaxa?.codigo,
       valorATransportar: 0,
     }
   }
@@ -77,6 +80,11 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
     try {
       const totalApagar = taxaAdmissao?.preco
       const item = createItem(taxaAdmissao)
+        console.log({ taxaAdmissao, totalApagar, item, currentAcademicYear, profileData })
+    if (!totalApagar || !item) {
+      toast.error('Dados da taxa ainda não carregados, tenta novamente')
+      return
+    }
       const now = new Date()
       if (!totalApagar || !item) return
 
@@ -92,7 +100,7 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
         Desconto: 0,
         totalIVA: 0,
         TotalMulta: 0,
-        codigo_anoLectivo: currentAcademicYear?.codigo,
+        codigo_anoLectivo: currentAcademicYear?.codigo!,
         Descricao: presetTypeService(
           Number(profileData?.codigo_tipo_candidatura),
         ).description.substring(0, 44),
