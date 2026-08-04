@@ -14,7 +14,6 @@ import { SemesterSelect } from '@/components/SemesterSelect'
 
 
 import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-academic-year-student'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@radix-ui/react-tooltip'
 import { Info } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -94,7 +93,6 @@ function CurriculumRow({
 export function CurriculumCard({
   enrollmentCode,
 }: {
-  preEnrollmentCode: string
   enrollmentCode: string
 }) {
   const [selectedYear, setSelectedYear] = useState<string | undefined>(
