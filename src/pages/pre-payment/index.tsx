@@ -6,7 +6,7 @@ export const PrePayment = () => {
   const { profileData } = useQueryProfile()
   const {
     data: currentAcademicYear,
-  } = useQueryCurrentAcademicYear()
+  } = useQueryCurrentAcademicYear(profileData?.codigo_tipo_candidatura)
   return (
     <PreInvoice
       enrollmentCode={String(profileData?.codigo_preinscricao)}

@@ -335,13 +335,13 @@ export function PreInvoice({
     setIsOpenPaymentDialog(false)
   }
   // FILTRO DE ESTADO NO BACKEND + PAGINAÇÃO
-  const { data, isLoading, isError } = useQueryInvoices({
-    codigoPreInscricao: enrollmentCode,
-    academicYear: selectedYear as string,
-    options: {
-      enabled: !!academicYear,
-    },
-  })
+ const { data, isLoading, isError } = useQueryInvoices({
+  codigoPreInscricao: enrollmentCode,
+  academicYear: selectedYear as string,
+  options: {
+    enabled: !!selectedYear && !!enrollmentCode,
+  },
+})
 
   const gerarRefMutation = useGenerateReference()
   const findAcademicYearDesignation =
