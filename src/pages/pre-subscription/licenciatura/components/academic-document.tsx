@@ -6,13 +6,16 @@ import { usePoloDropdown } from '@/hooks/dropdowns/use-query-polo'
 import { FileInput } from '@/components/input-file'
 import { FacultySelect } from '@/components/selects/FacultySelect'
 import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 
 export function AcademicDocument() {
+  const {profileData} = useQueryProfile()
   const { form } = useFormPreSubscriptionForm()
 
   const faculdadeId = form.watch('faculty')
   const { data: courses } = useCursos({
-    faculdadeId
+    faculdadeId,
+    tipoCandidaturaId:profileData?.codigo_tipo_candidatura ?? 1
   })
 
   
