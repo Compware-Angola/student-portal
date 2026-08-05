@@ -1,5 +1,4 @@
 'use client'
-
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -12,7 +11,7 @@ import {
   Hash,
   User,
   Lock,
- 
+
  ClipboardList,
   IdCard,
   Info,
@@ -37,15 +36,9 @@ import { InputFormField } from '@/components/input-form-field'
 import { SelectFormField } from '@/components/selectFormField'
 import { useQueryUsableAcademicYear } from '@/hooks/academic-year/use-query-usable-academic-year'
 
-// ---------------------------------------------------------------------------
-// Types / View
-// ---------------------------------------------------------------------------
+
 
 type View = 'login' | 'forgot' | 'update-request' | 'validate-doc' | 'register'
-
-// ---------------------------------------------------------------------------
-// Schema
-// ---------------------------------------------------------------------------
 
 const registerSchema = z
   .object({
@@ -165,7 +158,7 @@ export function RegisterForm({ setView }: RegisterFormProps) {
       if(tipoCandidatura === 3){
         anoLectivoId = doutoramento?.codigo
       }
-      
+
       await submitToApi({
         name: data.nomeCompleto,
         email: data.email,
@@ -180,9 +173,9 @@ export function RegisterForm({ setView }: RegisterFormProps) {
       })
 
       form.reset()
-      setSent(true)
+      setView('login')
     } catch {
-      
+
     }
   }
 
@@ -220,35 +213,6 @@ export function RegisterForm({ setView }: RegisterFormProps) {
       </>
     )
   }
-
-
-
-  if (sent) {
-    return (
-      <>
-        <BackButton onClick={() => setView('login')} />
-        <div className="rounded-lg border border-green-200 bg-green-50 p-6 text-sm text-green-800 space-y-3">
-          <div className="flex items-center gap-2 font-semibold text-base">
-            <CheckCircle2 className="h-5 w-5" />
-            Candidatura submetida
-          </div>
-          <p>
-            Recebemos a sua candidatura. Os Serviços Académicos irão validar
-            os dados e enviar as próximas instruções para o e-mail informado.
-          </p>
-          <Button
-            variant="outline"
-            onClick={() => setView('login')}
-            className="w-full"
-          >
-            Voltar ao login
-          </Button>
-        </div>
-      </>
-    )
-  }
-
-
 
   const isSubmitting = createBeginningStudentProcessPending || form.formState.isSubmitting
 
@@ -303,7 +267,7 @@ export function RegisterForm({ setView }: RegisterFormProps) {
             />
 
 
-          
+
 
             <SelectFormField
               fullWidth
