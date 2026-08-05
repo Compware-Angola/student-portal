@@ -37,6 +37,8 @@ export function FormPreSubscriptionPostGraduateProvider({
 }: {
   children: React.ReactNode
 }) {
+ 
+  
   const [currentStep, setCurrentStep] = React.useState(0)
   const progress = ((currentStep + 1) / steps.length) * 100
   const { createPreInscricaoAsync, createPreInscricaoPending } =
@@ -49,8 +51,12 @@ export function FormPreSubscriptionPostGraduateProvider({
   const updateStudentPhoto = useUpdateStudentPhoto({
     skipInvalidate: true,
   })
-
+//grauacademico
+ 
   const { profileData } = useQueryProfile()
+   const codigoTipoCandidatura = profileData?.grau_academico==='Mestrado' ? 2:3
+  const { data: currentAcademicYear } = useQueryCurrentAcademicYear(codigoTipoCandidatura,
+  !!codigoTipoCandidatura)
 
   const uploadFile = async (data: File, folder: FileFolder = FileFolder.CANDIDATURA) => {
     // const formData = new FormData()
@@ -58,13 +64,8 @@ export function FormPreSubscriptionPostGraduateProvider({
     const response = await uploadMutation.mutateAsync({ file: data, options: { folder } })
     return response.key ?? ''
   }
-    const {
-               data: anoLectivo,
-             } = useQueryCurrentAcademicYear(profileData?.grau_academico === 'Mestrado'? 2 : 1)
-          
 
-  function buildInscricaoPayload(data: any, docs: any) {   
-   
+  function buildInscricaoPayload(data: any, docs: any) {
     return {
       cursoCandidatura: Number(data.intendedCourse),
       cursoFormacao: data.typeGraduation,
@@ -94,9 +95,10 @@ export function FormPreSubscriptionPostGraduateProvider({
       documentos: docs,
       codigoNacionalidade: Number(data.codigoNacionalidade),
       codigoTipoCandidatura: Number(data.intendedGraduation),
-      anoLectivoId: Number(anoLectivo?.codigo),
       inquerito: data.howDidYouKnow,
       tentou_universidade_publica: data.publicUniversityDocument,
+      anoLectivoId:currentAcademicYear?.codigo as number
+
     }
   }
 
@@ -125,7 +127,6 @@ export function FormPreSubscriptionPostGraduateProvider({
       phoneAlt: '',
       street: '',
       codigoNacionalidade: '',
-      anoLectivoId: 0,
       howDidYouKnow: '',
     },
     mode: 'onChange',
