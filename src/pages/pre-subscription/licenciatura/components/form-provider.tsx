@@ -12,6 +12,7 @@ import { useUpdateStudentPhoto } from '@/hooks/student/use-mutation-update-stude
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { DocumentTypeEnum } from '@/enums/document.type.enum'
 import { FileFolder } from '@/enums/file-folder'
+import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 
 type ContextValue = {
   onSubmit: (data: PreSubscriptionSchema) => void
@@ -53,8 +54,12 @@ export function FormPreSubscriptionProvider({
     const response = await uploadMutation.mutateAsync({ file: data, options: { folder } })
     return response.key ?? ''
   }
-
+    const {
+            data: anoLectivo,
+          } = useQueryCurrentAcademicYear(profileData?.grau_academico === 'Mestrado'? 2 : 1)
+        
   function buildInscricaoPayload(data: any, docs: any) {
+     
     return {
       cursoCandidatura: Number(data.intendedCourse),
       modalidadeFrequencia: 2,
@@ -84,6 +89,7 @@ export function FormPreSubscriptionProvider({
       documentos: docs,
       codigoNacionalidade: Number(data.codigoNacionalidade),
       codigoTipoCandidatura: Number(data.typeGraduation),
+      anoLectivoId: Number(anoLectivo?.codigo),
       inquerito:
         data.howDidYouKnow === 'outros'
           ? data.howDidYouKnowOther
@@ -125,6 +131,7 @@ export function FormPreSubscriptionProvider({
       codigoNacionalidade: '',
       howDidYouKnow: '',
       natureInscription: '',
+      anoLectivoId: 0,
       faculty: 0
     },
     mode: 'onChange',

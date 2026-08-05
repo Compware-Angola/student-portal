@@ -23,6 +23,8 @@ export const preSubscriptionSchema = _preSubscriptionSchema
         .min(10, 'O valor mínimo é 10')
         .max(20, 'O valor máximo é 20'),
     
+    anoLectivoId: z.number().optional()
+    
   })
   .superRefine(refineHowDidYouKnowOther)
 
