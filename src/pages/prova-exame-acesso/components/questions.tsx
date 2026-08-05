@@ -231,8 +231,8 @@ function Questions({
                 Pergunta {current + 1} de {questions.length}
               </span>
             </div><CardTitle className="text-xl pt-2">
-  <LatexText text={q.statement} />
-</CardTitle>
+              <LatexText text={q.statement} />
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <RadioGroup
@@ -253,12 +253,12 @@ function Questions({
                   >
                     {/* O value agora é o id da resposta */}
                     <RadioGroupItem value={String(opt.id)} id={inputId} />
-                  <span className="text-base font-normal">
-  <span className="font-semibold mr-2">
-    {String.fromCharCode(65 + idx)}.
-  </span>
-  <LatexText text={opt.label} />
-</span>
+                    <span className="text-base font-normal">
+                      <span className="font-semibold mr-2">
+                        {String.fromCharCode(65 + idx)}.
+                      </span>
+                      <LatexText text={opt.label} />
+                    </span>
                   </Label>
                 )
               })}
@@ -303,10 +303,10 @@ function Questions({
                     key={qq.id}
                     onClick={() => setCurrent(idx)}
                     className={`h-10 w-10 rounded-md border text-sm font-semibold transition-all ${isCurrent
-                        ? 'border-primary bg-primary text-primary-foreground'
-                        : isAnswered
-                          ? 'border-primary/50 bg-primary/10 text-primary'
-                          : 'border-input bg-background hover:bg-accent'
+                      ? 'border-primary bg-primary text-primary-foreground'
+                      : isAnswered
+                        ? 'border-primary/50 bg-primary/10 text-primary'
+                        : 'border-input bg-background hover:bg-accent'
                       }`}
                   >
                     {idx + 1}
