@@ -1,4 +1,4 @@
-import { apexApi } from '@/lib/apex-api'
+import { gaApi } from '@/lib/ga-api'
 
 type Grade = {
   disciplina: string
@@ -17,18 +17,20 @@ export type StudentCurriculumPlan = {
 }
 type Params = {
   academicYearCode: string
-  preEnrollmentCode: string
+  enrollmentCode: string
   semester?:string
 }
 
 export async function currentCurriculumPlanStudentService(
   params: Params,
 ): Promise<StudentCurriculumPlan> {
-  const semester = params.semester
-  const semesterParam = !semester ? '':`?semestre=${semester}`;
-  return apexApi
-    .get(
-      `curriculum/curriculum-plan-student/${params.academicYearCode}/${params.preEnrollmentCode}${semesterParam}`,
-    )
-    .json<StudentCurriculumPlan>()
+  const searchParams = new URLSearchParams({
+    academicYearCode: params.academicYearCode,
+    enrollmentCode: params.enrollmentCode,
+    ...(params.semester ? { semestre: params.semester } : {}),
+  });
+
+  return gaApi
+    .get(`students/curriculum-plan-student?${searchParams.toString()}`)
+    .json<StudentCurriculumPlan>();
 }
