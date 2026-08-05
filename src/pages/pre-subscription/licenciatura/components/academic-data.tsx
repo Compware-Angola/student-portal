@@ -11,7 +11,6 @@ export function AcademicData() {
   const { form } = useFormPreSubscriptionForm()
   const { data: tipoCandidaturas } = useQueryTipoCandidatura()
   const { data: user } = useQueryUser()
-
   const tipoCandidaturaOptions = useMemo(
     () =>
       tipoCandidaturas?.map((t) => ({
