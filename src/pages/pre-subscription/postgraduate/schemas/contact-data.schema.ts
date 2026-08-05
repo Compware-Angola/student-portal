@@ -10,6 +10,7 @@ export const contactDataSchema = z.object({
   phone: z.string().min(1, 'Telefone é obrigatório'),
   phoneAlt: z.string().optional(),
   street: z.string().min(1, 'Morada é obrigatório'),
+  faculty: z.number().min(1, 'Faculdade é obrigatória'),
 })
 export const ContactKeys = Object.keys(
   contactDataSchema.shape,

@@ -6,6 +6,8 @@ import { FileInput } from '@/components/input-file'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useEffect, useMemo } from 'react'
 import { useQueryTipoCandidatura } from '@/hooks/dropdowns/use-query-tipo-candidatura'
+import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
+import { FacultySelect } from '@/components/selects/FacultySelect'
 const GRADUATION_TYPE = {
   Mestrado: '2',
   Doutoramento: '3',
@@ -16,6 +18,7 @@ type GraduationKey = keyof typeof GRADUATION_TYPE
 export function AcademicDocumentPostGraduate() {
   const { profileData } = useQueryProfile()
   const { form } = useFormPreSubscriptionPostGraduateForm()
+   const faculdadeId = form.watch('faculty')
   const graduationKey = profileData?.grau_academico as GraduationKey | undefined
   const graduationTypeValue = graduationKey
     ? GRADUATION_TYPE[graduationKey]
@@ -34,6 +37,7 @@ export function AcademicDocumentPostGraduate() {
 
   const { data: courses } = useCursos(
     {
+      faculdadeId: faculdadeId,
       tipoCandidaturaId: Number(form.watch('intendedGraduation')),
     },
     Boolean(Number(form.watch('intendedGraduation'))),
@@ -72,6 +76,21 @@ export function AcademicDocumentPostGraduate() {
         label="Tipo de Candidatura"
         items={tipoCandidaturaOptions}
       />
+              <FormField
+          control={form.control}
+          name="faculty"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <FacultySelect
+                  value={field.value?.toString()}
+                  onChangeValue={(v) => field.onChange(parseInt(v))}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
       <SelectFormField
         name="intendedCourse"
