@@ -64,7 +64,7 @@ export const Dashboard = () => {
 
   const { data: comunicados, isLoading: loadingComunicados } =
     useQueryAnnouncement({ pre_inscricao })
-  const { data: academicYear } = useQueryCurrentAcademicYear()
+  const { data: academicYear } = useQueryCurrentAcademicYear(profileData?.codigo_tipo_candidatura)
   const { data: conf } = useQueryConfirmation({
     studentId: parseFilter(profileData?.enrollmentCode ?? '')!,
     academicYearCode: parseFilter(academicYear?.codigo?.toString()!)!,
