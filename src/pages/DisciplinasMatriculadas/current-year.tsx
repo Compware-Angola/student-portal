@@ -16,7 +16,8 @@ type CurrentYearProps = {
 }
 
 export const CurrentYear = ({ profileData }: CurrentYearProps) => {
-  const { data: academicYear } = useQueryCurrentAcademicYear()
+  
+  const { data: academicYear } = useQueryCurrentAcademicYear(profileData?.codigo_tipo_candidatura)
   const {
     data: current = [],
     isLoading,

@@ -48,7 +48,7 @@ export function AcademicCalendar() {
     isError: isProfileError,
     profileData,
   } = useQueryProfile()
-  const { data: academicYear } = useQueryCurrentAcademicYear()
+  const { data: academicYear } = useQueryCurrentAcademicYear(profileData?.codigo_tipo_candidatura)
 
   const {
     data: atividades,
