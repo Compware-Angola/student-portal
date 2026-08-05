@@ -1,10 +1,7 @@
+import React from "react";
 import { InlineMath } from "react-katex";
 import "katex/dist/katex.min.css";
 
-
-
-// Full Windows-1252 mapping for the 0x80–0x9F range, where it diverges from Latin-1/Unicode.
-// Everything 0xA0–0xFF is identical to Unicode, so those pass through via charCode directly.
 const CP1252_HIGH_RANGE: Record<number, number> = {
   0x80: 0x20ac, 0x82: 0x201a, 0x83: 0x0192, 0x84: 0x201e, 0x85: 0x2026,
   0x86: 0x2020, 0x87: 0x2021, 0x88: 0x02c6, 0x89: 0x2030, 0x8a: 0x0160,
@@ -14,11 +11,6 @@ const CP1252_HIGH_RANGE: Record<number, number> = {
   0x9e: 0x017e, 0x9f: 0x0178,
 };
 
-/**
- * Decodes legacy "^^XX" hex escapes (a byte-per-token artifact from old
- * Word/Equation Editor exports) back into proper Unicode characters.
- * Safe to run on already-clean text — it only touches the literal "^^XX" pattern.
- */
 export function decodeLegacyHexEscapes(text: string): string {
   if (!text) return text;
   return text.replace(/\^\^([0-9a-fA-F]{2})/g, (match, hex: string) => {
@@ -27,102 +19,164 @@ export function decodeLegacyHexEscapes(text: string): string {
     try {
       return String.fromCodePoint(codePoint);
     } catch {
-      // Malformed hex somehow slipped through validation — leave the original token untouched.
       return match;
     }
   });
 }
 
 
-/* ---------------------------------------------------------
-   1. Mapa de Limpeza e Conversão de Encodings/Símbolos
------------------------------------------------------------- */
+const ACUTE_MAP: Record<string, string> = { a: "á", e: "é", i: "í", o: "ó", u: "ú", A: "Á", E: "É", I: "Í", O: "Ó", U: "Ú" };
+const GRAVE_MAP: Record<string, string> = { a: "à", A: "À" };
+const TILDE_MAP: Record<string, string> = { a: "ã", o: "õ", A: "Ã", O: "Õ" };
+const CIRCUMFLEX_MAP: Record<string, string> = { a: "â", e: "ê", o: "ô", A: "Â", E: "Ê", O: "Ô" };
+const CEDILLA_MAP: Record<string, string> = { c: "ç", C: "Ç" };
+
+// Some sources encode accents as base letter + a trailing spacing-modifier
+// character/command (U+02CA acute, U+02CB grave, literal ^ / ~, or the LaTeX
+// cedilla command \c) instead of a single precomposed glyph. Compose them
+// back before any math/text classification happens, otherwise the stray
+// ^ / ~ / \c get misread as math operators.
+export function composeSpacingModifierAccents(text: string): string {
+  if (!text) return text;
+  return text
+    .replace(/([aeiouAEIOU])\u02CA/g, (_, v: string) => ACUTE_MAP[v] ?? v)
+    .replace(/([aeiouAEIOU])\u02CB/g, (_, v: string) => GRAVE_MAP[v] ?? v)
+    .replace(/([aeiouAEIOU])~/g, (_, v: string) => TILDE_MAP[v] ?? v)
+    .replace(/([aeiouAEIOU])\^/g, (_, v: string) => CIRCUMFLEX_MAP[v] ?? v)
+    .replace(/([cC])\\c/g, (_, c: string) => CEDILLA_MAP[c] ?? c);
+}
+
 const ENCODING_MAP: Record<string, string> = {
-  // Acentuação e Caracteres Especiais (Formatos ^^xx)
   "\\^\\^e1": "á", "\\^\\^e9": "é", "\\^\\^ed": "í", "\\^\\^f3": "ó", "\\^\\^fa": "ú",
   "\\^\\^e0": "à", "\\^\\^e2": "â", "\\^\\^ea": "ê", "\\^\\^f4": "ô",
   "\\^\\^e3": "ã", "\\^\\^f5": "õ", "\\^\\^e7": "ç",
   "\\^\\^c1": "Á", "\\^\\^c9": "É", "\\^\\^cd": "Í", "\\^\\^d3": "Ó", "\\^\\^da": "Ú",
   "\\^\\^c3": "Ã", "\\^\\^c7": "Ç",
-
-  // Símbolos Matemáticos Unicode Especiais que quebram o parser
-  "\\^\\^\\^\\^221b": "\\sqrt[3]", // Raiz Cúbica Unicode
-  "\\^\\^\\^\\^221c": "\\sqrt[4]", // Raiz Quarta Unicode
-  "\\^\\^\\^\\^2061": "",           // Invisível (Function Application)
-
-  // Operadores e formatações comuns
-  "\\s\\.\\s": " \\cdot ",          // Ponto flutuante entre espaços vira multiplicação
+  "\\^\\^\\^\\^221b": "\\sqrt",
+  "\\^\\^\\^\\^221c": "\\sqrt",
+  "\\^\\^\\^\\^2061": "",
+  "\\\\imaginaryI": "i",
+  "\\s\\.\\s": " \\cdot ",
+  "√": "\\sqrt",
+  "\\\\ldots": "...",
 };
 
 function robustClean(text: string): string {
+  console.log(text)
   if (!text) return "";
-
   let cleaned = text;
 
-  // 1. Remove delimitadores redundantes $...$ para evitar conflito com InlineMath
-  // O componente InlineMath já espera o conteúdo interno, não o símbolo $
-  cleaned = cleaned.replace(/^\$/, "").replace(/\$$/, "");
-
-  // 2. Aplica o mapa de encodings
   Object.entries(ENCODING_MAP).forEach(([pattern, replacement]) => {
     cleaned = cleaned.replace(new RegExp(pattern, "g"), replacement);
   });
 
-  // 3. Normalização de Sintaxe para KaTeX
   return cleaned
-    // Corrige \sqrt[{3}]{x} para \sqrt[3]{x} (remove chaves desnecessárias no índice)
+    .replace(/\^(\})+/g, "$1")
+    .replace(/s\^?\}\^?\{?2\}?/g, "s^{2}")
     .replace(/\\sqrt\[\{(\d+)\}\]/g, "\\sqrt[$1]")
-
-    // Transforma \sqrt[3]8 em \sqrt[3]{8} e \surd64 em \sqrt{64}
+    .replace(/\\sqrt\s*(\d+)/g, "\\sqrt{$1}")
     .replace(/\\sqrt\[(\d+)\](\d+)/g, "\\sqrt[$1]{$2}")
     .replace(/\\surd\s*(\d+)/g, "\\sqrt{$1}")
-
-    // Garante blocos em expoentes e subscritos (x^2 -> x^{2}, a_i -> a_{i})
     .replace(/(\w|\})\s*\^\s*(\w+)/g, "$1^{$2}")
+    .replace(/(\w|\})\s*\^\s*([A-Za-z0-9]+)/g, "$1^{$2}")   // was \w+
+    .replace(/(\w|\})\s*_\s*([A-Za-z0-9]+)/g, "$1_{$2}")    // was \w+
     .replace(/(\w|\})\s*_\s*(\w+)/g, "$1_{$2}")
-
-    // Corrige comandos de parênteses literais
     .replace(/\\lparen/g, "(")
     .replace(/\\rparen/g, ")")
-
-    // Remove barras invertidas triplas \\\ que podem vir de escapes errados
     .replace(/\\\\\\/g, "\\")
-
-    // Limpeza final de espaços
     .replace(/\s{2,}/g, " ")
     .trim();
 }
 
-/* ---------------------------------------------------------
-   2. Componente Principal
------------------------------------------------------------- */
 export function LatexText({ text }: { text: string }) {
-  // Se o texto vier vazio ou for apenas espaço
   if (!text.trim()) return null;
 
-  const decodedText = decodeLegacyHexEscapes(text);
+  const decodedText = composeSpacingModifierAccents(decodeLegacyHexEscapes(text));
   const cleanedText = robustClean(decodedText);
 
-  // Critério de detecção: 
-  // - Contém \ (comando latex)
-  // - Contém ^ ou _ (expoente/subscrito)
-  // - Contém chaves {} (estruturas complexas)
-  // - Contém símbolos como ∞, ∫ ou √
-  const looksLikeMath = /\\|[\^_={}]|[\d][+\-*/=]|√|∞|∫/.test(cleanedText);
+  // REGEX MELHORADA: Preserva os delimitadores $...$ ou $$...$$ e separa-os do resto do texto
+  // Também isola comandos \text, \operatorname, \ce e quebras de linha \\
+  const tokens = cleanedText.split(/(\$\$.*?\$\$|\$.*?\$|\\text\s*\{[^}]+\}|\\operatorname\s*\{[^}]+\}|\\ce\s*\{[^}]+\}|\\\\)/g);
 
-  if (!looksLikeMath) {
-    return <span>{cleanedText}</span>;
-  }
+  return (
+    <span style={{ display: "inline", whiteSpace: "normal", wordBreak: "break-word", lineHeight: "1.6" }}>
+      {tokens.map((token, index) => {
+        if (!token) return null;
 
-  try {
-    return <InlineMath math={cleanedText} />;
-  } catch (error) {
-    console.warn("KaTeX render issue for:", cleanedText, error);
-    // Fallback: renderiza o texto limpo em fonte serifada (estilo acadêmico)
-    return (
-      <span style={{ fontFamily: "serif", whiteSpace: "pre-wrap", fontSize: "1.1em" }}>
-        {cleanedText}
-      </span>
-    );
-  }
+        // 1. Força a renderização se o token estiver explicitamente envolvido em $ ou $$
+        if (token.startsWith("$")) {
+          // Remove os caracteres $ externos do token para passar ao KaTeX
+          const mathContent = token.replace(/^(\$\$?)/, "").replace(/(\$\$?)$/, "").trim();
+          if (!mathContent) return null;
+          try {
+            return (
+              <span key={index} style={{ display: "inline-block", margin: "0 2px", verticalAlign: "middle" }}>
+                <InlineMath math={mathContent} />
+              </span>
+            );
+          } catch {
+            return <span key={index}>{mathContent}</span>;
+          }
+        }
+
+        // 2. Gerencia quebras de linha explícitas (\\)
+        if (token === "\\\\") {
+          return <br key={index} />;
+        }
+
+        // 3. Processa blocos explícitos de texto LaTeX: \text{...}
+        if (token.startsWith("\\text")) {
+          const textContent = token.replace(/\\text\s*\{([\s\S]*)\}/, "$1");
+          return <span key={index}>{textContent}</span>;
+        }
+
+        // 4. Processa comandos de Química estrutural: \ce{...}
+        if (token.startsWith("\\ce")) {
+          try {
+            return (
+              <span key={index} style={{ display: "inline-block", verticalAlign: "middle" }}>
+                <InlineMath math={token} />
+              </span>
+            );
+          } catch {
+            const ceRaw = token.replace(/\\ce\s*\{([\s\S]*)\}/, "$1");
+            return <span key={index} style={{ fontFamily: "sans-serif" }}>{ceRaw}</span>;
+          }
+        }
+
+        // 5. Processa operadores especiais como \operatorname{...}
+        if (token.startsWith("\\operatorname")) {
+          const opContent = token.replace(/\\operatorname\s*\{([\s\S]*)\}/, "$1");
+          return <span key={index} style={{ fontStyle: "normal", fontWeight: "bold" }}>{opContent}</span>;
+        }
+
+        const trimmed = token.trim();
+        if (!trimmed) return null;
+
+        // 6. DECISÃO AUTOMÁTICA PARA TEXTOS SOLTOS (SEM DELIMITADORES)
+        const hasMathOrChemistryIndicators =
+          /[\\^_{}=√→⇄]/.test(trimmed) ||
+          /[-\+\*\/]\s*\d|\d\s*[-\+\*\/]/.test(trimmed) ||
+          /^[A-Z][a-z]?\d+/.test(trimmed);
+
+        const hasLongWords = /[a-zA-ZáàâãéèêíóôõúçÁÀÂÃÉÊÍÓÔÕÚÇ]{3,}/.test(trimmed);
+
+        if (hasLongWords && !hasMathOrChemistryIndicators) {
+          return <span key={index}>{token}</span>;
+        }
+
+        // 7. Fallback para fórmulas soltas descobertas
+        try {
+          return (
+            <span key={index} style={{ display: "inline-block", margin: "0 2px", verticalAlign: "middle" }}>
+              <InlineMath math={trimmed} />
+            </span>
+          );
+        } catch (error) {
+          console.warn("KaTeX bypass:", trimmed, error);
+          return <span key={index}>{token}</span>;
+        }
+      })}
+    </span>
+  );
 }

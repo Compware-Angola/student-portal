@@ -97,7 +97,7 @@ export function FormPreSubscriptionPostGraduateProvider({
       codigoTipoCandidatura: Number(data.intendedGraduation),
       inquerito: data.howDidYouKnow,
       tentou_universidade_publica: data.publicUniversityDocument,
-      anoLectivoId:currentAcademicYear?.codigo
+      anoLectivoId:currentAcademicYear?.codigo as number
 
     }
   }

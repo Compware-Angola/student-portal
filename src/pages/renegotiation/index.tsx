@@ -80,7 +80,7 @@ export const Renegociation = () => {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const { isLoading: isLoadingProfile, profileData } = useQueryProfile()
-  const { data: academicYear } = useQueryCurrentAcademicYear()
+  const { data: academicYear } = useQueryCurrentAcademicYear(profileData?.codigo_tipo_candidatura)
   const { createRenegotiationAsync } = useMutationNegotiation()
   const [step, setStep] = useState<
     'search' | 'simulate' | 'confirm' | 'complete'
@@ -98,7 +98,7 @@ export const Renegociation = () => {
     resolver: zodResolver(searchDebtSchema),
     defaultValues: {
       enrollmentCode: `${profileData?.codigo_matricula ?? ''}`,
-      academicYear:  'all',
+      academicYear: 'all',
     },
   })
 
@@ -543,7 +543,7 @@ export const Renegociation = () => {
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Ano Académico</p>
-                <p className="font-semibold">{simulationData.academicYear == 'all' ? 'Todos' :simulationData.academicYear }</p>
+                <p className="font-semibold">{simulationData.academicYear == 'all' ? 'Todos' : simulationData.academicYear}</p>
 
               </div>
               <div className="space-y-1">

@@ -24,7 +24,7 @@ export type PreInscricaoPayload = {
   cursoOpcional1Id: number
   cursoOpcional2Id: number
   inquerito: string
-  anoLectivoId?: number
+  anoLectivoId: number
 }
 
 export type PreInscricaoResponse = {

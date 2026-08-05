@@ -27,8 +27,10 @@ function formatDate(date?: string) {
 }
 
 export function StandardTimeframe() {
-  const { data: academicYear } = useQueryCurrentAcademicYear()
+
   const { profileData } = useQueryProfile()
+
+  const { data: academicYear } = useQueryCurrentAcademicYear(profileData?.codigo_tipo_candidatura)
 
   const confirmacoes = profileData?.confirmacoes ?? []
 
