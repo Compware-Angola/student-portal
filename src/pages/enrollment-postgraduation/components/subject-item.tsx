@@ -5,16 +5,19 @@ import { formatCurrency } from '@/utils'
 
 export function SubjectItem({
   subject,
+  tipoCandidatura="Linceciatura"
+
 
 }: {
   subject: Grade
+  tipoCandidatura?: "Linceciatura" | "Pos-Graduacao"
 
 }) {
+  console.table(subject)
   return (
     <li className="flex items-center justify-between gap-4 border-b py-5">
       <div className="flex flex-col gap-2">
         <span className="font-medium">{subject.disciplina}</span>
-
         <Badge
           variant={
             subject.duracaoDisciplina === 'Anual' ? 'secondary' : 'default'
@@ -24,14 +27,14 @@ export function SubjectItem({
           {subject.duracaoDisciplina}
         </Badge>
       </div>
-
-      <div className="flex items-center gap-3">
+        {tipoCandidatura ==="Linceciatura" &&   <div className="flex items-center gap-3">
         <span className="font-medium">
           {formatCurrency(Number(subject.valorInscricao))}
         </span>
 
        
-      </div>
+      </div>}
+    
     </li>
   )
 }

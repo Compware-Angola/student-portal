@@ -8,8 +8,6 @@ export type EnrollmentContextType = {
     new: boolean
     pendents: boolean
   }
-
-  totalValue: number
   toggleSubject: (subject: Grade) => void
   isSelected: (subject: Grade) => boolean
   toggleSection: (section: SectionKey) => void
@@ -33,7 +31,6 @@ export type EnrollmentContextType = {
   isErrorStudentCurriculumPlan: boolean
   isLoadingProfileData: boolean
   isErrorProfileData: boolean
-
   enrollmentStatus: 'not_yet_open' | 'open' | 'closed'
   isLoadingAcademmicYear: boolean
   isErrorAcademicYear: boolean
@@ -41,9 +38,9 @@ export type EnrollmentContextType = {
   isLoadingStudenttatistics: boolean
   profileData: ProfileData | null
   maxCourseGrade: number
-  taxaMatriculaValue: number
   foraPrazoValue: number
   totalPagar: number
+  firstMonthlyFee: number
 }
 export type SectionKey = 'new' | 'pendents'
 

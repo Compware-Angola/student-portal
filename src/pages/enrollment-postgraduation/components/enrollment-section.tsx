@@ -53,6 +53,7 @@ export function EnrollmentSection({
               subject={subject}
               isSelected={isSelected}
               toggleSubject={toggleSubject}
+              tipoCandidatura="Pos-Graduacao"
             />
           ))}
         </CardContent>

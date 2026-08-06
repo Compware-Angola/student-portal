@@ -12,20 +12,19 @@ import { SubjectItem } from './subject-item'
 export function EnrollmentResume() {
   const {
     selectedSubjects,
-    totalValue,
     confirmStudentEnrollment,
     confirmStudentEnrollmentState,
     enrollmentStatus,
     totalPagar,
     foraPrazoValue,
-    taxaMatriculaValue,
+    firstMonthlyFee
   } = useEnrollment()
 
   if (selectedSubjects.length === 0) return null
 
   const isSubmitting = confirmStudentEnrollmentState
   const isForaDePrazo = enrollmentStatus === 'closed'
-
+console.log({selectedSubjects}, 'selectedSubjects')
   return (
     <Card>
       <CardHeader>
@@ -38,19 +37,16 @@ export function EnrollmentResume() {
       <CardContent className="space-y-4">
         <ul className="space-y-1 text-sm">
           {selectedSubjects.map((subject) => (
-            <SubjectItem key={subject.codigoGrade} subject={subject} />
+            <SubjectItem key={subject.codigoGrade} subject={subject} tipoCandidatura='Pos-Graduacao' />
           ))}
         </ul>
 
         <div className="space-y-2 pt-4">
-          <ResumoItem
-            label="Taxa de inscrição por disciplina"
-            value={formatCurrency(totalValue)}
-          />
+         
 
           <ResumoItem
-            label="Taxa de matrícula"
-            value={formatCurrency(taxaMatriculaValue)}
+            label="Valor da primeira mensalidade"
+            value={formatCurrency(firstMonthlyFee)}
           />
 
           {isForaDePrazo && (
@@ -73,7 +69,7 @@ export function EnrollmentResume() {
           onClick={confirmStudentEnrollment}
           disabled={isSubmitting}
         >
-          {isSubmitting ? <Spinner /> : 'Confirmar Matrícula'}
+          {isSubmitting ? <Spinner /> : ' Matrícular-se'}
         </Button>
       </CardContent>
     </Card>

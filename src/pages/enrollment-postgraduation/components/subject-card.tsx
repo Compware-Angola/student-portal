@@ -8,11 +8,13 @@ import { cn } from '@/lib/utils'
 type SubjectCardProps = {
   state?: 'enrollment' | 'registrationUC'
   subject: Grade
+  tipoCandidatura?: "Linceciatura" | "Pos-Graduacao"
   isSelected: (subject: Grade) => boolean
   toggleSubject: (subject: Grade) => void
 }
 
 export function SubjectCard({
+  tipoCandidatura="Linceciatura",
   subject,
   isSelected,
   toggleSubject,
@@ -42,10 +44,11 @@ export function SubjectCard({
               <span className="font-medium text-sm">Duração:</span>
               {subject.duracaoDisciplina}
             </p>
-            <p className="flex items-center gap-1">
+              {tipoCandidatura === "Linceciatura" &&   <p className="flex items-center gap-1">
               <span className="font-medium text-sm">Valor da inscrição:</span>
               {formatCurrency(subject.valorInscricao)}
-            </p>
+            </p>}
+         
           </div>
 
         

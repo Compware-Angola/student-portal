@@ -31,6 +31,7 @@ export function EnrollmentAvailable({
       <EnrollmentSection
         label="Disciplinas Disponíveis"
         subjects={subject}
+        
         sectionKey="new"
       />
 
