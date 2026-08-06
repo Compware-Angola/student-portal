@@ -12,7 +12,7 @@ import { Progress } from '@/components/ui/progress'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Separator } from '@radix-ui/react-separator'
 import { ChevronLeft, ChevronRight, Send } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, forwardRef, useImperativeHandle } from 'react'
 import { toast } from 'sonner'
 import { PasswordDialog } from './password-dialog'
 import { StartExam } from './start-exam'
@@ -59,9 +59,14 @@ interface QuestionsProps {
   onExamFinished: () => void
 }
 
+// Handle exposto ao pai via ref, para permitir submissão forçada (ex: tempo esgotado)
+export type QuestionsHandle = {
+  submitExam: () => void
+}
+
 const DEFAULT_DURATION = 1000 * 60 * 60 * 3 // 3h
 
-function Questions({
+const Questions = forwardRef<QuestionsHandle, QuestionsProps>(function Questions({
   current,
   setCurrent,
   questions,
@@ -75,7 +80,7 @@ function Questions({
   provaId,
   candidateId,
   onExamFinished,
-}: QuestionsProps) {
+}, ref) {
   const q = questions[current]
 
   const [passwordOpen, setPasswordOpen] = useState(false)
@@ -167,6 +172,11 @@ function Questions({
       setIsSubmittingFinal(false)
     }
   }
+
+  // Expõe a submissão final ao componente pai (usado quando o tempo esgota)
+  useImperativeHandle(ref, () => ({
+    submitExam: handleFinalSubmit,
+  }))
 
   // ─── Guard: prova não carregada ainda ────────────────────────────────────────
   if (!q) return null
@@ -328,6 +338,6 @@ function Questions({
       </div>
     </div>
   )
-}
+})
 
 export default Questions
