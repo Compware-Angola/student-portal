@@ -464,8 +464,8 @@ function ServiceItemRow({
             )}
           </div>
           <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-        
-      
+
+
             {service.polo && (
               <span className="flex items-center gap-1">
                 <MapPin className="h-3 w-3" />

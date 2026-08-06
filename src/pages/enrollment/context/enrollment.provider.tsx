@@ -179,7 +179,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     setSelectedSubjects((prev) => [...prev, subject])
   }
 
-  
+
 
   const selectAll = () => {
     if (isAllSelected()) {

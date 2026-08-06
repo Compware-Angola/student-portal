@@ -12,7 +12,7 @@ import { Progress } from '@/components/ui/progress'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Separator } from '@radix-ui/react-separator'
 import { ChevronLeft, ChevronRight, Send } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, forwardRef, useImperativeHandle } from 'react'
 import { toast } from 'sonner'
 import { PasswordDialog } from './password-dialog'
 import { StartExam } from './start-exam'
@@ -22,6 +22,7 @@ import { useMutationUnlockTest } from '@/hooks/pre-registation/use-mutation-vali
 import { useQueryInfoGeraisCandidatura } from '@/hooks/pre-registation/use-query-info-gerais-candidatura'
 import { calculateDuration } from '@/utils/calcular-duracao'
 import { useSubmitCandidateExam, useSubmitCandidateExamFinal } from '@/hooks/exame/subamte-exame-mutation'
+import { LatexText } from '@/utils/latex-text'
 
 // Formato mapeado pelo pai
 export type MappedOption = {
@@ -58,9 +59,14 @@ interface QuestionsProps {
   onExamFinished: () => void
 }
 
+// Handle exposto ao pai via ref, para permitir submissão forçada (ex: tempo esgotado)
+export type QuestionsHandle = {
+  submitExam: () => void
+}
+
 const DEFAULT_DURATION = 1000 * 60 * 60 * 3 // 3h
 
-function Questions({
+const Questions = forwardRef<QuestionsHandle, QuestionsProps>(function Questions({
   current,
   setCurrent,
   questions,
@@ -74,7 +80,7 @@ function Questions({
   provaId,
   candidateId,
   onExamFinished,
-}: QuestionsProps) {
+}, ref) {
   const q = questions[current]
 
   const [passwordOpen, setPasswordOpen] = useState(false)
@@ -96,6 +102,11 @@ function Questions({
   const saveUnlockAccess = () => {
     const key = `@${candidateId}`
     localStorage.setItem(key, JSON.stringify({ unlocked: true, timestamp: Date.now() }))
+  }
+
+  const clearUnlockAccess = () => {
+    const key = `@${candidateId}`
+    localStorage.removeItem(key)
   }
 
   const loadUnlockAccess = () => {
@@ -158,6 +169,9 @@ function Questions({
     setIsSubmittingFinal(true)
     try {
       await submitFinal({ provaId })
+      // Limpa o acesso desbloqueado guardado localmente — a prova já foi
+      // submetida, não faz sentido manter o "unlock" ativo para este candidato.
+      clearUnlockAccess()
       toast.success('Prova submetida com sucesso!')
       onExamFinished()
     } catch {
@@ -166,6 +180,11 @@ function Questions({
       setIsSubmittingFinal(false)
     }
   }
+
+  // Expõe a submissão final ao componente pai (usado quando o tempo esgota)
+  useImperativeHandle(ref, () => ({
+    submitExam: handleFinalSubmit,
+  }))
 
   // ─── Guard: prova não carregada ainda ────────────────────────────────────────
   if (!q) return null
@@ -229,8 +248,9 @@ function Questions({
               <span className="text-sm text-muted-foreground">
                 Pergunta {current + 1} de {questions.length}
               </span>
-            </div>
-            <CardTitle className="text-xl pt-2">{q.statement}</CardTitle>
+            </div><CardTitle className="text-xl pt-2">
+              <LatexText text={q.statement} />
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <RadioGroup
@@ -255,7 +275,7 @@ function Questions({
                       <span className="font-semibold mr-2">
                         {String.fromCharCode(65 + idx)}.
                       </span>
-                      {opt.label}
+                      <LatexText text={opt.label} />
                     </span>
                   </Label>
                 )
@@ -301,10 +321,10 @@ function Questions({
                     key={qq.id}
                     onClick={() => setCurrent(idx)}
                     className={`h-10 w-10 rounded-md border text-sm font-semibold transition-all ${isCurrent
-                        ? 'border-primary bg-primary text-primary-foreground'
-                        : isAnswered
-                          ? 'border-primary/50 bg-primary/10 text-primary'
-                          : 'border-input bg-background hover:bg-accent'
+                      ? 'border-primary bg-primary text-primary-foreground'
+                      : isAnswered
+                        ? 'border-primary/50 bg-primary/10 text-primary'
+                        : 'border-input bg-background hover:bg-accent'
                       }`}
                   >
                     {idx + 1}
@@ -326,6 +346,6 @@ function Questions({
       </div>
     </div>
   )
-}
+})
 
 export default Questions

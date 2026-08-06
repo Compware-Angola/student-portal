@@ -15,6 +15,7 @@ import { DocumentTypeEnum } from '@/enums/document.type.enum'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import { FileFolder } from '@/enums/file-folder'
+import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 
 type PostGraduateContextValue = {
   onSubmit: (data: PreSubscriptionPostGraduateSchema) => void
@@ -36,6 +37,8 @@ export function FormPreSubscriptionPostGraduateProvider({
 }: {
   children: React.ReactNode
 }) {
+ 
+  
   const [currentStep, setCurrentStep] = React.useState(0)
   const progress = ((currentStep + 1) / steps.length) * 100
   const { createPreInscricaoAsync, createPreInscricaoPending } =
@@ -48,8 +51,12 @@ export function FormPreSubscriptionPostGraduateProvider({
   const updateStudentPhoto = useUpdateStudentPhoto({
     skipInvalidate: true,
   })
-
+//grauacademico
+ 
   const { profileData } = useQueryProfile()
+   const codigoTipoCandidatura = profileData?.grau_academico==='Mestrado' ? 2:3
+  const { data: currentAcademicYear } = useQueryCurrentAcademicYear(codigoTipoCandidatura,
+  !!codigoTipoCandidatura)
 
   const uploadFile = async (data: File, folder: FileFolder = FileFolder.CANDIDATURA) => {
     // const formData = new FormData()
@@ -90,6 +97,8 @@ export function FormPreSubscriptionPostGraduateProvider({
       codigoTipoCandidatura: Number(data.intendedGraduation),
       inquerito: data.howDidYouKnow,
       tentou_universidade_publica: data.publicUniversityDocument,
+      anoLectivoId:currentAcademicYear?.codigo as number
+
     }
   }
 

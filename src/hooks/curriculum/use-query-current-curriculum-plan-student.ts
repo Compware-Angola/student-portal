@@ -6,7 +6,7 @@ import {
 import { useQuery } from '@tanstack/react-query'
 type Params = {
   academicYearCode?: string
-  preEnrollmentCode?: string
+  enrollmentCode?: string
   semester?:string
 }
 export function useQueryCurrentCurriculumPlanSudent(params: Params) {
@@ -14,7 +14,7 @@ export function useQueryCurrentCurriculumPlanSudent(params: Params) {
     queryKey: [
       'current-student-curriculum-plan',
       params.academicYearCode,
-      params.preEnrollmentCode,
+      params.enrollmentCode,
       params.semester
 
     ],
@@ -24,12 +24,12 @@ export function useQueryCurrentCurriculumPlanSudent(params: Params) {
       }
       return currentCurriculumPlanStudentService({
         academicYearCode: params.academicYearCode!,
-        preEnrollmentCode: params.preEnrollmentCode!,
+        enrollmentCode: params.enrollmentCode!,
         semester: params.semester
       })
     },
     retry: 0,
-    enabled: !!params.academicYearCode && !!params.preEnrollmentCode,
+    enabled: !!params.academicYearCode && !!params.enrollmentCode,
     staleTime: Infinity,
   })
   const formatGrade = (grades: StudentCurriculumPlan['grades']) => {
