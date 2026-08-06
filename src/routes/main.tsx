@@ -30,6 +30,7 @@ import { PrePayment } from '@/pages/pre-payment'
 import { InscriçõesRecurosPage } from '@/pages/assessments/recuros'
 import { InscriçõesEspecial } from '@/pages/assessments/especial'
 import { Enrollment } from '@/pages/enrollment'
+import { EnrollmentPostGraduation } from '@/pages/enrollment-postgraduation'
 
 export function MainRoutes() {
   const { isLoading, hasEnrolmentCode } = useStudentSituation()
@@ -37,6 +38,7 @@ export function MainRoutes() {
     () => ({
       '/inscricao-uc': <RegistrationsUC />,
       '/matricula': <Enrollment />,
+     
     }),
     [],
   )
@@ -79,12 +81,42 @@ export function MainRoutes() {
             </RequireStudentRoute>
           }
         />
-        {/* TODO:PROVISORIO  */}
-        <Route
+        {/* TODO:PROVISORIO
+        
+        '/inscricao-uc': <RegistrationsUC />,
+      '/matricula': <Enrollment />,
+        
+        */}
+        {/* <Route
           path={enrollmentPath.slice(1)}
           element={
             <RequireStudentRoute>
               {enrollmentComponents[enrollmentPath]}
+            </RequireStudentRoute>
+            matricula-pos-graduacao'
+          }
+        /> */}
+         <Route
+          path="/inscricao-uc"
+          element={
+            <RequireStudentRoute>
+              <RegistrationsUC/>
+            </RequireStudentRoute>
+          }
+        />
+        <Route
+          path="/matricula"
+          element={
+            <RequireStudentRoute>
+              <Enrollment/>
+            </RequireStudentRoute>
+          }
+        />
+        <Route
+          path="/matricula-pos-graduacao"
+          element={
+            <RequireStudentRoute>
+              <EnrollmentPostGraduation/>
             </RequireStudentRoute>
           }
         />

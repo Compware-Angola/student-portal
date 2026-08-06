@@ -2,7 +2,8 @@ import {
   StudentSituation,
   type StudentSituationType,
 } from '@/constants/student-situation'
-
+import { StudentStatus } from '@/enums/student.status.enum'
+StudentStatus
 export type StudentType = 'NEW' | 'OLD'
 
 export function mapStudentSituation(statusCode?: number) {

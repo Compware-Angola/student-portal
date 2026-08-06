@@ -53,12 +53,21 @@ export function useMenuNavigation() {
         },
       ],
     },
-
+{
+title: 'Inscricao da UC',
+url: '/inscricao-uc',
+icon: GraduationCap,
+},
     {
-      title: enrollmentTitle,
-      url: enrollmentPath,
+      title: 'Matricula',
+      url: '/matricula',
       icon: GraduationCap,
     },
+    // {
+    //   title: enrollmentTitle,
+    //   url: enrollmentPath,
+    //   icon: GraduationCap,
+    // },
 
     { title: 'Horário', url: '/horario', icon: Calendar },
     {
@@ -115,6 +124,11 @@ export function useMenuNavigation() {
     { title: 'Exame de Acesso', url: '/exame-acesso', icon: Pencil },
     { title: 'Pagamento', url: '/pre-pagamento', icon: CircleDollarSign },
     { title: 'Perfil', url: '/perfil', icon: User },
+    {
+      title:"Matrícula Pós-Graduação",
+      url:"/matricula-pos-graduacao",
+      icon:GraduationCap,
+    }
   ]
 
   const allowedRoutes = routePermissions[studentStatus] || []
