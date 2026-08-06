@@ -125,6 +125,11 @@ const ProvaExameAcesso = () => {
   // quando o tempo esgota (em vez de só simular localmente).
   const questionsRef = useRef<QuestionsHandle>(null)
 
+  // Trava para garantir que a submissão automática (por tempo esgotado)
+  // só é disparada UMA vez, mesmo que o intervalo continue a correr
+  // enquanto a chamada assíncrona de submitFinal ainda não terminou.
+  const autoSubmitTriggered = useRef(false)
+
   const [current, setCurrent] = useState(0)
   const [answers, setAnswers] = useState<Record<number, number>>({})
   const [submitted, setSubmitted] = useState(false)
@@ -140,11 +145,12 @@ const ProvaExameAcesso = () => {
     const tick = () => {
       const secs = getSecondsRemaining(examEnd)
       setRemaining(secs)
-      if (secs === 0) {
+      if (secs === 0 && !autoSubmitTriggered.current) {
+        autoSubmitTriggered.current = true
         // Não marcamos "submitted" aqui diretamente — isso só acontece
         // depois de submitFinal() ter sucesso de verdade na API,
         // via onExamFinished (chamado dentro de handleFinalSubmit).
-        toast.info('Tempo esgotado! A submeter a prova automaticamente...')
+        toast.info('Tempo esgotado!')
         questionsRef.current?.submitExam()
       }
     }

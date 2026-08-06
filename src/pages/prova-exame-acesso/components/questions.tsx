@@ -104,6 +104,11 @@ const Questions = forwardRef<QuestionsHandle, QuestionsProps>(function Questions
     localStorage.setItem(key, JSON.stringify({ unlocked: true, timestamp: Date.now() }))
   }
 
+  const clearUnlockAccess = () => {
+    const key = `@${candidateId}`
+    localStorage.removeItem(key)
+  }
+
   const loadUnlockAccess = () => {
     if (!candidateId) return
     const key = `@${candidateId}`
@@ -164,6 +169,9 @@ const Questions = forwardRef<QuestionsHandle, QuestionsProps>(function Questions
     setIsSubmittingFinal(true)
     try {
       await submitFinal({ provaId })
+      // Limpa o acesso desbloqueado guardado localmente — a prova já foi
+      // submetida, não faz sentido manter o "unlock" ativo para este candidato.
+      clearUnlockAccess()
       toast.success('Prova submetida com sucesso!')
       onExamFinished()
     } catch {
