@@ -1,8 +1,9 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { toast } from 'sonner'
 import AcessoBloqueado from './components/block-info'
 import WaitingTest from './components/waiting-test'
 import Questions from './components/questions'
+import type { QuestionsHandle } from './components/questions'
 import { useQueryInfoGeraisCandidatura } from '@/hooks/pre-registation/use-query-info-gerais-candidatura'
 import { AdmissionStatus } from '@/enums/admission.status.enum'
 import { FinanceInfo } from './components/finance-info'
@@ -120,6 +121,15 @@ const ProvaExameAcesso = () => {
   const { diff, days, hours, minutes, seconds } = useCountdown(examStart)
   const examOpen = FORCE_EXAM_OPEN || diff === 0
 
+  // Ref para o componente Questions, usado para forçar a submissão real
+  // quando o tempo esgota (em vez de só simular localmente).
+  const questionsRef = useRef<QuestionsHandle>(null)
+
+  // Trava para garantir que a submissão automática (por tempo esgotado)
+  // só é disparada UMA vez, mesmo que o intervalo continue a correr
+  // enquanto a chamada assíncrona de submitFinal ainda não terminou.
+  const autoSubmitTriggered = useRef(false)
+
   const [current, setCurrent] = useState(0)
   const [answers, setAnswers] = useState<Record<number, number>>({})
   const [submitted, setSubmitted] = useState(false)
@@ -129,22 +139,26 @@ const ProvaExameAcesso = () => {
   // atrasado tem menos tempo, mas todos terminam à mesma hora.
   const [remaining, setRemaining] = useState(() => getSecondsRemaining(examEnd))
 
- useEffect(() => {
-  if (!examOpen || submitted || !examEnd) return
+  useEffect(() => {
+    if (!examOpen || submitted || !examEnd) return
 
-  const tick = () => {
-    const secs = getSecondsRemaining(examEnd)
-    setRemaining(secs)
-    if (secs === 0) {
-      setSubmitted(true)
-      toast.success('Tempo esgotado! A sua prova foi submetida automaticamente.')
+    const tick = () => {
+      const secs = getSecondsRemaining(examEnd)
+      setRemaining(secs)
+      if (secs === 0 && !autoSubmitTriggered.current) {
+        autoSubmitTriggered.current = true
+        // Não marcamos "submitted" aqui diretamente — isso só acontece
+        // depois de submitFinal() ter sucesso de verdade na API,
+        // via onExamFinished (chamado dentro de handleFinalSubmit).
+        toast.info('Tempo esgotado!')
+        questionsRef.current?.submitExam()
+      }
     }
-  }
 
-  tick() // calcula e verifica imediatamente ao abrir, sem esperar o primeiro tick de 1s
-  const t = setInterval(tick, 1000)
-  return () => clearInterval(t)
-}, [examOpen, submitted, examEnd])
+    tick() // calcula e verifica imediatamente ao abrir, sem esperar o primeiro tick de 1s
+    const t = setInterval(tick, 1000)
+    return () => clearInterval(t)
+  }, [examOpen, submitted, examEnd])
 
   const questions = useMemo(
     () => (candidateExam?.perguntas ?? []).map(mapQuestion),
@@ -189,13 +203,48 @@ const ProvaExameAcesso = () => {
   }
 
   if (info?.estado_aluno === AdmissionStatus.DIA_DA_PROVA) {
-    return isErrorApiStatus ? (
-      <AcessoBloqueado
-        INSTITUTION_WIFI={INSTITUTION_WIFI}
-        INSTITUTION_NAME={INSTITUTION_NAME}
-      />
-    ) : (
+    if (isErrorApiStatus) {
+      return (
+        <AcessoBloqueado
+          INSTITUTION_WIFI={INSTITUTION_WIFI}
+          INSTITUTION_NAME={INSTITUTION_NAME}
+        />
+      )
+    }
+
+    // Prova já foi submetida (manual ou por tempo esgotado) — mostra o
+    // ecrã de conclusão em vez de continuar a exibir as perguntas.
+    if (submitted) {
+      return (
+        <div className="min-h-[80vh] flex flex-col items-center justify-center px-4">
+          <div className="w-18 h-18 rounded-full bg-green-50 flex items-center justify-center mb-8">
+            <CheckCircle2 className="w-9 h-9 text-green-600" />
+          </div>
+
+          <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground mb-2">
+            Estado da prova
+          </p>
+          <h2 className="text-2xl font-semibold text-foreground mb-4 text-center">
+            Prova submetida com sucesso
+          </h2>
+          <p className="text-sm text-muted-foreground leading-relaxed mb-10 max-w-md text-center">
+            As suas respostas foram registadas. Os resultados serão
+            disponibilizados em breve. Fique atento ao seu painel.
+          </p>
+
+          <div className="flex items-center gap-2 bg-muted border rounded-md px-4 py-3">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse flex-shrink-0" />
+            <span className="text-sm text-muted-foreground">
+              A aguardar a publicação dos resultados
+            </span>
+          </div>
+        </div>
+      )
+    }
+
+    return (
       <Questions
+        ref={questionsRef}
         current={current}
         setCurrent={setCurrent}
         questions={questions}

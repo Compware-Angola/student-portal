@@ -1,10 +1,10 @@
 'use client'
-import { useState } from 'react'
+
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
-  CheckCircle2,
+
 
   Mail,
   Phone,
@@ -67,7 +67,6 @@ interface RegisterFormProps {
 
 
 export function RegisterForm({ setView }: RegisterFormProps) {
-  const [sent, setSent] = useState(false)
 
     const { data: licenciatura } = useQueryUsableAcademicYear(1)
     const { data: mestrado } = useQueryUsableAcademicYear(2)
