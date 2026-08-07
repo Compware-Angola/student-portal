@@ -27,14 +27,11 @@ export function EnrollmentAvailable({
           </div>
         </div>
       )}
-
       <EnrollmentSection
         label="Disciplinas Disponíveis"
         subjects={subject}
-        
         sectionKey="new"
       />
-
       <EnrollmentResume />
     </div>
   )

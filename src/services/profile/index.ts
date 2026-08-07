@@ -15,6 +15,7 @@ export interface Confirmacao {
   classe: number
   cadeirante: string
   canal: number
+  semestre:number
 }
 
 export interface StudentProfile {
@@ -75,6 +76,7 @@ sigla_tipo_candidatura:string,
   estado_aluno: StudentStatusType
 
   confirmacoes: Confirmacao[]
+  tipo_candidatura_designacao: string
 }
 
 export interface CurrentUserResponse {

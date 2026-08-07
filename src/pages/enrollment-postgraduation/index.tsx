@@ -10,6 +10,9 @@ import { EnrollmentDeadlineExpired } from './components/enrollment-deadline-expi
 import { EnrollmentStandardTimeframe } from './components/enrollment-standard-timeframe'
 import { EnrollmentPostGraduationProvider } from './context/enrollment.provider'
 import { useEnrollment } from './hooks/use-enrollment'
+import { TIPOS_CANDIDATURA_SIGLA } from '@/constants/tipo-candidatura'
+import { StudentStatus } from '@/enums/student.status.enum'
+import { EnrollmentStatusBanner } from './components/enrollment-status-banner'
 
 function EnrollmentContentPostGraduation() {
   const {
@@ -53,24 +56,37 @@ function EnrollmentContentPostGraduation() {
     return <EnrollmentSkeleton />
   }
 
+if (
+    profileData &&
+    (profileData.sigla_tipo_candidatura === TIPOS_CANDIDATURA_SIGLA.MESTRADO ||
+      profileData.sigla_tipo_candidatura === TIPOS_CANDIDATURA_SIGLA.DOUTORAMENTO) &&
+    profileData.estado_aluno === StudentStatus.ALUNO_MATRICULADO_MESTRADO_POS_GRADUACAO
+  ) {
+    return (
+      <div className="space-y-6">
+        <EnrollmentHeader />
+        <EnrollmentStatusBanner profileData={profileData} />
+      </div>
+    )
+  }
   return (
     <div className="space-y-6">
       <EnrollmentHeader />
-
+     
       {podeMatricular ? (
-        <EnrollmentSummaryCards /> // Pode matricular (dentro ou fora do prazo, com ou sem taxa)
+        <EnrollmentSummaryCards /> 
       ) : (
-        <EnrollmentStandardTimeframe /> // Ainda não começou ou fora do prazo sem possibilidade de matrícula
+        <EnrollmentStandardTimeframe /> 
       )}
 
       {podeMatricular ? (
         <EnrollmentAvailable
           subject={subject}
-          requerTaxa={requerTaxa} // sinaliza pro componente que essa matrícula exige pagamento de taxa
+          requerTaxa={requerTaxa}
         />
       ) : (
         <EnrollmentDeadlineExpired
-          aindaNaoComecou={aindaNaoComecou} // diferencia mensagem "ainda não começou" de "prazo expirado"
+          aindaNaoComecou={aindaNaoComecou}
         />
       )}
     </div>

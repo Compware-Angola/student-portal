@@ -1,0 +1,5 @@
+export const TIPOS_CANDIDATURA_SIGLA = {
+    LICENCIATURA: 'LIC',
+    MESTRADO: 'MST',
+    DOUTORAMENTO: 'DTR',
+} as const
