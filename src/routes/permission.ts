@@ -53,7 +53,7 @@ export const routePermissions: Record<StudentStatusType, string[]> = {
   [StudentStatus.ADMITIDO_SEM_MATRICULA_MESTRADO_POS_GRADUACAO]: ['/', '/perfil', '/matricula-pos-graduacao'],
   [StudentStatus.ALUNO_MATRICULADO_MESTRADO_POS_GRADUACAO]: [
    '/',
-   '/matricula-pos-graduacao',
+    '/matricula-pos-graduacao',
     '/financas',
     '/horario',
     '/avaliacoes',

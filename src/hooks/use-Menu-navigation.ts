@@ -1,9 +1,4 @@
 import {
-  getEnrollmentLabel,
-  getEnrollmentRoute,
-} from '@/utils/map-student-situation'
-import { useStudentSituation } from './use-student-stitiation'
-import {
   BookOpen,
   Calendar,
   CircleDollarSign,
@@ -27,16 +22,13 @@ import { routePermissions } from '@/routes/permission'
 import { useQueryProfile } from './profile/use-query-profile'
 
 export function useMenuNavigation() {
-  const {profileData} = useQueryProfile()
-  const { hasEnrolmentCode, isLoading } = useStudentSituation()
+  const { profileData } = useQueryProfile()
+
   const { isLoading: isLoadingProfile, studentStatus } = useQueryProfile()
 
-  if (isLoading || isLoadingProfile || !studentStatus || !profileData) {
+  if (isLoadingProfile || !studentStatus || !profileData) {
     return { navMain: [] }
   }
-
-  const enrollmentPath = getEnrollmentRoute(hasEnrolmentCode)
-  const enrollmentTitle = getEnrollmentLabel(hasEnrolmentCode)
 
   const navMain = [
     { title: 'Dashboard', url: '/', icon: LayoutDashboard },
@@ -53,21 +45,21 @@ export function useMenuNavigation() {
         },
       ],
     },
-{
-title: 'Inscricao da UC',
-url: '/inscricao-uc',
-icon: GraduationCap,
-},
+    {
+      title: 'Inscricao da UC',
+      url: '/inscricao-uc',
+      icon: GraduationCap,
+    },
     {
       title: 'Matricula',
       url: '/matricula',
       icon: GraduationCap,
     },
-    // {
-    //   title: enrollmentTitle,
-    //   url: enrollmentPath,
-    //   icon: GraduationCap,
-    // },
+    {
+      title: "Matrícula Pós-Graduação",
+      url: "/matricula-pos-graduacao",
+      icon: GraduationCap,
+    },
 
     { title: 'Horário', url: '/horario', icon: Calendar },
     {
@@ -124,11 +116,7 @@ icon: GraduationCap,
     { title: 'Exame de Acesso', url: '/exame-acesso', icon: Pencil },
     { title: 'Pagamento', url: '/pre-pagamento', icon: CircleDollarSign },
     { title: 'Perfil', url: '/perfil', icon: User },
-    {
-      title:"Matrícula Pós-Graduação",
-      url:"/matricula-pos-graduacao",
-      icon:GraduationCap,
-    }
+
   ]
 
   const allowedRoutes = routePermissions[studentStatus] || []
@@ -138,9 +126,9 @@ icon: GraduationCap,
     .map((item) =>
       item.items
         ? {
-            ...item,
-            items: item.items.filter((sub) => allowedRoutes.includes(sub.url)),
-          }
+          ...item,
+          items: item.items.filter((sub) => allowedRoutes.includes(sub.url)),
+        }
         : item,
     )
 
