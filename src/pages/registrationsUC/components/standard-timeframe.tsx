@@ -174,10 +174,6 @@ export function StandardTimeframe() {
   )
 }
 
-
-
-
-
 interface AcademicYearSummaryBannerProps {
   profileData?: any
   academicYear?: any
