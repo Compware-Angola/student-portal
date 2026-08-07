@@ -12,7 +12,7 @@ import { useQueryApiStatus } from '@/hooks/pre-registation/use-query-api-status'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useQueryCandidateExam } from '@/hooks/exame/use-query-exame'
 import type { Question } from '@/services/exame-acesso/exame.service'
-import { CheckCircle2 } from 'lucide-react'
+import { CheckCircle2, CheckIcon } from 'lucide-react'
 import { ExamPendingInfo } from './components/aguardar-atribuicao-prova'
 
 const FORCE_EXAM_OPEN = false
@@ -271,10 +271,28 @@ const ProvaExameAcesso = () => {
     info?.estado_aluno === AdmissionStatus.NAO_ADMITIDO
   ) {
     return (
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-blue-800 text-sm flex items-center gap-2">
-        <span className="h-2 w-2 bg-blue-500 rounded-full animate-pulse" />
-        Resultados Disponibilizados no dashboard ✔
-      </div>
+<div className="relative overflow-hidden rounded-xl border border-success/30 bg-success/10 p-4 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-500">
+  {/* faixa lateral tipo marca-texto */}
+  <div className="absolute inset-y-0 left-0 w-1.5 bg-success animate-in slide-in-from-left duration-500" />
+
+  {/* brilho sutil que passa uma vez, tipo "selo aprovado" */}
+  <div className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-[shimmer_1.2s_ease-out_0.4s]" />
+
+  <div className="flex items-center gap-3 pl-2">
+    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-success text-success-foreground shadow-sm animate-in zoom-in-50 spin-in-6 duration-500 delay-150 fill-mode-both">
+      <CheckIcon className="h-4.5 w-4.5" strokeWidth={3} />
+    </span>
+
+    <div className="flex flex-col animate-in fade-in slide-in-from-left-1 duration-500 delay-300 fill-mode-both">
+      <span className="text-sm font-semibold text-success">
+        Resultados disponibilizados 🎉
+      </span>
+      <span className="text-xs text-muted-foreground">
+        Já podes consultar no teu dashboard
+      </span>
+    </div>
+  </div>
+</div>
     )
   }
 
