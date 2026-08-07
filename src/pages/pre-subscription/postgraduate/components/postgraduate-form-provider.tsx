@@ -175,7 +175,7 @@ export function FormPreSubscriptionPostGraduateProvider({
       const payload = buildInscricaoPayload(data, docs)
       await createPreInscricaoAsync(payload)
     },
-    [],
+    [currentAcademicYear?.codigo],
   )
 
   const handleNextOrSubmit = React.useCallback(async () => {

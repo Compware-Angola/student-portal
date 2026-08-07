@@ -31,9 +31,7 @@ interface Prazo {
   data_termino: string
 }
 
-// =====================
-// 📅 Utilitário de prazo
-// =====================
+
 function getStatusPrazo(calendario?: Prazo[]) {
   const agora = new Date()
 
@@ -115,7 +113,7 @@ export function EnrollmentPostGraduationProvider({ children }: EnrollmentPostGra
     [enrollmentPeriod],
   )
   console.log({enrollmentStatus})
-  // Fonte da verdade sobre o prazo: calendário real de confirmação
+
   const { prazoValido, foraDoPrazo, aindaNaoComecou } = useMemo(
     () => getStatusPrazo(enrollmentPeriod?.calendario),
     [enrollmentPeriod],
@@ -128,7 +126,7 @@ export function EnrollmentPostGraduationProvider({ children }: EnrollmentPostGra
 
   const maxCourseGrade = Number(profileData?.max_cadeiras_curso)
 
-  // Pré-seleciona todas as disciplinas assim que a grade curricular chega
+  
   useEffect(() => {
     if (grades.length > 0 && selectedSubjects.length === 0) {
      
@@ -136,8 +134,6 @@ export function EnrollmentPostGraduationProvider({ children }: EnrollmentPostGra
      
     }
   }, [grades, selectedSubjects.length])
-
-  // ----- Seleção de disciplinas -----
 
   const toggleSection = (section: SectionKey) => {
     setIsExpanded((prev) => ({ ...prev, [section]: !prev[section] }))
