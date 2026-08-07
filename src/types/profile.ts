@@ -20,6 +20,7 @@ export type ProfileData = {
   address: string
   curso: string
   enrollmentCode: string
+  tipo_candidatura_designacao: string
   preEnrollmentCode: string
   curso_duracao?: number
   estado_matricula?: string

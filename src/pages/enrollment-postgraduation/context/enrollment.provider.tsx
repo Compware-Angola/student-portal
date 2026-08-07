@@ -1,6 +1,5 @@
 import { useState, type ReactNode, useMemo, useEffect } from 'react'
 import { toast } from 'sonner'
-
 import { EnrollmentContext } from './enrollment.context'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useMutationConfirmNewStudentEnrollment } from '@/hooks/enrollment/use-mutation-confirm-new-student-enrollment'
@@ -17,8 +16,8 @@ import { SERVICE_TYPES } from '@/constants/service-type'
 
 import type { Grade } from '@/types/grade'
 import type { CreateInvoiceBody } from '@/services/invoice/post-invoice.service'
-import type { TypeServiceResponse } from '@/services/type-service/type-service.service'
 import type { SectionKey, SelectedSchedule } from '../types/enrollment'
+import { useQueryMonthlyFeesValue } from '@/hooks/finance/use-query-monthly-fee'
 
 const MAX_OBS_LENGTH = 45
 const INVOICE_PROCESSING_DELAY_MS = 6000 // TODO: substituir por polling/callback do backend em vez de espera fixa
@@ -55,11 +54,11 @@ function getStatusPrazo(calendario?: Prazo[]) {
 }
 
 
-type EnrollmentProviderProps = {
+type EnrollmentPostGraduationProviderProps = {
   children: ReactNode
 }
 
-export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
+export function EnrollmentPostGraduationProvider({ children }: EnrollmentPostGraduationProviderProps) {
   const [isExpanded, setIsExpanded] = useState<ToggleState>({
     new: true,
     pendents: true,
@@ -67,7 +66,6 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
   const [selectedSchedules, setSelectedSchedules] = useState<Record<string, SelectedSchedule>>({})
   const [selectedSubjects, setSelectedSubjects] = useState<Grade[]>([])
 
-  // ----- Busca de dados -----
   const {
     profileData,
     isLoading: isLoadingProfileData,
@@ -78,12 +76,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     data: currentAcademicYear,
     isError: isErrorAcademicYear,
     isLoading: isLoadingAcademicYear,
-  } = useQueryCurrentAcademicYear(profileData?.codigo_tipo_candidatura)
-
-  const { data: taxaMatricula } = useTypeServiceSingle({
-    currentYearCode: Number(currentAcademicYear?.codigo),
-    ...SERVICE_TYPES.TAXA_MATRICULA,
-  })
+  } = useQueryCurrentAcademicYear(profileData?.codigo_tipo_candidatura!)
 
   const { data: foraPrazo } = useTypeServiceSingle({
     currentYearCode: Number(currentAcademicYear?.codigo),
@@ -94,6 +87,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     useQueryStudentDashboardStatistics(profileData?.enrollmentCode)
 
   const { mapGrades } = useGradeMapper()
+
 
   const { data: enrollmentPeriod } = UseQueryEnrollmentAndRegistrationDeadlines({
     anoLectivo: parseFilter(currentAcademicYear?.codigo?.toString()),
@@ -109,15 +103,19 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     academicYear: currentAcademicYear?.codigo?.toString()!,
     preEnrollmentCode: Number(profileData?.preEnrollmentCode!),
     newStudent: true,
+    semestre:1
   })
 
   const grades = mapGrades(curriculumPlan?.gradesAFazer ?? [])
-
+  console.log({grades},'selectedSubjects')
+  const { data: monthlyFeesValue } = useQueryMonthlyFeesValue({anoLetivo: parseFilter(currentAcademicYear?.codigo?.toString()),curso:parseFilter(profileData?.curso_candidatura.toString()),
+    polo:1})
   const enrollmentStatus = useMemo(
     () => getEnrollmentStatus(enrollmentPeriod),
     [enrollmentPeriod],
   )
-  // Fonte da verdade sobre o prazo: calendário real de confirmação
+  console.log({enrollmentStatus})
+
   const { prazoValido, foraDoPrazo, aindaNaoComecou } = useMemo(
     () => getStatusPrazo(enrollmentPeriod?.calendario),
     [enrollmentPeriod],
@@ -130,14 +128,14 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
 
   const maxCourseGrade = Number(profileData?.max_cadeiras_curso)
 
-  // Pré-seleciona todas as disciplinas assim que a grade curricular chega
+  
   useEffect(() => {
     if (grades.length > 0 && selectedSubjects.length === 0) {
+     
       setSelectedSubjects([...grades])
+     
     }
   }, [grades, selectedSubjects.length])
-
-  // ----- Seleção de disciplinas -----
 
   const toggleSection = (section: SectionKey) => {
     setIsExpanded((prev) => ({ ...prev, [section]: !prev[section] }))
@@ -199,10 +197,10 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
 
   // ----- Valores -----
 
-  const totalValue = selectedSubjects.reduce((sum, s) => sum + Number(s.valorInscricao), 0)
-  const taxaMatriculaValue = taxaMatricula?.preco ?? 0
+  
+  const firstMonthlyFee = Number(monthlyFeesValue[0]?.preco)
   const foraPrazoValue = enrollmentStatus === 'closed' ? (foraPrazo?.preco ?? 0) : 0
-  const totalPagar = totalValue + taxaMatriculaValue + foraPrazoValue
+  const totalPagar = firstMonthlyFee + foraPrazoValue
 
   // ----- Fatura -----
 
@@ -213,12 +211,9 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
 
     const itens = [
       ...(enrollmentStatus === 'closed' && foraPrazo ? [createServiceItem(foraPrazo)] : []),
-      createServiceItem(taxaMatricula!),
-      ...selectedSubjects.map((subject) =>
-        createDisciplineItem(subject, currentAcademicYear?.codigo!),
-      ),
+      createServiceItem(monthlyFeesValue[0]!),
     ]
-
+    
     const invoice: CreateInvoiceBody = {
       polo_id: profileData.poloid,
       TotalPreco: totalPagar,
@@ -231,7 +226,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
       Desconto: 0,
       totalIVA: 0,
       TotalMulta: 0,
-      Descricao: truncate('Matrícula + Inscrição em Disciplinas', 44),
+      Descricao: truncate('Mestrado', 44),
       tipo_documento_factura_id: 1,
       canal: 3,
       DataFactura: new Date().toISOString(),
@@ -277,19 +272,17 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
   return (
     <EnrollmentContext.Provider
       value={{
-        taxaMatriculaValue,
+        firstMonthlyFee,
         foraPrazoValue,
         totalPagar,
         selectedSubjects,
         isErrorProfileData,
-
-   prazoValido, foraDoPrazo, aindaNaoComecou ,
+        prazoValido, foraDoPrazo, aindaNaoComecou ,
         isErrorStudentCurriculumPlan: isErrorCurriculumPlan,
         isLoadingProfileData,
         isLoadingStudentCurriculumPlan: isLoadingCurriculumPlan,
         isExpanded,
         subject: grades ?? [],
-        totalValue,
         toggleSubject,
         isSelected,
         toggleSection,
@@ -325,41 +318,24 @@ function truncate(text: string, maxLength: number): string {
   return `${text.substring(0, maxLength - 3)}...`
 }
 
-function createDisciplineItem(grade: Grade, academicYearCode: number) {
-  const nomeCompleto = grade.disciplina || grade.codigoDisciplina || 'Disciplina'
-  const obs = truncate(`Insc. ${nomeCompleto}`, MAX_OBS_LENGTH)
 
-  return {
-    CodigoProduto: 11476,
-    Quantidade: 1,
-    preco: Number(grade.valorInscricao),
-    Total: Number(grade.valorInscricao),
-    valor_pago: 0,
-    obs,
-    taxaIva: 1,
-    valorIva: 0,
-    retencao: 0,
-    incidencia: 0,
-    valorDesconto: 0,
-    descontoProduto: 0,
-    mes: '',
-    multa: 0,
-    mesTempId: 3,
-    estado: 0,
-    valorPago: 0,
-    valorATransportar: 0,
-    codigo_anoLectivo: academicYearCode,
-  }
+
+interface ServiceItemData {
+  codigo: number | string
+  descricao?: string
+  preco: number | string
 }
 
-function createServiceItem(serviceType: TypeServiceResponse) {
+function createServiceItem<T extends ServiceItemData>(service: T) {
+  const price = Number(service.preco)
+
   return {
-    CodigoProduto: serviceType.codigo,
+    CodigoProduto: Number(service.codigo),
     Quantidade: 1,
-    preco: serviceType.preco,
-    Total: serviceType.preco,
+    preco: price,
+    Total: price,
     valor_pago: 0,
-    obs: truncate(serviceType?.descricao ?? '', MAX_OBS_LENGTH),
+    obs: truncate(service.descricao ?? '', MAX_OBS_LENGTH),
     taxaIva: 1,
     valorIva: 0,
     retencao: 0,
@@ -368,7 +344,7 @@ function createServiceItem(serviceType: TypeServiceResponse) {
     descontoProduto: 0,
     mes: '',
     multa: 0,
-    mesTempId: 3,
+    mesTempId: 1,
     estado: 0,
     valorPago: 0,
     valorATransportar: 0,

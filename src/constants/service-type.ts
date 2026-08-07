@@ -23,5 +23,9 @@ export const SERVICE_TYPES = {
     description: 'Inscrição Prova Unificada Cicular',
     sigla: 'IpuCricular(Anual)',
   },
+  MENSALIDADE: {
+    
+  }
+    
   
 } as const

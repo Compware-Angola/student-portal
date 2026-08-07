@@ -39,11 +39,16 @@ export function SubjectCard({
         >
           {subject.disciplina}
         </label>
-
-        <p className="flex items-center gap-1">
-          <span className="font-medium text-sm">Duração:</span>
-          {subject.duracaoDisciplina}
-        </p>
+        <div className="flex justify-between items-center">
+          <p className="flex items-center gap-1">
+            <span className="font-medium text-sm">Duração:</span>
+            {subject.duracaoDisciplina}
+          </p>
+          <p className="flex items-center gap-1">
+            <span className="font-medium text-sm sr-only">Classe:</span>
+            {subject.classe}
+          </p>
+        </div>
 
         <p className="flex items-center gap-1">
           <span className="font-medium text-sm">

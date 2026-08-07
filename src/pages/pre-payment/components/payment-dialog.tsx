@@ -31,7 +31,7 @@ const presetTypeService = (code: number) => {
 export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
   const { profileData } = useQueryProfile()
 
-  const { data: currentAcademicYearGetTaxa } = useQueryCurrentAcademicYear()
+  const { data: currentAcademicYearGetTaxa } = useQueryCurrentAcademicYear(profileData?.codigo_tipo_candidatura)
   const { data: currentAcademicYear } = useQueryCurrentAcademicYear(profileData?.codigo_tipo_candidatura)
   const { data: taxaAdmissao } = useTypeServiceSingle({
     currentYearCode: Number(currentAcademicYearGetTaxa?.codigo),

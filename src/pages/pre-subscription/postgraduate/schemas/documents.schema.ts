@@ -1,8 +1,7 @@
 import z from 'zod'
 
 export const documentsSchema = z.object({
-
-
+  pole: z.string().min(1, 'Polo é obrigatório'),
   intendedCourse: z.string().min(1, 'Curso é obrigatório'),
   intendedCourseSecond: z.string().optional(),
   intendedCourseThird: z.string().optional(),
