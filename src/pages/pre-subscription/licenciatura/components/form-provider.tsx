@@ -54,10 +54,11 @@ export function FormPreSubscriptionProvider({
     const response = await uploadMutation.mutateAsync({ file: data, options: { folder } })
     return response.key ?? ''
   }
-    const {
-            data: anoLectivo,
-          } = useQueryCurrentAcademicYear(profileData?.grau_academico === 'Mestrado'? 2 : 1)
-        
+  // grau_academico: "Mestrado" | "Doutoramento" | "Licenciatura" |
+  const {
+    data: anoLectivo,
+  } = useQueryCurrentAcademicYear(profileData?.grau_academico === 'Mestrado' ? 2 : profileData?.grau_academico === 'Doutoramento' ? 3 : 1)
+
   function buildInscricaoPayload(data: any, docs: any) {
      
     return {
