@@ -1,12 +1,15 @@
 import { useQueryAcademicYearStudent } from '@/hooks/academic-year/use-query-academic-year-student'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
+import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { dedupeAcademicYears } from '@/utils/dedupe-academic-years'
 import { useMemo } from 'react'
 
+
 export function useYearSelect(enrollmentCode?: string) {
   const { data: academicYearData } = useQueryAcademicYearStudent(enrollmentCode)
+  const {profileData} = useQueryProfile()
 
-  const { data: currentAcademicYear } = useQueryCurrentAcademicYear()
+  const { data: currentAcademicYear } = useQueryCurrentAcademicYear(profileData?.codigo_tipo_candidatura)
 
   const academicYears = useMemo(() => {
     if (!academicYearData?.anolectivos) return []

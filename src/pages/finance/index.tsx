@@ -30,7 +30,7 @@ function Content() {
     undefined,
   )
 
-  const { data: currentAcademicYear } = useQueryCurrentAcademicYear()
+  const { data: currentAcademicYear } = useQueryCurrentAcademicYear(profileData?.codigo_tipo_candidatura)
   const { data: academicYearData, isLoading: isAcademicYearLoading } =
     useQueryAcademicYearStudent(profileData?.enrollmentCode)
 

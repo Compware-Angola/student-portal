@@ -128,7 +128,7 @@ export const ScheduleSelectionDialog = ({
 
   const { profileData, isLoading: isLoadingProfile } = useQueryProfile()
   const { data: currentAcademicYear, isLoading: isLoadingAcademicYear } =
-    useQueryCurrentAcademicYear()
+    useQueryCurrentAcademicYear(profileData?.codigo_tipo_candidatura)
   const {
     data: horarios = [],
     isLoading: isLoadingSchedules,

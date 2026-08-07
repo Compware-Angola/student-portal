@@ -83,7 +83,7 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     data: currentAcademicYear,
     isError: isErrorAcademicYear,
     isLoading: isLoadingAcademmicYear,
-  } = useQueryCurrentAcademicYear()
+  } = useQueryCurrentAcademicYear(profileData?.codigo_tipo_candidatura)
 
 
 

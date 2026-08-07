@@ -31,7 +31,9 @@ interface Prazo {
   data_termino: string
 }
 
-
+// =====================
+// 📅 Utilitário de prazo
+// =====================
 function getStatusPrazo(calendario?: Prazo[]) {
   const agora = new Date()
 
