@@ -40,7 +40,7 @@ export function StandardTimeframe() {
   )
 
   const matriculaPendente =
-    confirmacaoAtiva && confirmacaoAtiva.estado === 1
+    confirmacaoAtiva && confirmacoes[0].estado === 0
 
   const classeAtual = confirmacaoAtiva?.classe
   const classeMaxima = confirmacoes.length
