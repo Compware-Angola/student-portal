@@ -19,7 +19,7 @@ import { useTheme } from "next-themes";
 import heroAsset from "@/assets/hero-comunicados.jpg";
 import { useGetAvisosGeral } from "@/hooks/use-get-aviso-imagem";
 import { useQueryComunicadoBanner } from "@/hooks/use-query-comunicado-banner";
-import { buildImageAssets } from "@/utils/build-image-assets";
+import { useGetFileUrl } from "@/hooks/upload/use-upload";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -284,25 +284,41 @@ export function Comunicado({ heroImages: propHeroImages }: ComunicadoProps) {
   const { setTheme } = useTheme();
   const navigate = useNavigate();
 
-  const [filtro, setFiltro] = useState<"todos" | "urgente" | "aviso" | "informativo" | "evento">("todos");
+  const [filtro, setFiltro] = useState<
+    "todos" | "urgente" | "aviso" | "informativo" | "evento"
+  >("todos");
+
   const { data: apiData, isLoading } = useGetAvisosGeral("EST");
+
   const { data: bannerData } = useQueryComunicadoBanner();
+
+  const {
+    mutate: getFileUrl,
+    data: fileUrl,
+  } = useGetFileUrl();
+
   const [bannerImage, setBannerImage] = useState(heroAsset);
 
+  // Buscar a URL do banner no S3
   useEffect(() => {
-    const bannerUrl = buildImageAssets(bannerData?.filename!);
+    if (!bannerData?.filename) return;
 
-    if (!bannerUrl) {
-      setBannerImage(heroAsset);
-      return;
-    }
+    getFileUrl({
+      key: bannerData.filename,
+    });
+  }, [bannerData?.filename, getFileUrl]);
+
+  // Validar e aplicar a imagem do S3
+  useEffect(() => {
+    if (!fileUrl?.url) return;
 
     let cancelled = false;
+
     const image = new Image();
 
     image.onload = () => {
       if (!cancelled) {
-        setBannerImage(bannerUrl);
+        setBannerImage(fileUrl.url);
       }
     };
 
@@ -312,14 +328,15 @@ export function Comunicado({ heroImages: propHeroImages }: ComunicadoProps) {
       }
     };
 
-    image.src = bannerUrl;
+    image.src = fileUrl.url;
 
     return () => {
       cancelled = true;
       image.onload = null;
       image.onerror = null;
     };
-  }, [bannerData?.filename]);
+  }, [fileUrl?.url]);
+
 
   // ==================== IMAGEM DO BANNER ====================
   const heroImages = useMemo(() => {

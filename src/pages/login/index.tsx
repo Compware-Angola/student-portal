@@ -24,11 +24,11 @@ import { UpdateRequestForm } from "./components/update-data";
 import { ValidateDocumentForm } from "./components/ValidarDocumentos";
 import { RegisterForm } from "./components/register-form";
 import { useQueryPortalStudentImage } from "@/hooks/use-query-portal-student-image";
-import { buildImageAssets } from "@/utils/build-image-assets";
 import { useSearchParams } from "react-router-dom";
 import { RegistrationClosed } from "./components/registration-closed";
 import  { useQueryUsableAcademicYear } from "@/hooks/academic-year/use-query-usable-academic-year";
 import { PortalLoading } from "./components/portal-loading";
+import { useGetFileUrl } from "@/hooks/upload/use-upload";
 
 
 type View = "login" | "forgot" | "update-request" | "validate-doc" | "register";
@@ -48,38 +48,50 @@ const FEATURES = [
 // ─────────────────────────────────────────────────────────────
 export function Login() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const view =
-  (searchParams.get("tab") as
-    View) ?? "login";
 
-const setView = (
-  value: View
-) => {
-  setSearchParams({ tab: value });
-};
+  const view = (searchParams.get("tab") as View) ?? "login";
+
+  const setView = (value: View) => {
+    setSearchParams({ tab: value });
+  };
+
   const { data: portalStudentImage } = useQueryPortalStudentImage();
-  const [loginBackground, setLoginBackground] = useState(studentsPhoto);
+  console.log("portalStudentImage", portalStudentImage);
+  const {
+    mutate: getFileUrl,
+    data: fileUrl,
+  } = useGetFileUrl();
 
-  // ── Forçar tema light (equivalente ao doc 2) ──
+  const [loginBackground, setLoginBackground] =
+    useState<string>(studentsPhoto);
+
+  // Forçar tema light
   const { setTheme } = useTheme();
-  useEffect(() => {
-    setTheme('light');
-  }, []);
 
   useEffect(() => {
-    const imageUrl = buildImageAssets(portalStudentImage?.filename!);
+    setTheme("light");
+  }, [setTheme]);
 
-    if (!imageUrl) {
-      setLoginBackground(studentsPhoto);
-      return;
-    }
+  // 1. Buscar a URL do arquivo no S3
+  useEffect(() => {
+    if (!portalStudentImage?.filename) return;
+
+    getFileUrl({
+      key: portalStudentImage.filename,
+    });
+  }, [portalStudentImage?.filename, getFileUrl]);
+
+  // 2. Validar e aplicar a imagem retornada pelo S3
+  useEffect(() => {
+    if (!fileUrl?.url) return;
 
     let cancelled = false;
+
     const image = new Image();
 
     image.onload = () => {
       if (!cancelled) {
-        setLoginBackground(imageUrl);
+        setLoginBackground(fileUrl.url);
       }
     };
 
@@ -89,14 +101,15 @@ const setView = (
       }
     };
 
-    image.src = imageUrl;
+    image.src = fileUrl.url;
 
     return () => {
       cancelled = true;
       image.onload = null;
       image.onerror = null;
     };
-  }, [portalStudentImage?.filename]);
+  }, [fileUrl?.url]);
+
 
 
   const { data: licenciatura, isLoading: licenciaturaLoading } = useQueryUsableAcademicYear(1)
