@@ -24,6 +24,7 @@ type ContextValue = {
   steps: typeof steps
   progress: number
   isLoadingPreInscription: boolean
+  isLoadingAnoLectivo: boolean
 }
 
 export const FormPreSubscriptionContext =
@@ -50,17 +51,28 @@ export function FormPreSubscriptionProvider({
 
   const { profileData } = useQueryProfile()
 
-  const uploadFile = async (data: File, folder: FileFolder = FileFolder.CANDIDATURA) => {
-    const response = await uploadMutation.mutateAsync({ file: data, options: { folder } })
-    return response.key ?? ''
-  }
-  // grau_academico: "Mestrado" | "Doutoramento" | "Licenciatura" |
-  const {
-    data: anoLectivo,
-  } = useQueryCurrentAcademicYear(profileData?.grau_academico === 'Mestrado' ? 2 : profileData?.grau_academico === 'Doutoramento' ? 3 : 1)
+  const uploadFile = React.useCallback(
+    async (data: File, folder: FileFolder = FileFolder.CANDIDATURA) => {
+      const response = await uploadMutation.mutateAsync({
+        file: data,
+        options: { folder },
+      })
+      return response.key ?? ''
+    },
+    [uploadMutation],
+  )
 
-  function buildInscricaoPayload(data: any, docs: any) {
-     
+  // grau_academico: "Mestrado" | "Doutoramento" | "Licenciatura"
+  const { data: anoLectivo, isLoading: isLoadingAnoLectivo } =
+    useQueryCurrentAcademicYear(
+      profileData?.grau_academico === 'Mestrado'
+        ? 2
+        : profileData?.grau_academico === 'Doutoramento'
+        ? 3
+        : 1,
+    )
+
+  function buildInscricaoPayload(data: any, docs: any, anoLectivoId: number) {
     return {
       cursoCandidatura: Number(data.intendedCourse),
       modalidadeFrequencia: 2,
@@ -90,13 +102,13 @@ export function FormPreSubscriptionProvider({
       documentos: docs,
       codigoNacionalidade: Number(data.codigoNacionalidade),
       codigoTipoCandidatura: Number(data.typeGraduation),
-      anoLectivoId: Number(anoLectivo?.codigo),
+      anoLectivoId,
       inquerito:
         data.howDidYouKnow === 'outros'
           ? data.howDidYouKnowOther
           : data.howDidYouKnow,
       tentou_universidade_publica: Number(data.natureInscription),
-      codigoFaculdade: Number(data.faculty)
+      codigoFaculdade: Number(data.faculty),
     }
   }
 
@@ -133,51 +145,69 @@ export function FormPreSubscriptionProvider({
       howDidYouKnow: '',
       natureInscription: '',
       anoLectivoId: 0,
-      faculty: 0
+      faculty: 0,
     },
     mode: 'onChange',
   })
 
-  const onSubmit = React.useCallback(async (data: PreSubscriptionSchema) => {
-    let photoPath: string | undefined = undefined
-    let documentPath: string | undefined = undefined
-    let certificatePath: string | undefined = undefined
-    let publicUniversityDocumentPath: string | undefined = undefined
-    const docs = []
+  const onSubmit = React.useCallback(
+    async (data: PreSubscriptionSchema) => {
+      // Trava de segurança: nunca envia sem o ano letivo carregado
+      if (!anoLectivo?.codigo) {
+        toast.error(
+          'Não foi possível identificar o ano letivo atual. Tente novamente em instantes.',
+        )
+        throw new Error('Ano letivo não carregado')
+      }
 
-    if (data.photo) {
-      photoPath = await uploadFile(data.photo, FileFolder.FOTOS_PERFIL)
-      updateStudentPhoto.mutateAsync(
-        { file: photoPath!, userId: profileData?.userId! },
-      )
-    }
-    if (data.document) {
-      documentPath = await uploadFile(data.document)
-      docs.push({
-        typeDocumentId: parseInt(data.documentType),
-        fileName: documentPath,
-      })
-    }
-    if (data.certificate) {
-      certificatePath = await uploadFile(data.certificate)
-      docs.push({
-        typeDocumentId: DocumentTypeEnum.CERTIFICADO_COM_NOTAS,
-        fileName: certificatePath,
-      })
-    }
-    if (data.publicUniversityDocument) {
-      publicUniversityDocumentPath = await uploadFile(
-        data.publicUniversityDocument,
-      )
-      docs.push({
-        typeDocumentId: DocumentTypeEnum.UNIVERSIDADE_PUBLICA_DOC,
-        fileName: publicUniversityDocumentPath,
-      })
-    }
+      let photoPath: string | undefined = undefined
+      let documentPath: string | undefined = undefined
+      let certificatePath: string | undefined = undefined
+      let publicUniversityDocumentPath: string | undefined = undefined
+      const docs = []
 
-    const payload = buildInscricaoPayload(data, docs)
-    await createPreInscricaoAsync(payload)
-  }, [])
+      if (data.photo) {
+        photoPath = await uploadFile(data.photo, FileFolder.FOTOS_PERFIL)
+        await updateStudentPhoto.mutateAsync({
+          file: photoPath!,
+          userId: profileData?.userId!,
+        })
+      }
+      if (data.document) {
+        documentPath = await uploadFile(data.document)
+        docs.push({
+          typeDocumentId: parseInt(data.documentType),
+          fileName: documentPath,
+        })
+      }
+      if (data.certificate) {
+        certificatePath = await uploadFile(data.certificate)
+        docs.push({
+          typeDocumentId: DocumentTypeEnum.CERTIFICADO_COM_NOTAS,
+          fileName: certificatePath,
+        })
+      }
+      if (data.publicUniversityDocument) {
+        publicUniversityDocumentPath = await uploadFile(
+          data.publicUniversityDocument,
+        )
+        docs.push({
+          typeDocumentId: DocumentTypeEnum.UNIVERSIDADE_PUBLICA_DOC,
+          fileName: publicUniversityDocumentPath,
+        })
+      }
+
+      const payload = buildInscricaoPayload(data, docs, anoLectivo.codigo)
+      await createPreInscricaoAsync(payload)
+    },
+    [
+      anoLectivo,
+      profileData,
+      uploadFile,
+      updateStudentPhoto,
+      createPreInscricaoAsync,
+    ],
+  )
 
   const handleNextOrSubmit = React.useCallback(async () => {
     const valid = await form.trigger(currentStepConfig.fields, {
@@ -187,6 +217,14 @@ export function FormPreSubscriptionProvider({
     if (!valid) return
 
     if (currentStepConfig.submitOnStep) {
+      if (isLoadingAnoLectivo) {
+        toast.error('Aguarde, a carregar o ano letivo atual...')
+        return
+      }
+      if (!anoLectivo?.codigo) {
+        toast.error('Não foi possível identificar o ano letivo atual.')
+        return
+      }
       try {
         await form.handleSubmit(async (data) => {
           await onSubmit(data)
@@ -201,7 +239,7 @@ export function FormPreSubscriptionProvider({
     if (!currentStepConfig.isSummary) {
       setCurrentStep((prev) => prev + 1)
     }
-  }, [currentStep, form, onSubmit])
+  }, [currentStep, currentStepConfig, form, onSubmit, anoLectivo, isLoadingAnoLectivo])
 
   const handleBack = React.useCallback(() => {
     setCurrentStep((prev) => prev - 1)
@@ -214,6 +252,7 @@ export function FormPreSubscriptionProvider({
     setCurrentStep,
     handleNextOrSubmit,
     isLoadingPreInscription,
+    isLoadingAnoLectivo,
     handleBack,
     steps,
     progress,
