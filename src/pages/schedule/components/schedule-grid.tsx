@@ -1,296 +1,273 @@
-import { useMemo, useState } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
-import type { DiaSemana, AulaHorario } from '../utils'
+import { useMemo, useState } from "react";
+import type { DiaSemana, AulaHorario } from "../utils";
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog'
-const HOUR_START = 7
-const HOUR_END = 20
-const ROW_H = 56 // px por hora
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
-const COLOR_POOL = [
-    'bg-purple-100 border-l-purple-600 text-purple-900 dark:bg-purple-900/25 dark:text-purple-200',
-    'bg-teal-100 border-l-teal-600 text-teal-900 dark:bg-teal-900/25 dark:text-teal-200',
-    'bg-orange-100 border-l-orange-600 text-orange-900 dark:bg-orange-900/25 dark:text-orange-200',
-    'bg-pink-100 border-l-pink-500 text-pink-900 dark:bg-pink-900/25 dark:text-pink-200',
-    'bg-blue-100 border-l-blue-600 text-blue-900 dark:bg-blue-900/25 dark:text-blue-200',
-    'bg-green-100 border-l-green-600 text-green-900 dark:bg-green-900/25 dark:text-green-200',
-]
+type Props = {
+  schedule: Record<DiaSemana, AulaHorario[]>;
+  titulo?: string;
+};
 
-const subjectColors: Record<string, string> = {}
-let colorIndex = 0
-
-function getSubjectColor(subject: string): string {
-    if (!subjectColors[subject]) {
-        subjectColors[subject] = COLOR_POOL[colorIndex % COLOR_POOL.length]
-        colorIndex++
-    }
-    return subjectColors[subject]
-}
+/* --- Funções Utilitárias Internas --- */
 
 function timeToMin(time: string): number {
-    const clean = time.includes('T') ? time.split('T')[1]?.slice(0, 5) ?? '00:00' : time.slice(0, 5)
-    const [h, m] = clean.split(':').map(Number)
-    return h * 60 + m
+  if (!time) return 0;
+  const clean = time.includes("T") ? time.split("T")[1]?.slice(0, 5) ?? "00:00" : time.slice(0, 5);
+  const [h, m] = clean.split(":").map(Number);
+  return (h || 0) * 60 + (m || 0);
 }
 
 function formatTime(time?: string | null): string {
-    if (!time) return ''
-    const t = time.includes('T') ? time.split('T')[1]?.slice(0, 5) : time.slice(0, 5)
-    return t ?? ''
+  if (!time) return "";
+  return time.includes("T") ? time.split("T")[1]?.slice(0, 5) ?? "" : time.slice(0, 5);
 }
 
-type AulaComColuna = AulaHorario & {
-    _col: number
-    _totalCols: number
+// Gera uma cor consistente para cada disciplina
+function disciplinaAccent(disciplina: string): string {
+  let hash = 0;
+  for (let i = 0; i < disciplina.length; i++) {
+    hash = disciplina.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const hue = Math.abs(hash) % 360;
+  return `hsl(${hue}, 65%, 50%)`;
 }
 
-function computeColumns(aulas: AulaHorario[]): AulaComColuna[] {
-    const sorted = aulas
-        .filter(a => a.hora_inicio && a.hora_termino)
-        .map((a, i) => ({ ...a, _idx: i }))
-        .sort((a, b) => timeToMin(a.hora_inicio!) - timeToMin(b.hora_inicio!))
+// Extrai slots/turnos únicos baseados nas aulas existentes no schedule
+function buildSlotsFromSchedule(schedule: Record<DiaSemana, AulaHorario[]>) {
+  const map = new Map<string, { inicio: string; termino: string; key: string }>();
 
-    // Atribui coluna a cada aula (greedy)
-    const cols: typeof sorted[] = []
-    const aulaCol: Record<number, number> = {}
+  Object.values(schedule).forEach((aulas) => {
+    aulas?.forEach((aula) => {
+      if (aula.hora_inicio && aula.hora_termino) {
+        const inicio = formatTime(aula.hora_inicio);
+        const termino = formatTime(aula.hora_termino);
+        const key = `${inicio}-${termino}`;
 
-    for (const aula of sorted) {
-        const start = timeToMin(aula.hora_inicio!)
-        const end = timeToMin(aula.hora_termino!)
-        let col = 0
-        while (true) {
-            const conflict = cols[col]?.some(other => {
-                const os = timeToMin(other.hora_inicio!)
-                const oe = timeToMin(other.hora_termino!)
-                return start < oe && end > os
-            })
-            if (!conflict) break
-            col++
+        if (!map.has(key)) {
+          map.set(key, { inicio, termino, key });
         }
-        if (!cols[col]) cols[col] = []
-        cols[col].push(aula)
-        aulaCol[aula._idx] = col
-    }
+      }
+    });
+  });
 
-    // Calcula total de colunas que cada aula ocupa
-    const aulaTotalCols: Record<number, number> = {}
-    for (const aula of sorted) {
-        const start = timeToMin(aula.hora_inicio!)
-        const end = timeToMin(aula.hora_termino!)
-        let maxCol = aulaCol[aula._idx]
-        for (const other of sorted) {
-            if (other._idx === aula._idx) continue
-            const os = timeToMin(other.hora_inicio!)
-            const oe = timeToMin(other.hora_termino!)
-            if (start < oe && end > os) {
-                maxCol = Math.max(maxCol, aulaCol[other._idx])
-            }
-        }
-        aulaTotalCols[aula._idx] = maxCol + 1
-    }
-
-    return sorted.map(a => ({
-        ...a,
-        _col: aulaCol[a._idx],
-        _totalCols: aulaTotalCols[a._idx],
-    }))
+  return Array.from(map.values()).sort(
+    (a, b) => timeToMin(a.inicio) - timeToMin(b.inicio)
+  );
 }
 
-type Props = {
-    schedule: Record<DiaSemana, AulaHorario[]>
+/* --- Card de Cada Aula --- */
+
+function AulaCard({ aula, onClick }: { aula: AulaHorario; onClick: () => void }) {
+  const accent = disciplinaAccent(aula.disciplina);
+  const sala = aula.sala && aula.sala !== "N/A" ? aula.sala : "Sala a definir";
+  const dur =
+    aula.hora_inicio && aula.hora_termino
+      ? timeToMin(aula.hora_termino) - timeToMin(aula.hora_inicio)
+      : 0;
+
+  return (
+    <div
+      onClick={onClick}
+      className="group rounded-lg border border-border/60 bg-card p-3.5 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md cursor-pointer"
+      style={{ borderLeft: `4px solid ${accent}` }}
+    >
+      <p className="text-sm font-semibold leading-snug text-card-foreground">
+        {aula.disciplina}
+      </p>
+      <p className="mt-1.5 text-xs text-muted-foreground">{sala}</p>
+      <div className="mt-2 flex items-center gap-2">
+        {aula.tipo && (
+          <span
+            className="rounded px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide"
+            style={{
+              backgroundColor: `color-mix(in oklch, ${accent} 18%, transparent)`,
+              color: accent,
+            }}
+          >
+            {aula.tipo}
+          </span>
+        )}
+        {dur > 0 && <span className="text-[0.65rem] text-muted-foreground">{dur} min</span>}
+      </div>
+    </div>
+  );
 }
 
-export function ScheduleGrid({ schedule }: Props) {
-    const [selectedAula, setSelectedAula] = useState<AulaHorario | null>(null)
-    const dias = useMemo(() => {
-        return Object.entries(schedule).filter(
-            ([, aulas]) => Array.isArray(aulas) && aulas.length > 0
-        )
-    }, [schedule])
+/* --- Grid Principal --- */
 
-    const totalHours = HOUR_END - HOUR_START
-    const gridHeight = totalHours * ROW_H
+export function ScheduleGrid({ schedule, titulo = "Horário de Aulas" }: Props) {
+  const [filtro, setFiltro] = useState<string>("todos");
+  const [selectedAula, setSelectedAula] = useState<AulaHorario | null>(null);
 
-    const hourLabels = useMemo(() => {
-        return Array.from({ length: totalHours }, (_, i) =>
-            `${String(HOUR_START + i).padStart(2, '0')}:00`
-        )
-    }, [totalHours])
+  // Dias com dados no schedule (ex: Segunda-feira, Terça-feira...)
+  const dias = useMemo(() => {
+    return Object.keys(schedule) as DiaSemana[];
+  }, [schedule]);
 
-    const aulasComColunas = useMemo(() => {
-        return Object.fromEntries(
-            dias.map(([dia, aulas]) => [dia, computeColumns(aulas)])
-        )
-    }, [dias])
+  // Turnos dinâmicos baseados no horário real fornecido
+  const slots = useMemo(() => buildSlotsFromSchedule(schedule), [schedule]);
 
-    return (
-        <>
-            <Card>
-                <CardContent className="p-0 overflow-x-auto">
-                    <div className="min-w-[700px]">
+  // Total geral de aulas
+  const totalAulasCount = useMemo(() => {
+    return Object.values(schedule).reduce((acc, curr) => acc + (curr?.length || 0), 0);
+  }, [schedule]);
 
-                        {/* Cabeçalho */}
-                        <div
-                            className="grid border-b bg-muted/30"
-                            style={{ gridTemplateColumns: `52px repeat(${dias.length}, 1fr)` }}
-                        >
-                            <div className="p-3 text-xs font-medium text-muted-foreground border-r">
-                                Hora
-                            </div>
-                            {dias.map(([dia, aulas]) => (
-                                <div key={dia} className="p-3 text-center border-r last:border-r-0">
-                                    <p className="text-sm font-semibold">{dia}</p>
-                                    <p className="text-xs text-muted-foreground">
-                                        {aulas.length} {aulas.length === 1 ? 'aula' : 'aulas'}
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
+  // Lista de disciplinas únicas para o filtro select
+  const disciplinas = useMemo(() => {
+    const set = new Set<string>();
+    Object.values(schedule).forEach((aulas) =>
+      aulas?.forEach((a) => {
+        if (a.disciplina) set.add(a.disciplina);
+      })
+    );
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "pt"));
+  }, [schedule]);
 
-                        {/* Grelha */}
-                        <div
-                            className="grid"
-                            style={{ gridTemplateColumns: `52px repeat(${dias.length}, 1fr)` }}
-                        >
-                            {/* Coluna de horas */}
-                            <div className="border-r">
-                                {hourLabels.map((label) => (
-                                    <div
-                                        key={label}
-                                        className="text-[11px] text-muted-foreground px-2 border-b flex items-start pt-1"
-                                        style={{ height: `${ROW_H}px` }}
-                                    >
-                                        {label}
-                                    </div>
-                                ))}
-                            </div>
+  // Tipos únicos (Ex: TP, PL, T)
+  const tipos = useMemo(() => {
+    const set = new Set<string>();
+    Object.values(schedule).forEach((aulas) =>
+      aulas?.forEach((a) => {
+        if (a.tipo) set.add(a.tipo);
+      })
+    );
+    return Array.from(set).sort();
+  }, [schedule]);
 
-                            {/* Colunas dos dias */}
-                            {dias.map(([dia]) => {
-                                const aulas = aulasComColunas[dia] ?? []
-                                return (
-                                    <div
-                                        key={dia}
-                                        className="relative border-r last:border-r-0"
-                                        style={{ height: `${gridHeight}px` }}
-                                    >
-                                        {/* Linhas de hora */}
-                                        {hourLabels.map((_, i) => (
-                                            <div
-                                                key={i}
-                                                className="absolute left-0 right-0 border-b border-border/40"
-                                                style={{ top: `${i * ROW_H}px` }}
-                                            />
-                                        ))}
-                                        {/* Linhas de meia hora */}
-                                        {hourLabels.map((_, i) => (
-                                            <div
-                                                key={`half-${i}`}
-                                                className="absolute left-0 right-0 border-b border-dashed border-border/20"
-                                                style={{ top: `${i * ROW_H + ROW_H / 2}px` }}
-                                            />
-                                        ))}
+  // Largura mínima calculada dinamicamente com base no nº de dias
+  // (8.125rem da coluna de hora + 17.5rem por dia)
+  const minWidthRem = useMemo(() => 8.125 + dias.length * 17.5, [dias.length]);
+  const gridCols = `8.125rem repeat(${dias.length}, minmax(17.5rem, 1fr))`;
 
-                                        {/* Aulas — sem sobreposição */}
-                                        {aulas.map((aula, idx) => {
-                                            const startMin = timeToMin(aula.hora_inicio!) - HOUR_START * 60
-                                            const endMin = timeToMin(aula.hora_termino!) - HOUR_START * 60
-                                            const top = (startMin / 60) * ROW_H
-                                            const height = Math.max(((endMin - startMin) / 60) * ROW_H - 2, 20)
+  const visivel = (a: AulaHorario) => filtro === "todos" || a.disciplina === filtro;
 
-                                            const pct = 100 / aula._totalCols
-                                            const left = `calc(${aula._col * pct}% + 2px)`
-                                            const width = `calc(${pct}% - 4px)`
-                                            const colorClass = getSubjectColor(aula.disciplina)
+  return (
+    <>
+      <section className="w-full">
+        <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl">
+              {titulo}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {totalAulasCount} aulas  · {disciplinas.length} disciplinas
+            </p>
+          </div>
 
-                                            return (
-                                                <div
-                                                    key={idx}
-                                                    onClick={() => setSelectedAula(aula)}
-                                                    className={`absolute rounded-md border-l-[3px] border border-black/10 p-1.5 overflow-hidden hover:shadow-md transition-shadow cursor-pointer ${colorClass}`}
-                                                    style={{
-                                                        top: `${top}px`,
-                                                        height: `${height}px`,
-                                                        left,
-                                                        width,
-                                                        zIndex: aula._col + 1,
-                                                    }}
-                                                    title={`${aula.disciplina} — ${formatTime(aula.hora_inicio)} a ${formatTime(aula.hora_termino)}`}
-                                                >
-                                                    <p className="text-[11px] font-semibold truncate leading-tight">
-                                                        {aula.disciplina}
-                                                    </p>
-                                                    <p className="text-[10px] opacity-70 mt-0.5">
-                                                        {formatTime(aula.hora_inicio)} – {formatTime(aula.hora_termino)}
-                                                    </p>
-                                                    {aula.sala && (
-                                                        <p className="text-[10px] opacity-60 truncate">
-                                                            {aula.sala}
-                                                        </p>
-                                                    )}
+          <div className="flex flex-wrap items-center gap-2">
+            {tipos.map((t) => (
+              <span
+                key={t}
+                className="rounded-full border border-border bg-secondary px-2.5 py-1 text-[0.65rem] font-medium uppercase tracking-wide text-secondary-foreground"
+              >
+                {t}
+              </span>
+            ))}
+            <select
+              value={filtro}
+              onChange={(e) => setFiltro(e.target.value)}
+              className="rounded-md border border-input bg-background px-3 py-1.5 text-xs text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              aria-label="Filtrar por disciplina"
+            >
+              <option value="todos">Todas as disciplinas</option>
+              {disciplinas.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+          </div>
+        </header>
 
-                                                    {aula.tipo && (
-                                                        <p className="text-[10px] font-medium mt-0.5 opacity-75 truncate">
-                                                            {aula.tipo}
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                )
-                            })}
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Legenda dinâmica por disciplina */}
-            <div className="flex flex-wrap items-center gap-3 mt-4 text-xs text-muted-foreground">
-                <span className="font-medium">Disciplinas:</span>
-                {Object.entries(subjectColors).map(([name, cls]) => (
-                    <div key={name} className="flex items-center gap-1.5">
-                        <div className={`w-3 h-3 rounded-sm border-l-2 ${cls}`} />
-                        {name}
-                    </div>
-                ))}
+        <div className="overflow-x-auto rounded-xl border border-border bg-card/40 shadow-sm">
+          <div style={{ minWidth: `${minWidthRem}rem` }}>
+            {/* Cabeçalho */}
+            <div
+              className="grid border-b border-border bg-secondary/60"
+              style={{ gridTemplateColumns: gridCols }}
+            >
+              <div className="px-3 py-2.5 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
+                Hora
+              </div>
+              {dias.map((d) => (
+                <div
+                  key={d}
+                  className="border-l border-border px-3 py-2.5 text-[0.7rem] font-semibold uppercase tracking-wide text-foreground whitespace-nowrap"
+                >
+                  {d}
+                </div>
+              ))}
             </div>
-            {/* Legend - Show when there are no schedules */}
-            <Dialog open={!!selectedAula} onOpenChange={() => setSelectedAula(null)}>
-                <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle className="text-lg">
-                            {selectedAula?.disciplina}
-                        </DialogTitle>
-                    </DialogHeader>
 
-                    {selectedAula && (
-                        <div className="space-y-3 text-sm">
-                            <div>
-                                <span className="font-medium">Horário:</span>{' '}
-                                {formatTime(selectedAula.hora_inicio)} - {formatTime(selectedAula.hora_termino)}
-                            </div>
+            {/* Turnos e Células de Aulas */}
+            {slots.map((slot, i) => (
+              <div
+                key={slot.key}
+                className={`grid border-b border-border/70 last:border-b-0 ${i % 2 ? "bg-muted/30" : ""}`}
+                style={{ gridTemplateColumns: gridCols }}
+              >
+                <div className="px-3.5 py-3">
+                  <p className="text-sm font-semibold tabular-nums text-foreground">{slot.inicio}</p>
+                  <p className="text-xs tabular-nums text-muted-foreground">{slot.termino}</p>
+                </div>
+                {dias.map((dia) => {
+                  const aulasNoSlot = (schedule[dia] || [])
+                    .filter((a) => {
+                      const inicio = formatTime(a.hora_inicio);
+                      const termino = formatTime(a.hora_termino);
+                      return inicio === slot.inicio && termino === slot.termino;
+                    })
+                    .filter(visivel);
 
-                            <div>
-                                <span className="font-medium">Sala:</span>{' '}
-                                {selectedAula.sala || 'N/A'}
-                            </div>
+                  return (
+                    <div key={dia} className="min-h-[84px] space-y-2 border-l border-border/70 p-2.5">
+                      {aulasNoSlot.map((a, idx) => (
+                        <AulaCard
+                          key={`${a.disciplina}-${idx}`}
+                          aula={a}
+                          onClick={() => setSelectedAula(a)}
+                        />
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-                            <div>
-                                <span className="font-medium">Tipo:</span>{' '}
-                                {selectedAula.tipo || 'N/A'}
-                            </div>
+      {/* Modal de Detalhes da Aula */}
+      <Dialog open={!!selectedAula} onOpenChange={() => setSelectedAula(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-lg">{selectedAula?.disciplina}</DialogTitle>
+          </DialogHeader>
 
-                            {/* podes adicionar mais campos aqui */}
-                        </div>
-                    )}
-                </DialogContent>
-            </Dialog>
-
-        </>
-    )
+          {selectedAula && (
+            <div className="space-y-3 text-sm">
+              <div>
+                <span className="font-medium text-muted-foreground">Horário:</span>{" "}
+                <span className="font-mono">
+                  {formatTime(selectedAula.hora_inicio)} - {formatTime(selectedAula.hora_termino)}
+                </span>
+              </div>
+              <div>
+                <span className="font-medium text-muted-foreground">Sala:</span>{" "}
+                {selectedAula.sala || "N/A"}
+              </div>
+              <div>
+                <span className="font-medium text-muted-foreground">Tipo:</span>{" "}
+                {selectedAula.tipo || "N/A"}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 }

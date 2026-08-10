@@ -34,17 +34,10 @@ import { EnrollmentPostGraduation } from '@/pages/enrollment-postgraduation'
 
 export function MainRoutes() {
   const { isLoading, hasEnrolmentCode } = useStudentSituation()
-  const enrollmentComponents: Record<string, JSX.Element> = useMemo(
-    () => ({
-      '/inscricao-uc': <RegistrationsUC />,
-      '/matricula': <Enrollment />,
-     
-    }),
-    [],
-  )
+
   if (isLoading) return null
 
-  const enrollmentPath = getEnrollmentRoute(hasEnrolmentCode)
+
 
   return (
     <Route>
@@ -82,10 +75,10 @@ export function MainRoutes() {
           }
         />
         {/* TODO:PROVISORIO
-        
+
         '/inscricao-uc': <RegistrationsUC />,
       '/matricula': <Enrollment />,
-        
+
         */}
         {/* <Route
           path={enrollmentPath.slice(1)}
