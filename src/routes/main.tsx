@@ -16,10 +16,9 @@ import { MensagensNotificacoes } from '@/pages/MensagensNotificacoes'
 import { Suporte } from '@/pages/Suporte'
 import { DisciplinasMatriculadas } from '@/pages/DisciplinasMatriculadas'
 import { NotaPagamento } from '@/pages/NotaPagamento'
-import { useStudentSituation } from '@/hooks/use-student-stitiation'
-import { getEnrollmentRoute } from '@/utils/map-student-situation'
+
 import { RegistrationsUC } from '@/pages/registrationsUC'
-import { useMemo, type JSX } from 'react'
+import { type JSX } from 'react'
 import { Comunicado } from '@/pages/login/Comunicado'
 import NotificacoesPage from '@/pages/notification/notificacoes-page'
 import { getHomeRoute, routePermissions } from './permission'
@@ -33,9 +32,6 @@ import { Enrollment } from '@/pages/enrollment'
 import { EnrollmentPostGraduation } from '@/pages/enrollment-postgraduation'
 
 export function MainRoutes() {
-  const { isLoading, hasEnrolmentCode } = useStudentSituation()
-
-  if (isLoading) return null
 
 
 
