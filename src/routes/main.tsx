@@ -71,10 +71,10 @@ export function MainRoutes() {
           }
         />
         {/* TODO:PROVISORIO
-        
+
         '/inscricao-uc': <RegistrationsUC />,
       '/matricula': <Enrollment />,
-        
+
         */}
         {/* <Route
           path={enrollmentPath.slice(1)}

@@ -18,8 +18,7 @@ import { ModeToggle } from '../mode-toggle'
 import { StudentInfo } from './components/student-info'
 import { StudentNotifications } from './components/student-notification'
 
-// Mapeia o "slug" da rota para um label amigável.
-// Se a rota não estiver aqui, o label é gerado automaticamente a partir do path.
+
 const breadcrumbLabels: Record<string, string> = {
   disciplinas: 'Disciplinas',
   notas: 'Notas',
@@ -30,7 +29,7 @@ const breadcrumbLabels: Record<string, string> = {
 }
 
 function formatLabel(segment: string) {
-  // Fallback: transforma "minha-rota" em "Minha rota"
+ 
   const withSpaces = segment.replace(/-/g, ' ')
   return withSpaces.charAt(0).toUpperCase() + withSpaces.slice(1)
 }
@@ -99,7 +98,7 @@ export default function Layout() {
             </div>
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 py-10">
+        <div className="my-20 mx-auto max-w-120rem w-full px-4 md:px-8 @container/main">
           <Outlet />
         </div>
       </SidebarInset>
