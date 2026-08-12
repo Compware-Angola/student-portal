@@ -107,14 +107,14 @@ export function EnrollmentPostGraduationProvider({ children }: EnrollmentPostGra
   })
 
   const grades = mapGrades(curriculumPlan?.gradesAFazer ?? [])
-  console.log({grades},'selectedSubjects')
+  
   const { data: monthlyFeesValue } = useQueryMonthlyFeesValue({anoLetivo: parseFilter(currentAcademicYear?.codigo?.toString()),curso:parseFilter(profileData?.curso_candidatura.toString()),
     polo:1})
   const enrollmentStatus = useMemo(
     () => getEnrollmentStatus(enrollmentPeriod),
     [enrollmentPeriod],
   )
-  console.log({enrollmentStatus})
+  
 
   const { prazoValido, foraDoPrazo, aindaNaoComecou } = useMemo(
     () => getStatusPrazo(enrollmentPeriod?.calendario),
@@ -213,7 +213,6 @@ export function EnrollmentPostGraduationProvider({ children }: EnrollmentPostGra
       ...(enrollmentStatus === 'closed' && foraPrazo ? [createServiceItem(foraPrazo)] : []),
       createServiceItem(monthlyFeesValue[0]!),
     ]
-    
     const invoice: CreateInvoiceBody = {
       polo_id: profileData.poloid,
       TotalPreco: totalPagar,
@@ -233,7 +232,6 @@ export function EnrollmentPostGraduationProvider({ children }: EnrollmentPostGra
       codigo_anoLectivo: currentAcademicYear?.codigo!,
       itens,
     }
-
     return createInvoiceAsync(invoice)
   }
 

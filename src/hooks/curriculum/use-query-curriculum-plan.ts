@@ -99,7 +99,7 @@ export function useQueryCurriculumPlanCurrentYear(
 
 
 export function useFetchQueryCurriculum(paramns:CurriculumPlanPendentProps) {
-  console.log({paramns})
+
   const {newStudent} = paramns
   return useQuery({
     queryKey: ['fetch-curriculum-plan',paramns],

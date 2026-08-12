@@ -56,7 +56,7 @@ export function Login() {
   };
 
   const { data: portalStudentImage } = useQueryPortalStudentImage();
-  console.log("portalStudentImage", portalStudentImage);
+
   const {
     mutate: getFileUrl,
     data: fileUrl,

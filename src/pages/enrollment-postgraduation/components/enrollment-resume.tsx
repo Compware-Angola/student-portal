@@ -24,7 +24,7 @@ export function EnrollmentResume() {
 
   const isSubmitting = confirmStudentEnrollmentState
   const isForaDePrazo = enrollmentStatus === 'closed'
-console.log({selectedSubjects}, 'selectedSubjects')
+
   return (
     <Card>
       <CardHeader>
