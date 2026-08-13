@@ -18,10 +18,11 @@ export function EnrollmentResume() {
     totalPagar,
     foraPrazoValue,
     firstMonthlyFee
+
   } = useEnrollment()
 
   if (selectedSubjects.length === 0) return null
-
+  const isValidFirstMonthlyFee = Boolean(firstMonthlyFee)
   const isSubmitting = confirmStudentEnrollmentState
   const isForaDePrazo = enrollmentStatus === 'closed'
 
@@ -43,11 +44,10 @@ export function EnrollmentResume() {
 
         <div className="space-y-2 pt-4">
          
-
-          <ResumoItem
+         {isValidFirstMonthlyFee && <ResumoItem
             label="Valor da primeira mensalidade"
             value={formatCurrency(firstMonthlyFee)}
-          />
+          />}
 
           {isForaDePrazo && (
             <ResumoItem
@@ -55,22 +55,26 @@ export function EnrollmentResume() {
               value={formatCurrency(foraPrazoValue)}
             />
           )}
-
-          <ResumoItem
+{
+  isValidFirstMonthlyFee &&  (<ResumoItem
             label="Total a pagar"
             value={formatCurrency(totalPagar)}
             destaque
-          />
+          />)
+}
         </div>
-
-        <Button
+{
+  isValidFirstMonthlyFee &&  (
+  <Button
           className="w-full"
           size="lg"
           onClick={confirmStudentEnrollment}
-          disabled={isSubmitting}
+          disabled={isSubmitting || !isValidFirstMonthlyFee}
         >
           {isSubmitting ? <Spinner /> : ' Matrícular-se'}
-        </Button>
+        </Button>)
+}
+       
       </CardContent>
     </Card>
   )
