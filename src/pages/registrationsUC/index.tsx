@@ -55,7 +55,7 @@ function RegistrationsUCContent() {
     !profileData
 
   const podeConfirmar = confirmationData?.informacoes.podeConfirmar ?? false
-  console.log(podeConfirmar);
+ 
   
 
   // Pode se inscrever tanto dentro do prazo (grátis) quanto fora do prazo (pagando taxa)

@@ -62,7 +62,7 @@ const ENCODING_MAP: Record<string, string> = {
 };
 
 function robustClean(text: string): string {
-  console.log(text)
+ 
   if (!text) return "";
   let cleaned = text;
 
