@@ -10,6 +10,8 @@ export function useQueryApiStatus(options?: { enabled?: boolean }) {
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
     retry: 1,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
     enabled,
   });
 }
