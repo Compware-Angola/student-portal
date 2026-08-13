@@ -8,6 +8,7 @@ export type ExamResponse = {
 export type Question = {
     id: number;
     pergunta: string;
+    cotacao: number;
     tipoPerguntaId: number;
     tipoPergunta: string;
     disciplinaId: number;

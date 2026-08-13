@@ -1,12 +1,14 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import {  Play } from 'lucide-react'
+import { Calendar, Clock, Play } from 'lucide-react'
 import ExameTimeLoader from '@/assets/TimeLoader.json'
 import Lottie from 'lottie-react'
 type StartExamProps = {
+  examDate: string
+  examTime: string
   onStart: () => void
 }
-export const StartExam = ({ onStart }: StartExamProps) => {
+export const StartExam = ({ examDate, examTime, onStart }: StartExamProps) => {
 
   return (
     <>
@@ -26,6 +28,21 @@ export const StartExam = ({ onStart }: StartExamProps) => {
             <p className="text-muted-foreground">
               A sua inscrição foi confirmada com sucesso.
             </p>
+
+            <div className="flex items-center justify-center gap-4 flex-wrap">
+              <div className="rounded-lg border px-4 py-3 bg-muted/30">
+                <div className="flex items-center justify-center gap-2 text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
+                  <Calendar className="h-4 w-4 text-primary" /> Data da prova
+                </div>
+                <p className="text-base font-semibold">{examDate}</p>
+              </div>
+              <div className="rounded-lg border px-4 py-3 bg-muted/30">
+                <div className="flex items-center justify-center gap-2 text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
+                  <Clock className="h-4 w-4 text-primary" /> Horário da prova
+                </div>
+                <p className="text-base font-semibold">{examTime}</p>
+              </div>
+            </div>
 
             <p className="text-muted-foreground">
               Está prestes a iniciar a prova de admissão. Certifique-se de que

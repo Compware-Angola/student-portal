@@ -34,6 +34,7 @@ export type MappedQuestion = {
   id: number
   subject: string
   statement: string
+  cotacao: number
   options: MappedOption[]
 }
 
@@ -82,7 +83,6 @@ const Questions = forwardRef<QuestionsHandle, QuestionsProps>(function Questions
   onExamFinished,
 }, ref) {
   const q = questions[current]
-
   const [passwordOpen, setPasswordOpen] = useState(false)
   const [passwordInput, setPasswordInput] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -193,7 +193,11 @@ const Questions = forwardRef<QuestionsHandle, QuestionsProps>(function Questions
   if (startExam) {
     return (
       <>
-        <StartExam onStart={() => setPasswordOpen(true)} />
+        <StartExam
+          examDate={fmt(info?.data_prova)}
+          examTime={`${fmt(info?.hora_inicio)} — ${fmt(info?.hora_fim)}`}
+          onStart={() => setPasswordOpen(true)}
+        />
         <PasswordDialog
           isLoading={mutateUnlockPassword.unlockTestPending}
           open={passwordOpen}
@@ -245,9 +249,14 @@ const Questions = forwardRef<QuestionsHandle, QuestionsProps>(function Questions
           <CardHeader>
             <div className="flex items-center justify-between">
               <Badge variant="outline">{q.subject}</Badge>
-              <span className="text-sm text-muted-foreground">
-                Pergunta {current + 1} de {questions.length}
-              </span>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="text-sm">
+                  Cotação: {q.cotacao} valor{q.cotacao !== 1 ? 'es' : ''}
+                </Badge>
+                <span className="text-sm text-muted-foreground">
+                  Pergunta {current + 1} de {questions.length}
+                </span>
+              </div>
             </div><CardTitle className="text-xl pt-2">
               <LatexText text={q.statement} />
             </CardTitle>

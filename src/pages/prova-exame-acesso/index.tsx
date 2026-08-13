@@ -30,6 +30,7 @@ function mapQuestion(q: Question) {
     id: q.id,
     subject: q.disciplina,
     statement: q.pergunta,
+    cotacao: q.cotacao,
     options: q.respostas.map((r) => ({
       id: r.id,
       label: r.resposta,
@@ -121,6 +122,12 @@ const ProvaExameAcesso = () => {
   const { diff, days, hours, minutes, seconds } = useCountdown(examStart)
   const examOpen = FORCE_EXAM_OPEN || diff === 0
 
+  // Janela real da prova: só conta como "hora da prova" quando a data/hora
+  // atuais estão dentro do intervalo [início, fim]. O ExamLoader (e a prova em
+  // si) só devem aparecer quando esta condição for verdadeira.
+  const examOver = examEnd ? Date.now() >= examEnd.getTime() : false
+  const isExamTime = examOpen && !examOver
+
   // Ref para o componente Questions, usado para forçar a submissão real
   // quando o tempo esgota (em vez de só simular localmente).
   const questionsRef = useRef<QuestionsHandle>(null)
@@ -178,7 +185,7 @@ const ProvaExameAcesso = () => {
     return `${h}:${m}:${sec}`
   }
 
-  if (isLoading || isLoadingApiStatus || (isDiaProva && isLoadingExam)) {
+  if (isLoading || isLoadingApiStatus || (isDiaProva && isLoadingExam && isExamTime)) {
     return <ExamLoader />
   }
 
@@ -190,7 +197,11 @@ const ProvaExameAcesso = () => {
     return <ExamPendingInfo />
   }
 
-  if (AdmissionStatus.AGUARDANDO_DIA_DA_PROVA === info?.estado_aluno) {
+  if (
+    (AdmissionStatus.AGUARDANDO_DIA_DA_PROVA === info?.estado_aluno ||
+      (isDiaProva && !isExamTime)) &&
+    !submitted
+  ) {
     return (
       <WaitingTest
         days={days}

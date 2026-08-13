@@ -137,10 +137,15 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
             Se concorda clique em concordo, Se não, não poderá efectuar o
             pagamento
           </p>
-          <div className="flex justify-end">
+         <div className="flex flex-col items-end gap-2">
+            {!taxaAdmissao && (
+              <p className="text-xs text-red-500">
+                Taxa de admissão ainda não disponível. Aguarde o carregamento.
+              </p>
+            )}
             <Button
               onClick={() => handleFactura()}
-              disabled={createInvoicePending}
+              disabled={createInvoicePending || !taxaAdmissao}
             >
               {createInvoicePending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
