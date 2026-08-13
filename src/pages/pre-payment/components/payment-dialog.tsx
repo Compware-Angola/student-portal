@@ -38,6 +38,8 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
     ...presetTypeService(Number(profileData?.codigo_tipo_candidatura)),
   })
 
+
+
   const { createInvoiceAsync, createInvoicePending } =
     useMutationCreateInvoice()
   const queryClient = useQueryClient()
@@ -77,7 +79,7 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
     try {
       const totalApagar = taxaAdmissao?.preco
       const item = createItem(taxaAdmissao)
-        console.log({ taxaAdmissao, totalApagar, item, currentAcademicYear, profileData })
+     
     if (!totalApagar || !item) {
       toast.error('Dados da taxa ainda não carregados, tenta novamente')
       return

@@ -181,7 +181,7 @@ export const Renegociation = () => {
 
   // === SIMULAR ===
   const onSimulateNegotiation = async (data: SimulateNegotiationFormData) => {
-    console.log("Simulate", data);
+    
     setSimulationData(data)
     setStep('confirm')
     toast.success('Pronto para confirmar a renegociação')

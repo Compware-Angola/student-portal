@@ -3,7 +3,7 @@ import { toast } from 'sonner'
 import { EnrollmentContext } from './enrollment.context'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useMutationConfirmNewStudentEnrollment } from '@/hooks/enrollment/use-mutation-confirm-new-student-enrollment'
-import { useFetchQueryCurriculum } from '@/hooks/curriculum/use-query-curriculum-plan'
+import { useFetchQueryCurriculumPos } from '@/hooks/curriculum/use-query-curriculum-plan'
 import { useMutationCreateInvoice } from '@/hooks/invoice/use-mutation-create-invoice'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 import { useQueryStudentDashboardStatistics } from '@/hooks/statics/use-query-student-dashboard-statistics'
@@ -18,6 +18,7 @@ import type { Grade } from '@/types/grade'
 import type { CreateInvoiceBody } from '@/services/invoice/post-invoice.service'
 import type { SectionKey, SelectedSchedule } from '../types/enrollment'
 import { useQueryMonthlyFeesValue } from '@/hooks/finance/use-query-monthly-fee'
+import { useQueryMesTemp } from '@/hooks/invoice/mes-temp.query'
 
 const MAX_OBS_LENGTH = 45
 const INVOICE_PROCESSING_DELAY_MS = 6000 // TODO: substituir por polling/callback do backend em vez de espera fixa
@@ -99,22 +100,21 @@ export function EnrollmentPostGraduationProvider({ children }: EnrollmentPostGra
     data: curriculumPlan,
     isLoading: isLoadingCurriculumPlan,
     isError: isErrorCurriculumPlan,
-  } = useFetchQueryCurriculum({
-    academicYear: currentAcademicYear?.codigo?.toString()!,
+  } = useFetchQueryCurriculumPos({
+    cycleCode: currentAcademicYear?.codigo!,
     preEnrollmentCode: Number(profileData?.preEnrollmentCode!),
-    newStudent: true,
-    semestre:1
   })
 
-  const grades = mapGrades(curriculumPlan?.gradesAFazer ?? [])
-  console.log({grades},'selectedSubjects')
+  const grades = mapGrades(curriculumPlan ?? [])
+  
   const { data: monthlyFeesValue } = useQueryMonthlyFeesValue({anoLetivo: parseFilter(currentAcademicYear?.codigo?.toString()),curso:parseFilter(profileData?.curso_candidatura.toString()),
     polo:1})
   const enrollmentStatus = useMemo(
     () => getEnrollmentStatus(enrollmentPeriod),
     [enrollmentPeriod],
   )
-  console.log({enrollmentStatus})
+
+  const { data: mesTemp } = useQueryMesTemp(currentAcademicYear?.codigo!, 1)
 
   const { prazoValido, foraDoPrazo, aindaNaoComecou } = useMemo(
     () => getStatusPrazo(enrollmentPeriod?.calendario),
@@ -211,9 +211,8 @@ export function EnrollmentPostGraduationProvider({ children }: EnrollmentPostGra
 
     const itens = [
       ...(enrollmentStatus === 'closed' && foraPrazo ? [createServiceItem(foraPrazo)] : []),
-      createServiceItem(monthlyFeesValue[0]!),
+      createServiceItem(monthlyFeesValue[0]!, mesTemp?.id),
     ]
-    
     const invoice: CreateInvoiceBody = {
       polo_id: profileData.poloid,
       TotalPreco: totalPagar,
@@ -233,11 +232,18 @@ export function EnrollmentPostGraduationProvider({ children }: EnrollmentPostGra
       codigo_anoLectivo: currentAcademicYear?.codigo!,
       itens,
     }
-
     return createInvoiceAsync(invoice)
   }
 
   const confirmStudentEnrollment = async () => {
+    if(!mesTemp?.id) {
+      toast.error('Não é possivel efectuar a matricula, entre em contacto com o suporte.')
+      return
+    }
+    if(monthlyFeesValue.length===0) {
+      toast.error('Não é possivel efectuar a matricula, entre em contacto com o suporte.')
+      return
+    }
     if (grades.length !== selectedSubjects.length) {
       toast.warning('Selecione todas as disciplinas obrigatórias.')
       return
@@ -326,7 +332,7 @@ interface ServiceItemData {
   preco: number | string
 }
 
-function createServiceItem<T extends ServiceItemData>(service: T) {
+function createServiceItem<T extends ServiceItemData>(service: T, mesTemp?:number) {
   const price = Number(service.preco)
 
   return {
@@ -344,7 +350,7 @@ function createServiceItem<T extends ServiceItemData>(service: T) {
     descontoProduto: 0,
     mes: '',
     multa: 0,
-    mesTempId: 1,
+    mesTempId: mesTemp ? mesTemp : undefined,
     estado: 0,
     valorPago: 0,
     valorATransportar: 0,

@@ -174,6 +174,10 @@ export const Dashboard = () => {
       month: 'short',
       year: 'numeric',
     })
+    const isMonthlyUnavailable =
+  !!profileData &&
+  ((podeConfirmar && profileData.sigla_tipo_candidatura === "LIC") ||
+    profileData.confirmacoes?.[0]?.estado === 0);
   if (!profileData) return <DashboardSkeleton />
 
   return (
@@ -189,8 +193,7 @@ export const Dashboard = () => {
   </div>
 </div>
 
-
-      {(profileData.estado_aluno !== "DIPLOMADO" && profileData?.confirmacoes?.length !== 0 &&  profileData?.confirmacoes[0]?.estado === 0 ) && (
+      {(profileData?.confirmacoes?.length > 0 &&  profileData?.confirmacoes[0]?.estado === 0 ) && (
         <Card className="border-l-4 border-l-amber-500 bg-amber-500/5">
           <CardContent className="p-5">
             <div className="flex items-start gap-4">
@@ -232,7 +235,7 @@ export const Dashboard = () => {
           </CardContent>
         </Card>
       )}
-   {conf?.informacoes.podeConfirmar && (
+   {conf?.informacoes.podeConfirmar && profileData.sigla_tipo_candidatura ==="LIC" && (
   <Card className="border-l-4 border-l-amber-500 bg-amber-500/5">
     <CardContent className="p-5">
       <div className="flex items-start gap-4">
@@ -243,7 +246,7 @@ export const Dashboard = () => {
           <div className="flex flex-wrap items-center gap-2">
             <Badge className="bg-amber-500 hover:bg-amber-500 text-white gap-1">
               <Hourglass className="h-3 w-3" />
-              Inscrição por confirmar
+              Inscrição por confirmar 
             </Badge>
             <span className="text-xs text-muted-foreground">
               Estado: <strong className="text-foreground">Pendente</strong>
@@ -274,7 +277,7 @@ export const Dashboard = () => {
     </CardContent>
   </Card>
 )}
-      {/* Estatísticas */}
+      Estatísticas
       <div className="grid gap-6 md:grid-cols-3">
 
         < WalletCard
@@ -287,7 +290,7 @@ export const Dashboard = () => {
           onClick={() => navigate('/financas')}
           enrollmentCode={profileData.enrollmentCode}
           selectedYear={confirmationYear}
-          unavailable={podeConfirmar}
+          unavailable={isMonthlyUnavailable}
         />
         <CompletedSubjectsCard enrollmentCode={profileData.enrollmentCode} />
       </div>

@@ -14,7 +14,7 @@ export function useSubmitCandidateExam(candidateId: number) {
                 queryKey: ["candidate-exam", candidateId],
             });
 
-            console.log("Sucesso:", data.message);
+            
         },
 
         onError: (error) => {
@@ -40,7 +40,7 @@ export function useSubmitCandidateExamFinal(candidateId: number) {
                 queryKey: ["info-gerais-candidatura"],
             });
 
-            console.log("Sucesso:", data.message);
+           
         },
 
         onError: (error) => {

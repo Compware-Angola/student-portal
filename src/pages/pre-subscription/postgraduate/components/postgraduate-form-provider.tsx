@@ -1,5 +1,5 @@
 'use client'
-console.log('Provider loaded')
+
 import { useForm, type UseFormReturn } from 'react-hook-form'
 import {
   preSubscriptionPostGraduateSchema,
