@@ -67,13 +67,13 @@ export function AcademicServices() {
     return () => clearTimeout(timeout)
   }, [searchInput])
 
-  const { data: academicYearData } = useQueryCurrentAcademicYear()
+ 
   const {
     profileData,
     isLoading: loadingProfile,
     isError: errorProfile,
   } = useQueryProfile()
-
+ const { data: academicYearData } = useQueryCurrentAcademicYear(profileData?.codigo_tipo_candidatura)
   const {
     data: servicesData,
     isLoading: loadingServices,

@@ -32,8 +32,9 @@ export function Schedule() {
   }, [defaultYear])
 
   const schedule = useMemo(() => organizarPorDia(scheduleData), [scheduleData])
-
+  
   return (
+
     <div className="space-y-6">
       <ScheduleHeader
         academicYears={academicYears}
@@ -42,7 +43,7 @@ export function Schedule() {
         schedule={schedule}
       />
       <ScheduleBody
-        isLoading={isLoadingProfile || isLoadingSchedule || !defaultYear}
+        isLoading={isLoadingProfile || isLoadingSchedule}
         isError={isErrorProfile || isErrorSchedule}
         errorMessage={errorProfile?.message}
         schedule={schedule}

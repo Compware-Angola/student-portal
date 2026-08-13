@@ -1,5 +1,5 @@
 'use client'
-console.log('Provider loaded')
+
 import { useForm, type UseFormReturn } from 'react-hook-form'
 import {
   preSubscriptionPostGraduateSchema,
@@ -175,7 +175,7 @@ export function FormPreSubscriptionPostGraduateProvider({
       const payload = buildInscricaoPayload(data, docs)
       await createPreInscricaoAsync(payload)
     },
-    [],
+    [currentAcademicYear?.codigo],
   )
 
   const handleNextOrSubmit = React.useCallback(async () => {

@@ -16,10 +16,9 @@ import { MensagensNotificacoes } from '@/pages/MensagensNotificacoes'
 import { Suporte } from '@/pages/Suporte'
 import { DisciplinasMatriculadas } from '@/pages/DisciplinasMatriculadas'
 import { NotaPagamento } from '@/pages/NotaPagamento'
-import { useStudentSituation } from '@/hooks/use-student-stitiation'
-import { getEnrollmentRoute } from '@/utils/map-student-situation'
+
 import { RegistrationsUC } from '@/pages/registrationsUC'
-import { useMemo, type JSX } from 'react'
+import { type JSX } from 'react'
 import { Comunicado } from '@/pages/login/Comunicado'
 import NotificacoesPage from '@/pages/notification/notificacoes-page'
 import { getHomeRoute, routePermissions } from './permission'
@@ -30,19 +29,11 @@ import { PrePayment } from '@/pages/pre-payment'
 import { InscriçõesRecurosPage } from '@/pages/assessments/recuros'
 import { InscriçõesEspecial } from '@/pages/assessments/especial'
 import { Enrollment } from '@/pages/enrollment'
+import { EnrollmentPostGraduation } from '@/pages/enrollment-postgraduation'
 
 export function MainRoutes() {
-  const { isLoading, hasEnrolmentCode } = useStudentSituation()
-  const enrollmentComponents: Record<string, JSX.Element> = useMemo(
-    () => ({
-      '/inscricao-uc': <RegistrationsUC />,
-      '/matricula': <Enrollment />,
-    }),
-    [],
-  )
-  if (isLoading) return null
 
-  const enrollmentPath = getEnrollmentRoute(hasEnrolmentCode)
+
 
   return (
     <Route>
@@ -79,12 +70,42 @@ export function MainRoutes() {
             </RequireStudentRoute>
           }
         />
-        {/* TODO:PROVISORIO  */}
-        <Route
+        {/* TODO:PROVISORIO
+
+        '/inscricao-uc': <RegistrationsUC />,
+      '/matricula': <Enrollment />,
+
+        */}
+        {/* <Route
           path={enrollmentPath.slice(1)}
           element={
             <RequireStudentRoute>
               {enrollmentComponents[enrollmentPath]}
+            </RequireStudentRoute>
+            matricula-pos-graduacao'
+          }
+        /> */}
+         <Route
+          path="/inscricao-uc"
+          element={
+            <RequireStudentRoute>
+              <RegistrationsUC/>
+            </RequireStudentRoute>
+          }
+        />
+        <Route
+          path="/matricula"
+          element={
+            <RequireStudentRoute>
+              <Enrollment/>
+            </RequireStudentRoute>
+          }
+        />
+        <Route
+          path="/matricula-pos-graduacao"
+          element={
+            <RequireStudentRoute>
+              <EnrollmentPostGraduation/>
             </RequireStudentRoute>
           }
         />

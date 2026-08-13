@@ -78,7 +78,7 @@ export function EnrollmentProvider({ children }: EnrollmentProviderProps) {
     data: currentAcademicYear,
     isError: isErrorAcademicYear,
     isLoading: isLoadingAcademicYear,
-  } = useQueryCurrentAcademicYear()
+  } = useQueryCurrentAcademicYear(profileData?.codigo_tipo_candidatura)
 
   const { data: taxaMatricula } = useTypeServiceSingle({
     currentYearCode: Number(currentAcademicYear?.codigo),

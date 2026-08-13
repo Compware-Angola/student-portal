@@ -8,6 +8,7 @@ import { useEffect, useMemo } from 'react'
 import { useQueryTipoCandidatura } from '@/hooks/dropdowns/use-query-tipo-candidatura'
 import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { FacultySelect } from '@/components/selects/FacultySelect'
+import { usePoloDropdown } from '@/hooks/dropdowns/use-query-polo'
 const GRADUATION_TYPE = {
   Mestrado: '2',
   Doutoramento: '3',
@@ -64,9 +65,22 @@ export function AcademicDocumentPostGraduate() {
       label: t.designacao,
       value: String(t.codigo),
     })) ?? []
-
+  const { data: polos } = usePoloDropdown()
+  const poloOptions =
+    polos?.map((t) => ({
+      label: t.designacao,
+      value: String(t.id),
+    })) ?? []
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+       <SelectFormField
+          placeholder="Selecione Polo"
+          control={form.control}
+          fullWidth
+          name="pole"
+          label="Polo"
+          items={poloOptions.filter((p) => p.value !== "3" && p.value !== "4")}
+        />
       <SelectFormField
         name="intendedGraduation"
         placeholder="Tipo de Candidatura"

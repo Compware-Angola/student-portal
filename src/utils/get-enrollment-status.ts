@@ -8,6 +8,7 @@ import type { FetchEnrollmentPeriodStudentsOldResponse } from '@/services/prazos
  * Determina o estado da matrícula com base nas datas
  */
 export function getEnrollmentStatus(data: FetchEnrollmentPeriodStudentsOldResponse | undefined | null) {
+ 
   if (!data || !data?.calendario?.length) {
     return EnrollmentStatus.CLOSED
   }

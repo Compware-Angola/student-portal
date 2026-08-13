@@ -6,8 +6,13 @@ import {
 } from '@/services/type-service/type-service.service'
 import { useQuery } from '@tanstack/react-query'
 
+
 const FIVE_MINUTES = 5 * 60 * 1000
-export function useTypeService(params?: GetTypeServiceParams, enabled = true) {
+
+export function useTypeService(
+  params?: GetTypeServiceParams,
+  enabled = true,
+) {
   return useQuery<TypeServiceResponse[]>({
     queryKey: ['type-service', params],
     queryFn: async () => await getTypeService(params),
@@ -15,19 +20,45 @@ export function useTypeService(params?: GetTypeServiceParams, enabled = true) {
     enabled,
   })
 }
+
+
+type ServiceTypeWithDetails = {
+  readonly sigla: string
+  readonly description: string
+}
+
+
 type ServicePairs = {
-  [K in keyof typeof SERVICE_TYPES]: {
-    sigla: (typeof SERVICE_TYPES)[K]['sigla']
-    description: (typeof SERVICE_TYPES)[K]['description']
-  }
+  [K in keyof typeof SERVICE_TYPES]:
+    (typeof SERVICE_TYPES)[K] extends ServiceTypeWithDetails
+      ? {
+          sigla: (typeof SERVICE_TYPES)[K]['sigla']
+          description: (typeof SERVICE_TYPES)[K]['description']
+        }
+      : never
 }[keyof typeof SERVICE_TYPES]
 
-type TypeServiceSingleParams = ServicePairs & { currentYearCode: number }
 
-export function useTypeServiceSingle(params: TypeServiceSingleParams) {
-  const { currentYearCode, description, sigla } = params
+type TypeServiceSingleParams = ServicePairs & {
+  currentYearCode: number
+}
 
-  const { data, isLoading, error } = useTypeService(
+
+export function useTypeServiceSingle(
+  params: TypeServiceSingleParams,
+) {
+  const {
+    currentYearCode,
+    description,
+    sigla,
+  } = params
+
+
+  const {
+    data,
+    isLoading,
+    error,
+  } = useTypeService(
     {
       codigoAnoLectivo: currentYearCode,
       descricao: description,
@@ -36,6 +67,7 @@ export function useTypeServiceSingle(params: TypeServiceSingleParams) {
     },
     Boolean(currentYearCode),
   )
+
 
   return {
     data: data?.[0] ?? null,

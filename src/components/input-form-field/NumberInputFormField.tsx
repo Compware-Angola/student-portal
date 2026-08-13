@@ -32,22 +32,34 @@ export function NumberInputFormField<T extends FieldValues>(
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          {label && <FormLabel>{label}</FormLabel>}
+
           <FormControl>
             <div className="relative">
-              {Icon && <Icon />}
+              {Icon && (
+                <Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              )}
 
               <Input
-                {...field}
+                name={field.name}
+                ref={field.ref}
                 value={field.value ?? ''}
+                onBlur={field.onBlur}
                 onChange={(e) => {
-                  const raw = e.target.value
-                  if (raw === '') {
-                    field.onChange(undefined)
+                  const value = e.target.value
+
+                  // Permite apagar completamente o valor
+                  if (value === '') {
+                    field.onChange('')
                     return
                   }
-                  const parsed = Number(raw)
-                  field.onChange(Number.isNaN(parsed) ? raw : parsed)
+
+                  // Converte para número
+                  const numberValue = Number(value)
+
+                  if (!Number.isNaN(numberValue)) {
+                    field.onChange(numberValue)
+                  }
                 }}
                 type="number"
                 min={min}
@@ -56,8 +68,8 @@ export function NumberInputFormField<T extends FieldValues>(
                 disabled={disabled}
                 placeholder={placeholder}
                 className={cn(
-                  'h-11 px-10 rounded-lg bg-slate-50 border-slate-200',
-                  Icon ? 'pl-10' : '',
+                  'h-11 rounded-lg bg-slate-50 border-slate-200',
+                  Icon ? 'pl-10' : 'px-4',
                 )}
               />
             </div>
