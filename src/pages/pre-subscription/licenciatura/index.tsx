@@ -79,7 +79,7 @@ export function PreSubscriptionLicenciatura() {
               </CardTitle>
 
               <CardDescription>
-                Consulte e baixe os tópicos do exame de acesso para o ano letivo
+                Consulte e baixe o tópico do exame de acesso para o ano letivo
                 atual.
               </CardDescription>
             </div>
