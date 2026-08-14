@@ -1,196 +1,297 @@
 import {
   FormPreSubscriptionProvider,
   useFormPreSubscriptionForm,
-} from "./components/form-provider";
-import { ProgressBar } from "./components/progress-bar";
+} from './components/form-provider'
+import { ProgressBar } from './components/progress-bar'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Form } from "@/components/ui/form";
-import { SpepNavigation } from "./components/spep-navigation";
-import { Label } from "@/components/ui/label";
-import { Download, FileText } from "lucide-react";
-import { useState } from "react";
+} from '@/components/ui/card'
+import { Form } from '@/components/ui/form'
+import { SpepNavigation } from './components/spep-navigation'
+import { Label } from '@/components/ui/label'
+import { Download, FileText, Loader2 } from 'lucide-react'
+import { useState } from 'react'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/select'
+import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
 
+import { useQueryAcademicYear } from '@/hooks/academic-year/use-query-academic-year'
+import { useQueryTopicoByAnoLetivo } from '@/hooks/topic/use-query-topico'
+import { useGetFileUrl } from '@/hooks/upload/use-upload'
+import type { Topico } from '@/services/topic/topic-service.service'
 
-const mockTopicos = [
-  {
-    id: 1,
-    anoLetivoId: 25,
-    anoLetivo: "2025/2026",
-    designacao: "Tópicos do Exame de Acesso — 2025/2026",
-    arquivo: "topicos-exame-acesso-2025-2026.pdf",
-    arquivoUrl: "/mock/topicos/topicos-exame-acesso-2025-2026.pdf",
-  },
-  {
-    id: 2,
-    anoLetivoId: 24,
-    anoLetivo: "2024/2025",
-    designacao: "Tópicos do Exame de Acesso — 2024/2025",
-    arquivo: "topicos-exame-acesso-2024-2025.pdf",
-    arquivoUrl: "/mock/topicos/topicos-exame-acesso-2024-2025.pdf",
-  },
-  {
-    id: 3,
-    anoLetivoId: 23,
-    anoLetivo: "2023/2024",
-    designacao: "Tópicos do Exame de Acesso — 2023/2024",
-    arquivo: "topicos-exame-acesso-2023-2024.pdf",
-    arquivoUrl: "/mock/topicos/topicos-exame-acesso-2023-2024.pdf",
-  },
-];
+function getTopicFileName(topico: Topico): string {
+  if (topico.arquivo) {
+    const basename = topico.arquivo.split('/').pop()
+
+    if (basename) {
+      return basename
+    }
+  }
+
+  const anoLetivo = (topico.ano_letivo ?? '').replace('/', '-')
+
+  return `topicos-exame-acesso-${anoLetivo}.pdf`
+}
+
 export function PreSubscriptionLicenciatura() {
+  const { data: academicYearData, isLoading: isLoadingAcademicYears } =
+    useQueryAcademicYear()
 
+  const academicYears = academicYearData?.anolectivos ?? []
 
-  const [selectedAnoLetivo, setSelectedAnoLetivo] = useState<string>("");
+  const [selectedAnoLetivo, setSelectedAnoLetivo] = useState<string>('')
 
-const selectedTopico = mockTopicos.find(
-  (topico) => String(topico.anoLetivoId) === selectedAnoLetivo,
-);
+  /**
+   * The Select stores the academic year's CODIGO.
+   *
+   * Example:
+   * "25" -> 2025/2026
+   */
+  const anoLetivoId = selectedAnoLetivo ? Number(selectedAnoLetivo) : undefined
 
-const handleDownload = () => {
-  if (!selectedTopico) return;
+  /**
+   * Fetch the topic whenever the student selects
+   * an academic year.
+   */
+  const {
+    data: selectedTopico,
+    isLoading: isLoadingTopico,
+    isError: isErrorTopico,
+  } = useQueryTopicoByAnoLetivo(anoLetivoId)
 
-  window.open(selectedTopico.arquivoUrl, "_blank");
-};
-    return (
-      <div className="space-y-6">
+  const { mutateAsync: getFileUrlAsync } = useGetFileUrl()
+  const [isDownloading, setIsDownloading] = useState(false)
 
-      <div className="space-y-6">
-  {/* <div>
-    <h1 className="text-3xl font-bold tracking-tight">
-      Tópicos
-    </h1>
+  const handleDownload = async () => {
+    if (!selectedTopico?.arquivo || isDownloading) {
+      return;
+    }
 
-    <p className="mt-2 text-muted-foreground">
-      Consulte e faça o download dos tópicos para preparação do exame de
-      acesso.
-    </p>
-  </div> */}
+    setIsDownloading(true);
 
-  <Card className="overflow-hidden">
-    <CardHeader className="border-b">
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-          <FileText className="h-5 w-5" />
-        </div>
+    try {
+      const { url } = await getFileUrlAsync({
+        key: selectedTopico.arquivo,
+        expiry: 3600,
+      });
 
-        <div>
-          <CardTitle className="text-xl">
-            Tópicos do Exame de Acesso
-          </CardTitle>
+      window.open(url, "_blank");
+    } catch (error) {
+      console.error("Erro ao baixar tópico:", error);
+      toast.error("Não foi possível baixar o tópico. Tente novamente.");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
-          <CardDescription>
-            Selecione o ano letivo para consultar o respetivo tópico.
-          </CardDescription>
-        </div>
-      </div>
-    </CardHeader>
-
-    <CardContent className="space-y-6 pt-6">
-      <div className="max-w-md space-y-2">
-        <Label htmlFor="ano-letivo">
-          Ano Letivo
-        </Label>
-
-        <Select
-          value={selectedAnoLetivo}
-          onValueChange={setSelectedAnoLetivo}
-        >
-          <SelectTrigger id="ano-letivo" className="h-11">
-            <SelectValue placeholder="Selecione o ano letivo" />
-          </SelectTrigger>
-
-          <SelectContent>
-            {mockTopicos.map((topico) => (
-              <SelectItem
-                key={topico.id}
-                value={String(topico.anoLetivoId)}
-              >
-                {topico.anoLetivo}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {selectedTopico && (
-        <div className="rounded-lg border bg-muted/30 p-4">
-          <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-background border">
-              <FileText className="h-4 w-4" />
+  return (
+    <div className="space-y-6">
+      {/* =====================================================
+          TÓPICOS DO EXAME DE ACESSO
+          ===================================================== */}
+      <Card className="overflow-hidden">
+        <CardHeader className="border-b">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+              <FileText className="h-5 w-5" />
             </div>
 
-            <div className="min-w-0 flex-1">
-              <p className="font-medium">
-                {selectedTopico.designacao}
-              </p>
+            <div>
+              <CardTitle className="text-xl">
+                Tópicos do Exame de Acesso
+              </CardTitle>
 
-              <p className="mt-1 text-sm text-muted-foreground">
-                {selectedTopico.arquivo}
-              </p>
+              <CardDescription>
+                Selecione o ano letivo para consultar e baixar os respetivos
+                tópicos.
+              </CardDescription>
             </div>
           </div>
-        </div>
-      )}
+        </CardHeader>
 
-      <div className="pt-1">
-        <Button
-          type="button"
-          onClick={handleDownload}
-          disabled={!selectedTopico}
-          className="gap-2"
-        >
-          <Download className="h-4 w-4" />
-          Baixar Tópico
-        </Button>
+        <CardContent className="space-y-6 pt-6">
+          {/* =================================================
+              ANO LETIVO
+              ================================================= */}
+          <div className="max-w-md space-y-2">
+            <Label htmlFor="ano-letivo">Ano Letivo</Label>
+
+            <Select
+              value={selectedAnoLetivo}
+              onValueChange={setSelectedAnoLetivo}
+              disabled={isLoadingAcademicYears}
+            >
+              <SelectTrigger id="ano-letivo" className="h-11 w-full">
+                <SelectValue
+                  placeholder={
+                    isLoadingAcademicYears
+                      ? 'A carregar anos letivos...'
+                      : 'Selecione o ano letivo'
+                  }
+                />
+              </SelectTrigger>
+
+              <SelectContent>
+                {academicYears.map((ano) => (
+                  <SelectItem key={ano.codigo} value={String(ano.codigo)}>
+                    {ano.designacao}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* =================================================
+              LOADING TOPIC
+              ================================================= */}
+          {selectedAnoLetivo && isLoadingTopico && (
+            <div className="rounded-lg border bg-muted/30 p-4">
+              <div className="flex items-center gap-3">
+                <FileText className="h-4 w-4 animate-pulse" />
+
+                <p className="text-sm text-muted-foreground">
+                  A carregar tópico...
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* =================================================
+              TOPIC FOUND
+              ================================================= */}
+          {selectedAnoLetivo &&
+            !isLoadingTopico &&
+            !isErrorTopico &&
+            selectedTopico && (
+              <div className="rounded-lg border bg-muted/30 p-4">
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md border bg-background">
+                    <FileText className="h-4 w-4" />
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium">{selectedTopico.designacao}</p>
+
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {selectedTopico.arquivo
+                        ? 'Documento disponível para download'
+                        : 'Documento indisponível para download'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+          {/* =================================================
+              TOPIC ERROR
+              ================================================= */}
+          {selectedAnoLetivo && !isLoadingTopico && isErrorTopico && (
+            <div className="rounded-lg border border-destructive/30 p-4">
+              <div className="flex items-center gap-3">
+                <FileText className="h-4 w-4 text-destructive" />
+
+                <p className="text-sm text-destructive">
+                  Ocorreu um erro ao carregar o tópico. Tente novamente.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* =================================================
+              NO TOPIC
+              ================================================= */}
+          {selectedAnoLetivo &&
+            !isLoadingTopico &&
+            !isErrorTopico &&
+            !selectedTopico && (
+              <div className="rounded-lg border border-dashed p-4">
+                <div className="flex items-center gap-3">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+
+                  <p className="text-sm text-muted-foreground">
+                    Não existem tópicos disponíveis para o ano letivo
+                    selecionado.
+                  </p>
+                </div>
+              </div>
+            )}
+
+          {/* =================================================
+              DOWNLOAD
+              ================================================= */}
+          <div className="pt-1">
+            <Button
+              type="button"
+              onClick={handleDownload}
+              disabled={
+                !selectedTopico?.arquivo || isLoadingTopico || isDownloading
+              }
+              className="gap-2"
+            >
+              {isDownloading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4" />
+              )}
+
+              {isDownloading ? 'A baixar...' : 'Baixar Tópico'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* =====================================================
+          FORMULÁRIO DE CANDIDATURAS
+          ===================================================== */}
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Formulário de Candidaturas
+        </h1>
+
+        <p className="mt-2 text-muted-foreground">
+          Preencha o formulário para realizar a pré-inscrição ao exame de acesso
+        </p>
       </div>
-    </CardContent>
-  </Card>
-</div>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Formulário de Candidaturas
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Preencha o formulário para realizar a pré-inscrição ao exame de
-            acesso
-          </p>
-        </div>
-        <FormPreSubscriptionProvider>
-          <Licenciatura />
-        </FormPreSubscriptionProvider>
-      </div>
-    )
+
+      <FormPreSubscriptionProvider>
+        <Licenciatura />
+      </FormPreSubscriptionProvider>
+    </div>
+  )
 }
 
 function Licenciatura() {
   const { steps, currentStep, form, onSubmit } = useFormPreSubscriptionForm()
+
   const StepComponent = steps[currentStep].component
+
   return (
     <>
       <ProgressBar />
+
       <Card>
         <CardHeader>
           <CardTitle>{steps[currentStep].title}</CardTitle>
+
           <CardDescription>{steps[currentStep].description}</CardDescription>
         </CardHeader>
+
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <StepComponent/>
+              <StepComponent />
+
               <SpepNavigation />
             </form>
           </Form>
