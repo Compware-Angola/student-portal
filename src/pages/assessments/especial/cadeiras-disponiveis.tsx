@@ -114,6 +114,7 @@ export function CadeirasDisponiveis() {
   function handleInscricaoEpocaEspecial() {
     if (!enrollmentCode) return
     mutateInscricaoEpocaEspecial({
+      tipoCandidatura:profileData?.codigo_tipo_candidatura!,
       codigoMatricula: enrollmentCode,
       gradesAlunos: selectedCadeiras.map((c) => ({
         codigoGradeAluno: c.codigoGradeAluno,

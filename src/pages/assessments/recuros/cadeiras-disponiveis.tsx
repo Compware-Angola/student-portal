@@ -114,6 +114,7 @@ export function CadeirasDisponiveis() {
     if (!enrollmentCode) return
     mutateInscricaoRecuro({
       codigoMatricula: enrollmentCode,
+      tipoCandidatura:profileData?.codigo_tipo_candidatura!,
       gradesAlunos: selectedCadeiras.map((c) => ({
         codigoGradeAluno: c.codigoGradeAluno,
         codigoGrade: c.codigoGrade,
@@ -261,6 +262,7 @@ export function CadeirasDisponiveis() {
                     disabled={
                       !enrollmentCode ||
                       selectedCadeiras.length === 0 ||
+                      !profileData?.codigo_tipo_candidatura||
                       isPendingInscricaoRecuro
                     }
                     onClick={handleInscricaoRecuro}

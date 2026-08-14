@@ -106,7 +106,7 @@ export function EnrollmentPostGraduationProvider({ children }: EnrollmentPostGra
   })
 
   const grades = mapGrades(curriculumPlan ?? [])
-  
+
   const { data: monthlyFeesValue } = useQueryMonthlyFeesValue({anoLetivo: parseFilter(currentAcademicYear?.codigo?.toString()),curso:parseFilter(profileData?.curso_candidatura.toString()),
     polo:1})
   const enrollmentStatus = useMemo(
@@ -128,12 +128,12 @@ export function EnrollmentPostGraduationProvider({ children }: EnrollmentPostGra
 
   const maxCourseGrade = Number(profileData?.max_cadeiras_curso)
 
-  
+
   useEffect(() => {
     if (grades.length > 0 && selectedSubjects.length === 0) {
-     
+
       setSelectedSubjects([...grades])
-     
+
     }
   }, [grades, selectedSubjects.length])
 
@@ -197,7 +197,7 @@ export function EnrollmentPostGraduationProvider({ children }: EnrollmentPostGra
 
   // ----- Valores -----
 
-  
+
   const firstMonthlyFee = Number(monthlyFeesValue[0]?.preco)
   const foraPrazoValue = enrollmentStatus === 'closed' ? (foraPrazo?.preco ?? 0) : 0
   const totalPagar = firstMonthlyFee + foraPrazoValue
@@ -283,7 +283,7 @@ export function EnrollmentPostGraduationProvider({ children }: EnrollmentPostGra
         totalPagar,
         selectedSubjects,
         isErrorProfileData,
-        prazoValido, foraDoPrazo, aindaNaoComecou ,
+        prazoValido, foraDoPrazo, aindaNaoComecou,
         isErrorStudentCurriculumPlan: isErrorCurriculumPlan,
         isLoadingProfileData,
         isLoadingStudentCurriculumPlan: isLoadingCurriculumPlan,
