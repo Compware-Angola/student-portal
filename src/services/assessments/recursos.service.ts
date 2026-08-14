@@ -45,15 +45,17 @@ export type GradeRecursoAluno = {
 
 export type InscricaoRecursoPayload = {
   codigoMatricula: number
+  tipoCandidatura:number
   gradesAlunos: GradeRecursoAluno[]
 }
 
 export function inscreverRecurso({
+  tipoCandidatura,
   codigoMatricula,
   gradesAlunos,
 }: InscricaoRecursoPayload) {
   return gaApi
-    .post(`students/provas/recurso/${codigoMatricula}`, {
+    .post(`students/provas/recurso/${codigoMatricula}/${tipoCandidatura}`, {
       json: { gradesAlunos },
     })
     .json<void>()
@@ -100,15 +102,17 @@ export function getCadeirasEpocaEspecialInscritas({
 
 export type InscricaoEpocaEspecialPayload = {
   codigoMatricula: number
+  tipoCandidatura:number
   gradesAlunos: GradeRecursoAluno[]
 }
 
 export function inscreverEpocaEspecial({
+  tipoCandidatura,
   codigoMatricula,
   gradesAlunos,
 }: InscricaoEpocaEspecialPayload) {
   return gaApi
-    .post(`students/provas/epoca-especial/${codigoMatricula}`, {
+    .post(`students/provas/epoca-especial/${codigoMatricula}/${tipoCandidatura}`, {
       json: { gradesAlunos },
     })
     .json<void>()
