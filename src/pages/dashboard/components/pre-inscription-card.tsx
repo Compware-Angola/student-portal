@@ -14,6 +14,11 @@ import { handleDownload as handleDownloadFicha } from '@/components/uma-ficha-in
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useQueryPreInscricaoFicha } from '@/hooks/pre-registation/use-query-pre-registration'
 import { useQueryInfoGeraisCandidatura } from '@/hooks/pre-registation/use-query-info-gerais-candidatura'
+import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
+import { useQueryTopicoByAnoLetivo } from '@/hooks/topic/use-query-topico'
+import { useGetFileUrl } from '@/hooks/upload/use-upload'
+import { toast } from 'sonner'
+import { useState } from 'react'
 import { StudentStatus } from '@/enums/student.status.enum'
 const MESSAGES = {
   [StudentStatus.PREINSCRITO_MESTRADO_POS_GRADUACAO]: {
@@ -41,6 +46,36 @@ const PreInscriptionCard = () => {
   console.table(profileData)
   const showModal = () =>
     !isLoadingInfo && !isErrorInfo && !info?.payments?.has_invoice
+
+  const { data: currentAcademicYear } = useQueryCurrentAcademicYear(
+    profileData?.codigo_tipo_candidatura,
+  )
+  const { data: selectedTopico, isLoading: isLoadingTopico } =
+    useQueryTopicoByAnoLetivo(currentAcademicYear?.codigo)
+  const { mutateAsync: getFileUrlAsync } = useGetFileUrl()
+  const [isDownloading, setIsDownloading] = useState(false)
+
+  const handleDownloadTopico = async () => {
+    if (!selectedTopico?.arquivo || isDownloading) {
+      return
+    }
+
+    setIsDownloading(true)
+
+    try {
+      const { url } = await getFileUrlAsync({
+        key: selectedTopico.arquivo,
+        expiry: 3600,
+      })
+
+      window.open(url, '_blank')
+    } catch (error) {
+      console.error('Erro ao baixar tópico:', error)
+      toast.error('Não foi possível baixar o tópico. Tente novamente.')
+    } finally {
+      setIsDownloading(false)
+    }
+  }
 
   const documentosPreInscricao = [
     {
@@ -90,6 +125,20 @@ const PreInscriptionCard = () => {
         link.download = 'regulamento-academico.pdf'
         link.click()
       },
+    },
+
+    {
+      id: 5,
+      title: 'Tópicos do Exame de Acesso',
+      description: isLoadingTopico
+        ? 'A carregar tópico do ano letivo atual...'
+        : selectedTopico?.arquivo
+          ? 'Baixe o tópico do exame de acesso para o ano letivo atual.'
+          : 'Não existem tópicos disponíveis para o ano letivo atual.',
+      icon: FileText,
+      file: selectedTopico?.arquivo ?? '',
+      tag: 'Oficial',
+      action: handleDownloadTopico,
     },
     /*
  {
