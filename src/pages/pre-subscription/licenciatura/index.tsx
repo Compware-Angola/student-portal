@@ -28,21 +28,8 @@ import { toast } from 'sonner'
 import { useQueryAcademicYear } from '@/hooks/academic-year/use-query-academic-year'
 import { useQueryTopicoByAnoLetivo } from '@/hooks/topic/use-query-topico'
 import { useGetFileUrl } from '@/hooks/upload/use-upload'
-import type { Topico } from '@/services/topic/topic-service.service'
 
-function getTopicFileName(topico: Topico): string {
-  if (topico.arquivo) {
-    const basename = topico.arquivo.split('/').pop()
 
-    if (basename) {
-      return basename
-    }
-  }
-
-  const anoLetivo = (topico.ano_letivo ?? '').replace('/', '-')
-
-  return `topicos-exame-acesso-${anoLetivo}.pdf`
-}
 
 export function PreSubscriptionLicenciatura() {
   const { data: academicYearData, isLoading: isLoadingAcademicYears } =
