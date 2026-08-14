@@ -63,3 +63,14 @@ export async function fetchCurriculumPlanService(
     })
     .json<FecthCurriculumPlanGradesResponse>()
 }
+
+export async function fetchCurriculumPlanPosService({preEnrollmentCode, cycleCode}: {preEnrollmentCode: number, cycleCode: number}) {
+  const searchParams = new URLSearchParams()
+  searchParams.append('codigoPreInscricao', preEnrollmentCode.toString())
+  searchParams.append('codigoCiclo', cycleCode.toString())
+  return gaApi
+    .get('students/hanging-railings-and-to-be-made/pos', {
+      searchParams
+    })
+    .json<Grade[]>()
+}

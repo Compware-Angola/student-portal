@@ -38,8 +38,7 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
     ...presetTypeService(Number(profileData?.codigo_tipo_candidatura)),
   })
 
-  console.log("Buscar TAxa",currentAcademicYearGetTaxa)
-  console.log("Ano ",currentAcademicYear)
+
 
   const { createInvoiceAsync, createInvoicePending } =
     useMutationCreateInvoice()
@@ -80,7 +79,7 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
     try {
       const totalApagar = taxaAdmissao?.preco
       const item = createItem(taxaAdmissao)
-        console.log({ taxaAdmissao, totalApagar, item, currentAcademicYear, profileData })
+     
     if (!totalApagar || !item) {
       toast.error('Dados da taxa ainda não carregados, tenta novamente')
       return
@@ -138,10 +137,15 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
             Se concorda clique em concordo, Se não, não poderá efectuar o
             pagamento
           </p>
-          <div className="flex justify-end">
+         <div className="flex flex-col items-end gap-2">
+            {!taxaAdmissao && (
+              <p className="text-xs text-red-500">
+                Taxa de admissão ainda não disponível. Aguarde o carregamento.
+              </p>
+            )}
             <Button
               onClick={() => handleFactura()}
-              disabled={createInvoicePending}
+              disabled={createInvoicePending || !taxaAdmissao}
             >
               {createInvoicePending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

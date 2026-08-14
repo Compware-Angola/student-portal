@@ -8,13 +8,13 @@ export function useSubmitCandidateExam(candidateId: number) {
     return useMutation<SubmitExamResponse, Error, SubmitExamRequest>({
         mutationFn: (payload) => submitCandidateExam(candidateId, payload),
 
-        onSuccess: (data) => {
+        onSuccess: () => {
             // atualiza ou invalida o exame do candidato
             queryClient.invalidateQueries({
                 queryKey: ["candidate-exam", candidateId],
             });
 
-            console.log("Sucesso:", data.message);
+            
         },
 
         onError: (error) => {
@@ -31,7 +31,7 @@ export function useSubmitCandidateExamFinal(candidateId: number) {
     return useMutation<SubmitExamResponse, Error, { provaId: number }>({
         mutationFn: ({ provaId }) => submitCandidateExamFinal(candidateId, provaId),
 
-        onSuccess: (data) => {
+        onSuccess: () => {
 
             queryClient.invalidateQueries({
                 queryKey: ["candidate-exam", candidateId],
@@ -40,7 +40,7 @@ export function useSubmitCandidateExamFinal(candidateId: number) {
                 queryKey: ["info-gerais-candidatura"],
             });
 
-            console.log("Sucesso:", data.message);
+           
         },
 
         onError: (error) => {

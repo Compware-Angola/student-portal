@@ -5,7 +5,7 @@ import {
 import { useQuery } from '@tanstack/react-query'
 
 export function useQueryAcademicYearStudent(enrollmentCode?: string) {
-  console.log('enrollmentCode',enrollmentCode)
+ 
   const { data, isLoading, error, isError } = useQuery<AdemicsYear>({
     queryKey: ['academic-year-student'],
     queryFn: () => {

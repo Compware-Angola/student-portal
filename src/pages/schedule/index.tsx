@@ -32,7 +32,7 @@ export function Schedule() {
   }, [defaultYear])
 
   const schedule = useMemo(() => organizarPorDia(scheduleData), [scheduleData])
-  console.log({ isLoadingProfile, isLoadingSchedule, defaultYear, enrollmentCode, academicYears })
+  
   return (
 
     <div className="space-y-6">

@@ -28,7 +28,7 @@ const MAX_OBS_LENGTH      = 45;      // limite exato da coluna OBS na BD
 const caminhoEntrada = path.join(__dirname, ARQUIVO_ENTRADA);
 const caminhoSaida   = path.join(__dirname, ARQUIVO_SAIDA);
 
-console.log('📄 Lendo arquivo:', ARQUIVO_ENTRADA);
+
 
 const registros = [];
 
@@ -36,8 +36,7 @@ fs.createReadStream(caminhoEntrada)
   .pipe(csv())
   .on('data', (linha) => registros.push(linha))
   .on('end', async () => {
-    console.log(\nTotal de linhas lidas: ${registros.length});
-    console.log('🚀 A criar faturas na API... (10s entre cada matrícula)\n');
+
 
     // Para testes: apenas 2 registos → depois muda para registros.length
     for (let i = 0; i < Math.min(500, registros.length); i++) {
@@ -52,7 +51,7 @@ fs.createReadStream(caminhoEntrada)
 
       if (!matricula || !preinscricao || isNaN(Number(matricula)) || isNaN(Number(preinscricao))) {
         reg.STATUS_FACTURA = 'FALTA_DADOS';
-        console.log('❌ Dados inválidos');
+        
         continue;
       }
 
@@ -112,10 +111,9 @@ fs.createReadStream(caminhoEntrada)
           };
         });
 
-        console.log(` (${numDisciplinas} disciplinas encontradas)`);
+        
 
       } catch (errDisc) {
-        console.log('⚠️ Falha ao buscar disciplinas →', errDisc.message);
         reg.STATUS_FACTURA = 'ERRO_DISCIPLINAS';
         reg.ERRO_DETALHE = errDisc.message || 'sem detalhe';
         continue;
@@ -183,7 +181,7 @@ fs.createReadStream(caminhoEntrada)
         reg.QTD_DISCIPLINAS  = numDisciplinas;
         reg.VALOR_TOTAL      = totalPreco;
 
-        console.log(✅ OK  (Total: ${totalPreco.toLocaleString('pt-AO')} - ${numDisciplinas} disc.));
+       
 
       } catch (err) {
         reg.STATUS_FACTURA = 'ERRO';
@@ -193,7 +191,7 @@ fs.createReadStream(caminhoEntrada)
           err.message ||
           'erro desconhecido';
 
-        console.log('❌ ERRO');
+       
         console.error('   →', reg.ERRO_DETALHE);
       }
 
@@ -225,11 +223,7 @@ fs.createReadStream(caminhoEntrada)
 
     await csvWriter.writeRecords(registros);
 
-    console.log('\n=============================');
-    console.log('✅ CONCLUÍDO!');
-    console.log(📁 Arquivo gerado: ${ARQUIVO_SAIDA});
-    console.log(📊 Total processado: ${registros.length} linhas);
-    console.log('=============================\n');
+  
   })
   .on('error', err => {
     console.error('Erro ao ler o CSV de entrada:', err.message);
