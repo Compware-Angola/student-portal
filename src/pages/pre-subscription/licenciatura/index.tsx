@@ -15,72 +15,51 @@ import { SpepNavigation } from './components/spep-navigation'
 import { Label } from '@/components/ui/label'
 import { Download, FileText, Loader2 } from 'lucide-react'
 import { useState } from 'react'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 
-import { useQueryAcademicYear } from '@/hooks/academic-year/use-query-academic-year'
+import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 import { useQueryTopicoByAnoLetivo } from '@/hooks/topic/use-query-topico'
 import { useGetFileUrl } from '@/hooks/upload/use-upload'
 
-
-
 export function PreSubscriptionLicenciatura() {
-  const { data: academicYearData, isLoading: isLoadingAcademicYears } =
-    useQueryAcademicYear()
-
-  const academicYears = academicYearData?.anolectivos ?? []
-
-  const [selectedAnoLetivo, setSelectedAnoLetivo] = useState<string>('')
+  const { data: currentAcademicYear, isLoading: isLoadingCurrentAcademicYear } =
+    useQueryCurrentAcademicYear(1)
 
   /**
-   * The Select stores the academic year's CODIGO.
-   *
-   * Example:
-   * "25" -> 2025/2026
-   */
-  const anoLetivoId = selectedAnoLetivo ? Number(selectedAnoLetivo) : undefined
-
-  /**
-   * Fetch the topic whenever the student selects
-   * an academic year.
+   * The topic is always fetched for the current academic year.
+   * The student cannot select other years.
    */
   const {
     data: selectedTopico,
     isLoading: isLoadingTopico,
     isError: isErrorTopico,
-  } = useQueryTopicoByAnoLetivo(anoLetivoId)
+  } = useQueryTopicoByAnoLetivo(currentAcademicYear?.codigo)
 
   const { mutateAsync: getFileUrlAsync } = useGetFileUrl()
   const [isDownloading, setIsDownloading] = useState(false)
 
   const handleDownload = async () => {
     if (!selectedTopico?.arquivo || isDownloading) {
-      return;
+      return
     }
 
-    setIsDownloading(true);
+    setIsDownloading(true)
 
     try {
       const { url } = await getFileUrlAsync({
         key: selectedTopico.arquivo,
         expiry: 3600,
-      });
+      })
 
-      window.open(url, "_blank");
+      window.open(url, '_blank')
     } catch (error) {
-      console.error("Erro ao baixar tópico:", error);
-      toast.error("Não foi possível baixar o tópico. Tente novamente.");
+      console.error('Erro ao baixar tópico:', error)
+      toast.error('Não foi possível baixar o tópico. Tente novamente.')
     } finally {
-      setIsDownloading(false);
+      setIsDownloading(false)
     }
-  };
+  }
 
   return (
     <div className="space-y-6">
@@ -100,8 +79,8 @@ export function PreSubscriptionLicenciatura() {
               </CardTitle>
 
               <CardDescription>
-                Selecione o ano letivo para consultar e baixar os respetivos
-                tópicos.
+                Consulte e baixe os tópicos do exame de acesso para o ano letivo
+                atual.
               </CardDescription>
             </div>
           </div>
@@ -114,35 +93,20 @@ export function PreSubscriptionLicenciatura() {
           <div className="max-w-md space-y-2">
             <Label htmlFor="ano-letivo">Ano Letivo</Label>
 
-            <Select
-              value={selectedAnoLetivo}
-              onValueChange={setSelectedAnoLetivo}
-              disabled={isLoadingAcademicYears}
+            <div
+              id="ano-letivo"
+              className="flex h-11 items-center rounded-md border bg-muted/30 px-3 text-sm"
             >
-              <SelectTrigger id="ano-letivo" className="h-11 w-full">
-                <SelectValue
-                  placeholder={
-                    isLoadingAcademicYears
-                      ? 'A carregar anos letivos...'
-                      : 'Selecione o ano letivo'
-                  }
-                />
-              </SelectTrigger>
-
-              <SelectContent>
-                {academicYears.map((ano) => (
-                  <SelectItem key={ano.codigo} value={String(ano.codigo)}>
-                    {ano.designacao}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              {isLoadingCurrentAcademicYear
+                ? 'A carregar ano letivo atual...'
+                : currentAcademicYear?.designacao}
+            </div>
           </div>
 
           {/* =================================================
               LOADING TOPIC
               ================================================= */}
-          {selectedAnoLetivo && isLoadingTopico && (
+          {currentAcademicYear && isLoadingTopico && (
             <div className="rounded-lg border bg-muted/30 p-4">
               <div className="flex items-center gap-3">
                 <FileText className="h-4 w-4 animate-pulse" />
@@ -157,7 +121,7 @@ export function PreSubscriptionLicenciatura() {
           {/* =================================================
               TOPIC FOUND
               ================================================= */}
-          {selectedAnoLetivo &&
+          {currentAcademicYear &&
             !isLoadingTopico &&
             !isErrorTopico &&
             selectedTopico && (
@@ -183,7 +147,7 @@ export function PreSubscriptionLicenciatura() {
           {/* =================================================
               TOPIC ERROR
               ================================================= */}
-          {selectedAnoLetivo && !isLoadingTopico && isErrorTopico && (
+          {currentAcademicYear && !isLoadingTopico && isErrorTopico && (
             <div className="rounded-lg border border-destructive/30 p-4">
               <div className="flex items-center gap-3">
                 <FileText className="h-4 w-4 text-destructive" />
@@ -198,7 +162,7 @@ export function PreSubscriptionLicenciatura() {
           {/* =================================================
               NO TOPIC
               ================================================= */}
-          {selectedAnoLetivo &&
+          {currentAcademicYear &&
             !isLoadingTopico &&
             !isErrorTopico &&
             !selectedTopico && (
@@ -207,8 +171,7 @@ export function PreSubscriptionLicenciatura() {
                   <FileText className="h-4 w-4 text-muted-foreground" />
 
                   <p className="text-sm text-muted-foreground">
-                    Não existem tópicos disponíveis para o ano letivo
-                    selecionado.
+                    Não existem tópicos disponíveis para o ano letivo atual.
                   </p>
                 </div>
               </div>
