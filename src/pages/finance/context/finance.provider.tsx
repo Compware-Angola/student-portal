@@ -19,15 +19,9 @@ export const FinanceProvider = ({ children }: { children: ReactNode }) => {
     alert(`Gerando referência para pagamento:${id}`)
 
   const handleDownloadInvoice = () => {}
-<<<<<<< HEAD
 
   const handleDownloadReference = () => {}
 
-=======
-    
-  const handleDownloadReference = () => {}
- 
->>>>>>> 365511a41f8a7c0e384720e3d7a26e11f7340851
 
   const getStatusBadge = (status: string) => {
     switch (status) {
