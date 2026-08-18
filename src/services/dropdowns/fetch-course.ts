@@ -11,6 +11,7 @@ export interface CursoParams {
   faculdadeId?: number;
   tipoCandidaturaId?: number;
   anoLectivo?: number;
+  periodo? :number
 }
 
 export interface CursoResponse {
@@ -38,6 +39,7 @@ export async function getCursosWithVagas(
       faculdadeId: params?.faculdadeId,
       tipoCandidaturaId: params?.tipoCandidaturaId,
       anoLectivo: params?.anoLectivo,
+      periodo: params?.periodo,
     },
   }).json<Curso[]>();
 
