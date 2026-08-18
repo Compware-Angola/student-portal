@@ -7,25 +7,42 @@ import { FileInput } from '@/components/input-file'
 import { FacultySelect } from '@/components/selects/FacultySelect'
 import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
+import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
+
 
 export function AcademicDocument() {
   const {profileData} = useQueryProfile()
   const { form } = useFormPreSubscriptionForm()
-
   const faculdadeId = form.watch('faculty')
+
+
+   const { data: anoLectivo } =
+      useQueryCurrentAcademicYear(
+        profileData?.grau_academico === 'Mestrado'
+          ? 2
+          : profileData?.grau_academico === 'Doutoramento'
+          ? 3
+          : 1,
+      )
+  
+
+
   const { data: courses } = useCursos({
     faculdadeId,
-    tipoCandidaturaId:profileData?.codigo_tipo_candidatura ?? 1
+    tipoCandidaturaId:profileData?.codigo_tipo_candidatura ?? 1,
+    anoLectivo: anoLectivo?.codigo ?? 1
   })
 
   
   //OPCIONAIS
-
+console.log(courses)
   const courseOptions =
     courses?.map((t) => ({
       label: t.designacao,
       value: String(t.codigo),
     })) ?? []
+
+
 
   const { data: periods } = useQueryPeriod()
   const periodOptions =
