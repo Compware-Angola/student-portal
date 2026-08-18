@@ -43,7 +43,6 @@ const PreInscriptionCard = () => {
     isLoading: isLoadingInfo,
     isError: isErrorInfo,
   } = useQueryInfoGeraisCandidatura()
-  console.table(profileData)
   const showModal = () =>
     !isLoadingInfo && !isErrorInfo && !info?.payments?.has_invoice
 

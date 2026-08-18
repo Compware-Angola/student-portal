@@ -6,11 +6,13 @@ import { FileInput } from '@/components/input-file'
 import { useQueryUser } from '@/hooks/candidate/use-query-user'
 import { useEffect, useMemo } from 'react'
 import { NumberInputFormField } from '@/components/input-form-field/NumberInputFormField'
+import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 
 export function AcademicData() {
   const { form } = useFormPreSubscriptionForm()
   const { data: tipoCandidaturas } = useQueryTipoCandidatura()
   const { data: user } = useQueryUser()
+  const { profileData } = useQueryProfile()
   const tipoCandidaturaOptions = useMemo(
     () =>
       tipoCandidaturas?.map((t) => ({
@@ -47,6 +49,48 @@ export function AcademicData() {
       )
     }
   }, [user, tipoCandidaturas, form])
+
+  // Preenche o tipo de candidatura e a média final a partir do perfil,
+  // caso já existam no registo do candidato.
+  useEffect(() => {
+    if (!profileData) return
+
+    if (
+      profileData.codigo_tipo_candidatura &&
+      !form.getValues('typeGraduation')
+    ) {
+      form.setValue(
+        'typeGraduation',
+        String(profileData.codigo_tipo_candidatura).trim(),
+        { shouldValidate: false, shouldDirty: false },
+      )
+    }
+
+    if (profileData.media_final && !form.getValues('averageGrade')) {
+      form.setValue('averageGrade', String(profileData.media_final), {
+        shouldValidate: false,
+        shouldDirty: false,
+      })
+    }
+
+    if (profileData.instituicao_formacao && !form.getValues('previousSchool')) {
+      form.setValue('previousSchool', profileData.instituicao_formacao, {
+        shouldValidate: false,
+        shouldDirty: false,
+      })
+    }
+
+    if (profileData.data_conclusao && !form.getValues('graduationYear')) {
+      form.setValue(
+        'graduationYear',
+        profileData.data_conclusao.split('T')[0],
+        {
+          shouldValidate: false,
+          shouldDirty: false,
+        },
+      )
+    }
+  }, [profileData, form])
 
   return (
     <>

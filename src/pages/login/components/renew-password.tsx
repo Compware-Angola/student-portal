@@ -15,6 +15,8 @@ import { Spinner } from '@/components/ui/spinner'
 import { useResetPasswordForm } from './useResetPasswordForm'
 import studentsPhoto from "@/assets/black-students.jpg";
 import { LogoBackground } from './logo-background'
+import { PasswordRequirements } from './PasswordRequirements'
+import { PasswordStrength } from './PasswordStrength'
 
 
 export default function RenovarSenha() {
@@ -23,10 +25,18 @@ export default function RenovarSenha() {
   const { form, onSubmit } = useResetPasswordForm(token)
   const [success, setSuccess] = useState(false)
 
-  const handleSubmit = async (data: any) => {
+
+const handleSubmit = async (data: any) => {
+  // setError('') // Remova esta linha
+  try {
     await onSubmit(data)
     setSuccess(true)
+  } catch (err) {
+    // Trate o erro de outra forma, por exemplo com toast
+    console.error('Erro ao renovar senha:', err)
   }
+}
+
 
   return (
     <div className="min-h-screen grid lg:grid-cols-[6fr_4fr] bg-white">
@@ -111,21 +121,14 @@ export default function RenovarSenha() {
                     control={form.control}
                     name="novaSenha"
                     label="Nova Senha"
-                    placeholder="••••••••••••"
+                    placeholder=""
                   />
                   <PasswordField
                     control={form.control}
                     name="repetirSenha"
                     label="Repetir Nova Senha"
-                    placeholder="••••••••••••"
+                    placeholder=""
                   />
-
-                  <ul className="text-xs text-muted-foreground list-disc pl-4 space-y-0.5">
-                    <li>Mínimo de 8 caracteres</li>
-                    <li>Uma letra maiúscula</li>
-                    <li>Um número</li>
-                    <li>Um caractere especial</li>
-                  </ul>
 
                   <PrimaryButton
                     type="submit"
@@ -178,35 +181,61 @@ function PasswordField({
     <FormField
       control={control}
       name={name}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>{label}</FormLabel>
-          <FormControl>
-            <div className="relative">
-              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                {...field}
-                type={show ? 'text' : 'password'}
-                autoComplete={name === 'novaSenha' ? 'new-password' : 'off'}
-                placeholder={placeholder}
-                className="h-11 px-10 rounded-lg bg-slate-50 border-slate-200"
-              />
-              <button
-                type="button"
-                onClick={() => setShow((v) => !v)}
-                aria-label={show ? 'Ocultar senha' : 'Mostrar senha'}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
-                {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
+      render={({ field }) => {
+    
+
+        const hasError = control._formState?.errors?.[name]
+        const isValid = field.value && !hasError
+
+        return (
+          <FormItem>
+            <FormLabel>{label}</FormLabel>
+            <FormControl>
+              <div className="relative">
+                <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  {...field}
+                  type={show ? 'text' : 'password'}
+                  autoComplete={name === 'novaSenha' ? 'new-password' : 'off'}
+                  placeholder={placeholder}
+                  className={`... ${ 
+                    field.value && hasError 
+                      ? 'border-red-500 focus-visible:ring-red-500 px-8' 
+                      : field.value && isValid
+                      ? 'border-green-500 focus-visible:ring-green-500  px-8'
+                      : ''
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShow((v) => !v)}
+                  aria-label={show ? 'Ocultar senha' : 'Mostrar senha'}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </FormControl>
+            
+            {/* Mostra requisitos apenas para o campo novaSenha */}
+              {name === 'novaSenha' && (
+                <>
+                  <PasswordRequirements password={field.value || ''} />
+                  <PasswordStrength 
+                    password={field.value || ''} 
+                    showDetails={false} // Ativa para mostrar detalhes
+                  />
+                </>
+              )}
+            
+            <FormMessage />
+          </FormItem>
+        )
+      }}
     />
   )
 }
+
 
 function SuccessState({ onLogin }: { onLogin: () => void }) {
   return (

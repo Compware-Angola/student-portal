@@ -140,7 +140,6 @@ function InvoiceDetailsDialog({
   const totalMultas = invoice.itens.reduce((s, i) => s + i.Multa, 0)
   const totalPago = invoice.itens.reduce((s, i) => s + i.valor_pago, 0)
 
-  console.table(invoice)
   return (
     <Dialog>
       <DialogTrigger asChild>

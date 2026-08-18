@@ -20,7 +20,6 @@ export function PersonalDetailsPostGraduate() {
   const { data: estadoCivil } = useQueryEstadoCivil()
   const { data: necessidadeEspeciais } = useQueryNecessidadesEspeciais()
 
-  console.table(profileData)
   const documentoOptions =
     tipoDocumentos?.map((t) => ({
       label: t.designacao,

@@ -13,6 +13,7 @@ import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { DocumentTypeEnum } from '@/enums/document.type.enum'
 import { FileFolder } from '@/enums/file-folder'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
+import { useFillCandidacyData } from './use-fill-candidacy-data'
 
 type ContextValue = {
   onSubmit: (data: PreSubscriptionSchema) => void
@@ -62,15 +63,9 @@ export function FormPreSubscriptionProvider({
     [uploadMutation],
   )
 
-  // grau_academico: "Mestrado" | "Doutoramento" | "Licenciatura"
+  // codigo_tipo_candidatura: 1 = Licenciatura, 2 = Mestrado, 3 = Doutoramento
   const { data: anoLectivo, isLoading: isLoadingAnoLectivo } =
-    useQueryCurrentAcademicYear(
-      profileData?.grau_academico === 'Mestrado'
-        ? 2
-        : profileData?.grau_academico === 'Doutoramento'
-        ? 3
-        : 1,
-    )
+    useQueryCurrentAcademicYear(profileData?.codigo_tipo_candidatura ?? 1)
 
   function buildInscricaoPayload(data: any, docs: any, anoLectivoId: number) {
     return {
@@ -149,6 +144,9 @@ export function FormPreSubscriptionProvider({
     },
     mode: 'onChange',
   })
+
+  // Preenche automaticamente os inputs com os dados existentes do candidato
+  useFillCandidacyData(form)
 
   const onSubmit = React.useCallback(
     async (data: PreSubscriptionSchema) => {
@@ -239,7 +237,14 @@ export function FormPreSubscriptionProvider({
     if (!currentStepConfig.isSummary) {
       setCurrentStep((prev) => prev + 1)
     }
-  }, [currentStep, currentStepConfig, form, onSubmit, anoLectivo, isLoadingAnoLectivo])
+  }, [
+    currentStep,
+    currentStepConfig,
+    form,
+    onSubmit,
+    anoLectivo,
+    isLoadingAnoLectivo,
+  ])
 
   const handleBack = React.useCallback(() => {
     setCurrentStep((prev) => prev - 1)
