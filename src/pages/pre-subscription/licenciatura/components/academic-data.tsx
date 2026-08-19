@@ -13,6 +13,8 @@ export function AcademicData() {
   const { data: tipoCandidaturas } = useQueryTipoCandidatura()
   const { data: user } = useQueryUser()
   const { profileData } = useQueryProfile()
+
+  console.log(user)
   const tipoCandidaturaOptions = useMemo(
     () =>
       tipoCandidaturas?.map((t) => ({

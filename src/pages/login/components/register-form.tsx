@@ -44,7 +44,9 @@ const registerSchema = z
   .object({
     nomeCompleto: z.string().min(3, 'Nome obrigatório'),
     email: z.email('E-mail inválido'),
-    telefone: z.string().min(9, 'Telefone inválido').max(20),
+    telefone: z
+      .string()
+      .regex(/^9\d{8}$/, 'O telefone deve ter 9 dígitos e começar com 9'),
     tipoCandidatura: z.string().min(1, 'Seleccione o tipo de candidatura'),
     tipoDocumento: z.string().min(1, 'Seleccione o tipo de documento'),
     numeroDocumento: z.string().min(3, 'Número de documento obrigatório'),

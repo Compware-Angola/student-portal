@@ -85,7 +85,7 @@ export function AcademicDocument() {
 
   const { data: courses } = useCursos({
     faculdadeId,
-    tipoCandidaturaId:  profileData?.codigo_tipo_candidatura ?? 1,,
+    tipoCandidaturaId:  profileData?.codigo_tipo_candidatura ?? 1,
     anoLectivo: anoLectivo?.codigo ?? 1,
     periodo: Number(periodo)
   })

@@ -5,7 +5,7 @@ import { PreSubscriptionPostgraduate } from './postgraduate'
 export function PreSubscription() {
   const { profileData } = useQueryProfile()
   if (!profileData) return null
-  if (profileData.codigo_tipo_candidatura === 1) {
+  if (profileData.grau_academico === 'Licenciatura' || profileData.codigo_tipo_candidatura === 1) {
     return <PreSubscriptionLicenciatura />
   }
   return <PreSubscriptionPostgraduate />

@@ -13,7 +13,7 @@ import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { DocumentTypeEnum } from '@/enums/document.type.enum'
 import { FileFolder } from '@/enums/file-folder'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
-import { useFillCandidacyData } from './use-fill-candidacy-data'
+import { useQueryUser } from '@/hooks/candidate/use-query-user'
 
 type ContextValue = {
   onSubmit: (data: PreSubscriptionSchema) => void
@@ -36,11 +36,13 @@ export function FormPreSubscriptionProvider({
 }: {
   children: React.ReactNode
 }) {
+
+    const { data: user } = useQueryUser()
   const [currentStep, setCurrentStep] = React.useState(0)
   const progress = ((currentStep + 1) / steps.length) * 100
   const { createPreInscricaoAsync, createPreInscricaoPending } =
     useMutationPreInscricao()
-
+console.log(user)
   const uploadMutation = useUploadSingle()
   const isLoadingPreInscription =
     createPreInscricaoPending || uploadMutation.isPending
@@ -63,9 +65,15 @@ export function FormPreSubscriptionProvider({
     [uploadMutation],
   )
 
-  // codigo_tipo_candidatura: 1 = Licenciatura, 2 = Mestrado, 3 = Doutoramento
+  // grau_academico: "Mestrado" | "Doutoramento" | "Licenciatura"
   const { data: anoLectivo, isLoading: isLoadingAnoLectivo } =
-    useQueryCurrentAcademicYear(profileData?.codigo_tipo_candidatura ?? 1)
+    useQueryCurrentAcademicYear(
+      profileData?.grau_academico === 'Mestrado'
+        ? 2
+        : profileData?.grau_academico === 'Doutoramento'
+        ? 3
+        : 1,
+    )
 
   function buildInscricaoPayload(data: any, docs: any, anoLectivoId: number) {
     return {
@@ -144,9 +152,6 @@ export function FormPreSubscriptionProvider({
     },
     mode: 'onChange',
   })
-
-  // Preenche automaticamente os inputs com os dados existentes do candidato
-  useFillCandidacyData(form)
 
   const onSubmit = React.useCallback(
     async (data: PreSubscriptionSchema) => {
@@ -237,14 +242,7 @@ export function FormPreSubscriptionProvider({
     if (!currentStepConfig.isSummary) {
       setCurrentStep((prev) => prev + 1)
     }
-  }, [
-    currentStep,
-    currentStepConfig,
-    form,
-    onSubmit,
-    anoLectivo,
-    isLoadingAnoLectivo,
-  ])
+  }, [currentStep, currentStepConfig, form, onSubmit, anoLectivo, isLoadingAnoLectivo])
 
   const handleBack = React.useCallback(() => {
     setCurrentStep((prev) => prev - 1)
