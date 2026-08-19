@@ -1,5 +1,6 @@
 import {
   createInvoice,
+  createInvoiceCandidatura,
   type CreateInvoiceBody,
 } from '@/services/invoice/post-invoice.service'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -11,6 +12,37 @@ export function useMutationCreateInvoice() {
   const { mutate, mutateAsync, isPending, isSuccess } = useMutation({
     mutationFn: async (invoiceData: CreateInvoiceBody) => {
       return await createInvoice(invoiceData)
+    },
+
+    onSuccess: async () => {
+      toast.success('Nota de Pagamento criada com sucesso')
+      await queryClient.invalidateQueries({ queryKey: ['invoices'] })
+    },
+
+    onError: (error: unknown) => {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Erro ao criar nota de pagamento. Tente novamente.'
+      toast.error(message)
+    },
+  })
+
+  return {
+    createInvoice: mutate,
+    createInvoiceAsync: mutateAsync,
+    createInvoicePending: isPending,
+    createInvoiceSuccess: isSuccess,
+  }
+}
+
+
+export function useMutationCreateInvoiceCandidatua() {
+  const queryClient = useQueryClient()
+
+  const { mutate, mutateAsync, isPending, isSuccess } = useMutation({
+    mutationFn: async (invoiceData: CreateInvoiceBody) => {
+      return await createInvoiceCandidatura(invoiceData)
     },
 
     onSuccess: async () => {

@@ -7,25 +7,50 @@ import { FileInput } from '@/components/input-file'
 import { FacultySelect } from '@/components/selects/FacultySelect'
 import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
+import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
+import { useEffect, useRef } from 'react'
 
 export function AcademicDocument() {
-  const {profileData} = useQueryProfile()
+  const { profileData } = useQueryProfile()
   const { form } = useFormPreSubscriptionForm()
-
   const faculdadeId = form.watch('faculty')
+  const periodo = form.watch('period')
+
+  const { data: anoLectivo } =
+    useQueryCurrentAcademicYear(
+      profileData?.grau_academico === 'Mestrado'
+        ? 2
+        : profileData?.grau_academico === 'Doutoramento'
+        ? 3
+        : 1,
+    )
+
   const { data: courses } = useCursos({
     faculdadeId,
-    tipoCandidaturaId:profileData?.codigo_tipo_candidatura ?? 1
+    tipoCandidaturaId: profileData?.codigo_tipo_candidatura ?? 1,
+    anoLectivo: anoLectivo?.codigo ?? 1,
+    periodo: Number(periodo)
   })
 
-  
-  //OPCIONAIS
-
+  // OPCIONAIS
   const courseOptions =
     courses?.map((t) => ({
       label: t.designacao,
       value: String(t.codigo),
     })) ?? []
+
+  // Reseta os campos de curso sempre que um filtro relevante mudar
+  const isFirstRender = useRef(true)
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
+
+    form.resetField('intendedCourse')
+    form.resetField('intendedCourseSecond')
+    form.resetField('intendedCourseThird')
+  }, [faculdadeId, periodo, profileData?.codigo_tipo_candidatura, anoLectivo?.codigo])
 
   const { data: periods } = useQueryPeriod()
   const periodOptions =
@@ -46,7 +71,6 @@ export function AcademicDocument() {
     { label: 'Não', value: '0' },
   ]
 
-  // observa o valor selecionado para renderizar o input condicional
   const camePublicUniversity = form.watch('natureInscription')
 
   return (
@@ -60,7 +84,6 @@ export function AcademicDocument() {
           label="Polo"
           items={poloOptions.filter((p) => p.value !== "3" && p.value !== "4")}
         />
-
 
         <FormField
           control={form.control}
@@ -77,7 +100,22 @@ export function AcademicDocument() {
             </FormItem>
           )}
         />
-
+        <SelectFormField
+          name="period"
+          placeholder="Selecione Turno"
+          control={form.control}
+          fullWidth
+          label="Turno"
+          items={periodOptions}
+        />
+        <SelectFormField
+          name="periodSecondOption"
+          control={form.control}
+          placeholder="Selecione Turno"
+          fullWidth
+          label="Turno Opcional"
+          items={periodOptions}
+        />
         <SelectFormField
           name="intendedCourse"
           placeholder="Selecione Curso"
@@ -87,7 +125,6 @@ export function AcademicDocument() {
           items={courseOptions}
           disabled={!faculdadeId}
         />
-
         <SelectFormField
           name="intendedCourseSecond"
           placeholder="Selecione Curso"
@@ -106,22 +143,6 @@ export function AcademicDocument() {
           items={courseOptions}
           disabled={!faculdadeId}
         />
-        <SelectFormField
-          name="period"
-          placeholder="Selecione Turno"
-          control={form.control}
-          fullWidth
-          label="Turno"
-          items={periodOptions}
-        />
-        <SelectFormField
-          name="periodSecondOption"
-          control={form.control}
-          placeholder="Selecione Turno"
-          fullWidth
-          label="Turno Opcional"
-          items={periodOptions}
-        />
         <FileInput
           label="Bilhete/Passaporte"
           required
@@ -135,7 +156,6 @@ export function AcademicDocument() {
             })
           }
         />
-
         <SelectFormField
           name="natureInscription"
           control={form.control}
@@ -144,7 +164,6 @@ export function AcademicDocument() {
           label="Já fez prova na pública e teve positiva?"
           items={natureInscriptionOptions}
         />
-
         {camePublicUniversity === '1' && (
           <FileInput
             label="Anexa a pauta da pública"
