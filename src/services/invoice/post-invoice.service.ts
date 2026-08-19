@@ -49,3 +49,11 @@ export async function createInvoice(params: CreateInvoiceBody) {
     })
     .json()
 }
+
+export async function createInvoiceCandidatura(params: CreateInvoiceBody) {
+  return invoiceApi
+    .post('invoices/candidatura', {
+      json: params,
+    })
+    .json()
+}
