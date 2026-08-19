@@ -272,11 +272,14 @@ export function ForgotPassword({ setView }: LoginFormProps) {
         <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 space-y-3">
           <div className="flex items-center gap-2 font-medium">
             <XCircle className="h-5 w-5" />
-            E-mail não encontrado
+            Dados não encontrados
           </div>
-          <p>Este e-mail não consta dos nossos registos.</p>
+          <p>
+            Não encontrámos os seus dados (BI e e-mail) nos nossos registos.
+          </p>
           <p className="text-xs text-amber-700">
-            Pode solicitar a actualização dos seus dados pessoais.
+            Se ainda não possui um e-mail registado, dirija-se ao instituto
+            para actualizar os seus dados pessoais.
           </p>
 
           <Button
