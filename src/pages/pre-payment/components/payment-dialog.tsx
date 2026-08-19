@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/dialog'
 import { SERVICE_TYPES } from '@/constants/service-type'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
-import { useMutationCreateInvoice } from '@/hooks/invoice/use-mutation-create-invoice'
+import { useMutationCreateInvoiceCandidatua } from '@/hooks/invoice/use-mutation-create-invoice'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useTypeServiceSingle } from '@/hooks/service/use-query-type-service'
 import type { CreateInvoiceBody } from '@/services/invoice/post-invoice.service'
@@ -15,6 +15,7 @@ import type { TypeServiceResponse } from '@/services/type-service/type-service.s
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
+import { useRef } from 'react'
 
 type PaymentDialogProps = {
   isOpen: boolean
@@ -30,7 +31,7 @@ const presetTypeService = (code: number) => {
 
 export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
   const { profileData } = useQueryProfile()
-
+ const isSubmittingRef = useRef(false)
   const { data: currentAcademicYearGetTaxa } = useQueryCurrentAcademicYear(profileData?.codigo_tipo_candidatura)
   const { data: currentAcademicYear } = useQueryCurrentAcademicYear(profileData?.codigo_tipo_candidatura)
   const { data: taxaAdmissao } = useTypeServiceSingle({
@@ -41,7 +42,7 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
 
 
   const { createInvoiceAsync, createInvoicePending } =
-    useMutationCreateInvoice()
+    useMutationCreateInvoiceCandidatua()
   const queryClient = useQueryClient()
 
   if (!currentAcademicYearGetTaxa) {
@@ -76,6 +77,8 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
   }
 
   const handleFactura = async () => {
+     if (isSubmittingRef.current) return // bloqueia qualquer clique repetido na hora
+    isSubmittingRef.current = true
     try {
       const totalApagar = taxaAdmissao?.preco
       const item = createItem(taxaAdmissao)
@@ -115,6 +118,9 @@ export function PaymentDialog({ isOpen, onOpenChange }: PaymentDialogProps) {
       onOpenChange?.(false)
     } catch (error: any) {
       toast.error(error?.message ?? 'Erro ao tentar fazer pagamento')
+    }
+    finally {
+      isSubmittingRef.current = false // libera só no fim, sucesso ou erro
     }
   }
   return (
