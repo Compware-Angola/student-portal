@@ -14,7 +14,6 @@ import {
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useQueryUser } from '@/hooks/candidate/use-query-user'
 import { useQueryFetchFaculdades } from '@/hooks/faculdade/use-query-faculdade'
-import { useEffect } from 'react'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
 import { useEffect, useRef } from 'react'
 
@@ -91,7 +90,6 @@ export function AcademicDocument() {
     periodo: Number(periodo)
   })
 
-  
   //OPCIONAIS
 
   const courseOptions =
