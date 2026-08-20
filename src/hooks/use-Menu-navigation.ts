@@ -20,6 +20,7 @@ import {
 
 import { routePermissions } from '@/routes/permission'
 import { useQueryProfile } from './profile/use-query-profile'
+import { StudentStatus } from '@/enums/student.status.enum'
 
 export function useMenuNavigation() {
   const { profileData } = useQueryProfile()
@@ -56,8 +57,8 @@ export function useMenuNavigation() {
       icon: GraduationCap,
     },
     {
-      title: "Matrícula Pós-Graduação",
-      url: "/matricula-pos-graduacao",
+      title: 'Matrícula Pós-Graduação',
+      url: '/matricula-pos-graduacao',
       icon: GraduationCap,
     },
 
@@ -116,19 +117,28 @@ export function useMenuNavigation() {
     { title: 'Exame de Acesso', url: '/exame-acesso', icon: Pencil },
     { title: 'Pagamento', url: '/pre-pagamento', icon: CircleDollarSign },
     { title: 'Perfil', url: '/perfil', icon: User },
-
   ]
 
   const allowedRoutes = routePermissions[studentStatus] || []
 
   const filteredNavMain = navMain
-    .filter((item) => allowedRoutes.includes(item.url))
+    .filter((item) => {
+      // "Inicio" (criar pré-inscrição) só aparece para candidatos
+      if (
+        item.url === '/pre-inscricao' &&
+        studentStatus !== StudentStatus.CANDIDATO
+      ) {
+        return false
+      }
+
+      return allowedRoutes.includes(item.url)
+    })
     .map((item) =>
       item.items
         ? {
-          ...item,
-          items: item.items.filter((sub) => allowedRoutes.includes(sub.url)),
-        }
+            ...item,
+            items: item.items.filter((sub) => allowedRoutes.includes(sub.url)),
+          }
         : item,
     )
 

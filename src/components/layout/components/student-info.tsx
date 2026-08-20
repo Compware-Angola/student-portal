@@ -1,8 +1,16 @@
 import { useEffect, useState } from 'react'
+import { ArrowLeftRight } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useGetFileUrl } from '@/hooks/upload/use-upload'
+import { Link } from 'react-router-dom'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 export function StudentInfo() {
   const { profileData, isLoading } = useQueryProfile()
@@ -57,10 +65,7 @@ export function StudentInfo() {
   return (
     <div className="flex items-center gap-3">
       <Avatar className="h-10 w-10">
-        <AvatarImage
-          src={currentPhotoUrl}
-          alt={profileData.nome_completo}
-        />
+        <AvatarImage src={currentPhotoUrl} alt={profileData.nome_completo} />
         <AvatarFallback>{initials}</AvatarFallback>
       </Avatar>
 
@@ -75,10 +80,23 @@ export function StudentInfo() {
           </span>
         </div>
 
-        <div className="text-xs text-muted-foreground">
-          {profileData.curso}
-        </div>
+        <div className="text-xs text-muted-foreground">{profileData.curso}</div>
       </div>
+
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link
+              to="/selecionar-pre-inscricao"
+              aria-label="Trocar pré-inscrição"
+              className="inline-flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+            >
+              <ArrowLeftRight className="h-4 w-4" />
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent>Trocar pré-inscrição</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </div>
   )
 }

@@ -36,13 +36,12 @@ export function FormPreSubscriptionProvider({
 }: {
   children: React.ReactNode
 }) {
-
-    const { data: user } = useQueryUser()
+  const { data: user } = useQueryUser()
   const [currentStep, setCurrentStep] = React.useState(0)
   const progress = ((currentStep + 1) / steps.length) * 100
   const { createPreInscricaoAsync, createPreInscricaoPending } =
     useMutationPreInscricao()
-console.log(user)
+  console.log(user)
   const uploadMutation = useUploadSingle()
   const isLoadingPreInscription =
     createPreInscricaoPending || uploadMutation.isPending
@@ -65,14 +64,50 @@ console.log(user)
     [uploadMutation],
   )
 
-  // grau_academico: "Mestrado" | "Doutoramento" | "Licenciatura"
+  const form = useForm<PreSubscriptionSchema>({
+    resolver: zodResolver(preSubscriptionSchema),
+    defaultValues: {
+      birthDate: '',
+      documentNumber: '',
+      fullName: '',
+      documentType: '',
+      expirationDate: '',
+      fatherName: '',
+      gender: '',
+      issueDate: '',
+      maritalStatus: '',
+      motherName: '',
+      needs: '',
+      averageGrade: '',
+      graduationYear: '',
+      previousSchool: '',
+      previousCourse: '',
+      intendedCourse: '',
+      intendedCourseSecond: '',
+      intendedCourseThird: '',
+      period: '',
+      periodSecondOption: '',
+      pole: '',
+      email: '',
+      phone: '',
+      phoneAlt: '',
+      street: '',
+      typeGraduation: '',
+      codigoNacionalidade: '',
+      howDidYouKnow: '',
+      natureInscription: '',
+      anoLectivoId: 0,
+      faculty: 0,
+    },
+    mode: 'onChange',
+  })
+
+  const tipoCandidatura = form.watch('typeGraduation')
+  const tipoCandidaturaNum = tipoCandidatura ? Number(tipoCandidatura) : 0
+
   const { data: anoLectivo, isLoading: isLoadingAnoLectivo } =
     useQueryCurrentAcademicYear(
-      profileData?.grau_academico === 'Mestrado'
-        ? 2
-        : profileData?.grau_academico === 'Doutoramento'
-        ? 3
-        : 1,
+      tipoCandidaturaNum === 2 ? 2 : tipoCandidaturaNum === 3 ? 3 : 1,
     )
 
   function buildInscricaoPayload(data: any, docs: any, anoLectivoId: number) {
@@ -114,44 +149,6 @@ console.log(user)
       codigoFaculdade: Number(data.faculty),
     }
   }
-
-  const form = useForm<PreSubscriptionSchema>({
-    resolver: zodResolver(preSubscriptionSchema),
-    defaultValues: {
-      birthDate: '',
-      documentNumber: '',
-      fullName: '',
-      documentType: '',
-      expirationDate: '',
-      fatherName: '',
-      gender: '',
-      issueDate: '',
-      maritalStatus: '',
-      motherName: '',
-      needs: '',
-      averageGrade: '',
-      graduationYear: '',
-      previousSchool: '',
-      previousCourse: '',
-      intendedCourse: '',
-      intendedCourseSecond: '',
-      intendedCourseThird: '',
-      period: '',
-      periodSecondOption: '',
-      pole: '',
-      email: '',
-      phone: '',
-      phoneAlt: '',
-      street: '',
-      typeGraduation: '',
-      codigoNacionalidade: '',
-      howDidYouKnow: '',
-      natureInscription: '',
-      anoLectivoId: 0,
-      faculty: 0,
-    },
-    mode: 'onChange',
-  })
 
   const onSubmit = React.useCallback(
     async (data: PreSubscriptionSchema) => {
@@ -242,7 +239,14 @@ console.log(user)
     if (!currentStepConfig.isSummary) {
       setCurrentStep((prev) => prev + 1)
     }
-  }, [currentStep, currentStepConfig, form, onSubmit, anoLectivo, isLoadingAnoLectivo])
+  }, [
+    currentStep,
+    currentStepConfig,
+    form,
+    onSubmit,
+    anoLectivo,
+    isLoadingAnoLectivo,
+  ])
 
   const handleBack = React.useCallback(() => {
     setCurrentStep((prev) => prev - 1)

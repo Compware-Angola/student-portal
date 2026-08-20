@@ -127,7 +127,6 @@ export function PersonalDetails() {
         name="fullName"
         label="Nome Completo"
         placeholder="Digite o nome completo"
-        disabled
       />
 
       {/* Data de nascimento e género */}
@@ -194,14 +193,12 @@ export function PersonalDetails() {
           placeholder="Selecione"
           items={documentoOptions}
           fullWidth
-          disabled
         />
         <InputFormField
           control={form.control}
           name="documentNumber"
           label="Número do Documento"
           placeholder="Digite o número"
-          disabled
         />
       </div>
 

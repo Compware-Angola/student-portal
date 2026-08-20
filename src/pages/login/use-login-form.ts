@@ -42,9 +42,8 @@ export function useLoginForm() {
 
       toast.success(response.mensagem || 'Autenticado com sucesso!')
 
-      navigate('/comunicado')
-    } catch (error) {
-     
+      navigate('/selecionar-pre-inscricao')
+    } catch {
       toast.error('Credenciais inválidas, tente novamente.')
       return
     }

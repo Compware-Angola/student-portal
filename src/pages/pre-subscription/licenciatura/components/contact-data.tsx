@@ -60,7 +60,6 @@ export function ContactData() {
         name="email"
         placeholder="Email"
         type="text"
-        disabled
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -70,7 +69,6 @@ export function ContactData() {
           name="phone"
           placeholder="Telefone"
           type="text"
-          disabled
         />
         <InputFormField
           label="Telefone Alternativo"

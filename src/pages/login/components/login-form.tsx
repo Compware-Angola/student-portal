@@ -100,7 +100,7 @@ export function LoginForm({ setView, showRegister }: LoginFormProps) {
           return;
         }
         loginForm.reset();
-        navigate("/comunicado");
+        navigate("/selecionar-pre-inscricao");
       },
       onError: (error: Error) => {
         setLoginError(error.message);

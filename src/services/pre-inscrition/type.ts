@@ -136,4 +136,5 @@ export interface PreInscricaoFichaResponse {
 
 export interface PreInscricaoFichaParams {
   userId: number | string
+  codigoPreinscricao?: number
 }

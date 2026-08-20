@@ -6,6 +6,7 @@ import { format } from 'date-fns'
 import { pt } from 'date-fns/locale'
 import { AuthStorage } from '@/storage/auth-storage'
 import type { ProfileData } from '@/types/profile'
+import { useLocation } from 'react-router-dom'
 
 const CURRICULUM_YEAR_MAP: Record<string, string> = {
   '1': 'Primeiro ano',
@@ -32,10 +33,22 @@ export function formatDate(dateString?: string | null): string {
 
 export function useQueryProfile() {
   const auth = AuthStorage.get()
+  const codigoPreinscricao = AuthStorage.getSelectedPreinscricao()
+  const location = useLocation()
+
+  // Ao criar uma nova pré-inscrição, o perfil deve vir como
+  // SEM_PRE_INSCRICAO para o formulário se comportar como candidato novo.
+  const isCriandoNovaPreInscricao = location.pathname === '/pre-inscricao'
+
   const { data, isLoading, error, isError, refetch } =
     useQuery<CurrentUserResponse>({
-      queryKey: ['profile'],
-      queryFn: getProfile,
+      queryKey: [
+        'profile',
+        codigoPreinscricao,
+        isCriandoNovaPreInscricao ? 'nova-preinscricao' : 'normal',
+      ],
+      queryFn: () =>
+        getProfile({ ignorarPreinscricao: isCriandoNovaPreInscricao }),
       staleTime: Infinity,
       retry: 0,
       enabled: !!auth,

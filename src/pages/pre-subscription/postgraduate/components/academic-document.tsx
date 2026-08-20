@@ -6,7 +6,12 @@ import { FileInput } from '@/components/input-file'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useEffect, useMemo } from 'react'
 import { useQueryTipoCandidatura } from '@/hooks/dropdowns/use-query-tipo-candidatura'
-import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from '@/components/ui/form'
 import { FacultySelect } from '@/components/selects/FacultySelect'
 import { usePoloDropdown } from '@/hooks/dropdowns/use-query-polo'
 const GRADUATION_TYPE = {
@@ -19,7 +24,7 @@ type GraduationKey = keyof typeof GRADUATION_TYPE
 export function AcademicDocumentPostGraduate() {
   const { profileData } = useQueryProfile()
   const { form } = useFormPreSubscriptionPostGraduateForm()
-   const faculdadeId = form.watch('faculty')
+  const faculdadeId = form.watch('faculty')
   const graduationKey = profileData?.grau_academico as GraduationKey | undefined
   const graduationTypeValue = graduationKey
     ? GRADUATION_TYPE[graduationKey]
@@ -73,38 +78,37 @@ export function AcademicDocumentPostGraduate() {
     })) ?? []
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-       <SelectFormField
-          placeholder="Selecione Polo"
-          control={form.control}
-          fullWidth
-          name="pole"
-          label="Polo"
-          items={poloOptions.filter((p) => p.value !== "3" && p.value !== "4")}
-        />
+      <SelectFormField
+        placeholder="Selecione Polo"
+        control={form.control}
+        fullWidth
+        name="pole"
+        label="Polo"
+        items={poloOptions.filter((p) => p.value !== '3' && p.value !== '4')}
+      />
       <SelectFormField
         name="intendedGraduation"
         placeholder="Tipo de Candidatura"
         control={form.control}
         fullWidth
-        disabled
         label="Tipo de Candidatura"
         items={tipoCandidaturaOptions}
       />
-              <FormField
-          control={form.control}
-          name="faculty"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <FacultySelect
-                  value={field.value?.toString()}
-                  onChangeValue={(v) => field.onChange(parseInt(v))}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <FormField
+        control={form.control}
+        name="faculty"
+        render={({ field }) => (
+          <FormItem>
+            <FormControl>
+              <FacultySelect
+                value={field.value?.toString()}
+                onChangeValue={(v) => field.onChange(parseInt(v))}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
       <SelectFormField
         name="intendedCourse"

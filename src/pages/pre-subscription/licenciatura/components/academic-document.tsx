@@ -18,7 +18,7 @@ import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-cur
 import { useEffect, useRef } from 'react'
 
 export function AcademicDocument() {
-  const {  profileData  } = useQueryProfile()
+  const { profileData } = useQueryProfile()
   const { data: user } = useQueryUser()
   const { data: faculdades } = useQueryFetchFaculdades()
   const { form } = useFormPreSubscriptionForm()
@@ -73,21 +73,20 @@ export function AcademicDocument() {
   }, [user, faculdades, form])
   const faculdadeId = form.watch('faculty')
   const periodo = form.watch('period')
+  const tipoCandidatura = form.watch('typeGraduation')
+  const tipoCandidaturaId = tipoCandidatura
+    ? Number(tipoCandidatura)
+    : (profileData?.codigo_tipo_candidatura ?? 1)
 
-  const { data: anoLectivo } =
-    useQueryCurrentAcademicYear(
-      profileData?.grau_academico === 'Mestrado'
-        ? 2
-        : profileData?.grau_academico === 'Doutoramento'
-        ? 3
-        : 1,
-    )
+  const { data: anoLectivo } = useQueryCurrentAcademicYear(
+    tipoCandidaturaId === 2 ? 2 : tipoCandidaturaId === 3 ? 3 : 1,
+  )
 
   const { data: courses } = useCursos({
     faculdadeId,
-    tipoCandidaturaId:  profileData?.codigo_tipo_candidatura ?? 1,
+    tipoCandidaturaId,
     anoLectivo: anoLectivo?.codigo ?? 1,
-    periodo: Number(periodo)
+    periodo: Number(periodo),
   })
 
   //OPCIONAIS
@@ -109,7 +108,7 @@ export function AcademicDocument() {
     form.resetField('intendedCourse')
     form.resetField('intendedCourseSecond')
     form.resetField('intendedCourseThird')
-  }, [faculdadeId, periodo, profileData?.codigo_tipo_candidatura, anoLectivo?.codigo])
+  }, [faculdadeId, periodo, tipoCandidaturaId, anoLectivo?.codigo])
 
   const { data: periods } = useQueryPeriod()
   const periodOptions =

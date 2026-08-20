@@ -1,6 +1,7 @@
 // src/services/pre-inscricao/fetch-info-gerais-candidatura.service.ts
 
 import { gaApi } from '@/lib/ga-api'
+import { AuthStorage } from '@/storage/auth-storage'
 
 /**
  * RESPONSE TYPE
@@ -31,8 +32,13 @@ export type InfoGeraisCandidaturaResponse = {
  * SERVICE
  */
 export async function getInfoGeraisCandidaturaService(): Promise<InfoGeraisCandidaturaResponse> {
+  const codigoPreinscricao = AuthStorage.getSelectedPreinscricao()
+  const query = codigoPreinscricao
+    ? `?codigoPreinscricao=${codigoPreinscricao}`
+    : ''
+
   const data = await gaApi
-    .get('pre-inscricoes/candidatura/info-gerais')
+    .get(`pre-inscricoes/candidatura/info-gerais${query}`)
     .json<InfoGeraisCandidaturaResponse>()
 
   return data

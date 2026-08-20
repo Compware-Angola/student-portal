@@ -1,8 +1,30 @@
 import type { StudentStatusType } from '@/enums/student.status.enum'
 import { authApi } from '@/lib/auth-api'
+import { AuthStorage } from '@/storage/auth-storage'
 
-export async function getProfile(): Promise<CurrentUserResponse> {
-  return await authApi.get(`auth/current-user`).json<CurrentUserResponse>()
+export interface GetProfileOptions {
+  ignorarPreinscricao?: boolean
+}
+
+export async function getProfile(
+  options?: GetProfileOptions,
+): Promise<CurrentUserResponse> {
+  const codigoPreinscricao = AuthStorage.getSelectedPreinscricao()
+  const params = new URLSearchParams()
+
+  if (codigoPreinscricao) {
+    params.set('codigoPreinscricao', String(codigoPreinscricao))
+  }
+
+  if (options?.ignorarPreinscricao) {
+    params.set('ignorarPreinscricao', '1')
+  }
+
+  const query = params.toString()
+
+  return await authApi
+    .get(`auth/current-user${query ? `?${query}` : ''}`)
+    .json<CurrentUserResponse>()
 }
 
 export interface Confirmacao {
