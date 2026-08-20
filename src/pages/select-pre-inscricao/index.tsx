@@ -162,10 +162,10 @@ export function SelectPreInscricao() {
                 {firstName ? `Olá, ${firstName}` : 'Portal do Estudante'}
               </p>
               <h1 className="text-3xl sm:text-4xl font-bold tracking-tight leading-tight">
-                Selecione a sua pré-inscrição
+                Selecione a sua Inscrição
               </h1>
               <p className="text-white/75 mt-2.5 text-sm sm:text-[15px] leading-relaxed">
-                Escolha a pré-inscrição com a qual pretende entrar no portal. Os
+                Escolha a inscrição com a qual pretende entrar no portal. Os
                 dados apresentados serão carregados de acordo com a sua seleção.
               </p>
             </div>
@@ -212,7 +212,7 @@ export function SelectPreInscricao() {
                   <Plus className="h-5 w-5" />
                 </div>
                 <span className="font-semibold text-sm">
-                  Adicionar nova pré-inscrição
+                  Adicionar nova inscrição
                 </span>
                 <span className="text-xs text-slate-400 max-w-[200px] text-center">
                   Candidate-se a outro curso ou regime de candidatura
@@ -290,7 +290,7 @@ function PreInscricaoCard({
           </div>
           <div className="flex items-center gap-2">
             <FileText className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-            <span>Pré-inscrição n.º {preInscricao.codigo_preinscricao}</span>
+            <span>Inscrição n.º {preInscricao.codigo_preinscricao}</span>
           </div>
         </div>
 
@@ -309,7 +309,7 @@ function PreInscricaoCard({
             </>
           ) : (
             <>
-              Entrar com esta pré-inscrição
+              Entrar com esta Inscrição
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </>
           )}

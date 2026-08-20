@@ -88,13 +88,13 @@ export function StudentInfo() {
           <TooltipTrigger asChild>
             <Link
               to="/selecionar-pre-inscricao"
-              aria-label="Trocar pré-inscrição"
+              aria-label="Trocar Inscrição"
               className="inline-flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
             >
               <ArrowLeftRight className="h-4 w-4" />
             </Link>
           </TooltipTrigger>
-          <TooltipContent>Trocar pré-inscrição</TooltipContent>
+          <TooltipContent>Trocar Inscrição</TooltipContent>
         </Tooltip>
       </TooltipProvider>
     </div>
