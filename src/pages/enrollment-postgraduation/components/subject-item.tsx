@@ -13,7 +13,6 @@ export function SubjectItem({
   tipoCandidatura?: "Linceciatura" | "Pos-Graduacao"
 
 }) {
-  console.table(subject)
   return (
     <li className="flex items-center justify-between gap-4 border-b py-5">
       <div className="flex flex-col gap-2">

@@ -13,6 +13,7 @@ import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { DocumentTypeEnum } from '@/enums/document.type.enum'
 import { FileFolder } from '@/enums/file-folder'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
+import { useQueryUser } from '@/hooks/candidate/use-query-user'
 
 type ContextValue = {
   onSubmit: (data: PreSubscriptionSchema) => void
@@ -35,11 +36,13 @@ export function FormPreSubscriptionProvider({
 }: {
   children: React.ReactNode
 }) {
+
+    const { data: user } = useQueryUser()
   const [currentStep, setCurrentStep] = React.useState(0)
   const progress = ((currentStep + 1) / steps.length) * 100
   const { createPreInscricaoAsync, createPreInscricaoPending } =
     useMutationPreInscricao()
-
+console.log(user)
   const uploadMutation = useUploadSingle()
   const isLoadingPreInscription =
     createPreInscricaoPending || uploadMutation.isPending

@@ -46,15 +46,15 @@ export function login(credentials: AuthCredentials): Promise<AuthResponse> {
     .json<AuthResponse>()
 }
 
-export function checkEmail(email: string): Promise<{ exists: boolean }> {
+export function checkEmail(email: string, bi: string): Promise<{ exists: boolean }> {
   return authApi
-    .post('auth/check-email', { json: { email, platform: 'PORTAL' } })
-    .json<{ email: string, exists: boolean }>()
+    .post('auth/check-email', { json: {bi, email, platform: 'PORTAL' } })
+    .json<{bi : string, email: string, exists: boolean }>()
 }
 
-export async function requestPasswordReset(email: string, matricula?: string): Promise<void> {
+export async function requestPasswordReset(email: string, bi: string, matricula?: string): Promise<void> {
   await authApi
-    .post('auth/send-change-password', { json: { email, matricula, platform: 'PORTAL' } })
+    .post('auth/send-change-password', { json: { email, bi, matricula, platform: 'PORTAL' } })
 }
 
 export async function resetPassword(token: string, newPassword: string): Promise<void> {

@@ -8,7 +8,7 @@ import { useQueryNecessidadesEspeciais } from '@/hooks/dropdowns/use-query-neces
 import { useQuerySex } from '@/hooks/dropdowns/use-query-sex'
 import { useQueryTipoDocumento } from '@/hooks/dropdowns/use-query-tipo-documento'
 import { RegisterAvatarSelector } from '@/pages/login/components/register-avatar-selector'
-import { useQueryUser } from '@/hooks/candidate/use-query-user'
+import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 
 export function PersonalDetails() {
   const { form } = useFormPreSubscriptionForm()
@@ -17,34 +17,72 @@ export function PersonalDetails() {
   const { data: tipoNacionalidades } = useQueryNacionalidade()
   const { data: estadoCivil } = useQueryEstadoCivil()
   const { data: necessidadeEspeciais } = useQueryNecessidadesEspeciais()
-  const { data: user } = useQueryUser()
+  const { profileData } = useQueryProfile()
 
-  // Preenche os campos vindos do usuário assim que os dados chegam,
+  // Preenche os campos vindos do profileData assim que os dados chegam,
   // sem sobrescrever o que já tiver sido digitado/alterado no form.
   useEffect(() => {
-    if (!user) return
+    if (!profileData) return
 
-    if (!form.getValues('fullName')) {
-      form.setValue('fullName', user.name, {
+    if (profileData.nome_completo && !form.getValues('fullName')) {
+      form.setValue('fullName', profileData.nome_completo, {
         shouldValidate: true,
         shouldDirty: false,
       })
     }
 
-    if (user.tipo_de_documento && !form.getValues('documentType')) {
-      form.setValue('documentType', String(user.tipo_de_documento), {
+    if (profileData.tipo_documento && !form.getValues('documentType')) {
+      form.setValue('documentType', String(profileData.tipo_documento), {
         shouldDirty: false,
       })
     }
 
-    if (user.numero_documento && !form.getValues('documentNumber')) {
-      form.setValue('documentNumber', user.numero_documento, {
+    if (profileData.numero_documento && !form.getValues('documentNumber')) {
+      form.setValue('documentNumber', profileData.numero_documento, {
         shouldDirty: false,
       })
     }
-  }, [user, form])
 
-  // form.setValue('documentType', '1')
+    if (profileData.data_nascimento && !form.getValues('birthDate')) {
+      form.setValue('birthDate', profileData.data_nascimento.split('T')[0], {
+        shouldDirty: false,
+      })
+    }
+
+    if (profileData.sexo && !form.getValues('gender')) {
+      form.setValue('gender', profileData.sexo === 'Masculino' ? '2' : '1', {
+        shouldDirty: false,
+      })
+    }
+
+    if (profileData.pai && !form.getValues('fatherName')) {
+      form.setValue('fatherName', profileData.pai, {
+        shouldDirty: false,
+      })
+    }
+
+    if (profileData.mae && !form.getValues('motherName')) {
+      form.setValue('motherName', profileData.mae, {
+        shouldDirty: false,
+      })
+    }
+
+    if (profileData.data_emissao_bi && !form.getValues('issueDate')) {
+      form.setValue('issueDate', profileData.data_emissao_bi.split('T')[0], {
+        shouldDirty: false,
+      })
+    }
+
+    if (profileData.data_validade_bi && !form.getValues('expirationDate')) {
+      form.setValue(
+        'expirationDate',
+        profileData.data_validade_bi.split('T')[0],
+        {
+          shouldDirty: false,
+        },
+      )
+    }
+  }, [profileData, form])
 
   const documentoOptions =
     tipoDocumentos?.map((t) => ({
