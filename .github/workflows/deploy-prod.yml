@@ -22,11 +22,15 @@ jobs:
           fi
 
           if git rev-parse rollback-2 >/dev/null 2>&1; then
+            git tag -d rollback-2
+            git push origin :refs/tags/rollback-2
             git tag rollback-3 rollback-2
             git push origin rollback-3 --force
           fi
 
           if git rev-parse rollback-1 >/dev/null 2>&1; then
+            git tag -d rollback-1
+            git push origin :refs/tags/rollback-1
             git tag rollback-2 rollback-1
             git push origin rollback-2 --force
           fi
