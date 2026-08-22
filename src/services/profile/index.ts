@@ -1,9 +1,29 @@
 import type { StudentStatusType } from '@/enums/student.status.enum'
 import { authApi } from '@/lib/auth-api'
+import { AuthStorage } from '@/storage/auth-storage'
 
-export async function getProfile(): Promise<CurrentUserResponse> {
+export interface GetProfileOptions {
+  ignorarPreinscricao?: boolean
+}
+
+export async function getProfile(
+  options?: GetProfileOptions,
+): Promise<CurrentUserResponse> {
+  const codigoPreinscricao = AuthStorage.getSelectedPreinscricao()
+  const params = new URLSearchParams()
+
+  if (codigoPreinscricao) {
+    params.set('codigoPreinscricao', String(codigoPreinscricao))
+  }
+
+  if (options?.ignorarPreinscricao) {
+    params.set('ignorarPreinscricao', '1')
+  }
+
+  const query = params.toString()
+
   return await authApi
-    .get(`auth/current-user`)
+    .get(`auth/current-user${query ? `?${query}` : ''}`)
     .json<CurrentUserResponse>()
 }
 
@@ -15,7 +35,7 @@ export interface Confirmacao {
   classe: number
   cadeirante: string
   canal: number
-  semestre:number
+  semestre: number
 }
 
 export interface StudentProfile {
@@ -35,7 +55,14 @@ export interface StudentProfile {
   email_1: string
   bilhete_identidade: string
   contactos_telefonicos: string
-sigla_tipo_candidatura:string,
+  morada: string | null
+  data_conclusao: string | null
+  data_emissao_bi: string | null
+  data_validade_bi: string | null
+  pai: string | null
+  mae: string | null
+  instituicao_formacao: string | null
+  sigla_tipo_candidatura: string
   saldo_reset: number
   saldo_reset_anter: number
 

@@ -14,7 +14,6 @@ const PreIncriptionDashboard = () => {
   if (isLoading) {
     return <ExamLoader />
   }
-  console.table(profileData)
   return (
     <div className="space-y-6">
       <div>

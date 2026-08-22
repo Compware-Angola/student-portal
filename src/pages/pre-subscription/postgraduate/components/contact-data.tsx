@@ -17,7 +17,6 @@ export function ContactDataPostGraduate() {
         label="Email"
         control={form.control}
         name="email"
-        disabled
         placeholder="Email"
         type="text"
       />
@@ -27,7 +26,6 @@ export function ContactDataPostGraduate() {
           label="Telefone"
           control={form.control}
           name="phone"
-          disabled
           placeholder="Telefone"
           type="text"
         />

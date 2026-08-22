@@ -16,7 +16,7 @@ export function ResumeDetails() {
 
   async function handleGoToPayments() {
     await queryClient.invalidateQueries({ queryKey: ['profile'] })
-    navigate('/pre-inscricao')
+    navigate('/')
   }
 
   return (

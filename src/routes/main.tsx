@@ -30,11 +30,11 @@ import { InscriçõesRecurosPage } from '@/pages/assessments/recuros'
 import { InscriçõesEspecial } from '@/pages/assessments/especial'
 import { Enrollment } from '@/pages/enrollment'
 import { EnrollmentPostGraduation } from '@/pages/enrollment-postgraduation'
+import { SelectPreInscricao } from '@/pages/select-pre-inscricao'
+import { AuthStorage } from '@/storage/auth-storage'
+import { StudentStatus } from '@/enums/student.status.enum'
 
 export function MainRoutes() {
-
-
-
   return (
     <Route>
       <Route
@@ -85,11 +85,11 @@ export function MainRoutes() {
             matricula-pos-graduacao'
           }
         /> */}
-         <Route
+        <Route
           path="/inscricao-uc"
           element={
             <RequireStudentRoute>
-              <RegistrationsUC/>
+              <RegistrationsUC />
             </RequireStudentRoute>
           }
         />
@@ -97,7 +97,7 @@ export function MainRoutes() {
           path="/matricula"
           element={
             <RequireStudentRoute>
-              <Enrollment/>
+              <Enrollment />
             </RequireStudentRoute>
           }
         />
@@ -105,7 +105,7 @@ export function MainRoutes() {
           path="/matricula-pos-graduacao"
           element={
             <RequireStudentRoute>
-              <EnrollmentPostGraduation/>
+              <EnrollmentPostGraduation />
             </RequireStudentRoute>
           }
         />
@@ -258,6 +258,14 @@ export function MainRoutes() {
           </RequireAuth>
         }
       />
+      <Route
+        path="/selecionar-pre-inscricao"
+        element={
+          <RequireAuth>
+            <SelectPreInscricao />
+          </RequireAuth>
+        }
+      />
     </Route>
   )
 }
@@ -268,6 +276,17 @@ export function RequireStudentRoute({ children }: { children: JSX.Element }) {
   const location = useLocation()
 
   if (isLoading || !studentStatus) return null
+
+  const selectedPreInscricao = AuthStorage.getSelectedPreinscricao()
+
+  if (
+    !selectedPreInscricao &&
+    studentStatus !== StudentStatus.CANDIDATO &&
+    location.pathname !== '/selecionar-pre-inscricao' &&
+    location.pathname !== '/pre-inscricao'
+  ) {
+    return <Navigate to="/selecionar-pre-inscricao" replace />
+  }
 
   const allowedRoutes = routePermissions[studentStatus]
   const homeRoute = getHomeRoute(studentStatus)

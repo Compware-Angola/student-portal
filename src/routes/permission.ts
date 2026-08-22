@@ -18,6 +18,7 @@ export const routePermissions: Record<StudentStatusType, string[]> = {
     '/financas/notas-pagamento',
     '/perfil',
     '/inscricao-uc',
+    '/pre-inscricao',
   ],
   [StudentStatus.DIPLOMADO]: [
     '/',
@@ -34,6 +35,7 @@ export const routePermissions: Record<StudentStatusType, string[]> = {
     '/financas/notas-pagamento',
     '/perfil',
     '/inscricao-uc',
+    '/pre-inscricao',
   ],
 
   [StudentStatus.CANDIDATO]: ['/pre-inscricao'],
@@ -43,16 +45,28 @@ export const routePermissions: Record<StudentStatusType, string[]> = {
     '/perfil',
     '/exame-acesso',
     '/pre-pagamento',
+    '/pre-inscricao',
   ],
-  [StudentStatus.PREINSCRITO_MESTRADO_POS_GRADUACAO]: [ 
+  [StudentStatus.PREINSCRITO_MESTRADO_POS_GRADUACAO]: [
     '/pre-dashboard',
     '/perfil',
     '/pre-pagamento',
+    '/pre-inscricao',
   ],
-  [StudentStatus.ADMITIDO_SEM_MATRICULA]: ['/', '/perfil', '/matricula'],
-  [StudentStatus.ADMITIDO_SEM_MATRICULA_MESTRADO_POS_GRADUACAO]: ['/', '/perfil', '/matricula-pos-graduacao'],
+  [StudentStatus.ADMITIDO_SEM_MATRICULA]: [
+    '/',
+    '/perfil',
+    '/matricula',
+    '/pre-inscricao',
+  ],
+  [StudentStatus.ADMITIDO_SEM_MATRICULA_MESTRADO_POS_GRADUACAO]: [
+    '/',
+    '/perfil',
+    '/matricula-pos-graduacao',
+    '/pre-inscricao',
+  ],
   [StudentStatus.ALUNO_MATRICULADO_MESTRADO_POS_GRADUACAO]: [
-   '/',
+    '/',
     '/matricula-pos-graduacao',
     '/financas',
     '/horario',
@@ -67,7 +81,7 @@ export const routePermissions: Record<StudentStatusType, string[]> = {
     '/suporte',
     '/financas/notas-pagamento',
     '/perfil',
-    
+    '/pre-inscricao',
   ],
 }
 
@@ -76,7 +90,6 @@ const homeRouteByStatus: Record<StudentStatusType, string> = {
   [StudentStatus.CANDIDATO]: '/pre-inscricao',
   [StudentStatus.PREINSCRITO]: '/pre-dashboard',
   [StudentStatus.PREINSCRITO_MESTRADO_POS_GRADUACAO]: '/pre-dashboard',
-
 }
 export function getHomeRoute(status: StudentStatusType) {
   return homeRouteByStatus[status] ?? '/'

@@ -20,7 +20,6 @@ export function PersonalDetailsPostGraduate() {
   const { data: estadoCivil } = useQueryEstadoCivil()
   const { data: necessidadeEspeciais } = useQueryNecessidadesEspeciais()
 
-  console.table(profileData)
   const documentoOptions =
     tipoDocumentos?.map((t) => ({
       label: t.designacao,
@@ -67,7 +66,6 @@ export function PersonalDetailsPostGraduate() {
         control={form.control}
         name="fullName"
         label="Nome Completo"
-        disabled
         placeholder="Digite o nome completo"
       />
 
@@ -135,14 +133,12 @@ export function PersonalDetailsPostGraduate() {
           placeholder="Selecione"
           items={documentoOptions}
           fullWidth
-          disabled
         />
         <InputFormField
           control={form.control}
           name="documentNumber"
           label="Número do Documento"
           placeholder="Digite o número"
-          disabled
         />
       </div>
 

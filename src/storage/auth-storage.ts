@@ -7,6 +7,7 @@ type AuthData = {
 }
 
 const STORAGE_KEY = '@academico:auth'
+const PREINSCRICAO_SELECIONADA_KEY = '@academico:preinscricao-selecionada'
 export const AuthStorage = {
   /**
    * Salva os dados de autenticação no localStorage.
@@ -15,6 +16,7 @@ export const AuthStorage = {
   save(data: AuthData): void {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+      this.clearSelectedPreinscricao()
     } catch (error) {
       console.error('Erro ao salvar dados de autenticação:', error)
     }
@@ -55,5 +57,40 @@ export const AuthStorage = {
   isAuthenticated(): boolean {
     const auth = this.get()
     return !!auth?.token
+  },
+
+  /**
+   * Guarda o código da pré-inscrição selecionada pelo estudante.
+   */
+  saveSelectedPreinscricao(codigo: number): void {
+    try {
+      localStorage.setItem(PREINSCRICAO_SELECIONADA_KEY, JSON.stringify(codigo))
+    } catch (error) {
+      console.error('Erro ao guardar pré-inscrição selecionada:', error)
+    }
+  },
+
+  /**
+   * Retorna o código da pré-inscrição selecionada (ou null).
+   */
+  getSelectedPreinscricao(): number | null {
+    try {
+      const raw = localStorage.getItem(PREINSCRICAO_SELECIONADA_KEY)
+      return raw ? (JSON.parse(raw) as number) : null
+    } catch (error) {
+      console.error('Erro ao ler pré-inscrição selecionada:', error)
+      return null
+    }
+  },
+
+  /**
+   * Remove a pré-inscrição selecionada.
+   */
+  clearSelectedPreinscricao(): void {
+    try {
+      localStorage.removeItem(PREINSCRICAO_SELECIONADA_KEY)
+    } catch (error) {
+      console.error('Erro ao limpar pré-inscrição selecionada:', error)
+    }
   },
 }

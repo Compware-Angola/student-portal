@@ -28,11 +28,9 @@ export type PreInscricaoPayload = {
 }
 
 export type PreInscricaoResponse = {
+  codigo?: number
   message: string
-  data?: {
-    id?: number
-    codigoPreinscricao?: number
-  }
+  estado?: number
 }
 
 import { gaApi } from '@/lib/ga-api'

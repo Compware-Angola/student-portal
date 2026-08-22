@@ -15,7 +15,7 @@ export function useMutationConfirmOldStudentEnrollment() {
 
   const { mutate, mutateAsync, isPending, isSuccess } = useMutation({
     mutationFn: async ({selectedGrades,semestre,anoLectivo}: ConfirmOldStudentEnrollmentProps) => {
-      const pre = AuthStorage.get()?.codigoPreinscricao
+      const pre = AuthStorage.getSelectedPreinscricao() ?? AuthStorage.get()?.codigoPreinscricao
       if (!pre) throw new Error('Código de pré-inscrição não encontrado.')
       return await confirmOldEnrollmentService({
         codPreInscricao: pre,

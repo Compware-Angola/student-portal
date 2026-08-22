@@ -10,6 +10,7 @@ import {
   Send,
   Mail,
   Loader2,
+  IdCard,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ import { toast } from "sonner";
 // ---------------------------------------------------------------------------
 
 const forgotSchema = z.object({
+  bi: z.string().regex(/^\d{9}[A-Z]{2}\d{3}$/, "BI deve seguir o formato nacional"),
   email: z.string().email("E-mail inválido"),
 });
 
@@ -55,12 +57,13 @@ export function ForgotPassword({ setView }: LoginFormProps) {
   >("idle");
   const [apiMessage, setApiMessage] = useState<string>("");
   const [verifiedEmail, setVerifiedEmail] = useState<string>("");
+  const [verifiedBi, setVerifiedBi] = useState<string>("");
   const [isSending, setIsSending] = useState(false);
   const [apiError, setApiError] = useState<string>("");
 
   const form = useForm<z.infer<typeof forgotSchema>>({
     resolver: zodResolver(forgotSchema),
-    defaultValues: { email: "" },
+    defaultValues: { email: "", bi: "" },
   });
 
   // Step 1 — verifica se o e-mail existe
@@ -69,10 +72,11 @@ export function ForgotPassword({ setView }: LoginFormProps) {
     setStatus("loading");
 
     try {
-      const result = await checkEmail(data.email.toLowerCase().trim());
+      const result = await checkEmail(data.email.toLowerCase().trim(), data.bi);
 
       if (result.exists) {
         setVerifiedEmail(data.email.toLowerCase().trim());
+        setVerifiedBi(data.bi.toLowerCase().trim());
         setStatus("found"); // ← email encontrado, aguarda confirmação do utilizador
       } else {
         setStatus("not-found");
@@ -89,12 +93,13 @@ export function ForgotPassword({ setView }: LoginFormProps) {
     setApiError("");
 
     try {
-      await requestPasswordReset(verifiedEmail);
+      await requestPasswordReset(verifiedEmail, verifiedBi);
       toast.success('Link enviado!', {
         icon: <Mail className="h-5 w-5" />,
       })
       setStatus("sent"); // ← link enviado com sucesso
-    } catch {
+    } catch(err) {
+      console.log('Erro real: ', err)
       setApiError("Erro ao enviar o link. Por favor tente novamente.");
     } finally {
       setIsSending(false);
@@ -106,6 +111,7 @@ export function ForgotPassword({ setView }: LoginFormProps) {
     setApiMessage("");
     setApiError("");
     setVerifiedEmail("");
+    setVerifiedBi("");
     form.reset();
   };
 
@@ -120,7 +126,7 @@ export function ForgotPassword({ setView }: LoginFormProps) {
           Recuperar senha
         </h2>
         <p className="text-sm text-muted-foreground">
-          Informe o seu e-mail institucional para receber as instruções.
+          Informe o seu BI e o  e-mail para receber as instruções.
         </p>
       </div>
 
@@ -130,6 +136,29 @@ export function ForgotPassword({ setView }: LoginFormProps) {
       {(status === "idle" || status === "loading") && (
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+            <FormField
+              control={form.control}
+              name="bi"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>BI</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <IdCard className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        {...field}
+                        type="text"
+                        placeholder="número do BI"
+                        disabled={isLoading}
+                        className="h-11 pl-10 rounded-lg bg-slate-50 border-slate-200"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="email"
@@ -243,11 +272,14 @@ export function ForgotPassword({ setView }: LoginFormProps) {
         <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 space-y-3">
           <div className="flex items-center gap-2 font-medium">
             <XCircle className="h-5 w-5" />
-            E-mail não encontrado
+            Dados não encontrados
           </div>
-          <p>Este e-mail não consta dos nossos registos.</p>
+          <p>
+            Não encontrámos os seus dados (BI e e-mail) nos nossos registos.
+          </p>
           <p className="text-xs text-amber-700">
-            Pode solicitar a actualização dos seus dados pessoais.
+            Se ainda não possui um e-mail registado, dirija-se ao instituto
+            para actualizar os seus dados pessoais.
           </p>
 
           <Button

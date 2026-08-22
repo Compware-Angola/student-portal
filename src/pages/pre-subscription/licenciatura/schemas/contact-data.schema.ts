@@ -8,8 +8,12 @@ export const contactDataSchema = z.object({
   period: z.string().min(1, 'Periodo é obrigatório'),
   periodSecondOption: z.string().optional(),
   email: z.email("Email é obrigatório"),
-  phone: z.string().min(1, 'Telefone é obrigatório'),
-  phoneAlt: z.string().optional(),
+  phone: z.string().min(1, 'Telefone é obrigatório'),phoneAlt: z
+  .string()
+  .optional()
+  .refine((val) => !val || /^9\d{8}$/.test(val), {
+    message: 'Telefone alternativo deve ter 9 dígitos e começar por 9',
+  }),
   street: z.string().min(1, 'Morada é obrigatório'),
 })
 export const ContactKeys = Object.keys(

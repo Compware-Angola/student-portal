@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback, useRef } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 import {
   Bell,
   Calendar,
@@ -10,42 +10,42 @@ import {
   ArrowRight,
   Pin,
   ChevronLeft,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useNavigate } from "react-router-dom";
-import logo from "@/assets/logo_uma.png";
-import { LogoBackground } from "./components/logo-background";
-import { useTheme } from "next-themes";
-import heroAsset from "@/assets/hero-comunicados.jpg";
-import { useGetAvisosGeral } from "@/hooks/use-get-aviso-imagem";
-import { useQueryComunicadoBanner } from "@/hooks/use-query-comunicado-banner";
-import { useGetFileUrl } from "@/hooks/upload/use-upload";
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { useNavigate } from 'react-router-dom'
+import logo from '@/assets/logo_uma.png'
+import { LogoBackground } from './components/logo-background'
+import { useTheme } from 'next-themes'
+import heroAsset from '@/assets/hero-comunicados.jpg'
+import { useGetAvisosGeral } from '@/hooks/use-get-aviso-imagem'
+import { useQueryComunicadoBanner } from '@/hooks/use-query-comunicado-banner'
+import { useGetFileUrl } from '@/hooks/upload/use-upload'
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
 type ApiAviso = {
-  id: number;
-  assunto: string;
-  descricao: string;
-  date_expiracao?: string;
-  created_at: string;
-  tipo_aviso: string | null;
-  file_name: string | null;
-  status_?: number;
-};
+  id: number
+  assunto: string
+  descricao: string
+  date_expiracao?: string
+  created_at: string
+  tipo_aviso: string | null
+  file_name: string | null
+  status_?: number
+}
 
 type Comunicado = {
-  id: string;
-  tipo: "urgente" | "aviso" | "informativo" | "evento";
-  titulo: string;
-  resumo: string;
-  conteudo: string;
-  data: string;
-  autor: string;
-  fixado?: boolean;
-};
+  id: string
+  tipo: 'urgente' | 'aviso' | 'informativo' | 'evento'
+  titulo: string
+  resumo: string
+  conteudo: string
+  data: string
+  autor: string
+  fixado?: boolean
+}
 
 // ---------------------------------------------------------------------------
 // Default slide backgrounds
@@ -53,100 +53,107 @@ type Comunicado = {
 
 const DEFAULT_SLIDES = [
   {
-    bg: "bg-gradient-to-br from-[#3a0808] via-[#6b1010] to-[#E02020]",
-    overlay: "bg-[radial-gradient(ellipse_80%_60%_at_100%_0%,rgba(245,166,35,0.22),transparent)]",
-    label: "Comunicados",
+    bg: 'bg-gradient-to-br from-[#3a0808] via-[#6b1010] to-[#E02020]',
+    overlay:
+      'bg-[radial-gradient(ellipse_80%_60%_at_100%_0%,rgba(245,166,35,0.22),transparent)]',
+    label: 'Comunicados',
   },
   {
-    bg: "bg-gradient-to-br from-[#0a1a3a] via-[#103060] to-[#1a5faa]",
-    overlay: "bg-[radial-gradient(ellipse_70%_50%_at_0%_100%,rgba(30,200,220,0.2),transparent)]",
-    label: "Avisos",
+    bg: 'bg-gradient-to-br from-[#0a1a3a] via-[#103060] to-[#1a5faa]',
+    overlay:
+      'bg-[radial-gradient(ellipse_70%_50%_at_0%_100%,rgba(30,200,220,0.2),transparent)]',
+    label: 'Avisos',
   },
   {
-    bg: "bg-gradient-to-br from-[#0d3322] via-[#145c38] to-[#22a060]",
-    overlay: "bg-[radial-gradient(ellipse_80%_50%_at_50%_100%,rgba(245,166,35,0.18),transparent)]",
-    label: "Eventos",
+    bg: 'bg-gradient-to-br from-[#0d3322] via-[#145c38] to-[#22a060]',
+    overlay:
+      'bg-[radial-gradient(ellipse_80%_50%_at_50%_100%,rgba(245,166,35,0.18),transparent)]',
+    label: 'Eventos',
   },
-];
+]
 
 // ---------------------------------------------------------------------------
 // Tipo Configuration
 // ---------------------------------------------------------------------------
 
-const TIPO_CONFIG: Record<Comunicado["tipo"], {
-  label: string;
-  icon: typeof Info;
-  badge: string;
-  bar: string;
-  iconBg: string;
-  dot: string;
-}> = {
+const TIPO_CONFIG: Record<
+  Comunicado['tipo'],
+  {
+    label: string
+    icon: typeof Info
+    badge: string
+    bar: string
+    iconBg: string
+    dot: string
+  }
+> = {
   urgente: {
-    label: "Urgente",
+    label: 'Urgente',
     icon: AlertTriangle,
-    badge: "bg-red-50 text-red-700 border-red-200",
-    bar: "bg-[#E02020]",
-    iconBg: "bg-red-50 text-[#E02020]",
-    dot: "bg-[#E02020]",
+    badge: 'bg-red-50 text-red-700 border-red-200',
+    bar: 'bg-[#E02020]',
+    iconBg: 'bg-red-50 text-[#E02020]',
+    dot: 'bg-[#E02020]',
   },
   aviso: {
-    label: "Aviso",
+    label: 'Aviso',
     icon: Bell,
-    badge: "bg-amber-50 text-amber-800 border-amber-200",
-    bar: "bg-[#F5A623]",
-    iconBg: "bg-amber-50 text-[#F5A623]",
-    dot: "bg-[#F5A623]",
+    badge: 'bg-amber-50 text-amber-800 border-amber-200',
+    bar: 'bg-[#F5A623]',
+    iconBg: 'bg-amber-50 text-[#F5A623]',
+    dot: 'bg-[#F5A623]',
   },
   informativo: {
-    label: "Informativo",
+    label: 'Informativo',
     icon: Info,
-    badge: "bg-slate-100 text-slate-700 border-slate-200",
-    bar: "bg-slate-400",
-    iconBg: "bg-slate-100 text-slate-600",
-    dot: "bg-slate-400",
+    badge: 'bg-slate-100 text-slate-700 border-slate-200',
+    bar: 'bg-slate-400',
+    iconBg: 'bg-slate-100 text-slate-600',
+    dot: 'bg-slate-400',
   },
   evento: {
-    label: "Evento",
+    label: 'Evento',
     icon: Megaphone,
-    badge: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    bar: "bg-emerald-500",
-    iconBg: "bg-emerald-50 text-emerald-600",
-    dot: "bg-emerald-500",
+    badge: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    bar: 'bg-emerald-500',
+    iconBg: 'bg-emerald-50 text-emerald-600',
+    dot: 'bg-emerald-500',
   },
-};
+}
 
 // ---------------------------------------------------------------------------
 // API → Comunicado Mapper
 // ---------------------------------------------------------------------------
 
 function mapApiToComunicado(api: ApiAviso): Comunicado {
-  const tipoRaw = (api.tipo_aviso || "informativo").toLowerCase();
+  const tipoRaw = (api.tipo_aviso || 'informativo').toLowerCase()
 
-  const tipoMap: Record<string, Comunicado["tipo"]> = {
-    urgente: "urgente",
-    aviso: "aviso",
-    informativo: "informativo",
-    evento: "evento",
-  };
+  const tipoMap: Record<string, Comunicado['tipo']> = {
+    urgente: 'urgente',
+    aviso: 'aviso',
+    informativo: 'informativo',
+    evento: 'evento',
+  }
 
-  const tipo = tipoMap[tipoRaw] ?? "informativo";
+  const tipo = tipoMap[tipoRaw] ?? 'informativo'
 
   return {
     id: api.id.toString(),
     tipo,
     titulo: api.assunto,
-    resumo: api.descricao.length > 130
-      ? api.descricao.substring(0, 127) + "..."
-      : api.descricao,
+    resumo:
+      api.descricao.length > 130
+        ? api.descricao.substring(0, 127) + '...'
+        : api.descricao,
     conteudo: api.descricao,
-    data: new Date(api.created_at).toLocaleDateString("pt-AO", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
+    data: new Date(api.created_at).toLocaleDateString('pt-AO', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
     }),
-    autor: "Secretaria / Reitoria",
+    autor: 'Secretaria / Reitoria',
     fixado: false,
-  };
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -154,49 +161,57 @@ function mapApiToComunicado(api: ApiAviso): Comunicado {
 // ---------------------------------------------------------------------------
 
 interface HeroCarouselProps {
-  heroImages?: string[];
-  autoPlayMs?: number;
+  heroImages?: string[]
+  autoPlayMs?: number
 }
 
-function HeroCarousel({ heroImages = [], autoPlayMs = 4500 }: HeroCarouselProps) {
-  const hasImages = heroImages.length > 0;
-  const count = hasImages ? heroImages.length : DEFAULT_SLIDES.length;
-  const [current, setCurrent] = useState(0);
-  const [animating, setAnimating] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+function HeroCarousel({
+  heroImages = [],
+  autoPlayMs = 4500,
+}: HeroCarouselProps) {
+  const hasImages = heroImages.length > 0
+  const count = hasImages ? heroImages.length : DEFAULT_SLIDES.length
+  const [current, setCurrent] = useState(0)
+  const [animating, setAnimating] = useState(false)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  const go = useCallback((next: number) => {
-    if (animating) return;
-    setAnimating(true);
-    setCurrent((next + count) % count);
-    setTimeout(() => setAnimating(false), 600);
-  }, [animating, count]);
+  const go = useCallback(
+    (next: number) => {
+      if (animating) return
+      setAnimating(true)
+      setCurrent((next + count) % count)
+      setTimeout(() => setAnimating(false), 600)
+    },
+    [animating, count],
+  )
 
-  const goNext = useCallback(() => go(current + 1), [current, go]);
-  const goPrev = useCallback(() => go(current - 1), [current, go]);
+  const goNext = useCallback(() => go(current + 1), [current, go])
+  const goPrev = useCallback(() => go(current - 1), [current, go])
 
   useEffect(() => {
-    timerRef.current = setInterval(goNext, autoPlayMs);
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [goNext, autoPlayMs]);
+    timerRef.current = setInterval(goNext, autoPlayMs)
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
+    }
+  }, [goNext, autoPlayMs])
 
   const resetTimer = () => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = setInterval(goNext, autoPlayMs);
-  };
+    if (timerRef.current) clearInterval(timerRef.current)
+    timerRef.current = setInterval(goNext, autoPlayMs)
+  }
 
   return (
     <div className="absolute inset-0 overflow-hidden">
       {Array.from({ length: count }).map((_, i) => {
-        const active = i === current;
+        const active = i === current
 
         if (hasImages) {
           return (
             <div
               key={i}
               className={cn(
-                "absolute inset-0 transition-opacity duration-700 ease-in-out",
-                active ? "opacity-100 z-10" : "opacity-0 z-0"
+                'absolute inset-0 transition-opacity duration-700 ease-in-out',
+                active ? 'opacity-100 z-10' : 'opacity-0 z-0',
               )}
             >
               <img
@@ -207,43 +222,49 @@ function HeroCarousel({ heroImages = [], autoPlayMs = 4500 }: HeroCarouselProps)
               />
               <div className="absolute inset-0 bg-gradient-to-br from-[#3a0808]/90 via-[#6b1010]/75 to-[#E02020]/50" />
             </div>
-          );
+          )
         }
 
-        const slide = DEFAULT_SLIDES[i];
+        const slide = DEFAULT_SLIDES[i]
         return (
           <div
             key={i}
             className={cn(
-              "absolute inset-0 transition-opacity duration-700 ease-in-out",
+              'absolute inset-0 transition-opacity duration-700 ease-in-out',
               slide.bg,
-              active ? "opacity-100 z-10" : "opacity-0 z-0"
+              active ? 'opacity-100 z-10' : 'opacity-0 z-0',
             )}
           >
-            <div className={cn("absolute inset-0", slide.overlay)} />
+            <div className={cn('absolute inset-0', slide.overlay)} />
             <div
               className="absolute inset-0 opacity-[0.04]"
               style={{
                 backgroundImage:
-                  "repeating-linear-gradient(0deg,transparent,transparent 39px,white 39px,white 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,white 39px,white 40px)",
+                  'repeating-linear-gradient(0deg,transparent,transparent 39px,white 39px,white 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,white 39px,white 40px)',
               }}
             />
           </div>
-        );
+        )
       })}
 
       {count > 1 && (
         <>
           <button
             aria-label="Slide anterior"
-            onClick={() => { goPrev(); resetTimer(); }}
+            onClick={() => {
+              goPrev()
+              resetTimer()
+            }}
             className="absolute left-4 top-1/2 -translate-y-1/2 z-20 h-9 w-9 rounded-full bg-black/25 backdrop-blur hover:bg-black/40 border border-white/20 flex items-center justify-center transition-colors"
           >
             <ChevronLeft className="h-4 w-4 text-white" />
           </button>
           <button
             aria-label="Próximo slide"
-            onClick={() => { goNext(); resetTimer(); }}
+            onClick={() => {
+              goNext()
+              resetTimer()
+            }}
             className="absolute right-4 top-1/2 -translate-y-1/2 z-20 h-9 w-9 rounded-full bg-black/25 backdrop-blur hover:bg-black/40 border border-white/20 flex items-center justify-center transition-colors"
           >
             <ChevronRight className="h-4 w-4 text-white" />
@@ -257,19 +278,22 @@ function HeroCarousel({ heroImages = [], autoPlayMs = 4500 }: HeroCarouselProps)
             <button
               key={i}
               aria-label={`Ir para slide ${i + 1}`}
-              onClick={() => { go(i); resetTimer(); }}
+              onClick={() => {
+                go(i)
+                resetTimer()
+              }}
               className={cn(
-                "rounded-full transition-all duration-300",
+                'rounded-full transition-all duration-300',
                 i === current
-                  ? "bg-[#F5A623] w-5 h-2"
-                  : "bg-white/40 hover:bg-white/60 w-2 h-2"
+                  ? 'bg-[#F5A623] w-5 h-2'
+                  : 'bg-white/40 hover:bg-white/60 w-2 h-2',
               )}
             />
           ))}
         </div>
       )}
     </div>
-  );
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -277,117 +301,113 @@ function HeroCarousel({ heroImages = [], autoPlayMs = 4500 }: HeroCarouselProps)
 // ---------------------------------------------------------------------------
 
 interface ComunicadoProps {
-  heroImages?: string[];
+  heroImages?: string[]
 }
 
 export function Comunicado({ heroImages: propHeroImages }: ComunicadoProps) {
-  const { setTheme } = useTheme();
-  const navigate = useNavigate();
+  const { setTheme } = useTheme()
+  const navigate = useNavigate()
 
   const [filtro, setFiltro] = useState<
-    "todos" | "urgente" | "aviso" | "informativo" | "evento"
-  >("todos");
+    'todos' | 'urgente' | 'aviso' | 'informativo' | 'evento'
+  >('todos')
 
-  const { data: apiData, isLoading } = useGetAvisosGeral("EST");
+  const { data: apiData, isLoading } = useGetAvisosGeral('EST')
 
-  const { data: bannerData } = useQueryComunicadoBanner();
+  const { data: bannerData } = useQueryComunicadoBanner()
 
-  const {
-    mutate: getFileUrl,
-    data: fileUrl,
-  } = useGetFileUrl();
+  const { mutate: getFileUrl, data: fileUrl } = useGetFileUrl()
 
-  const [bannerImage, setBannerImage] = useState(heroAsset);
+  const [bannerImage, setBannerImage] = useState(heroAsset)
 
   // Buscar a URL do banner no S3
   useEffect(() => {
-    if (!bannerData?.filename) return;
+    if (!bannerData?.filename) return
 
     getFileUrl({
       key: bannerData.filename,
-    });
-  }, [bannerData?.filename, getFileUrl]);
+    })
+  }, [bannerData?.filename, getFileUrl])
 
   // Validar e aplicar a imagem do S3
   useEffect(() => {
-    if (!fileUrl?.url) return;
+    if (!fileUrl?.url) return
 
-    let cancelled = false;
+    let cancelled = false
 
-    const image = new Image();
+    const image = new Image()
 
     image.onload = () => {
       if (!cancelled) {
-        setBannerImage(fileUrl.url);
+        setBannerImage(fileUrl.url)
       }
-    };
+    }
 
     image.onerror = () => {
       if (!cancelled) {
-        setBannerImage(heroAsset);
+        setBannerImage(heroAsset)
       }
-    };
+    }
 
-    image.src = fileUrl.url;
+    image.src = fileUrl.url
 
     return () => {
-      cancelled = true;
-      image.onload = null;
-      image.onerror = null;
-    };
-  }, [fileUrl?.url]);
-
+      cancelled = true
+      image.onload = null
+      image.onerror = null
+    }
+  }, [fileUrl?.url])
 
   // ==================== IMAGEM DO BANNER ====================
   const heroImages = useMemo(() => {
     if (propHeroImages && propHeroImages.length > 0) {
-      return propHeroImages;
+      return propHeroImages
     }
 
-    return [bannerImage];
-  }, [propHeroImages, bannerImage]);
+    return [bannerImage]
+  }, [propHeroImages, bannerImage])
 
   // ==================== COMUNICADOS ====================
   const comunicados = useMemo(() => {
-    if (!apiData || !Array.isArray(apiData)) return [];
-    return apiData.map(mapApiToComunicado);
-  }, [apiData]);
+    if (!apiData || !Array.isArray(apiData)) return []
+    return apiData.map(mapApiToComunicado)
+  }, [apiData])
 
-  const [selecionado, setSelecionado] = useState<Comunicado | null>(null);
+  const [selecionado, setSelecionado] = useState<Comunicado | null>(null)
 
   const lista = useMemo(() => {
-    if (filtro === "todos") return comunicados;
-    return comunicados.filter((c) => c.tipo === filtro);
-  }, [comunicados, filtro]);
+    if (filtro === 'todos') return comunicados
+    return comunicados.filter((c) => c.tipo === filtro)
+  }, [comunicados, filtro])
 
   // Atualiza item selecionado
   useEffect(() => {
     if (lista.length > 0 && !selecionado) {
-      setSelecionado(lista[0]);
+      setSelecionado(lista[0])
     }
-  }, [lista, selecionado]);
+  }, [lista, selecionado])
 
   useEffect(() => {
-    setTheme("light");
-  }, [setTheme]);
-
-  if (comunicados.length === 0 && !isLoading) {
-    if (typeof window !== "undefined") navigate("/");
-    return null;
-  }
+    setTheme('light')
+  }, [setTheme])
 
   const filtros = [
-    { value: "todos" as const, label: "Todos" },
-    { value: "urgente" as const, label: "Urgentes" },
-    { value: "aviso" as const, label: "Avisos" },
-    { value: "informativo" as const, label: "Informativos" },
-    { value: "evento" as const, label: "Eventos" },
-  ];
+    { value: 'todos' as const, label: 'Todos' },
+    { value: 'urgente' as const, label: 'Urgentes' },
+    { value: 'aviso' as const, label: 'Avisos' },
+    { value: 'informativo' as const, label: 'Informativos' },
+    { value: 'evento' as const, label: 'Eventos' },
+  ]
+
+  const isListaVazia = comunicados.length === 0 && !isLoading
 
   return (
     <div className="min-h-screen bg-[#F7F6F3]">
       {/* Hero Section */}
-      <section className="relative overflow-hidden text-white" style={{ minHeight: 220 }}>
+      <section
+        className="relative overflow-hidden text-white"
+        style={{ minHeight: 220 }}
+      >
         <HeroCarousel heroImages={heroImages} />
 
         <div className="relative z-20 max-w-7xl mx-auto px-6 pt-5 pb-0 flex items-center justify-between">
@@ -416,7 +436,11 @@ export function Comunicado({ heroImages: propHeroImages }: ComunicadoProps) {
                 Mantenha-se informado
               </h1>
               <p className="text-white/75 mt-2.5 text-sm sm:text-[15px] leading-relaxed">
-                Tem <span className="font-semibold text-[#F5A623]">{comunicados.length}</span> comunicado(s) novo(s) da Universidade.
+                Tem{' '}
+                <span className="font-semibold text-[#F5A623]">
+                  {comunicados.length}
+                </span>{' '}
+                comunicado(s) novo(s) da Universidade.
               </p>
             </div>
           </div>
@@ -429,21 +453,21 @@ export function Comunicado({ heroImages: propHeroImages }: ComunicadoProps) {
       <div className="max-w-7xl mx-auto px-6 py-5">
         <div className="flex flex-wrap gap-2">
           {filtros.map((f) => {
-            const active = filtro === f.value;
+            const active = filtro === f.value
             return (
               <button
                 key={f.value}
                 onClick={() => setFiltro(f.value)}
                 className={cn(
-                  "px-3.5 py-1.5 rounded-full text-xs font-medium border transition-all duration-150",
+                  'px-3.5 py-1.5 rounded-full text-xs font-medium border transition-all duration-150',
                   active
-                    ? "bg-[#E02020] text-white border-[#E02020] shadow-sm"
-                    : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:shadow-sm"
+                    ? 'bg-[#E02020] text-white border-[#E02020] shadow-sm'
+                    : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:shadow-sm',
                 )}
               >
                 {f.label}
               </button>
-            );
+            )
           })}
           <span className="ml-auto self-center text-xs text-slate-400">
             {lista.length} resultado(s)
@@ -452,127 +476,197 @@ export function Comunicado({ heroImages: propHeroImages }: ComunicadoProps) {
       </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 pb-12 grid lg:grid-cols-[1fr_1.5fr] gap-5">
+      <main
+        className={cn(
+          'max-w-7xl mx-auto px-6 pb-12 relative',
+          !isListaVazia && 'grid lg:grid-cols-[1fr_1.5fr] gap-5',
+        )}
+      >
         <LogoBackground bottom="2.5rem" left="2.5rem" />
 
-        {/* Lista */}
-        <div className="space-y-2.5">
-          {lista.map((c) => {
-            const cfg = TIPO_CONFIG[c.tipo];
-            const Icon = cfg.icon;
-            const isActive = selecionado?.id === c.id;
-
-            return (
+        {isListaVazia ? (
+          <div className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden h-fit shadow-sm max-w-lg mx-auto text-center">
+            <div className="h-1 w-full bg-gradient-to-r from-[#E02020] to-[#F5A623]" />
+            <div className="p-8">
+              <div className="h-12 w-12 rounded-full bg-amber-50 text-[#F5A623] flex items-center justify-center mx-auto">
+                <Bell className="h-6 w-6" />
+              </div>
+              <h2 className="text-lg font-bold text-slate-900 mt-4">
+                Sem comunicados por enquanto
+              </h2>
+              <p className="text-sm text-slate-500 mt-2">
+                Assim que houver novidades da Universidade, elas aparecerão
+                aqui.
+              </p>
               <button
-                key={c.id}
-                onClick={() => setSelecionado(c)}
-                className={cn(
-                  "group w-full text-left bg-white rounded-2xl border overflow-hidden transition-all duration-200 relative",
-                  isActive
-                    ? "border-[#E02020]/40 shadow-[0_0_0_2px_rgba(224,32,32,0.15)] shadow-md"
-                    : "border-slate-200/80 hover:border-slate-300 hover:shadow-md"
-                )}
+                onClick={() => navigate('/')}
+                className="mt-6 inline-flex items-center justify-center gap-2 bg-[#E02020] hover:bg-[#c01818] active:bg-[#a81414] text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors shadow-sm"
               >
-                <span className={cn("absolute left-0 top-0 bottom-0 w-[3px] rounded-l-2xl", cfg.bar)} />
+                Continuar para o portal
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Lista */}
+            <div className="space-y-2.5">
+              {lista.map((c) => {
+                const cfg = TIPO_CONFIG[c.tipo]
+                const Icon = cfg.icon
+                const isActive = selecionado?.id === c.id
 
-                <div className="p-4 pl-5">
-                  <div className="flex items-start gap-3">
-                    <div className={cn("h-9 w-9 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105", cfg.iconBg)}>
-                      <Icon className="h-[18px] w-[18px]" />
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => setSelecionado(c)}
+                    className={cn(
+                      'group w-full text-left bg-white rounded-2xl border overflow-hidden transition-all duration-200 relative',
+                      isActive
+                        ? 'border-[#E02020]/40 shadow-[0_0_0_2px_rgba(224,32,32,0.15)] shadow-md'
+                        : 'border-slate-200/80 hover:border-slate-300 hover:shadow-md',
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        'absolute left-0 top-0 bottom-0 w-[3px] rounded-l-2xl',
+                        cfg.bar,
+                      )}
+                    />
+
+                    <div className="p-4 pl-5">
+                      <div className="flex items-start gap-3">
+                        <div
+                          className={cn(
+                            'h-9 w-9 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105',
+                            cfg.iconBg,
+                          )}
+                        >
+                          <Icon className="h-[18px] w-[18px]" />
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <span
+                              className={cn(
+                                'text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border',
+                                cfg.badge,
+                              )}
+                            >
+                              {cfg.label}
+                            </span>
+                            {c.fixado && (
+                              <span className="inline-flex items-center gap-1 text-[10px] text-slate-400 font-medium">
+                                <Pin className="h-3 w-3" /> Fixado
+                              </span>
+                            )}
+                          </div>
+
+                          <h3 className="font-semibold text-sm text-slate-900 line-clamp-2 leading-snug">
+                            {c.titulo}
+                          </h3>
+                          <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                            {c.resumo}
+                          </p>
+
+                          <div className="flex items-center gap-3 mt-2.5 text-[11px] text-slate-400">
+                            <span className="inline-flex items-center gap-1">
+                              <Calendar className="h-3 w-3" /> {c.data}
+                            </span>
+                            <span className="text-slate-200">·</span>
+                            <span>{c.autor}</span>
+                          </div>
+                        </div>
+
+                        <ChevronRight
+                          className={cn(
+                            'h-4 w-4 shrink-0 transition-all duration-200',
+                            isActive
+                              ? 'text-[#E02020] translate-x-0.5'
+                              : 'text-slate-300 group-hover:text-slate-400',
+                          )}
+                        />
+                      </div>
                     </div>
+                  </button>
+                )
+              })}
+            </div>
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <span className={cn("text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border", cfg.badge)}>
-                          {cfg.label}
-                        </span>
-                        {c.fixado && (
-                          <span className="inline-flex items-center gap-1 text-[10px] text-slate-400 font-medium">
-                            <Pin className="h-3 w-3" /> Fixado
-                          </span>
+            {/* Detalhe */}
+            {selecionado && (
+              <article className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden h-fit sticky top-6 shadow-sm">
+                <div
+                  className={cn(
+                    'h-1 w-full',
+                    TIPO_CONFIG[selecionado.tipo].bar,
+                  )}
+                />
+
+                <div className="p-7">
+                  <div className="flex items-start justify-between gap-3 mb-5">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span
+                        className={cn(
+                          'inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full border',
+                          TIPO_CONFIG[selecionado.tipo].badge,
                         )}
-                      </div>
-
-                      <h3 className="font-semibold text-sm text-slate-900 line-clamp-2 leading-snug">
-                        {c.titulo}
-                      </h3>
-                      <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
-                        {c.resumo}
-                      </p>
-
-                      <div className="flex items-center gap-3 mt-2.5 text-[11px] text-slate-400">
-                        <span className="inline-flex items-center gap-1">
-                          <Calendar className="h-3 w-3" /> {c.data}
+                      >
+                        {TIPO_CONFIG[selecionado.tipo].label}
+                      </span>
+                      {selecionado.fixado && (
+                        <span className="inline-flex items-center gap-1 text-xs text-slate-400 font-medium">
+                          <Pin className="h-3 w-3" /> Fixado
                         </span>
-                        <span className="text-slate-200">·</span>
-                        <span>{c.autor}</span>
-                      </div>
+                      )}
                     </div>
+                    <span
+                      className={cn(
+                        'h-2 w-2 rounded-full shrink-0 mt-1',
+                        TIPO_CONFIG[selecionado.tipo].dot,
+                      )}
+                    />
+                  </div>
 
-                    <ChevronRight className={cn("h-4 w-4 shrink-0 transition-all duration-200", isActive ? "text-[#E02020] translate-x-0.5" : "text-slate-300 group-hover:text-slate-400")} />
+                  <h2 className="text-[22px] font-bold text-slate-900 tracking-tight leading-snug">
+                    {selecionado.titulo}
+                  </h2>
+
+                  <div className="flex items-center gap-3 mt-3 text-xs text-slate-400">
+                    <span className="inline-flex items-center gap-1.5">
+                      <Calendar className="h-3.5 w-3.5" /> {selecionado.data}
+                    </span>
+                    <span className="text-slate-200">·</span>
+                    <span className="font-medium text-slate-500">
+                      {selecionado.autor}
+                    </span>
+                  </div>
+
+                  <div className="my-5 h-px bg-slate-100" />
+
+                  <p className="text-slate-700 leading-[1.75] text-[15px]">
+                    {selecionado.conteudo}
+                  </p>
+
+                  <div className="mt-8 pt-5 border-t border-slate-100 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+                    <div className="inline-flex items-center gap-2 text-xs text-emerald-600 font-medium">
+                      <CheckCircle2 className="h-4 w-4" />
+                      Verificado
+                    </div>
+                    <button
+                      onClick={() => navigate('/')}
+                      className="inline-flex items-center justify-center gap-2 bg-[#E02020] hover:bg-[#c01818] active:bg-[#a81414] text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors shadow-sm"
+                    >
+                      Continuar para o portal
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Detalhe */}
-        {selecionado && (
-          <article className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden h-fit sticky top-6 shadow-sm">
-            <div className={cn("h-1 w-full", TIPO_CONFIG[selecionado.tipo].bar)} />
-
-            <div className="p-7">
-              <div className="flex items-start justify-between gap-3 mb-5">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className={cn("inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full border", TIPO_CONFIG[selecionado.tipo].badge)}>
-
-                    {TIPO_CONFIG[selecionado.tipo].label}
-                  </span>
-                  {selecionado.fixado && (
-                    <span className="inline-flex items-center gap-1 text-xs text-slate-400 font-medium">
-                      <Pin className="h-3 w-3" /> Fixado
-                    </span>
-                  )}
-                </div>
-                <span className={cn("h-2 w-2 rounded-full shrink-0 mt-1", TIPO_CONFIG[selecionado.tipo].dot)} />
-              </div>
-
-              <h2 className="text-[22px] font-bold text-slate-900 tracking-tight leading-snug">
-                {selecionado.titulo}
-              </h2>
-
-              <div className="flex items-center gap-3 mt-3 text-xs text-slate-400">
-                <span className="inline-flex items-center gap-1.5">
-                  <Calendar className="h-3.5 w-3.5" /> {selecionado.data}
-                </span>
-                <span className="text-slate-200">·</span>
-                <span className="font-medium text-slate-500">{selecionado.autor}</span>
-              </div>
-
-              <div className="my-5 h-px bg-slate-100" />
-
-              <p className="text-slate-700 leading-[1.75] text-[15px]">
-                {selecionado.conteudo}
-              </p>
-
-              <div className="mt-8 pt-5 border-t border-slate-100 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-                <div className="inline-flex items-center gap-2 text-xs text-emerald-600 font-medium">
-                  <CheckCircle2 className="h-4 w-4" />
-                  Verificado
-                </div>
-                <button
-                  onClick={() => navigate("/")}
-                  className="inline-flex items-center justify-center gap-2 bg-[#E02020] hover:bg-[#c01818] active:bg-[#a81414] text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors shadow-sm"
-                >
-                  Continuar para o portal
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          </article>
+              </article>
+            )}
+          </>
         )}
       </main>
     </div>
-  );
+  )
 }
