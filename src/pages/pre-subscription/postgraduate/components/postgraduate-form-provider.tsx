@@ -16,6 +16,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import { FileFolder } from '@/enums/file-folder'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
+import {
+  TipoCandidaturaPath,
+  useTipoCandidaturaPath,
+} from '../../tipo-candidatura'
 
 type PostGraduateContextValue = {
   onSubmit: (data: PreSubscriptionPostGraduateSchema) => void
@@ -54,9 +58,19 @@ export function FormPreSubscriptionPostGraduateProvider({
 //grauacademico
  
   const { profileData } = useQueryProfile()
-   const codigoTipoCandidatura = profileData?.grau_academico==='Mestrado' ? 2:3
-  const { data: currentAcademicYear } = useQueryCurrentAcademicYear(codigoTipoCandidatura,
-  !!codigoTipoCandidatura)
+  const tipo = useTipoCandidaturaPath()
+  const codigoTipoCandidatura =
+    tipo === TipoCandidaturaPath.MESTRADO
+      ? 2
+      : tipo === TipoCandidaturaPath.DOUTORAMENTO
+        ? 3
+        : profileData?.grau_academico === 'Mestrado'
+          ? 2
+          : 3
+  const { data: currentAcademicYear } = useQueryCurrentAcademicYear(
+    codigoTipoCandidatura,
+    !!codigoTipoCandidatura,
+  )
 
   const uploadFile = async (data: File, folder: FileFolder = FileFolder.CANDIDATURA) => {
     // const formData = new FormData()
