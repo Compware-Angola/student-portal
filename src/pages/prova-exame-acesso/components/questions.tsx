@@ -12,7 +12,7 @@ import { Progress } from '@/components/ui/progress'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Separator } from '@radix-ui/react-separator'
 import { ChevronLeft, ChevronRight, Send } from 'lucide-react'
-import { useEffect, useState, forwardRef, useImperativeHandle } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { PasswordDialog } from './password-dialog'
 import { StartExam } from './start-exam'
@@ -21,7 +21,7 @@ import { fmt } from '@/utils/fmt'
 import { useMutationUnlockTest } from '@/hooks/pre-registation/use-mutation-validate-password'
 import { useQueryInfoGeraisCandidatura } from '@/hooks/pre-registation/use-query-info-gerais-candidatura'
 import { calculateDuration } from '@/utils/calcular-duracao'
-import { useSubmitCandidateExam, useSubmitCandidateExamFinal } from '@/hooks/exame/subamte-exame-mutation'
+import { useSubmitCandidateExam } from '@/hooks/exame/subamte-exame-mutation'
 import { LatexText } from '@/utils/latex-text'
 
 // Formato mapeado pelo pai
@@ -57,17 +57,13 @@ interface QuestionsProps {
   }
   provaId: number
   candidateId: number
-  onExamFinished: () => void
-}
-
-// Handle exposto ao pai via ref, para permitir submissão forçada (ex: tempo esgotado)
-export type QuestionsHandle = {
-  submitExam: () => void
+  isSubmittingFinal: boolean
+  onSubmitFinal: () => void
 }
 
 const DEFAULT_DURATION = 1000 * 60 * 60 * 3 // 3h
 
-const Questions = forwardRef<QuestionsHandle, QuestionsProps>(function Questions({
+function Questions({
   current,
   setCurrent,
   questions,
@@ -80,8 +76,9 @@ const Questions = forwardRef<QuestionsHandle, QuestionsProps>(function Questions
   examInfo,
   provaId,
   candidateId,
-  onExamFinished,
-}, ref) {
+  isSubmittingFinal,
+  onSubmitFinal,
+}: QuestionsProps) {
   const q = questions[current]
   const [passwordOpen, setPasswordOpen] = useState(false)
   const [passwordInput, setPasswordInput] = useState('')
@@ -89,24 +86,17 @@ const Questions = forwardRef<QuestionsHandle, QuestionsProps>(function Questions
   const [passwordError, setPasswordError] = useState<string | null>(null)
   const [shake, setShake] = useState(false)
   const [startExam, setStartExam] = useState(true)
-  const [isSubmittingFinal, setIsSubmittingFinal] = useState(false)
 
   const { profileData } = useQueryProfile()
   const { data: info } = useQueryInfoGeraisCandidatura()
   const mutateUnlockPassword = useMutationUnlockTest()
 
   const { mutateAsync: submitAnswer } = useSubmitCandidateExam(candidateId)
-  const { mutateAsync: submitFinal } = useSubmitCandidateExamFinal(candidateId)
 
   // ─── Unlock / Password ──────────────────────────────────────────────────────
   const saveUnlockAccess = () => {
     const key = `@${candidateId}`
     localStorage.setItem(key, JSON.stringify({ unlocked: true, timestamp: Date.now() }))
-  }
-
-  const clearUnlockAccess = () => {
-    const key = `@${candidateId}`
-    localStorage.removeItem(key)
   }
 
   const loadUnlockAccess = () => {
@@ -162,29 +152,6 @@ const Questions = forwardRef<QuestionsHandle, QuestionsProps>(function Questions
       toast.error('Erro ao guardar resposta. Verifique a ligação.')
     }
   }
-
-  // ─── Submissão final ─────────────────────────────────────────────────────────
-  const handleFinalSubmit = async () => {
-    if (isSubmittingFinal) return
-    setIsSubmittingFinal(true)
-    try {
-      await submitFinal({ provaId })
-      // Limpa o acesso desbloqueado guardado localmente — a prova já foi
-      // submetida, não faz sentido manter o "unlock" ativo para este candidato.
-      clearUnlockAccess()
-      toast.success('Prova submetida com sucesso!')
-      onExamFinished()
-    } catch {
-      toast.error('Erro ao finalizar a prova. Tente novamente.')
-    } finally {
-      setIsSubmittingFinal(false)
-    }
-  }
-
-  // Expõe a submissão final ao componente pai (usado quando o tempo esgota)
-  useImperativeHandle(ref, () => ({
-    submitExam: handleFinalSubmit,
-  }))
 
   // ─── Guard: prova não carregada ainda ────────────────────────────────────────
   if (!q) return null
@@ -301,7 +268,7 @@ const Questions = forwardRef<QuestionsHandle, QuestionsProps>(function Questions
               </Button>
 
               {current === questions.length - 1 ? (
-                <Button onClick={handleFinalSubmit} disabled={isSubmittingFinal}>
+                <Button onClick={onSubmitFinal} disabled={isSubmittingFinal}>
                   <Send className="h-4 w-4" />
                   {isSubmittingFinal ? 'A submeter...' : 'Submeter Prova'}
                 </Button>
@@ -344,7 +311,7 @@ const Questions = forwardRef<QuestionsHandle, QuestionsProps>(function Questions
             <Separator className="my-4" />
             <Button
               className="w-full"
-              onClick={handleFinalSubmit}
+              onClick={onSubmitFinal}
               disabled={isSubmittingFinal}
             >
               <Send className="h-4 w-4" />
@@ -355,6 +322,6 @@ const Questions = forwardRef<QuestionsHandle, QuestionsProps>(function Questions
       </div>
     </div>
   )
-})
+}
 
 export default Questions

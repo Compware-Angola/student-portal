@@ -3,7 +3,6 @@ import { toast } from 'sonner'
 import AcessoBloqueado from './components/block-info'
 import WaitingTest from './components/waiting-test'
 import Questions from './components/questions'
-import type { QuestionsHandle } from './components/questions'
 import { useQueryInfoGeraisCandidatura } from '@/hooks/pre-registation/use-query-info-gerais-candidatura'
 import { AdmissionStatus } from '@/enums/admission.status.enum'
 import { FinanceInfo } from './components/finance-info'
@@ -14,10 +13,21 @@ import { useQueryCandidateExam } from '@/hooks/exame/use-query-exame'
 import type { Question } from '@/services/exame-acesso/exame.service'
 import { CheckCircle2, CheckIcon } from 'lucide-react'
 import { ExamPendingInfo } from './components/aguardar-atribuicao-prova'
+import { useSubmitCandidateExamFinal } from '@/hooks/exame/subamte-exame-mutation'
 
 const FORCE_EXAM_OPEN = false
 const INSTITUTION_NAME = 'Universidade Metodista de Angola'
 const INSTITUTION_WIFI = 'UMA-CAMPUS'
+
+// Chave de cache no localStorage para as respostas da prova. É construída por
+// candidato + prova para garantir que respostas de provas/candidatos diferentes
+// nunca se misturam no mesmo dispositivo.
+const ANSWERS_CACHE_PREFIX = '@prova-exame-acesso:respostas:'
+
+// Limite de tentativas e intervalo para a submissão automática (tempo esgotado)
+// quando a primeira chamada falha (ex.: falha de rede momentânea).
+const MAX_AUTO_SUBMIT_ATTEMPTS = 5
+const AUTO_SUBMIT_RETRY_DELAY_MS = 5000
 
 const examInfo = {
   room: 'Auditório A — Bloco 2',
@@ -128,18 +138,169 @@ const ProvaExameAcesso = () => {
   const examOver = examEnd ? Date.now() >= examEnd.getTime() : false
   const isExamTime = examOpen && !examOver
 
-  // Ref para o componente Questions, usado para forçar a submissão real
-  // quando o tempo esgota (em vez de só simular localmente).
-  const questionsRef = useRef<QuestionsHandle>(null)
-
   // Trava para garantir que a submissão automática (por tempo esgotado)
   // só é disparada UMA vez, mesmo que o intervalo continue a correr
   // enquanto a chamada assíncrona de submitFinal ainda não terminou.
   const autoSubmitTriggered = useRef(false)
 
+  // Controle da submissão final: o ref impede chamadas concorrentes e o
+  // estado alimenta o "A submeter..." dos botões.
+  const isSubmittingFinalRef = useRef(false)
+  const [isSubmittingFinal, setIsSubmittingFinal] = useState(false)
+
+  // Controle de retry da submissão automática (tempo esgotado + falha de rede)
+  const autoSubmitAttempts = useRef(0)
+  const autoSubmitRetryTimer = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  )
+
   const [current, setCurrent] = useState(0)
   const [answers, setAnswers] = useState<Record<number, number>>({})
   const [submitted, setSubmitted] = useState(false)
+
+  // ─── Cache local das respostas (localStorage) ────────────────────────────────
+  // Guarda as respostas e a pergunta atual para que uma falha de internet ou um
+  // reload da página não resulte em perda de informação. O cache é limpo quando
+  // a prova é submetida com sucesso.
+  const cacheKey = useMemo(() => {
+    const candidateId = profileData?.codigo_preinscricao
+    const pId = candidateExam?.provaId
+    if (!candidateId || !pId) return null
+    return `${ANSWERS_CACHE_PREFIX}${candidateId}:${pId}`
+  }, [profileData?.codigo_preinscricao, candidateExam?.provaId])
+
+  const [restored, setRestored] = useState(false)
+
+  // Restaura as respostas guardadas assim que a chave de cache fica disponível
+  useEffect(() => {
+    if (!cacheKey || restored) return
+    try {
+      const stored = localStorage.getItem(cacheKey)
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        if (parsed && typeof parsed === 'object') {
+          if (parsed.answers && typeof parsed.answers === 'object') {
+            setAnswers(parsed.answers)
+          }
+          if (typeof parsed.current === 'number') {
+            setCurrent(parsed.current)
+          }
+        }
+      }
+    } catch {
+      localStorage.removeItem(cacheKey)
+    }
+    setRestored(true)
+  }, [cacheKey, restored])
+
+  // Persiste as respostas a cada alteração (só depois de restaurado, para não
+  // sobrescrever o cache com o estado vazio inicial)
+  useEffect(() => {
+    if (!cacheKey || !restored || submitted) return
+    try {
+      localStorage.setItem(cacheKey, JSON.stringify({ answers, current }))
+    } catch {
+      // Storage indisponível/cheio — ignora silenciosamente
+    }
+  }, [cacheKey, restored, submitted, answers, current])
+
+  const candidateId = profileData?.codigo_preinscricao
+  const provaId = candidateExam?.provaId
+
+  const { mutateAsync: submitFinal } = useSubmitCandidateExamFinal(candidateId!)
+
+  const clearUnlockAccess = () => {
+    const key = `@${candidateId}`
+    try {
+      localStorage.removeItem(key)
+    } catch {
+      // ignora
+    }
+  }
+
+  const cancelAutoSubmitRetry = () => {
+    if (autoSubmitRetryTimer.current) {
+      clearTimeout(autoSubmitRetryTimer.current)
+      autoSubmitRetryTimer.current = null
+    }
+  }
+
+  // Ref que aponta sempre para a versão mais recente de handleFinalSubmit.
+  // Evita que o efeito do temporizador capture um handler "preso" no tempo e
+  // dispensa adicionar handleFinalSubmit ao array de dependências (o que
+  // reiniciaria o setInterval a cada render).
+  const handleFinalSubmitRef = useRef<(opts?: { auto?: boolean }) => Promise<void>>(
+    async () => {},
+  )
+
+  const scheduleAutoSubmitRetry = () => {
+    if (autoSubmitAttempts.current >= MAX_AUTO_SUBMIT_ATTEMPTS) {
+      toast.error(
+        'Não foi possível submeter a prova automaticamente. Submeta manualmente.',
+      )
+      return
+    }
+    autoSubmitAttempts.current += 1
+    cancelAutoSubmitRetry()
+    autoSubmitRetryTimer.current = setTimeout(() => {
+      void handleFinalSubmitRef.current({ auto: true })
+    }, AUTO_SUBMIT_RETRY_DELAY_MS)
+  }
+
+  const handleFinalSubmit = async (opts: { auto?: boolean } = {}) => {
+    if (isSubmittingFinalRef.current) return
+    if (!provaId) {
+      if (opts.auto) {
+        // A prova (provaId) ainda não carregou — tenta novamente em breve.
+        scheduleAutoSubmitRetry()
+      } else {
+        toast.error('Prova ainda não disponível.')
+      }
+      return
+    }
+
+    isSubmittingFinalRef.current = true
+    setIsSubmittingFinal(true)
+    try {
+      await submitFinal({ provaId })
+      autoSubmitAttempts.current = 0
+      cancelAutoSubmitRetry()
+      clearUnlockAccess()
+      if (cacheKey) {
+        try {
+          localStorage.removeItem(cacheKey)
+        } catch {
+          // ignora
+        }
+      }
+      toast.success('Prova submetida com sucesso!')
+      setSubmitted(true)
+    } catch {
+      if (opts.auto) {
+        scheduleAutoSubmitRetry()
+      } else {
+        toast.error('Erro ao finalizar a prova. Tente novamente.')
+      }
+    } finally {
+      isSubmittingFinalRef.current = false
+      setIsSubmittingFinal(false)
+    }
+  }
+
+  // Mantém a ref atualizada com o handler deste render
+  useEffect(() => {
+    handleFinalSubmitRef.current = handleFinalSubmit
+  })
+
+  // Limpa o timer de retry pendente se o componente for desmontado
+  useEffect(() => {
+    return () => {
+      if (autoSubmitRetryTimer.current) {
+        clearTimeout(autoSubmitRetryTimer.current)
+        autoSubmitRetryTimer.current = null
+      }
+    }
+  }, [])
 
   // Contador regressivo DURANTE a prova, baseado no horário real de término
   // (examEnd fixo) — não em "tempo desde que abriu a página". Quem entra
@@ -155,10 +316,9 @@ const ProvaExameAcesso = () => {
       if (secs === 0 && !autoSubmitTriggered.current) {
         autoSubmitTriggered.current = true
         // Não marcamos "submitted" aqui diretamente — isso só acontece
-        // depois de submitFinal() ter sucesso de verdade na API,
-        // via onExamFinished (chamado dentro de handleFinalSubmit).
+        // depois de submitFinal() ter sucesso de verdade na API.
         toast.info('Tempo esgotado!')
-        questionsRef.current?.submitExam()
+        void handleFinalSubmitRef.current({ auto: true })
       }
     }
 
@@ -255,7 +415,6 @@ const ProvaExameAcesso = () => {
 
     return (
       <Questions
-        ref={questionsRef}
         current={current}
         setCurrent={setCurrent}
         questions={questions}
@@ -272,7 +431,8 @@ const ProvaExameAcesso = () => {
         }}
         provaId={candidateExam?.provaId!}
         candidateId={profileData?.codigo_preinscricao!}
-        onExamFinished={() => setSubmitted(true)}
+        isSubmittingFinal={isSubmittingFinal}
+        onSubmitFinal={() => void handleFinalSubmit()}
       />
     )
   }
