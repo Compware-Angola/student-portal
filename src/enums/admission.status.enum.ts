@@ -8,3 +8,4 @@ export const AdmissionStatus = {
   AGUARDANDO_RESULTADO: 'AGUARDANDO_RESULTADO',
   DIA_DA_PROVA: 'DIA_DA_PROVA'
 }
+
