@@ -36,6 +36,7 @@ import { WalletCard } from './components/wallet-card'
 import { getGrauBadge } from './components/get-grau-badge'
 import { useQueryConfirmation } from '@/hooks/student/use-query-confirmation'
 import { parseFilter } from '@/utils'
+import { PendingFinanceAlert } from '@/components/pending-finance-alert'
 
 // === Tipos ===
 interface Notification {
@@ -529,6 +530,8 @@ export const Dashboard = () => {
           </Card>
         </div>
       </div>
+
+      <PendingFinanceAlert />
     </div>
   )
 }
