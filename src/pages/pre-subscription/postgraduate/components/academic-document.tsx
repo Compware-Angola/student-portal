@@ -14,6 +14,10 @@ import {
 } from '@/components/ui/form'
 import { FacultySelect } from '@/components/selects/FacultySelect'
 import { usePoloDropdown } from '@/hooks/dropdowns/use-query-polo'
+import {
+  TipoCandidaturaPath,
+  useTipoCandidaturaPath,
+} from '../../tipo-candidatura'
 const GRADUATION_TYPE = {
   Mestrado: '2',
   Doutoramento: '3',
@@ -25,10 +29,16 @@ export function AcademicDocumentPostGraduate() {
   const { profileData } = useQueryProfile()
   const { form } = useFormPreSubscriptionPostGraduateForm()
   const faculdadeId = form.watch('faculty')
+  const tipo = useTipoCandidaturaPath()
   const graduationKey = profileData?.grau_academico as GraduationKey | undefined
-  const graduationTypeValue = graduationKey
-    ? GRADUATION_TYPE[graduationKey]
-    : null
+  const graduationTypeValue =
+    tipo === TipoCandidaturaPath.MESTRADO
+      ? GRADUATION_TYPE.Mestrado
+      : tipo === TipoCandidaturaPath.DOUTORAMENTO
+        ? GRADUATION_TYPE.Doutoramento
+        : graduationKey
+          ? GRADUATION_TYPE[graduationKey]
+          : null
   const { data: tipoCandidaturas } = useQueryTipoCandidatura()
   const tipoCandidaturaOptions = useMemo(() => {
     if (!tipoCandidaturas) return []

@@ -42,11 +42,9 @@ export function useQueryProfile() {
 
   const { data, isLoading, error, isError, refetch } =
     useQuery<CurrentUserResponse>({
-      queryKey: [
-        'profile',
-        codigoPreinscricao,
-        isCriandoNovaPreInscricao ? 'nova-preinscricao' : 'normal',
-      ],
+      queryKey: isCriandoNovaPreInscricao
+        ? ['profile', 'nova-preinscricao']
+        : ['profile', codigoPreinscricao, 'normal'],
       queryFn: () =>
         getProfile({ ignorarPreinscricao: isCriandoNovaPreInscricao }),
       staleTime: Infinity,

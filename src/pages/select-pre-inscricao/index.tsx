@@ -27,6 +27,11 @@ import { TipoCalendario } from '@/enums/tipo-calendario.enum'
 import { useQueryUsableAcademicYear } from '@/hooks/academic-year/use-query-usable-academic-year'
 import logo from '@/assets/logo_uma.png'
 import { LogoBackground } from '@/pages/login/components/logo-background'
+import { TipoCandidaturaModal } from './components/tipo-candidatura-modal'
+import {
+  buildPreInscricaoPath,
+  type TipoCandidaturaPathType,
+} from '@/pages/pre-subscription/tipo-candidatura'
 
 function formatPreInscricaoDate(dateString?: string | null): string {
   if (!dateString) return 'Data não disponível'
@@ -50,6 +55,7 @@ export function SelectPreInscricao() {
   const user = AuthStorage.get()
   const selectedPreInscricao = AuthStorage.getSelectedPreinscricao()
   const [loadingCodigo, setLoadingCodigo] = useState<number | null>(null)
+  const [modalAberto, setModalAberto] = useState(false)
 
   // Prazo de inscrição de novos estudantes (mesma lógica do login)
   const { data: anoLicenciatura } = useQueryUsableAcademicYear(1)
@@ -123,6 +129,11 @@ export function SelectPreInscricao() {
     window.location.href = '/auth'
   }
 
+  function handleSelectTipo(tipo: TipoCandidaturaPathType) {
+    setModalAberto(false)
+    navigate(buildPreInscricaoPath(tipo))
+  }
+
   const firstName = user?.user_name?.trim().split(' ')[0] ?? ''
 
   return (
@@ -185,7 +196,7 @@ export function SelectPreInscricao() {
 
         {!isLoading && !isError && preInscricoes.length === 0 && (
           <EmptyState
-            onCreate={() => navigate('/pre-inscricao')}
+            onCreate={() => setModalAberto(true)}
             podeInscrever={podeAdicionarNovaPreInscricao}
           />
         )}
@@ -205,7 +216,7 @@ export function SelectPreInscricao() {
 
             {podeAdicionarNovaPreInscricao && (
               <button
-                onClick={() => navigate('/pre-inscricao')}
+                onClick={() => setModalAberto(true)}
                 className="group min-h-[190px] rounded-2xl border-2 border-dashed border-slate-300 bg-white/60 hover:border-[#E02020]/50 hover:bg-white transition-all duration-200 flex flex-col items-center justify-center gap-3 p-6 text-slate-500 hover:text-[#E02020]"
               >
                 <div className="h-11 w-11 rounded-full bg-slate-100 group-hover:bg-[#E02020]/10 flex items-center justify-center transition-colors">
@@ -222,6 +233,12 @@ export function SelectPreInscricao() {
           </div>
         )}
       </main>
+
+      <TipoCandidaturaModal
+        open={modalAberto}
+        onOpenChange={setModalAberto}
+        onSelect={handleSelectTipo}
+      />
     </div>
   )
 }
