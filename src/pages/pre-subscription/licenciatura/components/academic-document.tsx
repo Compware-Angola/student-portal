@@ -15,13 +15,142 @@ import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useQueryUser } from '@/hooks/candidate/use-query-user'
 import { useQueryFetchFaculdades } from '@/hooks/faculdade/use-query-faculdade'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
-import { useEffect, useRef } from 'react'
+import { useQueryTipoCandidatura } from '@/hooks/dropdowns/use-query-tipo-candidatura'
+import { useGetPrazoPorTipo } from '@/hooks/prazos'
+import { TipoCalendario } from '@/enums/tipo-calendario.enum'
+import { useQueryUsableAcademicYear } from '@/hooks/academic-year/use-query-usable-academic-year'
+import type { PrazoResponse } from '@/services/prazos'
+import { useEffect, useMemo, useRef } from 'react'
 
 export function AcademicDocument() {
   const { profileData } = useQueryProfile()
   const { data: user } = useQueryUser()
   const { data: faculdades } = useQueryFetchFaculdades()
   const { form } = useFormPreSubscriptionForm()
+  const { data: tipoCandidaturas } = useQueryTipoCandidatura()
+
+  // Prazos de inscrição de novos estudantes por tipo de candidatura
+  const { data: anoLicenciatura } = useQueryUsableAcademicYear(1)
+  const { data: anoMestrado } = useQueryUsableAcademicYear(2)
+  const { data: anoDoutoramento } = useQueryUsableAcademicYear(3)
+
+  const { data: prazoLicenciatura } = useGetPrazoPorTipo(
+    {
+      codigo_tipo_candidatura: 1,
+      tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
+      anoLectivo: anoLicenciatura?.codigo,
+    },
+    Boolean(anoLicenciatura?.codigo),
+  )
+  const { data: prazoMestrado } = useGetPrazoPorTipo(
+    {
+      codigo_tipo_candidatura: 2,
+      tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
+      anoLectivo: anoMestrado?.codigo,
+    },
+    Boolean(anoMestrado?.codigo),
+  )
+  const { data: prazoDoutoramento } = useGetPrazoPorTipo(
+    {
+      codigo_tipo_candidatura: 3,
+      tipo: TipoCalendario.INSCRICAO_ESTUDANTES_NOVO,
+      anoLectivo: anoDoutoramento?.codigo,
+    },
+    Boolean(anoDoutoramento?.codigo),
+  )
+
+  const prazosPorCandidatura: Record<number, PrazoResponse | undefined> = {
+    1: prazoLicenciatura,
+    2: prazoMestrado,
+    3: prazoDoutoramento,
+  }
+
+  // Apenas tipos de candidatura com prazo de inscrição aberto
+  const tiposComPrazo = useMemo(
+    () =>
+      tipoCandidaturas?.filter(
+        (t) =>
+          prazosPorCandidatura[Number(String(t.codigo).trim())]
+            ?.podeInscrever === true,
+      ) ?? [],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [tipoCandidaturas, prazoLicenciatura, prazoMestrado, prazoDoutoramento],
+  )
+
+  const tipoCandidaturaOptions = useMemo(
+    () =>
+      tiposComPrazo.map((t) => ({
+        label: t.designacao,
+        value: String(t.codigo).trim(),
+      })) ?? [],
+    [tiposComPrazo],
+  )
+
+  // Candidato de licenciatura fica fixo nesse tipo de candidatura.
+  const isLicenciatura = profileData?.grau_academico === 'Licenciatura'
+
+  const licenciaturaOption = useMemo(
+    () =>
+      tipoCandidaturaOptions.find(
+        (o) => o.label.trim().toLowerCase() === 'licenciatura',
+      ),
+    [tipoCandidaturaOptions],
+  )
+
+  // Preenche o tipo de candidatura a partir do perfil ou do grau académico
+  // do candidato, caso já existam no registo.
+  useEffect(() => {
+    if (!user) return
+    if (!user.grauacademico) return
+    if (form.getValues('typeGraduation')) return
+    if (!tiposComPrazo.length) return // espera a lista chegar para poder resolver o código
+
+    const match = tiposComPrazo.find(
+      (t) =>
+        t.designacao.trim().toLowerCase() ===
+        String(user.grauacademico).trim().toLowerCase(),
+    )
+
+    if (match) {
+      form.setValue('typeGraduation', String(match.codigo).trim(), {
+        shouldValidate: true,
+        shouldDirty: false,
+      })
+    }
+  }, [user, tiposComPrazo, form])
+
+  // Para licenciatura, fixa o tipo de candidatura em "Licenciatura".
+  useEffect(() => {
+    if (!isLicenciatura) return
+    if (!licenciaturaOption) return
+    if (form.getValues('typeGraduation') === licenciaturaOption.value) return
+
+    form.setValue('typeGraduation', licenciaturaOption.value, {
+      shouldValidate: true,
+      shouldDirty: false,
+    })
+  }, [isLicenciatura, licenciaturaOption, form])
+
+  useEffect(() => {
+    if (!profileData) return
+    if (isLicenciatura) return
+
+    if (
+      profileData.codigo_tipo_candidatura &&
+      !form.getValues('typeGraduation') &&
+      tiposComPrazo.some(
+        (t) =>
+          String(t.codigo).trim() ===
+          String(profileData.codigo_tipo_candidatura).trim(),
+      )
+    ) {
+      form.setValue(
+        'typeGraduation',
+        String(profileData.codigo_tipo_candidatura).trim(),
+        { shouldValidate: false, shouldDirty: false },
+      )
+    }
+  }, [profileData, isLicenciatura, tiposComPrazo, form])
 
   // Preenche polo, curso pretendido e turno a partir do perfil,
   // caso já existam no registo do candidato.
@@ -141,6 +270,16 @@ export function AcademicDocument() {
           name="pole"
           label="Polo"
           items={poloOptions.filter((p) => p.value !== '3' && p.value !== '4')}
+        />
+
+        <SelectFormField
+          control={form.control}
+          name="typeGraduation"
+          label="Tipo de Candidatura"
+          placeholder="Selecione"
+          items={tipoCandidaturaOptions}
+          fullWidth
+          disabled={isLicenciatura}
         />
 
         <FormField
