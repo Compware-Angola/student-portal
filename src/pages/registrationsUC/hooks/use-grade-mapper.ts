@@ -1,15 +1,13 @@
 import { useTypeService } from "@/hooks/service/use-query-type-service"
 import type { Grade } from "@/types/grade"
-import { useQueryCurrentAcademicYear } from "@/hooks/academic-year/use-query-current-academic-year"
 
 import { SERVICE_TYPES } from '@/constants/service-type'
-export function useGradeMapper() {
+export function useGradeMapper(academicYearCode?: number) {
 
-  const {data: currentAcademicYear} = useQueryCurrentAcademicYear()
   const { data } = useTypeService({
-    codigoAnoLectivo: Number(currentAcademicYear?.codigo),
+    codigoAnoLectivo: academicYearCode,
     sigla: SERVICE_TYPES.IPU_CICLULAR_SEMESTRAL.sigla,
-  })
+  }, Boolean(academicYearCode))
 
   const valorInscricao = data?.[0]?.preco?.toString() ?? '0'
 

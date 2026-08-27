@@ -128,6 +128,7 @@ export interface DebtNegotiationResponse {
   Mensalidades: Mensalidade[]
   OutrosServicos: OutroServico[]
   anoAtual: number
+  designacao: string
   totalIVA: number
   percentagem_retencao: number
   totalDivida: number

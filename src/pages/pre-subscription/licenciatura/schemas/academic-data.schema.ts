@@ -10,7 +10,6 @@ export const academicDataSchema = z.object({
       'O curso anterior deve conter apenas letras.',
     ),
   graduationYear: z.string().min(1, 'Ano de conclusão é obrigatório'),
-  typeGraduation: z.string().min(1, 'Tipo de documento é obrigatório'),
   certificate: z.union([
     z.instanceof(File, {
       message: 'Documento deve ser um ficheiro válido',
