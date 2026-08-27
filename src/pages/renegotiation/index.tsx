@@ -184,7 +184,7 @@ export const Renegociation = () => {
     
     setSimulationData(data)
     setStep('confirm')
-    toast.success('Pronto para confirmar a renegociação')
+      toast.success('Pronto para confirmar a negociação')
   }
 
   // === CONFIRMAR ===
@@ -245,7 +245,7 @@ export const Renegociation = () => {
     } catch (error: any) {
       console.error('Erro ao criar Negociação de Dívida:', error)
       if (error instanceof ApiError) {
-        toast.error(error.message || 'Erro ao criar renegociação.')
+        toast.error(error.message || 'Erro ao criar negociação.')
       } else {
         toast.error('Erro de conexão. Tente novamente.')
       }
@@ -436,7 +436,7 @@ export const Renegociation = () => {
                         name="negotiationType"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Tipo de Renegociação</FormLabel>
+                            <FormLabel>Tipo de Negociação</FormLabel>
                             <Select
                               onValueChange={field.onChange}
                               defaultValue={field.value}
@@ -531,7 +531,7 @@ export const Renegociation = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CheckCircle2 className="h-5 w-5" />
-              Confirmar Renegociação
+              Confirmar Negociação
             </CardTitle>
             <CardDescription>Revise os detalhes</CardDescription>
           </CardHeader>
@@ -543,7 +543,7 @@ export const Renegociation = () => {
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Ano Académico</p>
-                <p className="font-semibold">{simulationData.academicYear == 'all' ? 'Todos' : simulationData.academicYear}</p>
+                <p className="font-semibold">{simulationData.academicYear == 'all' ? 'Todos' : debtData.designacao}</p>
 
               </div>
               <div className="space-y-1">
@@ -646,7 +646,7 @@ export const Renegociation = () => {
                 onClick={resetProcess}
                 className="flex-1"
               >
-                Nova Renegociação
+                Nova Negociação
               </Button>
               <Button className="flex-1" onClick={() => navigate('/financas')}>
                 Ir para Finanças

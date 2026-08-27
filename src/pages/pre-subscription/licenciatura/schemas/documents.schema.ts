@@ -1,6 +1,7 @@
 import z from 'zod'
 
 export const documentsSchema = z.object({
+  typeGraduation: z.string().min(1, 'Tipo de candidatura é obrigatório'),
   pole: z.string().min(1, 'Polo é obrigatório'),
   intendedCourse: z.string().min(1, 'Curso é obrigatório'),
   intendedCourseSecond: z.string().optional(),

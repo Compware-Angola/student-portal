@@ -20,7 +20,6 @@ export function EnrollmentSection({
 }: SectionProps) {
   const { toggleSection, isSelected, toggleSubject, isExpanded } =
     useEnrollment()
-
   if (subjects.length === 0) return null
 
   return (

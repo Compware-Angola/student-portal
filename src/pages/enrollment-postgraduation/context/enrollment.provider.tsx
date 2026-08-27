@@ -87,7 +87,7 @@ export function EnrollmentPostGraduationProvider({ children }: EnrollmentPostGra
   const { isLoading: isLoadingStudentStatistics, data: studentStatistics } =
     useQueryStudentDashboardStatistics(profileData?.enrollmentCode)
 
-  const { mapGrades } = useGradeMapper()
+  const { mapGrades } = useGradeMapper(Number(currentAcademicYear?.codigo))
 
 
   const { data: enrollmentPeriod } = UseQueryEnrollmentAndRegistrationDeadlines({
