@@ -140,7 +140,7 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
   // =====================
   // 🧠 Valores derivados
   // =====================
-  const { mapGrades } = useGradeMapper()
+  const { mapGrades } = useGradeMapper(Number(currentAcademicYear?.codigo))
   const pendentsGrades = mapGrades(curriculumPlan?.gradesPendentes ?? [])
   const grades = mapGrades(curriculumPlan?.gradesAFazer ?? [])
 

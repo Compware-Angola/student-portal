@@ -86,7 +86,7 @@ function RegistrationsUCContent() {
     return <RegistrationsUCSkeleton />
   }
 
-  if (debit && (debit?.totalDivida ?? 0) > 0) return <PaymentAlert />
+  if (debit && (debit?.totalDivida ?? 0) > 0) return <PaymentAlert debit={debit} />
   if (isDiplomado) return <GraduatedBanner />
 
   return (

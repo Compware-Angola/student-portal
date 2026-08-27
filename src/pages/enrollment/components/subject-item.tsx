@@ -9,7 +9,12 @@ export function SubjectItem({
 }: {
   subject: Grade
 
-}) {
+}
+
+) {
+
+
+console.log(subject)
   return (
     <li className="flex items-center justify-between gap-4 border-b py-5">
       <div className="flex flex-col gap-2">
@@ -27,7 +32,7 @@ export function SubjectItem({
 
       <div className="flex items-center gap-3">
         <span className="font-medium">
-          {formatCurrency(Number(subject.valorInscricao))}
+          {formatCurrency((subject?.valorInscricao))}
         </span>
 
        
