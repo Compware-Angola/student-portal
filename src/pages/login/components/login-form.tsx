@@ -66,6 +66,7 @@ export function LoginForm({ setView, showRegister }: LoginFormProps) {
   const [submitting, setSubmitting] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const showRegisterTEMP = false;
+  console.log(showRegister);
 
   // Controla o sub-passo de primeiro acesso
   const [isFirstAccess, setIsFirstAccess] = useState(false);
