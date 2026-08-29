@@ -65,6 +65,7 @@ export function LoginForm({ setView, showRegister }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+  const showRegisterTEMP = false;
 
   // Controla o sub-passo de primeiro acesso
   const [isFirstAccess, setIsFirstAccess] = useState(false);
@@ -351,7 +352,7 @@ export function LoginForm({ setView, showRegister }: LoginFormProps) {
           </div>
 
           {/* Registo */}
-          {showRegister && (
+          {showRegisterTEMP && (
             <>
               <div className="relative my-2">
                 <div className="absolute inset-0 flex items-center">
