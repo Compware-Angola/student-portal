@@ -22,11 +22,12 @@ function RegistrationsUCContent() {
   const {
     subject,
     isLoadingProfileData,
+    curriculumPlan,
     isLoadingStudentCurriculumPlan,
     isLoadingStudentCurriculumPlanPendents,
     isErrorProfileData,
     isErrorStudentCurriculumPlan,
-    isErrorStudentCurriculumPlanPendents,
+    curriculumPlanError,
     pendingSubjects,
     isLoadingAcademmicYear,
    
@@ -67,20 +68,22 @@ function RegistrationsUCContent() {
   const requerTaxa = podeConfirmar && foraDoPrazo
 
   useEffect(() => {
+    if (curriculumPlan?.message) {
+      toast.info(curriculumPlan.message)
+    }
+  }, [curriculumPlan?.message])
+
+  useEffect(() => {
     if (isErrorProfileData) {
       toast.error('Erro ao carregar dados do estudante')
     }
     if (isErrorStudentCurriculumPlan) {
-      toast.error('Erro ao carregar as grades curriculares')
+      toast.error(
+        curriculumPlanError?.message ||
+          'Erro ao carregar as grades curriculares',
+      )
     }
-    if (isErrorStudentCurriculumPlanPendents) {
-      toast.error('Erro ao carregar as grandes curriculares pendentes')
-    }
-  }, [
-    isErrorProfileData,
-    isErrorStudentCurriculumPlan,
-    isErrorStudentCurriculumPlanPendents,
-  ])
+  }, [isErrorProfileData, isErrorStudentCurriculumPlan, curriculumPlanError])
 
   if (isLoadingPage) {
     return <RegistrationsUCSkeleton />

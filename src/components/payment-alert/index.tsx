@@ -47,7 +47,7 @@ export function PaymentAlert({ debit }: PaymentAlertProps) {
 
   const goFinance = () =>
     navigate(
-      emPrazoConfirmacao && hasPreviousYearDebt ? '/renegociacao' : '/financas',
+      emPrazoConfirmacao && hasPreviousYearDebt ? '/negociacao' : '/financas',
     )
   return (
     <>

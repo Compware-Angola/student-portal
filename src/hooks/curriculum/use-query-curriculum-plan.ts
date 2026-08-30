@@ -1,5 +1,9 @@
 import { curriculumPlanService } from '@/services/curriculum/curriculumPlan.Service'
-import { fetchCurriculumPlanService, type CurriculumPlanPendentProps,fetchCurriculumPlanPosService } from '@/services/curriculum/fetch-curriculum-plan.service'
+import {
+  fetchCurriculumPlanService,
+  type CurriculumPlanPendentProps,
+  fetchCurriculumPlanPosService,
+} from '@/services/curriculum/fetch-curriculum-plan.service'
 import type { CurriculumPlan } from '@/types/curriculum-plan'
 
 import { useQuery } from '@tanstack/react-query'
@@ -96,27 +100,29 @@ export function useQueryCurriculumPlanCurrentYear(
   }
 }
 
-
-
-export function useFetchQueryCurriculum(paramns:CurriculumPlanPendentProps) {
-
-  const {newStudent} = paramns
+export function useFetchQueryCurriculum(paramns: CurriculumPlanPendentProps) {
+  const { newStudent } = paramns
   return useQuery({
-    queryKey: ['fetch-curriculum-plan',paramns],
+    queryKey: ['fetch-curriculum-plan', paramns],
     queryFn: async () => fetchCurriculumPlanService(paramns),
-    enabled: Boolean(paramns.academicYear) && (newStudent ? paramns.preEnrollmentCode !== undefined : paramns.enrollmentCode !== undefined && paramns.semestre !== undefined),
+    enabled:
+      Boolean(paramns.academicYear) &&
+      (newStudent
+        ? paramns.preEnrollmentCode !== undefined
+        : paramns.enrollmentCode !== undefined &&
+          paramns.semestre !== undefined),
     staleTime: 1000 * 60 * 50,
   })
 }
-  
 
-export function useFetchQueryCurriculumPos(paramns:{preEnrollmentCode: number, cycleCode: number}) {
-
+export function useFetchQueryCurriculumPos(paramns: {
+  preEnrollmentCode: number
+  cycleCode: number
+}) {
   return useQuery({
-    queryKey: ['fetch-curriculum-plan-pos',paramns],
+    queryKey: ['fetch-curriculum-plan-pos', paramns],
     queryFn: async () => fetchCurriculumPlanPosService(paramns),
     enabled: Boolean(paramns.preEnrollmentCode && paramns.cycleCode),
     staleTime: 1000 * 60 * 50,
   })
 }
-  

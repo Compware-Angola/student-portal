@@ -7,6 +7,7 @@ export interface FecthCurriculumPlanGradesResponse {
   gradesAFazer: Grade[]
   totalGradesAFazer: number
   isEspecializacao: boolean
+  message: string
 }
 
 export interface Matricula {

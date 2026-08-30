@@ -678,7 +678,7 @@ export const Renegociation = () => {
               <div className="flex justify-between">
                 <span className="font-medium">Ano Letivo:</span>
                 <span className="text-muted-foreground">
-                  {selectedMesDivida?.ano_lectivo_fatura}
+                  {selectedMesDivida?.ano_lectivo_fatura_designacao}
                 </span>
               </div>
 

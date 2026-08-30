@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AlertTriangle, CalendarClock, FileText, Wallet } from 'lucide-react'
+import { AlertTriangle, FileText, Wallet } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -13,9 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { useQueryProfile } from '@/hooks/profile/use-query-profile'
 import { useQueryCurrentAcademicYear } from '@/hooks/academic-year/use-query-current-academic-year'
-import { useQueryFinanceMonthlyFee } from '@/hooks/finance/use-query-finance-monthly-fee'
 import { useQueryInvoices } from '@/hooks/invoice/use-query-invoices'
-import { InvoiceEnum } from '@/enums/invoice.enum'
 import { formatCurrency } from '@/utils/format-currency'
 
 function formatDate(value?: string | null) {
@@ -43,15 +41,6 @@ export function PendingFinanceAlert() {
     : undefined
   const yearLabel = currentAcademicYear?.designacao ?? ''
 
-  const { data: monthlyFeeData, isLoading: monthlyLoading } =
-    useQueryFinanceMonthlyFee({
-      academicYear: academicYearCode,
-      enrollmentCode,
-      status: 'all',
-      page: 1,
-      limit: 100,
-    })
-
   const { data: invoicesData, isLoading: invoicesLoading } = useQueryInvoices({
     academicYear: academicYearCode ? String(academicYearCode) : '',
     enrollmentCode,
@@ -62,26 +51,9 @@ export function PendingFinanceAlert() {
 
   const [open, setOpen] = useState(false)
 
-  const pendingMonthly = useMemo(
-    () =>
-      (monthlyFeeData?.data ?? []).filter(
-        (m) => m.estado_fatura === InvoiceEnum.PENDENTE,
-      ),
-    [monthlyFeeData],
-  )
-
   const pendingInvoices = useMemo(
     () => (invoicesData?.data ?? []).filter((inv) => inv.estado === 0),
     [invoicesData],
-  )
-
-  const monthlyTotal = useMemo(
-    () =>
-      pendingMonthly.reduce(
-        (sum, m) => sum + (m.ValorAPagar ?? m.total ?? 0),
-        0,
-      ),
-    [pendingMonthly],
   )
 
   const invoicesTotal = useMemo(
@@ -93,8 +65,8 @@ export function PendingFinanceAlert() {
     [pendingInvoices],
   )
 
-  const hasPending = pendingMonthly.length > 0 || pendingInvoices.length > 0
-  const isLoading = monthlyLoading || invoicesLoading
+  const hasPending = pendingInvoices.length > 0
+  const isLoading = invoicesLoading
 
   useEffect(() => {
     if (!isLoading && hasPending) setOpen(true)
@@ -133,30 +105,14 @@ export function PendingFinanceAlert() {
               </DialogTitle>
               <DialogDescription>
                 {yearLabel
-                  ? `Identificámos pagamentos pendentes no ano lectivo ${yearLabel}. Consulte os detalhes abaixo e regularize a sua situação.`
-                  : 'Identificámos pagamentos pendentes na sua conta. Consulte os detalhes abaixo e regularize a sua situação.'}
+                  ? `Identificámos notas de pagamento pendentes no ano lectivo ${yearLabel}. Consulte os detalhes abaixo e regularize a sua situação.`
+                  : 'Identificámos notas de pagamento pendentes na sua conta. Consulte os detalhes abaixo e regularize a sua situação.'}
               </DialogDescription>
             </div>
           </div>
         </DialogHeader>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div className="rounded-lg border border-warning/30 bg-warning/5 p-4">
-            <div className="flex items-center gap-2 text-warning">
-              <CalendarClock className="h-4 w-4" />
-              <p className="text-sm font-semibold">Mensalidades</p>
-            </div>
-            <p className="mt-2 text-2xl font-bold">
-              {formatCurrency(monthlyTotal)}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {pendingMonthly.length}{' '}
-              {pendingMonthly.length === 1
-                ? 'mensalidade pendente'
-                : 'mensalidades pendentes'}
-            </p>
-          </div>
-
           <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4">
             <div className="flex items-center gap-2 text-destructive">
               <FileText className="h-4 w-4" />
@@ -173,39 +129,6 @@ export function PendingFinanceAlert() {
             </p>
           </div>
         </div>
-
-        {pendingMonthly.length > 0 && (
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <CalendarClock className="h-4 w-4 text-muted-foreground" />
-              <h3 className="font-semibold">Mensalidades pendentes</h3>
-            </div>
-
-            <div className="space-y-2">
-              {pendingMonthly.map((item) => (
-                <div
-                  key={item.mes_temp_id}
-                  className="flex items-center justify-between rounded-lg border p-3"
-                >
-                  <div className="space-y-1">
-                    <p className="font-medium">{item.mes}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Vencimento: {formatDate(item.data_vencimento)}
-                    </p>
-                  </div>
-                  <div className="text-right space-y-1">
-                    <p className="font-bold">
-                      {formatCurrency(item.ValorAPagar ?? item.total ?? 0)}
-                    </p>
-                    <Badge className="bg-warning/10 text-warning hover:bg-warning/20">
-                      Pendente
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {pendingInvoices.length > 0 && (
           <div className="space-y-3">
