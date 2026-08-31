@@ -71,7 +71,7 @@ export function EnrollmentResume() {
           className="w-full"
           size="lg"
           onClick={confirmStudentEnrollment}
-          disabled={isSubmitting}
+          disabled={isSubmitting || Number(totalPagar) <= 0}
         >
           {isSubmitting ? <Spinner /> : 'Confirmar Matrícula'}
         </Button>

@@ -92,7 +92,7 @@ export function RegistrationsUCResume() {
             className="flex-1"
             size="lg"
             onClick={confirmStudentEnrollment}
-            disabled={confirmStudentEnrollmentState}
+            disabled={confirmStudentEnrollmentState || Number(totalPagar) <= 0}
           >
             <>
               {confirmStudentEnrollmentState ? (
