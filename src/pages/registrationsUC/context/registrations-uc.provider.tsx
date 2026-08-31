@@ -105,6 +105,7 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     data: curriculumPlan,
     isLoading: isLoadingCurriculumPlan,
     isError: isErrorCurriculumPlan,
+    error: curriculumPlanError,
   } = useFetchQueryCurriculum({
     academicYear: currentAcademicYear?.codigo?.toString()!,
     enrollmentCode: profileData?.codigo_matricula!,
@@ -419,6 +420,7 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
         isErrorProfileData,
         isErrorStudentCurriculumPlan: isErrorCurriculumPlan,
         isErrorStudentCurriculumPlanPendents: isErrorCurriculumPlan,
+        curriculumPlanError,
         isLoadingProfileData,
         isLoadingStudentCurriculumPlan: isLoadingCurriculumPlan,
         isLoadingStudentCurriculumPlanPendents: isLoadingCurriculumPlan,

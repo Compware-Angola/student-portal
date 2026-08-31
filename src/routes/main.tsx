@@ -166,7 +166,7 @@ export function MainRoutes() {
           }
         />
         <Route
-          path="/renegociacao"
+          path="/negociacao"
           element={
             <RequireStudentRoute>
               <Renegociation />

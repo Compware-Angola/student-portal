@@ -51,7 +51,6 @@ export function SelectPreInscricao() {
   const { setTheme } = useTheme()
 
   const { preInscricoes, isLoading, isError, refetch } = useQueryPreInscricoes()
-
   const user = AuthStorage.get()
   const selectedPreInscricao = AuthStorage.getSelectedPreinscricao()
   const [loadingCodigo, setLoadingCodigo] = useState<number | null>(null)
@@ -92,6 +91,30 @@ export function SelectPreInscricao() {
     prazoMestrado,
     prazoDoutoramento,
   ].some((prazo) => prazo?.podeInscrever)
+
+  // Pré-inscrição mais recente do candidato (já vem ordenada do mais recente)
+  const preInscricaoMaisRecente = preInscricoes[0]
+
+  const anoAtualPorTipo: Record<number, number | undefined> = {
+    1: anoLicenciatura?.codigo,
+    2: anoMestrado?.codigo,
+    3: anoDoutoramento?.codigo,
+  }
+
+  // Impede nova pré-inscrição quando a mais recente já é deste ano letivo
+  let inscritoNoAnoAtual = false
+  if (
+    preInscricaoMaisRecente &&
+    preInscricaoMaisRecente.ano_lectivo != null &&
+    preInscricaoMaisRecente.codigo_tipo_candidatura != null
+  ) {
+    inscritoNoAnoAtual =
+      Number(preInscricaoMaisRecente.ano_lectivo) ===
+      anoAtualPorTipo[preInscricaoMaisRecente.codigo_tipo_candidatura]
+  }
+
+  const podeAdicionarNovaPreInscricaoFinal =
+    podeAdicionarNovaPreInscricao && !inscritoNoAnoAtual
 
   useEffect(() => {
     setTheme('light')
@@ -214,7 +237,7 @@ export function SelectPreInscricao() {
               />
             ))}
 
-            {podeAdicionarNovaPreInscricao && (
+            {podeAdicionarNovaPreInscricaoFinal && (
               <button
                 onClick={() => setModalAberto(true)}
                 className="group min-h-[190px] rounded-2xl border-2 border-dashed border-slate-300 bg-white/60 hover:border-[#E02020]/50 hover:bg-white transition-all duration-200 flex flex-col items-center justify-center gap-3 p-6 text-slate-500 hover:text-[#E02020]"

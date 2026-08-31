@@ -87,6 +87,7 @@ export interface Mensalidade {
   id_item: number
   codigo_matricula: number
   ano_lectivo_fatura: number
+  ano_lectivo_fatura_designacao: string
   estado_fatura: number
   valorapagar: number
   valorentregue: number
