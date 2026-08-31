@@ -21,7 +21,7 @@ export const SERVICE_TYPES = {
   },
     IPU_CICLULAR_SEMESTRAL: {
     description: 'Inscrição Prova Unificada Cicular',
-    sigla: 'IpuCricular(Anual)',
+    sigla: 'IpuC',
   },
   MENSALIDADE: {
     
