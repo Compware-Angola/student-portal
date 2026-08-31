@@ -9,6 +9,7 @@ export interface PreInscricaoResumo {
   sigla_tipo_candidatura: string | null
   polo: string | null
   data_preinscricao: string | null
+  ano_lectivo: number | null
   estado: number | null
 }
 

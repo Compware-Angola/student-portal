@@ -36,6 +36,7 @@ export type RegistrationsUCContextType = {
   isErrorStudentCurriculumPlan: boolean
   isLoadingStudentCurriculumPlanPendents: boolean
   isErrorStudentCurriculumPlanPendents: boolean
+  curriculumPlanError: Error | null
   isLoadingProfileData: boolean
   isErrorProfileData: boolean
   enrollmentStatus: 'not_yet_open' | 'open' | 'closed'

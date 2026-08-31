@@ -100,7 +100,7 @@ export function useMenuNavigation() {
     { title: 'Suporte', url: '/suporte', icon: HelpCircle },
     {
       title: 'Negociação de Dívida',
-      url: '/renegociacao',
+      url: '/negociacao',
       icon: HandCoins,
     },
     //ROTAS PARA CANDIDATOS
