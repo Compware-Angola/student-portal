@@ -249,6 +249,14 @@ function InvoiceCommonBlocks({ invoice }: { invoice: Invoice }) {
           </Text>
         </View>
 
+        {invoice.Descricao && (
+          <View style={styles.infoRow}>
+            <Text>
+              <Text style={styles.label}>Descrição:</Text> {invoice.Descricao}
+            </Text>
+          </View>
+        )}
+
         <View style={styles.infoRow}>
           <Text>
             <Text style={styles.label}>Número de doc*:</Text>{' '}
@@ -338,7 +346,9 @@ function InvoiceCommonBlocks({ invoice }: { invoice: Invoice }) {
         </Text>
         <Text style={styles.totalText}>
           {invoice.estado === 0
-            ? `Total a pagar: ${Number(invoice.TotalPreco).toFixed(2)} Kz`
+            ? `Total a pagar: ${Number(
+                invoice.ValorAPagar ?? invoice.TotalPreco,
+              ).toFixed(2)} Kz`
             : invoice.estado === 1
               ? `Total pago: ${Number(invoice.TotalPreco).toFixed(2)} Kz`
               : `Valor: ${Number(invoice.TotalPreco).toFixed(2)} Kz`}
@@ -410,7 +420,7 @@ function PaymentReferenceDocument({ invoice }: { invoice: Invoice }) {
           <View style={styles.referenceRow}>
             <Text style={styles.referenceLabel}>Montante:</Text>
             <Text style={styles.referenceValue}>
-              {Number(invoice.TotalPreco).toFixed(2)} Kz
+              {Number(invoice.ValorAPagar).toFixed(2)} Kz
             </Text>
           </View>
         </View>

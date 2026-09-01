@@ -145,7 +145,7 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
   const pendentsGrades = mapGrades(curriculumPlan?.gradesPendentes ?? [])
   const grades = mapGrades(curriculumPlan?.gradesAFazer ?? [])
 
-  const maxCourseGrade = Number(profileData?.max_cadeiras_curso)
+  const maxCourseGrade = Math.floor(Number(profileData?.max_cadeiras_curso)/2)
 
   // Status "textual" da inscrição (usado no badge da UI)
   const enrollmentStatus = useMemo(
