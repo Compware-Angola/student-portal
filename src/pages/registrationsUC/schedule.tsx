@@ -14,6 +14,8 @@ import {
   AlertCircle,
   RefreshCw,
   CalendarX2,
+  Check,
+  CheckCircle2,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -111,10 +113,8 @@ export const ScheduleSelectionDialog = ({
   subject,
 }: ScheduleSelectionDialogProps) => {
   const [open, setOpen] = useState(false)
-  const [title, setTitle] = useState<string | undefined>(undefined)
 
-  const { selectScheduleForSubject, selectedSchedules, toggleSubject } =
-    useRegistrationsUC()
+  const { selectScheduleForSubject, selectedSchedules } = useRegistrationsUC()
 
   const groupAulasByDay = (aulas: ScheduleByPeriodDto['aulas']) => {
     const grouped: Record<string, ScheduleByPeriodDto['aulas']> = {}
@@ -158,13 +158,11 @@ export const ScheduleSelectionDialog = ({
   const selectedSchedule = selectedSchedules[subject.codigoGrade]
 
   const handleSelectHorario = (schedule: ScheduleByPeriodDto) => {
+    // O provider trata de garantir que a disciplina fica selecionada.
     selectScheduleForSubject(subject.codigoGrade, {
       codigoHorario: schedule.codigo.toString(),
       descHorario: schedule.designacao,
     })
-
-    setTitle(schedule.designacao)
-    toggleSubject(subject)
     setOpen(false)
   }
 
@@ -173,16 +171,29 @@ export const ScheduleSelectionDialog = ({
   }
   const isLoading =
     isLoadingSchedules || isLoadingAcademicYear || isLoadingProfile
+  const hasSelectedSchedule = Boolean(selectedSchedule?.codigoHorario)
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
           onClick={() => setOpen(true)}
           variant="outline"
-          className="w-full justify-start"
+          className={`w-full justify-start ${
+            hasSelectedSchedule
+              ? 'border-green-500 bg-green-50 text-green-800 hover:bg-green-100 hover:text-green-900 dark:border-green-600 dark:bg-green-950/40 dark:text-green-300'
+              : ''
+          }`}
         >
-          <CalendarDays className="mr-2 h-4 w-4" />
-          {title ? title : 'Selecionar Horário'}
+          {hasSelectedSchedule ? (
+            <CheckCircle2 className="mr-2 h-4 w-4 shrink-0 text-green-600 dark:text-green-400" />
+          ) : (
+            <CalendarDays className="mr-2 h-4 w-4 shrink-0" />
+          )}
+          <span className="truncate">
+            {hasSelectedSchedule
+              ? `Horário: ${selectedSchedule?.descHorario}`
+              : 'Selecionar Horário'}
+          </span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-5xl w-full max-h-[85vh] overflow-y-auto">
@@ -207,9 +218,10 @@ export const ScheduleSelectionDialog = ({
               return (
                 <Card
                   key={horario.codigo}
+                  aria-pressed={isSelectedThis}
                   className={`cursor-pointer transition-all hover:shadow-md ${
                     isSelectedThis
-                      ? 'border-primary ring-2 ring-primary shadow-sm'
+                      ? 'border-green-500 ring-2 ring-green-500 shadow-sm dark:border-green-600 dark:ring-green-600'
                       : 'hover:border-primary/50'
                   }`}
                   onClick={() => handleSelectHorario(horario)}
@@ -218,9 +230,17 @@ export const ScheduleSelectionDialog = ({
                     {/* Cabeçalho */}
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <h3 className="font-semibold text-xl mb-1">
-                          {horario.designacao}
-                        </h3>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold text-xl">
+                            {horario.designacao}
+                          </h3>
+                          {isSelectedThis && (
+                            <Badge className="gap-1 bg-green-600 text-white hover:bg-green-600">
+                              <Check className="h-3.5 w-3.5" />
+                              Selecionado
+                            </Badge>
+                          )}
+                        </div>
                         <p className="text-sm text-muted-foreground">
                           {horario.disciplina}
                         </p>

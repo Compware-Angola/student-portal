@@ -157,7 +157,26 @@ export function EnrollmentPostGraduationProvider({ children }: EnrollmentPostGra
   }
 
   const selectScheduleForSubject = (codigoGrade: string, horario: SelectedSchedule) => {
+    const alreadySelected = selectedSubjects.some(
+      (s) => s.codigoGrade === codigoGrade,
+    )
+
+    // Escolher/trocar um horário garante que a disciplina fica selecionada.
+    // Nunca alternamos aqui, para não desmarcar uma UC já escolhida quando o
+    // utilizador apenas muda de horário.
+    if (!alreadySelected && selectedSubjects.length >= maxCourseGrade) {
+      toast.error('Você já atingiu o número máximo de disciplinas permitidas.')
+      return
+    }
+
     setSelectedSchedules((prev) => ({ ...prev, [codigoGrade]: horario }))
+
+    if (!alreadySelected) {
+      const subject = grades.find((g) => g.codigoGrade === codigoGrade)
+      if (subject) {
+        setSelectedSubjects((prev) => [...prev, subject])
+      }
+    }
   }
 
   const toggleSubject = (subject: Grade) => {
@@ -182,6 +201,7 @@ export function EnrollmentPostGraduationProvider({ children }: EnrollmentPostGra
   const selectAll = () => {
     if (isAllSelected()) {
       setSelectedSubjects([])
+      setSelectedSchedules({})
       toast.info('Todas as disciplinas foram desmarcadas.')
       return
     }

@@ -212,6 +212,7 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
 
     if (allSelected) {
       setSelectedSubjects([])
+      setSelectedSchedules({})
       toast.info('Todas as disciplinas foram desmarcadas.')
       return
     }
@@ -230,13 +231,37 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     if (subject) toggleSubject(subject)
   }
 
-  const removeAll = () => setSelectedSubjects([])
+  const removeAll = () => {
+    setSelectedSubjects([])
+    setSelectedSchedules({})
+  }
 
   const selectScheduleForSubject = (
     codigoGrade: string,
     horario: SelectedSchedule,
   ) => {
+    const alreadySelected = selectedSubjects.some(
+      (s) => s.codigoGrade === codigoGrade,
+    )
+
+    // Ao escolher/trocar um horário garantimos que a disciplina fica
+    // selecionada. Nunca alternamos aqui, para não desmarcar uma UC já
+    // escolhida quando o utilizador apenas muda de horário.
+    if (!alreadySelected && selectedSubjects.length >= maxCourseGrade) {
+      toast.error('Você já atingiu o número máximo de disciplinas permitidas.')
+      return
+    }
+
     setSelectedSchedules((prev) => ({ ...prev, [codigoGrade]: horario }))
+
+    if (!alreadySelected) {
+      const subject = [...grades, ...pendentsGrades].find(
+        (g) => g.codigoGrade === codigoGrade,
+      )
+      if (subject) {
+        setSelectedSubjects((prev) => [...prev, subject])
+      }
+    }
   }
 
   const removeScheduleForSubject = (codigoGrade: string) => {
