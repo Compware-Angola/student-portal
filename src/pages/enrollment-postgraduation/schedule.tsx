@@ -110,10 +110,8 @@ export const ScheduleSelectionDialog = ({
   subject,
 }: ScheduleSelectionDialogProps) => {
   const [open, setOpen] = useState(false)
-  const [title, setTitle] = useState<string | undefined>(undefined)
 
-  const { selectScheduleForSubject, selectedSchedules, toggleSubject } =
-    useEnrollment()
+  const { selectScheduleForSubject, selectedSchedules } = useEnrollment()
 
   const groupAulasByDay = (aulas: LessonDetail[]) => {
     const grouped: Record<string, LessonDetail[]> = {}
@@ -152,12 +150,11 @@ export const ScheduleSelectionDialog = ({
   const selectedSchedule = selectedSchedules[subject.codigoGrade]
 
   const handleSelectHorario = (schedule: Schedule) => {
+    // O provider trata de garantir que a disciplina fica selecionada.
     selectScheduleForSubject(subject.codigoGrade, {
       codigoHorario: schedule.codigo_horario,
       descHorario: schedule.nome_horario,
     })
-    setTitle(schedule.nome_horario)
-    toggleSubject(subject)
     setOpen(false)
   }
 
@@ -175,7 +172,7 @@ export const ScheduleSelectionDialog = ({
           className="w-full justify-start"
         >
           <CalendarDays className="mr-2 h-4 w-4" />
-          {title ? title : 'Selecionar Horário'}
+          {selectedSchedule?.descHorario ?? 'Selecionar Horário'}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-5xl w-full max-h-[85vh] overflow-y-auto">

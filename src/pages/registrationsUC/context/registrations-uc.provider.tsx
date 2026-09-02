@@ -187,6 +187,29 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     )
   }
 
+  // Pendentes ainda por selecionar — enquanto existirem, o aluno não pode
+  // inscrever cadeiras novas (regra do negócio: finalizar pendentes primeiro).
+  const unselectedPendents = pendentsGrades.filter(
+    (p) => !selectedSubjects.some((s) => s.codigoGrade === p.codigoGrade),
+  )
+  const hasUnselectedPendents = unselectedPendents.length > 0
+
+  const isNewSubject = (codigoGrade: string) =>
+    grades.some((g) => g.codigoGrade === codigoGrade)
+
+  const PENDING_FIRST_MESSAGE =
+    'Finalize as disciplinas pendentes antes de adicionar novas cadeiras.'
+
+  // A confirmação da matrícula só é permitida quando todas as pendentes
+  // possíveis já estão selecionadas: ou não sobram pendentes, ou a quota
+  // (maxCourseGrade) já está cheia — nesse caso as restantes ficam para a
+  // próxima inscrição.
+  const mustSelectMorePendents =
+    hasUnselectedPendents && selectedSubjects.length < maxCourseGrade
+
+  const PENDING_CONFIRM_MESSAGE =
+    'Selecione todas as disciplinas pendentes antes de confirmar a matrícula.'
+
   const toggleSubject = (subject: Grade) => {
     const alreadySelected = isSelected(subject)
 
@@ -195,6 +218,11 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
       setSelectedSubjects((prev) =>
         prev.filter((s) => s.codigoGrade !== subject.codigoGrade),
       )
+      return
+    }
+
+    if (hasUnselectedPendents && isNewSubject(subject.codigoGrade)) {
+      toast.warning(PENDING_FIRST_MESSAGE)
       return
     }
 
@@ -212,6 +240,7 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
 
     if (allSelected) {
       setSelectedSubjects([])
+      setSelectedSchedules({})
       toast.info('Todas as disciplinas foram desmarcadas.')
       return
     }
@@ -230,13 +259,46 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
     if (subject) toggleSubject(subject)
   }
 
-  const removeAll = () => setSelectedSubjects([])
+  const removeAll = () => {
+    setSelectedSubjects([])
+    setSelectedSchedules({})
+  }
 
   const selectScheduleForSubject = (
     codigoGrade: string,
     horario: SelectedSchedule,
   ) => {
+    const alreadySelected = selectedSubjects.some(
+      (s) => s.codigoGrade === codigoGrade,
+    )
+
+    // Ao escolher/trocar um horário garantimos que a disciplina fica
+    // selecionada. Nunca alternamos aqui, para não desmarcar uma UC já
+    // escolhida quando o utilizador apenas muda de horário.
+    if (
+      !alreadySelected &&
+      hasUnselectedPendents &&
+      isNewSubject(codigoGrade)
+    ) {
+      toast.warning(PENDING_FIRST_MESSAGE)
+      return
+    }
+
+    if (!alreadySelected && selectedSubjects.length >= maxCourseGrade) {
+      toast.error('Você já atingiu o número máximo de disciplinas permitidas.')
+      return
+    }
+
     setSelectedSchedules((prev) => ({ ...prev, [codigoGrade]: horario }))
+
+    if (!alreadySelected) {
+      const subject = [...grades, ...pendentsGrades].find(
+        (g) => g.codigoGrade === codigoGrade,
+      )
+      if (subject) {
+        setSelectedSubjects((prev) => [...prev, subject])
+      }
+    }
   }
 
   const removeScheduleForSubject = (codigoGrade: string) => {
@@ -322,16 +384,20 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
       return
     }
 
-    const unselectedPendents = pendentsGrades.filter(
-      (p) => !selectedSubjects.some((s) => s.codigoGrade === p.codigoGrade),
-    )
+    if (mustSelectMorePendents) {
+      toast.warning('Ainda há disciplinas pendentes não selecionadas.', {
+        description: PENDING_CONFIRM_MESSAGE,
+      })
+      return
+    }
+
     const selectedNews = grades.filter((g) =>
       selectedSubjects.some((s) => s.codigoGrade === g.codigoGrade),
     )
 
-    if (unselectedPendents.length > 0 && selectedNews.length > 0) {
+    if (hasUnselectedPendents && selectedNews.length > 0) {
       toast.warning('Ainda há disciplinas pendentes não selecionadas.', {
-        description: 'Finalize as pendentes antes de adicionar novas cadeiras.',
+        description: PENDING_FIRST_MESSAGE,
       })
       return
     }
@@ -398,6 +464,8 @@ export function RegistrationsUCProvider({ children }: EnrollmentProviderProps) {
         isAllSelected,
         remove,
         removeAll,
+        hasUnselectedPendents,
+        mustSelectMorePendents,
 
         // Horários
         selectedSchedules,

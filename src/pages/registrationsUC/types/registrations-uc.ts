@@ -23,6 +23,8 @@ export type RegistrationsUCContextType = {
   isAllSelected: () => boolean
   remove: (codigoGrade: string) => void
   removeAll: () => void
+  hasUnselectedPendents: boolean
+  mustSelectMorePendents: boolean
   subject: Grade[]
   confirmStudentEnrollment: () => void
   confirmStudentEnrollmentState: boolean

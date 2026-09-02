@@ -17,7 +17,7 @@ export function RegistrationsUCResume() {
     confirmStudentEnrollmentState,
     enrollmentStatus,
     totalPagar,
-   
+    mustSelectMorePendents,
   } = useRegistrationsUC()
 
   if (selectedSubjects.length === 0) return null
@@ -87,12 +87,23 @@ export function RegistrationsUCResume() {
           />
         </div>
 
+        {mustSelectMorePendents && (
+          <p className="text-sm text-amber-600 dark:text-amber-400">
+            Selecione todas as disciplinas pendentes para poder confirmar a
+            matrícula.
+          </p>
+        )}
+
         <div className="flex gap-3">
           <Button
             className="flex-1"
             size="lg"
             onClick={confirmStudentEnrollment}
-            disabled={confirmStudentEnrollmentState || Number(totalPagar) <= 0}
+            disabled={
+              confirmStudentEnrollmentState ||
+              Number(totalPagar) <= 0 ||
+              mustSelectMorePendents
+            }
           >
             <>
               {confirmStudentEnrollmentState ? (

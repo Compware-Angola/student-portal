@@ -18,17 +18,13 @@ export function SubjectCard({
   const selected = isSelected(subject)
 
   return (
-  <div
-  className="rounded-lg border p-4 space-y-4 cursor-pointer transition-colors hover:bg-muted/30"
-  onClick={() => toggleSubject(subject)}
->
+  <div className="rounded-lg border p-4 space-y-4 transition-colors">
   <div className="flex items-start gap-3">
     <Checkbox
       id={`subject-${subject.codigoGrade}`}
       className="mt-1"
       checked={selected}
       onCheckedChange={() => toggleSubject(subject)}
-      onClick={(e) => e.stopPropagation()}
     />
 
     <div className="flex-1 space-y-3">
@@ -58,10 +54,7 @@ export function SubjectCard({
         </p>
       </div>
 
-      <div
-        className="space-y-2"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="space-y-2">
         <p className="text-sm font-medium">
           Selecionar Horário (Obrigatório)
         </p>
