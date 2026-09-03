@@ -350,7 +350,7 @@ function createDisciplineItem(grade: Grade, academicYearCode: number) {
   const obs = truncate(`Insc. ${nomeCompleto}`, MAX_OBS_LENGTH)
 
   return {
-    CodigoProduto: 11476,
+    CodigoProduto: Number(grade.codigoProduto),
     Quantidade: 1,
     preco: Number(grade.valorInscricao),
     Total: Number(grade.valorInscricao),
