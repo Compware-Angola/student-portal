@@ -136,7 +136,6 @@ export const ScheduleSelectionDialog = ({
     {
       academicYear: currentAcademicYear?.codigo?.toString(),
       gradeCurricular: subject?.codigoGrade,
-      // preocidade: profileData?.periodoid,
     },
     open && !!profileData,
   )
