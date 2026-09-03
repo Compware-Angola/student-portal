@@ -237,6 +237,21 @@ function DocumentHeader() {
   )
 }
 
+function formatItemDescription(
+  item: Invoice['itens'][number],
+): string {
+  const obs = item.OBS?.trim()
+
+  if (obs && /^Insc\b/i.test(obs)) {
+    const unidadeCurricular = obs.replace(/^Insc\.?\s*/i, '').trim()
+    if (unidadeCurricular) {
+      return `Insc. por unid. Cur. (Anual) - ${unidadeCurricular}`
+    }
+  }
+
+  return item.DescricaoServico || item.OBS || 'Sem descrição'
+}
+
 // ---------- Bloco de dados comuns (info + estudante + tabela + totais) ----------
 function InvoiceCommonBlocks({ invoice }: { invoice: Invoice }) {
   return (
@@ -318,7 +333,7 @@ function InvoiceCommonBlocks({ invoice }: { invoice: Invoice }) {
         {invoice.itens.map((item, index) => (
           <View style={styles.tableRow} key={index}>
             <Text style={[styles.tableCell, { width: '60%' }]}>
-              {item.DescricaoServico || item.OBS || 'Sem descrição'}
+              {formatItemDescription(item)}
             </Text>
             <Text
               style={[styles.tableCell, { width: '20%', textAlign: 'right' }]}

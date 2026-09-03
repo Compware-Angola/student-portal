@@ -10,6 +10,7 @@ export function useGradeMapper(academicYearCode?: number) {
   }, Boolean(academicYearCode))
 
   const valorInscricao = data?.[0]?.preco?.toString() ?? '0'
+  const codigoProduto = data?.[0]?.codigo?.toString() ?? ''
 
   function mapGrade(apiGrade: any): Grade {
     return {
@@ -21,6 +22,7 @@ export function useGradeMapper(academicYearCode?: number) {
       semestre: apiGrade.semestre,
       semestreId: getSemestreId(apiGrade.semestre),
       valorInscricao,
+      codigoProduto,
     }
   }
 

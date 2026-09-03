@@ -529,7 +529,7 @@ function generateDisciplineItem(grade: Grade, currentAcademicYear: number) {
   obs = obs.substring(0, MAX_OBS_LENGTH)
 
   return {
-    CodigoProduto: 11476,
+    CodigoProduto: Number(grade.codigoProduto),
     Quantidade: 1,
     preco: Number(grade.valorInscricao),
     Total: Number(grade.valorInscricao),
