@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 
 export function useSchedulesByPeriod(params?: GetSchedulesByPeriodParams) {
   const enabled = Boolean(
-    params?.anoLectivo && params?.periodo && params?.gradeCurricular,
+    params?.anoLectivo && params?.gradeCurricular,
   )
 
   return useQuery({
