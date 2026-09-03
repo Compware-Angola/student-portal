@@ -245,7 +245,10 @@ function formatItemDescription(
   if (obs && /^Insc\b/i.test(obs)) {
     const unidadeCurricular = obs.replace(/^Insc\.?\s*/i, '').trim()
     if (unidadeCurricular) {
-      return `Insc. por unid. Cur. (Anual) - ${unidadeCurricular}`
+      const periodo = /semestral/i.test(item.DescricaoServico ?? '')
+        ? 'Semestral'
+        : 'Anual'
+      return `Insc. por unid. Cur. (${periodo}) - ${unidadeCurricular}`
     }
   }
 
