@@ -239,20 +239,36 @@ function DocumentHeader() {
 
 function formatItemDescription(
   item: Invoice['itens'][number],
+  invoiceDescription?: string,
 ): string {
-  const obs = item.OBS?.trim()
+  const obs = item.OBS?.trim() ?? ''
+  const descricaoServico = item.DescricaoServico?.trim() ?? ''
+
+  const contexto = `${invoiceDescription ?? ''} ${obs} ${descricaoServico}`
+  const isServicoEspecial =
+    /recurso|época\s*especial|epoca\s*especial|melhoria\s*de\s*notas?/i.test(
+      contexto,
+    )
+
+  if (isServicoEspecial && obs.includes(' - ')) {
+    const [, ...resto] = obs.split(' - ')
+    const cadeira = resto.join(' - ').trim()
+    if (cadeira) {
+      return `${descricaoServico} - ${cadeira}`
+    }
+  }
 
   if (obs && /^Insc\b/i.test(obs)) {
     const unidadeCurricular = obs.replace(/^Insc\.?\s*/i, '').trim()
     if (unidadeCurricular) {
-      const periodo = /semestral/i.test(item.DescricaoServico ?? '')
+      const periodo = /semestral/i.test(descricaoServico)
         ? 'Semestral'
         : 'Anual'
       return `Insc. por unid. Cur. (${periodo}) - ${unidadeCurricular}`
     }
   }
 
-  return item.DescricaoServico || item.OBS || 'Sem descrição'
+  return descricaoServico || obs || 'Sem descrição'
 }
 
 // ---------- Bloco de dados comuns (info + estudante + tabela + totais) ----------
@@ -264,6 +280,10 @@ function InvoiceCommonBlocks({ invoice }: { invoice: Invoice }) {
         <View style={styles.infoRow}>
           <Text>
             <Text style={styles.label}>Codigo:</Text> {invoice.Codigo}
+          </Text>
+          <Text>
+            <Text style={styles.label}>Estado:</Text>{' '}
+            {invoice.estado === 1 ? 'Pago' : 'Pendente'}
           </Text>
         </View>
 
@@ -336,7 +356,7 @@ function InvoiceCommonBlocks({ invoice }: { invoice: Invoice }) {
         {invoice.itens.map((item, index) => (
           <View style={styles.tableRow} key={index}>
             <Text style={[styles.tableCell, { width: '60%' }]}>
-              {formatItemDescription(item)}
+              {formatItemDescription(item, invoice.Descricao)}
             </Text>
             <Text
               style={[styles.tableCell, { width: '20%', textAlign: 'right' }]}
